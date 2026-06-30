@@ -1435,7 +1435,7 @@ body.pc-mode .pc-topbar{
   z-index:5000!important;
   box-shadow:0 1px 0 rgba(255,255,255,.12),0 8px 24px rgba(0,0,0,.08)!important;
 }
-body.pc-mode .pc-topbar-nav{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none;}
+body.pc-mode .pc-topbar-nav{flex-wrap:wrap!important;overflow-x:visible!important;justify-content:flex-end!important;}
 body.pc-mode .pc-topbar-nav::-webkit-scrollbar{display:none;}
 /* Navigation basse mobile masquée en PC. */
 body.pc-mode .bottom-nav,
@@ -14259,7 +14259,16 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
     <div class="card" style="margin-bottom:10px">
       <div class="v58-form-row"><label>Amicalistes</label><input type="number" min="1" value="1" id="v58-voy-nb-amicalistes" oninput="majTotalVoyageV58()"></div>
       <div class="v58-form-row"><label>Conjoint(e)</label><input type="number" min="0" value="0" id="v58-voy-nb-conjoints" oninput="majTotalVoyageV58()"></div>
-      <div class="v58-form-row"><label>Enfant(s)</label><input type="number" min="0" value="0" id="v58-voy-nb-enfants" oninput="majTotalVoyageV58()"></div>
+      <div id="v58-voy-enfants-row" class="v58-form-row"><label id="v58-voy-enfants-label">Enfant(s)</label><input type="number" min="0" value="0" id="v58-voy-nb-enfants" oninput="majTotalVoyageV58()"></div>
+      <div id="v58-voy-accompagnateur-row" style="display:none;background:var(--rl);border-radius:10px;padding:10px;margin-top:8px">
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+          <input type="checkbox" id="v58-voy-accompagnateur" style="width:18px;height:18px;margin-top:2px;accent-color:var(--r)" onchange="majTotalVoyageV58()">
+          <span style="flex:1">
+            <span style="font-size:13px;font-weight:700;color:var(--rd);display:block">Je me propose comme accompagnateur(trice)</span>
+            <span style="font-size:11px;color:var(--color-text-secondary)" id="v58-voy-accompagnateur-info">Accompagnateurs recherchés</span>
+          </span>
+        </label>
+      </div>
       <div style="border-top:1px solid var(--color-border-tertiary);padding-top:10px;margin-top:8px;display:flex;justify-content:space-between;gap:10px;align-items:center">
         <div style="font-size:12px;color:var(--color-text-secondary)">Total demandé</div>
         <div style="font-size:18px;font-weight:900;color:var(--color-text-primary)" id="v58-voy-total">1 personne</div>
@@ -14299,11 +14308,15 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
     if(!window.VOYAGES_DATA) return;
     VOYAGES_DATA.saintmalo = Object.assign({}, VOYAGES_DATA.saintmalo||{}, {min:20, places:42, maxParInscription:5, inscritsBase:28, lieu:'Bretagne · France'});
     VOYAGES_DATA.strasbourg = Object.assign({}, VOYAGES_DATA.strasbourg||{}, {min:20, places:38, maxParInscription:4, inscritsBase:11, lieu:'Alsace · France'});
+    if(VOYAGES_DATA.colo_ete){
+      VOYAGES_DATA.colo_ete = Object.assign({}, VOYAGES_DATA.colo_ete||{}, {min:10, places:30, maxParInscription:2, inscritsBase:18, lieu:'Centre de vacances', enfantsAutorises:true, ageLimiteEnfants:14, accompagnateursRecherches:4});
+    }
     if(window.INSCRIPTIONS_VOYAGES){
       INSCRIPTIONS_VOYAGES.forEach(i=>{
         if(i.nbAmicalistes==null) i.nbAmicalistes=1;
         if(i.nbConjoints==null) i.nbConjoints=0;
         if(i.nbEnfants==null) i.nbEnfants=0;
+        if(i.accompagnateur==null) i.accompagnateur=false;
         if(i.nbPersonnes==null) i.nbPersonnes=(i.nbAmicalistes||0)+(i.nbConjoints||0)+(i.nbEnfants||0)||1;
       });
     }
@@ -14334,6 +14347,19 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
     const title=document.getElementById('v58-voy-modal-title'); if(title) title.textContent='Inscription — '+v.nom;
     const sub=document.getElementById('v58-voy-modal-sub'); if(sub) sub.textContent=(v.dates||'')+' · '+(v.tarif||'')+' · '+tripCount(voyKey)+'/'+v.places+' personnes inscrites ou en attente';
     ['v58-voy-nb-amicalistes','v58-voy-nb-conjoints','v58-voy-nb-enfants'].forEach((id,idx)=>{const e=document.getElementById(id); if(e)e.value=idx===0?1:0;});
+    // Adapter le formulaire selon que le voyage autorise les enfants + recherche des accompagnateurs
+    const labelEnfants=document.getElementById('v58-voy-enfants-label');
+    if(labelEnfants) labelEnfants.textContent=v.enfantsAutorises?('Enfant(s) — max '+(v.ageLimiteEnfants||16)+' ans'):'Enfant(s)';
+    const rowEnfants=document.getElementById('v58-voy-enfants-row');
+    if(rowEnfants) rowEnfants.style.display=v.enfantsAutorises?'grid':'none';
+    const rowAcc=document.getElementById('v58-voy-accompagnateur-row');
+    const cbAcc=document.getElementById('v58-voy-accompagnateur');
+    if(v.enfantsAutorises&&v.accompagnateursRecherches>0){
+      if(rowAcc) rowAcc.style.display='block';
+      if(cbAcc) cbAcc.checked=false;
+      const infoAcc=document.getElementById('v58-voy-accompagnateur-info');
+      if(infoAcc) infoAcc.textContent=v.accompagnateursRecherches+' accompagnateur(trice)s recherché(e)s pour ce séjour.';
+    } else if(rowAcc) rowAcc.style.display='none';
     majTotalVoyageV58();
     const modal=document.getElementById('modal-v58-inscription-voyage'); if(modal) modal.classList.add('open');
   };
@@ -14342,7 +14368,9 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
     const voyKey=voyageSelectionneV58;
     const v=window.VOYAGES_DATA&&VOYAGES_DATA[voyKey];
     if(!v) return;
-    const nbA=nbVal('v58-voy-nb-amicalistes'), nbC=nbVal('v58-voy-nb-conjoints'), nbE=nbVal('v58-voy-nb-enfants');
+    const nbA=nbVal('v58-voy-nb-amicalistes'), nbC=nbVal('v58-voy-nb-conjoints'), nbE=v.enfantsAutorises?nbVal('v58-voy-nb-enfants'):0;
+    const accCb=document.getElementById('v58-voy-accompagnateur');
+    const accompagnateur=!!(accCb&&accCb.checked);
     const total=nbA+nbC+nbE;
     const max=v.maxParInscription||4;
     if(total<1){ if(typeof showToast==='function') showToast('Merci d\u2019inscrire au moins une personne'); return; }
@@ -14351,10 +14379,12 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
     (window.INSCRIPTIONS_VOYAGES||[]).unshift({
       id:'iv'+Date.now(), demandeur:window.CURRENT_AMICALISTE||'Jean Dupont', voyage:voyKey, voyageNom:v.nom, statut:'attente',
       dateInsc:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}),
-      nbAmicalistes:nbA, nbConjoints:nbC, nbEnfants:nbE, nbPersonnes:total
+      nbAmicalistes:nbA, nbConjoints:nbC, nbEnfants:nbE, nbPersonnes:total, accompagnateur:accompagnateur
     });
     closeModalV58('modal-v58-inscription-voyage');
-    if(typeof showToast==='function') showToast('Inscription envoyée à la commission Voyages — en attente de validation');
+    let msg='Inscription envoyée à la commission Voyages — en attente de validation';
+    if(accompagnateur) msg+=' (dont vous comme accompagnateur)';
+    if(typeof showToast==='function') showToast(msg);
     renderVoyagesAmicalisteV58();
     if(typeof renderInscriptionsVoyages==='function') renderInscriptionsVoyages();
   };
@@ -14420,10 +14450,10 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
   };
 
   const oldInscrireEvenement=window.inscrireEvenement;
-  window.inscrireEvenement=function(evKey){
+  window.inscrireEvenement=function(evKey,btnEl){
     const deja=getMyEvent(evKey);
     if(deja){ if(typeof showToast==='function') showToast(deja.statut==='acceptee'?'Inscription déjà validée':'Inscription déjà en attente'); if(typeof voirInscritsEvenement==='function') voirInscritsEvenement(evKey); return; }
-    if(oldInscrireEvenement) oldInscrireEvenement(evKey);
+    if(oldInscrireEvenement) oldInscrireEvenement(evKey,btnEl);
     renderEvenementsAmicalisteV58();
   };
 
