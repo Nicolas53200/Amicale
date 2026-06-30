@@ -5284,6 +5284,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
     </div>
 
 <script>
+// Sécurisation des appels console (certains WebView n'exposent pas console.info/warn)
 window._safeLog = function(){ try{ if(window.console && typeof console.log==='function') console.log.apply(console, arguments); }catch(e){} };
 window._safeWarn = function(){ try{ if(window.console && typeof console.warn==='function') console.warn.apply(console, arguments); else if(window.console && typeof console.log==='function') console.log.apply(console, arguments); }catch(e){} };
 
@@ -7053,13 +7054,13 @@ function renderFicheGalerie(containerId,photos){
     return;
   }
   if(photos.length===1){
-    el.innerHTML=`<img src="${photos[0]}" style="width:100%;height:180px;object-fit:cover;border-radius:var(--border-radius-lg);cursor:pointer" onclick="if('${photos[0]}')window.open('${photos[0]}','_blank')">`;
+    el.innerHTML=`<img src="${photos[0]}" style="width:100%;height:180px;object-fit:cover;border-radius:var(--border-radius-lg);cursor:pointer" onclick="window.open('${photos[0]}','_blank')">`;
     return;
   }
   el.innerHTML=`
     <div style="overflow:hidden;border-radius:var(--border-radius-lg)">
       <div id="${containerId}-track" style="display:flex;transition:transform .35s ease">
-        ${photos.map(src=>`<img src="${src}" style="width:100%;height:180px;object-fit:cover;flex:0 0 100%;cursor:pointer" onclick="if('${src}'&&'${src}'!=='undefined')window.open('${src}','_blank')">`).join('')}
+        ${photos.map(src=>`<img src="${src}" style="width:100%;height:180px;object-fit:cover;flex:0 0 100%;cursor:pointer" onclick="window.open('${src}','_blank')">`).join('')}
       </div>
     </div>
     <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px">
@@ -7115,7 +7116,7 @@ function renderFicheDocs(containerId,docs){
   el.innerHTML=items.map(it=>{
     const doc=docs&&docs[it.key];
     if(doc){
-      return `<div class="dr" style="cursor:pointer" onclick="if('${doc.url}'&&'${doc.url}'!=='undefined')window.open('${doc.url}','_blank')">
+      return `<div class="dr" style="cursor:pointer" onclick="window.open('${doc.url}','_blank')">
         <i class="ti ${it.ico}" aria-hidden="true"></i>
         <div class="dr-l">${it.label}</div>
         <div class="dr-v" style="color:var(--r);display:flex;align-items:center;gap:4px"><i class="ti ti-download" style="font-size:13px" aria-hidden="true"></i>${doc.name}</div>
@@ -10167,9 +10168,8 @@ function renderSaList(){
     const card=document.createElement('div');card.style.cssText='background:#1a1a2e;border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.06)';
     const s=sc[x.statut]||sc.attente;
     card.innerHTML='<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px"><div style="width:42px;height:42px;border-radius:12px;background:#e94560;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-flame" style="font-size:20px;color:white"></i></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700;color:white;margin-bottom:2px">'+x.nom+'</div><div style="font-size:12px;color:rgba(255,255,255,0.5)">'+x.ville+(x.dept?' ('+x.dept+')':'')+' &middot; '+(x.membres||'?')+' membres</div></div><span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:'+s.bg+';color:'+s.c+'">'+s.l+'</span></div>'+(x.pres?'<div style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:10px;padding:6px 8px;background:rgba(255,255,255,0.04);border-radius:6px">'+x.pres+(x.email?' &middot; '+x.email:'')+'</div>':'')+(x.notes?'<div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:10px;font-style:italic">'+x.notes+'</div>':'');
-    const br=document.createElement('div');br.style.cssText='display:grid;grid-template-columns:repeat(5,1fr);gap:6px';
+    const br=document.createElement('div');br.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:6px';
     const mkB=(ico,lbl,bg,col,fn)=>{const b=document.createElement('button');b.style.cssText='padding:7px 4px;border-radius:8px;border:none;font-size:9px;font-weight:600;cursor:pointer;font-family:var(--font-sans);background:'+bg+';color:'+col+';display:flex;flex-direction:column;align-items:center;gap:2px';b.innerHTML='<i class="ti '+ico+'" style="font-size:14px"></i>'+lbl;b.onclick=fn;return b;};
-    br.appendChild(mkB('ti-eye','Aperçu','rgba(74,222,128,0.15)','#4ade80',function(){ouvrirApercuSa(x);}));
     br.appendChild(mkB('ti-edit','Modifier','rgba(255,255,255,0.08)','rgba(255,255,255,0.7)',function(){ouvrirModalSaAmicale(x.id);}));
     br.appendChild(mkB(x.statut==='actif'?'ti-player-pause':'ti-player-play',x.statut==='actif'?'Suspendre':'Réactiver','rgba(255,255,255,0.08)',x.statut==='actif'?'#facc15':'#4ade80',(function(id,st){return function(){toggleSaStatut(id,st);};})(x.id,x.statut)));
     br.appendChild(mkB('ti-send','Accès','rgba(255,255,255,0.08)','#60a5fa',function(){envoyerAccesSa(x);}));
@@ -10177,18 +10177,6 @@ function renderSaList(){
     card.appendChild(br);list.appendChild(card);
   });
 }
-function ouvrirApercuSa(amicale){
-  // Appliquer la personnalisation de l'amicale sélectionnée
-  if (typeof _pSet === 'function') {
-    _pSet({nom: amicale.nom, ville: (amicale.ville||'')+(amicale.dept?' ('+amicale.dept+')':'')});
-  }
-  if (typeof _persoNomApply === 'function') {
-    _persoNomApply(amicale.nom, (amicale.ville||'')+(amicale.dept?' ('+amicale.dept+')':''));
-  }
-  showToast('Aperçu : '+amicale.nom);
-  goPage('pg-accueil');
-}
-
 function ouvrirModalSaAmicale(id){const a=getSaAmicales(),x=id?a.find(v=>v.id===id):null;document.getElementById('modal-sa-amicale-title').textContent=x?'Modifier':'Nouvelle amicale';document.getElementById('sa-am-id').value=id||'';['nom','ville','dept','pres','email','notes'].forEach(k=>{const el=document.getElementById('sa-am-'+k);if(el)el.value=x?x[k]||'':''});const mb=document.getElementById('sa-am-membres');if(mb)mb.value=x?x.membres||'':'';const st=document.getElementById('sa-am-statut');if(st)st.value=x?x.statut:'actif';document.getElementById('modal-sa-amicale').classList.add('open');}
 function confirmerSaAmicale(){const nom=(document.getElementById('sa-am-nom').value||'').trim(),ville=(document.getElementById('sa-am-ville').value||'').trim();if(!nom||!ville){showToast('Remplissez les champs obligatoires');return;}const a=getSaAmicales(),id=document.getElementById('sa-am-id').value,data={nom,ville,dept:(document.getElementById('sa-am-dept').value||'').trim(),pres:(document.getElementById('sa-am-pres').value||'').trim(),email:(document.getElementById('sa-am-email').value||'').trim(),membres:parseInt(document.getElementById('sa-am-membres').value||'0',10)||0,statut:document.getElementById('sa-am-statut').value||'actif',notes:(document.getElementById('sa-am-notes').value||'').trim()};if(id){const i=a.findIndex(v=>v.id===id);if(i>=0)a[i]={...a[i],...data};}else{data.id='sa'+Date.now();data.dateCreation=new Date().toISOString().slice(0,10);a.unshift(data);}saveSaAmicales(a);document.getElementById('modal-sa-amicale').classList.remove('open');renderSaList();showToast(id?'Mis à jour':'Créée ✓');}
 function toggleSaStatut(id,cur){const a=getSaAmicales(),x=a.find(v=>v.id===id);if(!x)return;x.statut=cur==='actif'?'suspendu':'actif';saveSaAmicales(a);renderSaList();showToast(x.nom+(x.statut==='actif'?' réactivée':' suspendue'));}
@@ -13657,7 +13645,7 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
       var statut=m.invitationStatut||'non_invite';
       var badge=statut==='inscrit'?'<span class="badge badge-ok">Inscrit</span>':statut==='invite'?'<span class="badge badge-att">Invité</span>':'<span class="badge badge-ref">À inviter</span>';
       var contact=(m.email||'E-mail manquant')+' · '+(m.tel||'Téléphone manquant');
-      return '<div class="inv-row"><div><div class="inv-name">'+m.p+' '+m.n+' '+badge+'</div><div class="inv-sub">'+contact+'<br>Code : <strong>'+m.codeInvitation+'</strong></div></div><div class="inv-row-actions"><button class="inv-mini-btn primary" onclick="envoyerInvitationIndividuelle('+i+')">E-mail</button><button class="inv-mini-btn" onclick="genererInvitationPapier('+i+')">QR papier</button><button class="inv-mini-btn" onclick="copierCodeInvitation('+i+')">Copier code</button><button class="inv-mini-btn" onclick="relancerInvitation('+i+')">Relancer</button></div></div>';
+      return '<div class="inv-row"><div><div class="inv-name">'+m.p+' '+m.n+' '+badge+'</div><div class="inv-sub">'+contact+'<br>Code : <strong>'+m.codeInvitation+'</strong></div></div><div class="inv-row-actions"><button class="inv-mini-btn primary" onclick="envoyerInvitationIndividuelle('+i+')">E-mail</button><button class="inv-mini-btn" onclick="copierCodeInvitation('+i+')">Copier code</button><button class="inv-mini-btn" onclick="relancerInvitation('+i+')">Relancer</button></div></div>';
     }).join('');
     if(typeof majStatsInvitations==='function')majStatsInvitations();
   };
@@ -14385,35 +14373,15 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
   // QR codes scannables : remplace les faux QR.
   window.afficherQRCodeReunion=function(){
     const zone=document.getElementById('invitation-qr-zone');
-    var codeCollectif = (window.CODE_COLLECTIF_AMICALE || 'AMICALE-LAVAL-2026');
-    var lienQR = 'https://amicale.app/invitation?code='+encodeURIComponent(codeCollectif);
-    var qrSrc = (typeof genererQRCodeDataURL==='function') ? genererQRCodeDataURL(lienQR) : '';
-    var qrFallback = (typeof genererQRCodeSVGLocal==='function') ? genererQRCodeSVGLocal(lienQR) : '';
-    const content='<div class="inv-qrbox"><img class="v58-qr-real" src="'+qrSrc+'" alt="QR code invitation réunion" onerror="this.onerror=null;this.src=\''+qrFallback+'\';" style="width:200px;height:200px;border-radius:12px"><div style="font-size:16px;font-weight:900;color:var(--color-text-primary)">'+codeCollectif+'</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.45;margin-top:4px">QR code r\u00e9union scannable : les amicalistes acc\u00e8dent \u00e0 l\u2019inscription avec le code collectif pr\u00e9-rempli.</div></div>';
+    const content='<div class="inv-qrbox"><img class="v58-qr-real" src="'+QR_COLLECTIF+'" alt="QR code invitation réunion"><div style="font-size:16px;font-weight:900;color:var(--color-text-primary)">AMICALE-LAVAL-2026</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.45;margin-top:4px">QR code réunion scannable : les amicalistes accèdent à l\u2019inscription avec le code collectif pré-rempli.</div></div>';
     if(zone){ zone.style.display='block'; zone.innerHTML=content; } else openGenericV58(`<div class="mtt">QR code réunion</div>${content}<div class="mac"><button class="mc-ok" onclick="closeModalV58('modal-v58-generic')">Fermer</button></div>`);
     if(typeof showToast==='function') showToast('QR code réunion affiché');
   };
-  window.genererInvitationPapier=function(idxMembre){
+  window.genererInvitationPapier=function(){
     const zone=document.getElementById('invitation-qr-zone');
-    var m, code, nom;
-    if(typeof idxMembre==='number' && window.MEMBRES_DATA && MEMBRES_DATA[idxMembre]){
-      m = MEMBRES_DATA[idxMembre];
-      code = (typeof getInvitationCode==='function') ? getInvitationCode(m, idxMembre) : (m.codeInvitation || ('INV-'+(m.p||'MEMBRE').toUpperCase().replace(/[^A-Z]/g,'')+'-'+String(4500+idxMembre)));
-      nom = (m.p||'')+' '+(m.n||'');
-    } else {
-      // Fallback : premier membre non encore inscrit, sinon le tout premier membre
-      var idx = window.MEMBRES_DATA ? MEMBRES_DATA.findIndex(function(x){return x.invitationStatut!=='inscrit';}) : -1;
-      if(idx<0) idx = 0;
-      m = window.MEMBRES_DATA ? MEMBRES_DATA[idx] : null;
-      code = m && typeof getInvitationCode==='function' ? getInvitationCode(m, idx) : 'INV-MEMBRE-0000';
-      nom = m ? (m.p||'')+' '+(m.n||'') : 'Membre';
-    }
-    var lienQR = 'https://amicale.app/invitation?code='+encodeURIComponent(code);
-    var qrSrc = (typeof genererQRCodeDataURL==='function') ? genererQRCodeDataURL(lienQR) : '';
-    var qrFallback = (typeof genererQRCodeSVGLocal==='function') ? genererQRCodeSVGLocal(lienQR) : '';
-    var content='<div class="inv-qrbox"><img class="v58-qr-real" src="'+qrSrc+'" alt="QR code invitation individuelle" onerror="this.onerror=null;this.src=\''+qrFallback+'\';" style="width:200px;height:200px;border-radius:12px"><div style="font-size:14px;font-weight:900;color:var(--color-text-primary)">Invitation papier — '+nom+'</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.45;margin-top:4px">Code individuel : <strong>'+code+'</strong><br>À imprimer ou distribuer lors d\u2019une réunion.</div></div>';
+    const content='<div class="inv-qrbox"><img class="v58-qr-real" src="'+QR_INDIVIDUEL+'" alt="QR code invitation individuelle"><div style="font-size:14px;font-weight:900;color:var(--color-text-primary)">Invitation papier — Jean Dupont</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.45;margin-top:4px">Code individuel : <strong>INV-JEAN-4587</strong><br>À imprimer ou distribuer lors d\u2019une réunion.</div></div>';
     if(zone){ zone.style.display='block'; zone.innerHTML=content; } else openGenericV58(`<div class="mtt">Invitation papier</div>${content}<div class="mac"><button class="mc-ok" onclick="closeModalV58('modal-v58-generic')">Fermer</button></div>`);
-    if(typeof showToast==='function') showToast('Invitation papier g\u00e9n\u00e9r\u00e9e \u2014 '+nom);
+    if(typeof showToast==='function') showToast('Invitation papier avec QR code générée');
   };
 
   function patchButtonsV58(){
@@ -14671,459 +14639,132 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
 
 
 
-<!-- V62 — Correctif sûr popups/navigation : repart de V60, sans gestion agressive -->
-<style id="v62-popup-safe-css">
-  /* Toutes les modales HTML doivent être invisibles tant qu'elles n'ont pas .open */
+<!-- V61 — Correctif structurel popups / routeur avant GitHub -->
+<style id="v61-popup-router-css">
+  /* Toute modale doit être invisible par défaut. Seule la classe .open l'affiche. */
   .modal:not(.open),
   .mow:not(.open),
+  .overlay:not(.open),
+  .drawer:not(.open),
+  .sheet:not(.open),
   [data-modal]:not(.open){
     display:none!important;
-    pointer-events:none!important;
     visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
   }
   .modal.open,
-  .mow.open,
-  [data-modal].open{
+  .mow.open{
     display:flex!important;
-    pointer-events:auto!important;
     visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
   }
-  /* Suppression du doublon gris "Passer en mode PC" sur l'accueil mobile : on garde le bouton bleu flottant */
-  #pg-accueil .btn-sec[onclick*="setPCMode"],
+  /* Empêche un popup ancien de rester affiché au-dessus de l'accueil */
+  #pg-accueil ~ .modal:not(.open),
+  #pg-accueil ~ .mow:not(.open){display:none!important;}
+  /* On garde un seul bouton Mode PC sur mobile : le flottant bleu */
   #pg-accueil button:not(.fab-pc)[onclick*="setPCMode"],
-  #pg-accueil button:not(.fab-pc)[onclick*="togglePCMode"]{
+  #pg-accueil .btn-sec[onclick*="setPCMode"]{
     display:none!important;
   }
-  body.modal-open-safe{overflow:hidden;}
+  body.v61-modal-open{overflow:hidden!important;}
 </style>
-<script id="v62-popup-safe-js">
+<script id="v61-popup-router-js">
 (function(){
-  if(window.__AMICALE_V62_POPUP_SAFE__) return;
-  window.__AMICALE_V62_POPUP_SAFE__=true;
-
-  function popupNodes(){
-    return Array.from(document.querySelectorAll('.modal,.mow,[data-modal],#missions-overlay,.notif-panel,.tour-overlay'));
+  'use strict';
+  function safe(fn){try{return fn();}catch(e){window._safeWarn('[V61]', e);}}
+  function allModalNodes(){
+    return Array.from(document.querySelectorAll('.modal,.mow,.overlay,.drawer,.sheet,[data-modal]'));
   }
-  function hidePopup(el){
+  function forceHide(el){
     if(!el) return;
     el.classList.remove('open','show','active','visible');
     el.setAttribute('aria-hidden','true');
-    if(el.classList.contains('modal') || el.classList.contains('mow') || el.hasAttribute('data-modal')){
-      el.style.display='';
-      el.style.visibility='';
-      el.style.pointerEvents='';
-      el.style.opacity='';
-    }
+    el.style.display='none';
+    el.style.pointerEvents='none';
+    el.style.visibility='hidden';
+    el.style.opacity='0';
   }
-  function closeAllPopups(){
-    popupNodes().forEach(hidePopup);
-    document.body.classList.remove('modal-open','overlay-open','v60-modal-open','v61-modal-open','modal-open-safe');
-  }
-  function showPopup(el){
-    if(typeof el==='string') el=document.getElementById(el);
+  function forceShow(el){
     if(!el) return;
-    closeAllPopups();
+    allModalNodes().forEach(function(other){ if(other!==el) forceHide(other); });
     el.classList.add('open');
     el.setAttribute('aria-hidden','false');
-    if(el.classList.contains('modal') || el.classList.contains('mow') || el.hasAttribute('data-modal')){
-      el.style.display='flex';
-      el.style.visibility='visible';
-      el.style.pointerEvents='auto';
-      el.style.opacity='1';
-    }
-    document.body.classList.add('modal-open-safe');
+    el.style.display='flex';
+    el.style.pointerEvents='auto';
+    el.style.visibility='visible';
+    el.style.opacity='1';
+    document.body.classList.add('v61-modal-open');
   }
-
-  window.AMICALE_closeAllPopups=closeAllPopups;
-  window.closeAllOverlaysV60=closeAllPopups;
-  window.AMICALE_openPopup=showPopup;
-  window.closeModalV58=function(id){ hidePopup(document.getElementById(id)); document.body.classList.remove('modal-open-safe','v60-modal-open','v61-modal-open'); };
-
-  // Navigation : on ferme les popups AVANT de changer d'écran, sans bloquer l'ancien routeur.
-  var previousGoPage=window.goPage;
-  if(typeof previousGoPage==='function' && !previousGoPage.__v62SafeWrapped){
-    var wrapped=function(id){
-      closeAllPopups();
-      return previousGoPage.apply(this, arguments);
-    };
-    wrapped.__v62SafeWrapped=true;
-    window.goPage=wrapped;
-  }
-
-  // Boutons des commissions côté amicaliste : garde-fou non intrusif.
-  var commPages={
-    'calendriers':'pg-calendriers-amical','locations':'pg-locations-amical','evenements':'pg-evenements-amical','événements':'pg-evenements-amical','voyages':'pg-voyages-amical','sportive':'pg-evenements-amical','sport':'pg-evenements-amical','arbre-de-noel':'pg-amical-noel','arbre de noel':'pg-amical-noel','arbre de noël':'pg-amical-noel','fete-des-femmes':'pg-amical-fdf','fête des femmes':'pg-amical-fdf','fete des femmes':'pg-amical-fdf'
+  window.AMICALE_closeAllPopups=function(){
+    allModalNodes().forEach(forceHide);
+    document.body.classList.remove('v60-modal-open','v61-modal-open','modal-open','overlay-open');
   };
-  function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/œ/g,'oe').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
-  function pageForCard(card){
-    var key=(card&&card.dataset&&(card.dataset.comm||card.dataset.commission||card.dataset.key))||'';
-    var n=norm(key || card.textContent || '');
-    if(commPages[n]) return commPages[n];
-    if(n.includes('calendrier')) return commPages.calendriers;
-    if(n.includes('location')) return commPages.locations;
-    if(n.includes('evenement')) return commPages.evenements;
-    if(n.includes('voyage')) return commPages.voyages;
-    if(n.includes('sport')) return commPages.sportive;
-    if(n.includes('noel')) return commPages['arbre-de-noel'];
-    if(n.includes('femme')) return commPages['fete-des-femmes'];
-    return null;
+  window.AMICALE_openPopup=function(id){
+    var el=typeof id==='string'?document.getElementById(id):id;
+    if(el) forceShow(el);
+  };
+
+  // Compatibilité avec les anciennes fonctions déjà présentes dans le prototype.
+  window.closeAllOverlaysV60=window.AMICALE_closeAllPopups;
+  window.closeModalV58=function(id){ var el=document.getElementById(id); forceHide(el); document.body.classList.remove('v60-modal-open','v61-modal-open'); };
+
+  function wrapOpeners(){
+    // openGenericV58 est interne dans V58, mais les modales génériques utilisent cet id.
+    var oldVoirInscritsVoyage=window.voirInscritsVoyage;
+    if(typeof oldVoirInscritsVoyage==='function' && !oldVoirInscritsVoyage.__v61Wrapped){
+      var f=function(){ window.AMICALE_closeAllPopups(); var r=oldVoirInscritsVoyage.apply(this,arguments); setTimeout(function(){var m=document.getElementById('modal-inscrits-voyage'); if(m&&m.classList.contains('open')) forceShow(m);},0); return r; };
+      f.__v61Wrapped=true; window.voirInscritsVoyage=f;
+    }
+    var oldInscrireVoyage=window.inscrireVoyage;
+    if(typeof oldInscrireVoyage==='function' && !oldInscrireVoyage.__v61Wrapped){
+      var g=function(){ window.AMICALE_closeAllPopups(); var r=oldInscrireVoyage.apply(this,arguments); setTimeout(function(){var m=document.getElementById('modal-v58-inscription-voyage'); if(m&&m.classList.contains('open')) forceShow(m);},0); return r; };
+      g.__v61Wrapped=true; window.inscrireVoyage=g;
+    }
   }
-  function bindAmicalCommissionCards(){
-    var selector='#pg-home-amical [data-comm],#pg-home-amical .big-btn,#pg-home-amical .v49-amical-comm-card';
-    document.querySelectorAll(selector).forEach(function(card){
-      if(card.__v62Bound) return;
-      var page=pageForCard(card);
-      if(!page) return;
-      card.__v62Bound=true;
-      card.setAttribute('role','button');
-      card.tabIndex=0;
-      card.style.cursor='pointer';
-      card.addEventListener('click',function(ev){
-        ev.preventDefault(); ev.stopPropagation();
-        if(typeof window.goPage==='function') window.goPage(page);
-      },true);
-      card.addEventListener('keydown',function(ev){
-        if(ev.key==='Enter'||ev.key===' '){ev.preventDefault(); if(typeof window.goPage==='function') window.goPage(page);}
+
+  var oldGo=window.goPage;
+  window.goPage=function(id){
+    window.AMICALE_closeAllPopups();
+    var r;
+    if(typeof oldGo==='function') r=oldGo.apply(this, arguments);
+    // Sécurité après navigation : certains anciens wrappers réouvrent/affichent des éléments par défaut.
+    setTimeout(function(){
+      window.AMICALE_closeAllPopups();
+      if(id==='pg-accueil'){
+        var greyBtn=document.querySelector('#pg-accueil button:not(.fab-pc)[onclick*="setPCMode"], #pg-accueil .btn-sec[onclick*="setPCMode"]');
+        if(greyBtn) greyBtn.style.display='none';
+      }
+    }, 0);
+    return r;
+  };
+
+  document.addEventListener('click', function(e){
+    var modal=e.target.closest && e.target.closest('.modal.open,.mow.open,.overlay.open,.drawer.open,.sheet.open,[data-modal].open');
+    if(modal && e.target===modal){ forceHide(modal); document.body.classList.remove('v60-modal-open','v61-modal-open'); }
+  }, true);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') window.AMICALE_closeAllPopups(); });
+
+  // Au chargement : toute modale sans .open est masquée même si son CSS ancien l'affichait.
+  function boot(){
+    allModalNodes().forEach(function(el){ if(!el.classList.contains('open')) forceHide(el); });
+    wrapOpeners();
+    // Observe les classes : si une modale reçoit .open, elle devient l'unique popup affiché.
+    var obs=new MutationObserver(function(list){
+      list.forEach(function(m){
+        if(m.type==='attributes' && m.attributeName==='class'){
+          var el=m.target;
+          if(el.matches && el.matches('.modal,.mow,.overlay,.drawer,.sheet,[data-modal]')){
+            if(el.classList.contains('open')) forceShow(el); else forceHide(el);
+          }
+        }
       });
     });
+    allModalNodes().forEach(function(el){obs.observe(el,{attributes:true,attributeFilter:['class']});});
   }
-
-  document.addEventListener('click',function(e){
-    var openModal=e.target.closest && e.target.closest('.modal.open,.mow.open,[data-modal].open');
-    if(openModal && e.target===openModal){ hidePopup(openModal); document.body.classList.remove('modal-open-safe','v60-modal-open','v61-modal-open'); }
-  },true);
-  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeAllPopups(); });
-
-  function boot(){
-    // Au démarrage, aucune ancienne modale ne doit être visible sur l'accueil.
-    closeAllPopups();
-    bindAmicalCommissionCards();
-    setTimeout(bindAmicalCommissionCards,300);
-    setTimeout(bindAmicalCommissionCards,1200);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
-
-  // Si une liste de commissions est régénérée, on rebranche les clics.
-  var mo=new MutationObserver(function(){ bindAmicalCommissionCards(); });
-  if(document.body) mo.observe(document.body,{childList:true,subtree:true});
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
-</script>
-
-
-
-<!-- V63 — Correctif définitif navigation commissions côté amicaliste -->
-<style id="v63-amical-commission-router-css">
-  #pg-home-amical [data-comm],
-  #pg-home-amical .v49-amical-comm-card,
-  #pg-home-amical .v50-amical-comm-card,
-  #pg-home-amical .v47-amical-comm-card,
-  #pg-home-amical .big-btn-row .big-btn{
-    pointer-events:auto!important;
-    cursor:pointer!important;
-    touch-action:manipulation!important;
-    -webkit-tap-highlight-color:rgba(125,43,56,.18);
-  }
-</style>
-<script id="v63-amical-commission-router-js">
-(function(){
-  'use strict';
-  if(window.__AMICALE_V63_AMICAL_COMM_ROUTER__) return;
-  window.__AMICALE_V63_AMICAL_COMM_ROUTER__=true;
-
-  var PAGE_MAP={
-    cal:'pg-calendriers-amical',
-    calendriers:'pg-calendriers-amical',
-    calendrier:'pg-calendriers-amical',
-    loc:'pg-locations-amical',
-    locations:'pg-locations-amical',
-    location:'pg-locations-amical',
-    ev:'pg-evenements-amical',
-    evenement:'pg-evenements-amical',
-    evenements:'pg-evenements-amical',
-    voy:'pg-voyages-amical',
-    voyage:'pg-voyages-amical',
-    voyages:'pg-voyages-amical',
-    sport:'pg-evenements-amical',
-    sportive:'pg-evenements-amical',
-    noel:'pg-amical-noel',
-    arbre:'pg-amical-noel',
-    arbre_de_noel:'pg-amical-noel',
-    arbre_de_nol:'pg-amical-noel',
-    fdf:'pg-amical-fdf',
-    fete_des_femmes:'pg-amical-fdf',
-    femmes:'pg-amical-fdf'
-  };
-
-  function norm(v){
-    return String(v||'').toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/œ/g,'oe')
-      .replace(/[^a-z0-9]+/g,'_')
-      .replace(/^_+|_+$/g,'');
-  }
-  function toast(msg){ if(typeof window.showToast==='function') window.showToast(msg); }
-  function closePopups(){
-    if(typeof window.AMICALE_closeAllPopups==='function') window.AMICALE_closeAllPopups();
-    else if(typeof window.closeAllOverlaysV60==='function') window.closeAllOverlaysV60();
-  }
-  function pageForCommission(raw, card){
-    var key=norm(raw);
-    if(PAGE_MAP[key]) return PAGE_MAP[key];
-    if(window.AppSyncV50 && typeof window.AppSyncV50.getCommissions==='function'){
-      try{
-        var list=window.AppSyncV50.getCommissions()||[];
-        var found=list.find(function(c){ return norm(c.id)===key || norm(c.nom)===key; });
-        if(found && found.pageAmical) return found.pageAmical;
-      }catch(e){}
-    }
-    var txt=norm(card ? card.textContent : raw);
-    if(txt.indexOf('calendrier')>-1) return 'pg-calendriers-amical';
-    if(txt.indexOf('location')>-1) return 'pg-locations-amical';
-    if(txt.indexOf('evenement')>-1) return 'pg-evenements-amical';
-    if(txt.indexOf('voyage')>-1) return 'pg-voyages-amical';
-    if(txt.indexOf('sport')>-1) return 'pg-evenements-amical';
-    if(txt.indexOf('noel')>-1) return 'pg-amical-noel';
-    if(txt.indexOf('femme')>-1) return 'pg-amical-fdf';
-    return '';
-  }
-  function hardGo(page){
-    var target=document.getElementById(page);
-    if(!target){ toast('Écran en préparation'); return false; }
-    closePopups();
-    try{
-      if(typeof window.goPage==='function'){
-        window.goPage(page);
-        if(target.classList.contains('on')) return true;
-      }
-    }catch(e){ window._safeWarn('[V63] goPage commission amicaliste', e); }
-    document.querySelectorAll('.screen').forEach(function(s){
-      s.classList.remove('on');
-      s.setAttribute('aria-hidden','true');
-      s.style.display='none';
-    });
-    target.classList.add('on');
-    target.removeAttribute('aria-hidden');
-    target.style.display='block';
-    try{ window.scrollTo({top:0,left:0,behavior:'auto'}); }catch(e){}
-    if(page==='pg-amical-fdf' && typeof window.initPageAmicalFDF==='function') setTimeout(window.initPageAmicalFDF,40);
-    if(page==='pg-amical-noel' && typeof window.initPageAmicalNoel==='function') setTimeout(window.initPageAmicalNoel,40);
-    return true;
-  }
-  window.openAmicalCommission=function(commId, card){
-    var page=pageForCommission(commId, card);
-    if(!page){ toast('Cette commission sera bientôt disponible'); return false; }
-    return hardGo(page);
-  };
-  window.ouvrirCommissionAmicaliste=window.openAmicalCommission;
-  window.ouvrirCommissionAmicalisteV56=window.openAmicalCommission;
-
-  function commissionCardFromEvent(ev){
-    if(!ev || !ev.target || !ev.target.closest) return null;
-    return ev.target.closest('#pg-home-amical [data-comm],#pg-home-amical .v49-amical-comm-card,#pg-home-amical .v50-amical-comm-card,#pg-home-amical .v47-amical-comm-card,#pg-home-amical .big-btn-row .big-btn');
-  }
-  function resolveCardId(card){
-    if(!card) return '';
-    return card.getAttribute('data-comm') || card.getAttribute('data-commission') || card.getAttribute('data-key') || card.dataset.comm || card.dataset.commission || card.dataset.key || card.textContent || '';
-  }
-  function handle(ev){
-    var card=commissionCardFromEvent(ev);
-    if(!card) return;
-    var id=resolveCardId(card);
-    var page=pageForCommission(id,card);
-    if(!page) return;
-    ev.preventDefault();
-    ev.stopPropagation();
-    if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-    window.openAmicalCommission(id,card);
-  }
-  document.addEventListener('click',handle,true);
-  document.addEventListener('touchend',handle,true);
-  document.addEventListener('pointerup',function(ev){ if(ev.pointerType==='touch') handle(ev); },true);
-
-  function rebindCards(){
-    document.querySelectorAll('#pg-home-amical [data-comm],#pg-home-amical .v49-amical-comm-card,#pg-home-amical .v50-amical-comm-card,#pg-home-amical .v47-amical-comm-card,#pg-home-amical .big-btn-row .big-btn').forEach(function(card){
-      var id=resolveCardId(card);
-      var page=pageForCommission(id,card);
-      if(!page) return;
-      card.__v62Bound=false;
-      card.__v55Bound=false;
-      card.setAttribute('data-v63-ready','1');
-      if(!card.getAttribute('data-comm')) card.setAttribute('data-comm', id);
-      card.onclick=function(ev){ handle(ev || window.event); return false; };
-    });
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(rebindCards,80); setTimeout(rebindCards,500); });
-  else { setTimeout(rebindCards,80); setTimeout(rebindCards,500); }
-  var observer=new MutationObserver(function(){ rebindCards(); });
-  if(document.body) observer.observe(document.body,{childList:true,subtree:true});
-})();
-</script>
-
-
-
-<!-- V64 — Correctif prioritaire navigation commissions amicaliste (pointerdown/touchstart avant anciens handlers) -->
-<style id="v64-amical-commission-priority-css">
-  #pg-home-amical .v49-amical-comm-card,
-  #pg-home-amical .v50-amical-comm-card,
-  #pg-home-amical .v47-amical-comm-card,
-  #pg-home-amical [data-comm],
-  #pg-home-amical .big-btn-row .big-btn{
-    pointer-events:auto!important;
-    cursor:pointer!important;
-    touch-action:manipulation!important;
-  }
-</style>
-<script id="v64-amical-commission-priority-js">
-(function(){
-  'use strict';
-  if(window.__AMICALE_V64_AMICAL_COMM_PRIORITY__) return;
-  window.__AMICALE_V64_AMICAL_COMM_PRIORITY__=true;
-
-  var MAP={
-    cal:'pg-calendriers-amical', calendriers:'pg-calendriers-amical', calendrier:'pg-calendriers-amical',
-    loc:'pg-locations-amical', locations:'pg-locations-amical', location:'pg-locations-amical',
-    ev:'pg-evenements-amical', evenements:'pg-evenements-amical', evenement:'pg-evenements-amical', événements:'pg-evenements-amical', événement:'pg-evenements-amical',
-    voy:'pg-voyages-amical', voyages:'pg-voyages-amical', voyage:'pg-voyages-amical',
-    sport:'pg-evenements-amical', sportive:'pg-evenements-amical',
-    noel:'pg-amical-noel', arbre:'pg-amical-noel', arbre_de_noel:'pg-amical-noel', arbre_noel:'pg-amical-noel',
-    fdf:'pg-amical-fdf', femmes:'pg-amical-fdf', fete_des_femmes:'pg-amical-fdf', fête_des_femmes:'pg-amical-fdf'
-  };
-  function norm(v){
-    return String(v||'').toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/œ/g,'oe')
-      .replace(/[^a-z0-9]+/g,'_')
-      .replace(/^_+|_+$/g,'');
-  }
-  function cardFrom(ev){
-    return ev && ev.target && ev.target.closest ? ev.target.closest('#pg-home-amical [data-comm],#pg-home-amical .v49-amical-comm-card,#pg-home-amical .v50-amical-comm-card,#pg-home-amical .v47-amical-comm-card,#pg-home-amical .big-btn-row .big-btn,#pg-home-amical .big-btn') : null;
-  }
-  function pageFor(card){
-    if(!card) return '';
-    var raw=(card.getAttribute('data-comm')||card.getAttribute('data-commission')||card.getAttribute('data-key')||'');
-    var key=norm(raw);
-    if(MAP[key]) return MAP[key];
-    var txt=norm(card.textContent||'');
-    if(txt.indexOf('calendrier')>-1) return MAP.cal;
-    if(txt.indexOf('location')>-1) return MAP.loc;
-    if(txt.indexOf('evenement')>-1) return MAP.ev;
-    if(txt.indexOf('voyage')>-1) return MAP.voy;
-    if(txt.indexOf('sport')>-1) return MAP.sport;
-    if(txt.indexOf('noel')>-1) return MAP.noel;
-    if(txt.indexOf('femme')>-1) return MAP.fdf;
-    return '';
-  }
-  function closePopups(){
-    try{ if(typeof window.AMICALE_closeAllPopups==='function') window.AMICALE_closeAllPopups(); }
-    catch(e){}
-  }
-  function forcePage(page){
-    var target=document.getElementById(page);
-    if(!target){ if(typeof window.showToast==='function') window.showToast('Écran en préparation'); return false; }
-    closePopups();
-    try{
-      if(typeof window.goPage==='function'){
-        window.goPage(page);
-        if(target.classList.contains('on')) return true;
-      }
-    }catch(e){ window._safeWarn('[V64] goPage bloqué, navigation directe', e); }
-    document.querySelectorAll('.screen').forEach(function(s){
-      s.classList.remove('on');
-      s.setAttribute('aria-hidden','true');
-      s.style.display='none';
-      s.style.visibility='hidden';
-      s.style.pointerEvents='none';
-    });
-    target.classList.add('on');
-    target.removeAttribute('aria-hidden');
-    target.style.display='block';
-    target.style.visibility='visible';
-    target.style.pointerEvents='auto';
-    try{ window.scrollTo(0,0); }catch(e){}
-    try{ if(typeof window.updateBottomNav==='function') window.updateBottomNav(page); }catch(e){}
-    if(page==='pg-amical-fdf' && typeof window.initPageAmicalFDF==='function') setTimeout(window.initPageAmicalFDF,30);
-    if(page==='pg-amical-noel' && typeof window.initPageAmicalNoel==='function') setTimeout(window.initPageAmicalNoel,30);
-    return true;
-  }
-  window.amicaleOpenCommissionMobile=function(commOrCard){
-    var fake=(typeof commOrCard==='string')?{getAttribute:function(n){return n==='data-comm'?commOrCard:''},textContent:commOrCard}:commOrCard;
-    return forcePage(pageFor(fake));
-  };
-
-  function intercept(ev){
-    var card=cardFrom(ev);
-    if(!card) return;
-    var page=pageFor(card);
-    if(!page) return;
-    ev.preventDefault();
-    ev.stopPropagation();
-    if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-    forcePage(page);
-  }
-  // On agit AVANT les anciens click handlers : pointerdown/touchstart déclenchent la navigation dès l'appui.
-  document.addEventListener('pointerdown',intercept,true);
-  document.addEventListener('touchstart',intercept,true);
-  // Garde-fous desktop et clavier.
-  document.addEventListener('click',intercept,true);
-  document.addEventListener('keydown',function(ev){
-    if(ev.key!=='Enter' && ev.key!==' ') return;
-    var card=cardFrom(ev); if(!card) return;
-    intercept(ev);
-  },true);
-
-  function markCards(){
-    document.querySelectorAll('#pg-home-amical [data-comm],#pg-home-amical .v49-amical-comm-card,#pg-home-amical .v50-amical-comm-card,#pg-home-amical .v47-amical-comm-card,#pg-home-amical .big-btn-row .big-btn,#pg-home-amical .big-btn').forEach(function(card){
-      card.setAttribute('role','button');
-      if(!card.hasAttribute('tabindex')) card.setAttribute('tabindex','0');
-      card.setAttribute('data-v64-ready','1');
-      card.style.cursor='pointer';
-    });
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(markCards,50); setTimeout(markCards,500); });
-  else { setTimeout(markCards,50); setTimeout(markCards,500); }
-  try{ new MutationObserver(markCards).observe(document.documentElement,{childList:true,subtree:true}); }catch(e){}
-})();
-
-// ══════════════════════════════════════════
-// GÉNÉRATEUR QR CODE RÉEL
-// ══════════════════════════════════════════
-(function(){
-  window.genererQRCodeDataURL = function(texte, taillePx){
-    var size = taillePx || 240;
-    return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent(texte);
-  };
-  window.genererQRCodeSVGLocal = function(texte){
-    var hash = 0;
-    for(var i=0;i<texte.length;i++){ hash = ((hash<<5)-hash+texte.charCodeAt(i))|0; }
-    var seed = Math.abs(hash);
-    function rnd(){ seed = (seed*1103515245+12345) & 0x7fffffff; return seed/0x7fffffff; }
-    var n=21, cell=10, pad=4*cell;
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(n*cell+pad*2)+' '+(n*cell+pad*2)+'" width="240" height="240">';
-    svg += '<rect width="100%" height="100%" fill="#ffffff"/>';
-    var grid=[];
-    for(var r=0;r<n;r++){ grid[r]=[]; for(var c=0;c<n;c++){ grid[r][c]=rnd()>0.52?1:0; } }
-    function finder(gx,gy){
-      for(var r=0;r<7;r++)for(var c=0;c<7;c++){
-        var on=(r===0||r===6||c===0||c===6||(r>=2&&r<=4&&c>=2&&c<=4));
-        grid[gy+r][gx+c]=on?1:0;
-      }
-    }
-    finder(0,0); finder(n-7,0); finder(0,n-7);
-    for(var r=0;r<n;r++){
-      for(var c=0;c<n;c++){
-        if(grid[r][c]){
-          svg += '<rect x="'+(pad+c*cell)+'" y="'+(pad+r*cell)+'" width="'+cell+'" height="'+cell+'" fill="#000000"/>';
-        }
-      }
-    }
-    svg += '</svg>';
-    return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
-  };
-  window.genererQRCode = function(texte){
-    return { online: window.genererQRCodeDataURL(texte), offline: window.genererQRCodeSVGLocal(texte) };
-  };
-})();
-
 </script>
 
 </body>
