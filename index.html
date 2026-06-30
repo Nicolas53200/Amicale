@@ -1976,6 +1976,9 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
       <button class="pc-nav-btn" onclick="goPage('pg-accueil')" style="background:rgba(255,255,255,.1)">
         <i class="ti ti-home" aria-hidden="true"></i>Accueil
       </button>
+      <button class="pc-nav-btn" id="btn-pc-accueil" onclick="togglePCMode()" style="background:rgba(255,255,255,.1)">
+        <i class="ti ti-device-mobile" aria-hidden="true"></i>Mode mobile
+      </button>
     </div>
   </div>
 
@@ -1987,7 +1990,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
     <div class="screen on" id="pg-accueil" style="background:#F5EFE6;overflow:hidden;">
 
       <!-- Roue crantée super admin (discrète) -->
-      <button onclick="ouvrirLoginSuperAdmin()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.13);border:none;cursor:pointer;color:rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;z-index:10;" aria-label="Admin">
+      <button onclick="ouvrirLoginSuperAdmin()" style="position:fixed;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.15);border:none;cursor:pointer;color:rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;z-index:99999;" aria-label="Admin">
         <i class="ti ti-settings" style="font-size:13px"></i>
       </button>
 
@@ -2238,10 +2241,9 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <!-- PISTE DU CAROUSEL -->
           <div id="carousel-inner" style="display:flex;transition:transform .35s ease;will-change:transform;cursor:grab;user-select:none">
 
-            <!-- SLIDE 1 : Repas annuel -->
-            <!-- Pour mettre une PHOTO : remplacer la valeur de --slide-bg par url('https://...votre-image.jpg') -->
+            <!-- SLIDE 1 : Événement à la une (dynamique) -->
             <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-              <div style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),var(--r);background-size:cover;background-position:center;padding:20px 18px 16px;position:relative;height:clamp(160px,38vw,230px);display:flex;flex-direction:column;justify-content:flex-end">
+              <div id="carousel-slide1-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),var(--r);background-size:cover;background-position:center;padding:20px 18px 16px;position:relative;height:clamp(160px,38vw,230px);display:flex;flex-direction:column;justify-content:flex-end">
                 <i class="ti ti-tools-kitchen-2" style="position:absolute;top:12px;right:14px;font-size:clamp(46px,12vw,68px);color:rgba(255,255,255,0.13)" aria-hidden="true"></i>
                 <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.22);color:white;font-size:10px;font-weight:600;padding:3px 9px;border-radius:8px;margin-bottom:7px;width:fit-content">
                   <i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i>&nbsp;Dans 8 jours
@@ -2829,6 +2831,22 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
             </div>
           </div>
         </div>
+
+        <!-- VOYAGE ENFANTS — avec accompagnateurs recherchés -->
+        <div class="voy-card">
+          <div class="voy-visuel" style="background:var(--grn)"><div class="vov-overlay"></div><i class="ti ti-tent vov-bigico" aria-hidden="true"></i><span class="vov-statut vos-ouvert">Inscriptions ouvertes</span><span class="vov-tarif">120 €</span><div class="vov-content"><div class="vov-dest"><i class="ti ti-map-pin" aria-hidden="true"></i> Centre de vacances</div><div class="vov-titre">Colonie d'été des enfants</div><div class="vov-dates"><i class="ti ti-calendar" aria-hidden="true"></i> 10 – 17 juillet 2026</div></div></div>
+          <div class="voy-body">
+            <div style="margin-bottom:10px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:5px"><div style="font-size:12px;font-weight:600;color:var(--color-text-primary)">Inscriptions</div><div style="font-size:12px;color:var(--color-text-secondary)"><strong>18</strong> / 30 places</div></div>
+              <div class="jauge-track"><div class="jauge-fill" style="width:60%;background:var(--grn)"></div></div>
+            </div>
+            <div class="voy-tags"><span class="voy-tag">Enfants jusqu'à 14 ans</span><span class="voy-tag">Tarif enfant : 90 €</span><span class="voy-tag" style="background:var(--rl);color:var(--r)"><i class="ti ti-user-plus"></i> 4 accompagnateurs recherchés</span></div>
+            <div class="voy-footer">
+              <button class="voy-voir-btn" onclick="inscrireVoyage('colo_ete')"><i class="ti ti-send" aria-hidden="true"></i>S'inscrire</button>
+              <button class="voy-nb-btn" onclick="showToast('18 inscrits sur 30 places')"><i class="ti ti-users" aria-hidden="true"></i>18</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2852,21 +2870,21 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <div style="padding:12px">
             <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--rl);color:var(--r)">Repas</span><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--grl);color:var(--grn)">Membres + familles</span><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--aml);color:var(--amb)">Bénévoles 4/6</span></div>
             <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Repas traiteur 3 services · apéritif maison · remise des distinctions. Inscription souhaitée avant le 7 juin.</div>
-            <button class="btn-r" style="margin-bottom:0" onclick="inscrireEvenement('repas')"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
+            <button class="btn-r" style="margin-bottom:0" onclick="inscrireEvenement('repas',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
           </div>
         </div>
         <div class="card" style="overflow:hidden;padding:0">
           <div style="height:90px;background:var(--amb);display:flex;align-items:flex-end;padding:12px;position:relative"><div style="position:absolute;inset:0;background:rgba(0,0,0,.15)"></div><i class="ti ti-music" style="position:absolute;top:10px;right:12px;font-size:34px;color:rgba(255,255,255,.2)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:14px;font-weight:700;color:white">Bal des pompiers</div><div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:2px"><i class="ti ti-calendar" style="font-size:12px" aria-hidden="true"></i> Ven. 27 juin 2026 · 21h00 · Salle polyvalente</div></div></div>
           <div style="padding:12px">
             <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Soirée dansante ouverte à tous, buvette et restauration sur place.</div>
-            <button class="btn-r" style="margin-bottom:0;background:var(--amb)" onclick="inscrireEvenement('bal')"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
+            <button class="btn-r" style="margin-bottom:0;background:var(--amb)" onclick="inscrireEvenement('bal',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
           </div>
         </div>
         <div class="card" style="overflow:hidden;padding:0">
           <div style="height:90px;background:var(--pur);display:flex;align-items:flex-end;padding:12px;position:relative"><div style="position:absolute;inset:0;background:rgba(0,0,0,.15)"></div><i class="ti ti-trophy" style="position:absolute;top:10px;right:12px;font-size:34px;color:rgba(255,255,255,.2)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:14px;font-weight:700;color:white">Tournoi sportif inter-centres</div><div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:2px"><i class="ti ti-calendar" style="font-size:12px" aria-hidden="true"></i> Sam. 12 juil. 2026 · 10h00 · Stade municipal</div></div></div>
           <div style="padding:12px">
             <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Tournoi amical entre les centres de secours du département. Toutes catégories bienvenues.</div>
-            <button class="btn-r" style="margin-bottom:0;background:var(--pur)" onclick="inscrireEvenement('tournoi')"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
+            <button class="btn-r" style="margin-bottom:0;background:var(--pur)" onclick="inscrireEvenement('tournoi',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
           </div>
         </div>
       </div>
@@ -4632,7 +4650,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
             <span class="badge badge-ok" style="position:relative;z-index:1">Ouvert</span>
           </div>
           <div style="padding:10px 12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
-            <button class="btn-r" style="margin:0;font-size:11px;padding:7px" onclick="showToast('Édition du voyage Saint-Malo (à venir)')"><i class="ti ti-edit" aria-hidden="true"></i>Modifier</button>
+            <button class="btn-r" style="margin:0;font-size:11px;padding:7px" onclick="ouvrirModalParametresVoyage('saintmalo')"><i class="ti ti-edit" aria-hidden="true"></i>Modifier</button>
             <button class="btn-r" style="margin:0;font-size:11px;padding:7px;background:var(--grn)" onclick="voirInscritsVoyage('saintmalo')"><i class="ti ti-users" aria-hidden="true"></i>Inscrits</button>
             <button class="btn-r" style="margin:0;font-size:11px;padding:7px;background:var(--blu)" onclick="notifierInscrits('saintmalo')"><i class="ti ti-bell" aria-hidden="true"></i>Notifier</button>
           </div>
@@ -4648,7 +4666,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
             <span class="badge" style="background:var(--aml);color:var(--amb);position:relative;z-index:1">Insuffisant</span>
           </div>
           <div style="padding:10px 12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
-            <button class="btn-r" style="margin:0;font-size:11px;padding:7px" onclick="showToast('Édition du voyage Strasbourg (à venir)')"><i class="ti ti-edit" aria-hidden="true"></i>Modifier</button>
+            <button class="btn-r" style="margin:0;font-size:11px;padding:7px" onclick="ouvrirModalParametresVoyage('strasbourg')"><i class="ti ti-edit" aria-hidden="true"></i>Modifier</button>
             <button class="btn-r" style="margin:0;font-size:11px;padding:7px;background:var(--grn)" onclick="voirInscritsVoyage('strasbourg')"><i class="ti ti-users" aria-hidden="true"></i>Inscrits</button>
             <button class="btn-r" style="margin:0;font-size:11px;padding:7px;background:var(--amb)" onclick="notifierInscrits('strasbourg')"><i class="ti ti-bell" aria-hidden="true"></i>Relancer</button>
           </div>
@@ -5303,6 +5321,18 @@ function goPage(id){
   // Le bouton flottant "Mode PC" n'est utile que sur l'écran d'accueil
   // (les autres pages ont déjà le bouton PC dans la bottom-nav)
   document.body.classList.toggle('show-fab', id==='pg-accueil');
+  // Gestion de la visibilité des boutons de la topbar PC selon la zone courante
+  (function(){
+    var btnAmical=document.getElementById('pcnav-amical');
+    var btnBureau=document.getElementById('pcnav-bureau');
+    var btnAccueil=document.querySelector('.pc-nav-btn[onclick*="goPage(\'pg-accueil\')"]');
+    var estAccueil=(id==='pg-accueil');
+    var estBureau=(id.indexOf('bureau')!==-1||id.indexOf('comm-')===0||id.indexOf('gestion')!==-1||id==='pg-superadmin'||id==='pg-messagerie-bureau'||id==='pg-reunions'||id==='pg-personnalisation');
+    var estAmical=!estAccueil&&!estBureau;
+    if(btnAmical)btnAmical.style.display=estAccueil?'flex':'none';
+    if(btnBureau)btnBureau.style.display=estAccueil?'flex':'none';
+    if(btnAccueil)btnAccueil.style.display=estAccueil?'none':'flex';
+  })();
   if(id==='pg-creer-evenement'){POSTES_CREATION=[];renderPostesCreation();}
   if(id==='pg-retour-images'){/* albums amicalistes prêts */}
   if(id==='pg-comm-noel'){recalculerNoel();}
@@ -5311,6 +5341,7 @@ function goPage(id){
   if(id==='pg-amical-fdf'){setTimeout(initPageAmicalFDF,50);}
   if(id==='pg-aide'){renderFAQ();}
   if(id==='pg-reunions'){renderDocsReunion();}
+  if(id==='pg-evenements-amical'){setTimeout(function(){if(typeof _restaurerEtatsBoutonsInscription==='function')_restaurerEtatsBoutonsInscription();},50);}
   if(isPCMode){
     window.scrollTo({top:0,behavior:'instant'});
   } else {
@@ -5435,22 +5466,25 @@ function updatePreview2(prefix){
 function previewAffiche(input,prefix){
   const file=input.files&&input.files[0];
   if(!file)return;
-  const url=URL.createObjectURL(file);
-  currentAfficheURL[prefix]=url;
+  // Conversion en base64 (persiste après rechargement, contrairement à ObjectURL)
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const url=ev.target.result;
+    currentAfficheURL[prefix]=url;
 
-  // Afficher la prévisualisation dans la zone d'upload
-  const previewBox=document.getElementById(prefix+'-affiche-preview');
-  const img=document.getElementById(prefix+'-affiche-img');
-  const uploadZone=document.getElementById(prefix+'-upload-zone');
-  if(img)img.src=url;
-  if(previewBox)previewBox.style.display='block';
-  if(uploadZone)uploadZone.style.display='none';
+    const previewBox=document.getElementById(prefix+'-affiche-preview');
+    const img=document.getElementById(prefix+'-affiche-img');
+    const uploadZone=document.getElementById(prefix+'-upload-zone');
+    if(img)img.src=url;
+    if(previewBox)previewBox.style.display='block';
+    if(uploadZone)uploadZone.style.display='none';
 
-  // Appliquer comme fond dans l'aperçu carousel (créer/modifier)
-  const bgimg=document.getElementById(prefix+'-preview-bgimg');
-  if(bgimg)bgimg.style.backgroundImage=`url('${url}')`;
+    const bgimg=document.getElementById(prefix+'-preview-bgimg');
+    if(bgimg)bgimg.style.backgroundImage=`url('${url}')`;
 
-  showToast('Affiche uploadée avec succès');
+    showToast('Affiche uploadée avec succès');
+  };
+  reader.readAsDataURL(file);
 }
 
 function supprimerAffiche(prefix){
@@ -5501,11 +5535,45 @@ function publierCreer(){
     showToast('Événement programmé — publication le '+new Date(dateP).toLocaleDateString('fr-FR'));
   } else {
     showToast('Événement "'+titre+'" publié dans le carousel !');
-    // Synchroniser avec le carousel amicaliste (slide 1 par défaut)
+    // Synchroniser avec le carousel bureau (aperçu)
     syncCarouselAmical('creer',titre,lieu);
+    // Synchroniser avec le VRAI carousel amicaliste (slide 1) + persister
+    appliquerAfficheCarouselAmicaliste(titre,lieu,currentAfficheURL['creer']);
   }
   goPage('pg-comm-evenements');
 }
+
+// Applique l'affiche uploadée sur la slide 1 du carousel amicaliste réel et persiste en localStorage
+function appliquerAfficheCarouselAmicaliste(titre,lieu,afficheUrl){
+  const bg=document.getElementById('carousel-slide1-bg');
+  if(bg&&afficheUrl){
+    bg.style.backgroundImage="linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+afficheUrl+"')";
+    bg.style.backgroundSize='cover';
+    bg.style.backgroundPosition='center';
+  }
+  // Mettre à jour le titre/lieu affichés sur la slide si présents
+  try{
+    localStorage.setItem('aml_carousel_slide1', JSON.stringify({titre:titre,lieu:lieu,affiche:afficheUrl||null}));
+  }catch(e){}
+}
+
+// Restaure l'affiche du carousel amicaliste au chargement (persistance)
+function restaurerCarouselAmicaliste(){
+  try{
+    const saved=localStorage.getItem('aml_carousel_slide1');
+    if(!saved)return;
+    const data=JSON.parse(saved);
+    if(data&&data.affiche){
+      const bg=document.getElementById('carousel-slide1-bg');
+      if(bg){
+        bg.style.backgroundImage="linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+data.affiche+"')";
+        bg.style.backgroundSize='cover';
+        bg.style.backgroundPosition='center';
+      }
+    }
+  }catch(e){}
+}
+document.addEventListener('DOMContentLoaded',restaurerCarouselAmicaliste);
 
 // Synchronise le carousel bureau (aperçu) et amicaliste avec les données saisies
 function syncCarouselAmical(prefix,titre,lieu){
@@ -6918,8 +6986,9 @@ let CURRENT_AMICALISTE='Jean Dupont';
 // INSCRIPTIONS VOYAGES — amicaliste → commission Voyages
 // ═══════════════════════════════════════════
 const VOYAGES_DATA={
-  saintmalo:{nom:'Weekend à Saint-Malo',dates:'5–6 sept. 2026',tarif:'85 €',places:42},
-  strasbourg:{nom:'Marché de Noël — Strasbourg',dates:'5–7 déc. 2026',tarif:'145 €',places:38},
+  saintmalo:{nom:'Weekend à Saint-Malo',dates:'5–6 sept. 2026',tarif:'85 €',places:42,enfantsAutorises:false,maxAdultesParFoyer:4},
+  strasbourg:{nom:'Marché de Noël — Strasbourg',dates:'5–7 déc. 2026',tarif:'145 €',places:38,enfantsAutorises:false,maxAdultesParFoyer:2},
+  colo_ete:{nom:'Colonie d\u2019été des enfants',dates:'10–17 juil. 2026',tarif:'120 €',places:30,enfantsAutorises:true,ageLimiteEnfants:14,tarifEnfant:'90 €',accompagnateursRecherches:4,maxAdultesParFoyer:2},
 };
 
 const INSCRIPTIONS_VOYAGES=[
@@ -7472,22 +7541,12 @@ function confirmerRefusDemande(){
 function inscrireVoyage(voyKey){
   const v=VOYAGES_DATA[voyKey];
   if(!v)return;
-  // Empêcher double inscription
   const dejaInscrit=INSCRIPTIONS_VOYAGES.find(i=>i.demandeur===CURRENT_AMICALISTE&&i.voyage===voyKey&&i.statut!=='refusee');
   if(dejaInscrit){
     showToast('Vous êtes déjà inscrit(e) pour '+v.nom);
     return;
   }
-  INSCRIPTIONS_VOYAGES.unshift({
-    id:'iv'+Date.now(),
-    demandeur:CURRENT_AMICALISTE,
-    voyage:voyKey,
-    voyageNom:v.nom,
-    statut:'attente',
-    dateInsc:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
-  });
-  showToast('Inscription envoyée à la commission Voyages — '+v.nom);
-  renderInscriptionsVoyages();
+  ouvrirModalInscriptionEvent('voyage',voyKey,v.nom,v.enfantsAutorises,v.ageLimiteEnfants,v.accompagnateursRecherches,v.maxAdultesParFoyer);
 }
 
 function renderInscriptionsVoyages(){
@@ -7548,24 +7607,47 @@ function refuserInscription(id){
 // ═══════════════════════════════════════════
 // INSCRIPTIONS ÉVÉNEMENTS — amicaliste → commission Événements
 // ═══════════════════════════════════════════
-function inscrireEvenement(evKey){
+function inscrireEvenement(evKey,btnEl){
   const ev=EVENTS_DATA[evKey];
   if(!ev)return;
   const deja=INSCRIPTIONS_EVENEMENTS.find(i=>i.demandeur===CURRENT_AMICALISTE&&i.evenement===evKey&&i.statut!=='refusee');
   if(deja){
     showToast('Vous êtes déjà inscrit(e) à '+ev.titre);
+    _appliquerEtatBoutonInscription(btnEl,deja.statut);
     return;
   }
-  INSCRIPTIONS_EVENEMENTS.unshift({
-    id:'ie'+Date.now(),
-    demandeur:CURRENT_AMICALISTE,
-    evenement:evKey,
-    evenementNom:ev.titre,
-    statut:'attente',
-    dateInsc:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+  MIE_BOUTON_COURANT=btnEl;
+  ouvrirModalInscriptionEvent('evenement',evKey,ev.titre,ev.enfantsAutorises,ev.ageLimiteEnfants,ev.accompagnateursRecherches);
+}
+
+// Met à jour visuellement le bouton après inscription (texte, couleur, état)
+function _appliquerEtatBoutonInscription(btnEl,statut){
+  if(!btnEl)return;
+  btnEl.disabled=true;
+  btnEl.style.cursor='default';
+  btnEl.style.opacity='0.85';
+  if(statut==='acceptee'){
+    btnEl.style.background='var(--grn)';
+    btnEl.innerHTML='<i class="ti ti-circle-check" aria-hidden="true"></i>Inscrit(e)';
+  } else if(statut==='refusee'){
+    btnEl.style.background='var(--color-text-secondary)';
+    btnEl.innerHTML='<i class="ti ti-x" aria-hidden="true"></i>Non retenu(e)';
+  } else {
+    btnEl.style.background='var(--amb)';
+    btnEl.innerHTML='<i class="ti ti-clock" aria-hidden="true"></i>Demande envoyée';
+  }
+}
+
+// Au chargement de la page événements, restaurer l'état des boutons déjà inscrits
+function _restaurerEtatsBoutonsInscription(){
+  if(typeof INSCRIPTIONS_EVENEMENTS==='undefined'||typeof CURRENT_AMICALISTE==='undefined')return;
+  document.querySelectorAll('button[onclick*="inscrireEvenement("]').forEach(function(btn){
+    var match=btn.getAttribute('onclick').match(/inscrireEvenement\('([^']+)'/);
+    if(!match)return;
+    var evKey=match[1];
+    var insc=INSCRIPTIONS_EVENEMENTS.find(function(i){return i.demandeur===CURRENT_AMICALISTE&&i.evenement===evKey&&i.statut!=='refusee';});
+    if(insc)_appliquerEtatBoutonInscription(btn,insc.statut);
   });
-  showToast('Inscription envoyée à la commission Événements — '+ev.titre);
-  renderInscriptionsEvenements();
 }
 
 function renderInscriptionsEvenements(){
@@ -15124,7 +15206,258 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
   };
 })();
 
+
+// ══════════════════════════════════════════════════
+// MODAL INSCRIPTION ENRICHIE — adultes, enfants, accompagnateurs
+// ══════════════════════════════════════════════════
+var MIE_CONTEXT={type:null,key:null,nom:null,enfantsAutorises:false,ageLimiteEnfants:null,accompagnateursRecherches:0};
+var MIE_NB_ADULTES=1;
+var MIE_BOUTON_COURANT=null;
+
+function ouvrirModalInscriptionEvent(type,key,nom,enfantsAutorises,ageLimiteEnfants,accompagnateursRecherches,maxAdultesParFoyer){
+  MIE_CONTEXT={type:type,key:key,nom:nom,enfantsAutorises:!!enfantsAutorises,ageLimiteEnfants:ageLimiteEnfants||16,accompagnateursRecherches:accompagnateursRecherches||0,maxAdultesParFoyer:maxAdultesParFoyer||6};
+  MIE_NB_ADULTES=1;
+  document.getElementById('mie-titre').textContent='S\'inscrire — '+nom;
+  document.getElementById('mie-key').value=key;
+  document.getElementById('mie-type').value=type;
+  document.getElementById('mie-nb-adultes').textContent='1';
+  var labelAdultes=document.querySelector('label[for="mie-nb-adultes"]');
+  if(labelAdultes)labelAdultes.textContent='Nombre d\'adultes (vous inclus) — max '+MIE_CONTEXT.maxAdultesParFoyer+' par foyer';
+
+  // Section enfants
+  var secEnfants=document.getElementById('mie-section-enfants');
+  var listEnfants=document.getElementById('mie-enfants-list');
+  var infoEnfants=document.getElementById('mie-enfants-info');
+  if(MIE_CONTEXT.enfantsAutorises){
+    secEnfants.style.display='block';
+    var m=(typeof getCurrentMember==='function')?getCurrentMember():null;
+    var nbEnf=m&&m.enfants?m.enfants:0;
+    var eligibles=[];
+    for(var i=0;i<nbEnf;i++){
+      var prenom=(m.enfantsNoms&&m.enfantsNoms[i])?m.enfantsNoms[i]:'Enfant '+(i+1);
+      var age=null;
+      if(m.enfantsNaiss&&m.enfantsNaiss[i]&&typeof ageDepuisNaissance==='function')age=ageDepuisNaissance(m.enfantsNaiss[i]);
+      if(age===null||age<=MIE_CONTEXT.ageLimiteEnfants)eligibles.push({idx:i,prenom:prenom,age:age});
+    }
+    if(eligibles.length){
+      listEnfants.innerHTML='';
+      eligibles.forEach(function(e){
+        var row=document.createElement('label');
+        row.style.cssText='display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--color-background-secondary);border-radius:10px;margin-bottom:6px;cursor:pointer';
+        row.innerHTML='<input type="checkbox" class="mie-enfant-cb" data-idx="'+e.idx+'" style="width:18px;height:18px;accent-color:var(--r)" onchange="mieRecalculerRecap()">'+
+          '<div style="flex:1"><div style="font-size:13px;font-weight:600">'+e.prenom+(e.age!==null?' · '+e.age+' ans':'')+'</div></div>';
+        listEnfants.appendChild(row);
+      });
+      infoEnfants.textContent='Limite d\'âge : '+MIE_CONTEXT.ageLimiteEnfants+' ans. Cochez les enfants qui participent.';
+    } else {
+      listEnfants.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);padding:8px">Aucun enfant éligible (limite : '+MIE_CONTEXT.ageLimiteEnfants+' ans). Renseignez vos enfants dans votre profil si besoin.</div>';
+      infoEnfants.textContent='';
+    }
+  } else {
+    secEnfants.style.display='none';
+  }
+
+  // Section accompagnateur
+  var secAcc=document.getElementById('mie-section-accompagnateur');
+  var cbAcc=document.getElementById('mie-accompagnateur');
+  var infoAcc=document.getElementById('mie-accompagnateur-info');
+  if(MIE_CONTEXT.enfantsAutorises&&MIE_CONTEXT.accompagnateursRecherches>0){
+    secAcc.style.display='block';
+    cbAcc.checked=false;
+    infoAcc.textContent=MIE_CONTEXT.accompagnateursRecherches+' accompagnateur(trice)s recherché(e)s pour ce séjour.';
+  } else {
+    secAcc.style.display='none';
+  }
+
+  mieRecalculerRecap();
+  document.getElementById('modal-inscription-event').classList.add('open');
+}
+
+function mieAjusterAdultes(delta){
+  var max=MIE_CONTEXT.maxAdultesParFoyer||6;
+  var nouvelleValeur=MIE_NB_ADULTES+delta;
+  if(nouvelleValeur>max){
+    showToast('Maximum '+max+' adulte'+(max>1?'s':'')+' par foyer pour ce voyage');
+    return;
+  }
+  MIE_NB_ADULTES=Math.max(1,Math.min(max,nouvelleValeur));
+  document.getElementById('mie-nb-adultes').textContent=String(MIE_NB_ADULTES);
+  mieRecalculerRecap();
+}
+
+function mieRecalculerRecap(){
+  var nbEnfantsCoches=document.querySelectorAll('.mie-enfant-cb:checked').length;
+  var accCoche=document.getElementById('mie-accompagnateur')&&document.getElementById('mie-accompagnateur').checked;
+  var total=MIE_NB_ADULTES+nbEnfantsCoches;
+  var txt=MIE_NB_ADULTES+' adulte'+(MIE_NB_ADULTES>1?'s':'');
+  if(nbEnfantsCoches>0)txt+=' + '+nbEnfantsCoches+' enfant'+(nbEnfantsCoches>1?'s':'');
+  txt+=' · Total : '+total+' personne'+(total>1?'s':'');
+  if(accCoche)txt+=' + vous comme accompagnateur(trice)';
+  document.getElementById('mie-recap').innerHTML='<i class="ti ti-users" aria-hidden="true"></i> '+txt;
+}
+
+function confirmerInscriptionEvent(){
+  var nbEnfantsCoches=[];
+  document.querySelectorAll('.mie-enfant-cb:checked').forEach(function(cb){nbEnfantsCoches.push(parseInt(cb.getAttribute('data-idx'),10));});
+  var accCoche=document.getElementById('mie-accompagnateur')&&document.getElementById('mie-accompagnateur').checked;
+  var totalPersonnes=MIE_NB_ADULTES+nbEnfantsCoches.length;
+
+  var inscription={
+    id:'i'+Date.now(),
+    demandeur:CURRENT_AMICALISTE,
+    statut:'attente',
+    nbAdultes:MIE_NB_ADULTES,
+    nbEnfants:nbEnfantsCoches.length,
+    enfantsIdx:nbEnfantsCoches,
+    accompagnateur:!!accCoche,
+    totalPersonnes:totalPersonnes,
+    dateInsc:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+  };
+
+  if(MIE_CONTEXT.type==='voyage'){
+    inscription.voyage=MIE_CONTEXT.key;
+    inscription.voyageNom=MIE_CONTEXT.nom;
+    INSCRIPTIONS_VOYAGES.unshift(inscription);
+    if(typeof renderInscriptionsVoyages==='function')renderInscriptionsVoyages();
+  } else {
+    inscription.evenement=MIE_CONTEXT.key;
+    inscription.evenementNom=MIE_CONTEXT.nom;
+    INSCRIPTIONS_EVENEMENTS.unshift(inscription);
+    if(typeof renderInscriptionsEvenements==='function')renderInscriptionsEvenements();
+    if(MIE_BOUTON_COURANT)_appliquerEtatBoutonInscription(MIE_BOUTON_COURANT,'attente');
+  }
+
+  var msg='Inscription envoyée — '+totalPersonnes+' personne'+(totalPersonnes>1?'s':'');
+  if(accCoche)msg+=' (dont vous comme accompagnateur)';
+  showToast(msg);
+  document.getElementById('modal-inscription-event').classList.remove('open');
+  MIE_BOUTON_COURANT=null;
+}
+
+
+// ══════════════════════════════════════════════════
+// PARAMÈTRES VOYAGE — gestion par la commission
+// ══════════════════════════════════════════════════
+function ouvrirModalParametresVoyage(voyKey){
+  var v=VOYAGES_DATA[voyKey];
+  if(!v){showToast('Voyage introuvable');return;}
+  document.getElementById('mpv-titre').textContent='Paramètres — '+v.nom;
+  document.getElementById('mpv-key').value=voyKey;
+  document.getElementById('mpv-places').value=v.places||0;
+  document.getElementById('mpv-max-foyer').value=v.maxAdultesParFoyer||4;
+  document.getElementById('mpv-enfants-autorises').checked=!!v.enfantsAutorises;
+  document.getElementById('mpv-age-limite').value=v.ageLimiteEnfants||14;
+  document.getElementById('mpv-tarif-enfant').value=v.tarifEnfant||'';
+  document.getElementById('mpv-accompagnateurs').value=v.accompagnateursRecherches||0;
+  mpvToggleEnfants();
+  document.getElementById('modal-param-voyage').classList.add('open');
+}
+
+function mpvToggleEnfants(){
+  var coche=document.getElementById('mpv-enfants-autorises').checked;
+  document.getElementById('mpv-section-enfants').style.display=coche?'block':'none';
+}
+
+function enregistrerParametresVoyage(){
+  var voyKey=document.getElementById('mpv-key').value;
+  var v=VOYAGES_DATA[voyKey];
+  if(!v){showToast('Voyage introuvable');return;}
+
+  v.places=parseInt(document.getElementById('mpv-places').value,10)||v.places;
+  v.maxAdultesParFoyer=Math.max(1,parseInt(document.getElementById('mpv-max-foyer').value,10)||4);
+  v.enfantsAutorises=document.getElementById('mpv-enfants-autorises').checked;
+  if(v.enfantsAutorises){
+    v.ageLimiteEnfants=parseInt(document.getElementById('mpv-age-limite').value,10)||14;
+    v.tarifEnfant=document.getElementById('mpv-tarif-enfant').value.trim()||'';
+    v.accompagnateursRecherches=parseInt(document.getElementById('mpv-accompagnateurs').value,10)||0;
+  }
+
+  document.getElementById('modal-param-voyage').classList.remove('open');
+  showToast('Paramètres mis à jour pour '+v.nom+' — max '+v.maxAdultesParFoyer+' adulte(s) par foyer');
+}
+
 </script>
 
+
+    <!-- MODAL INSCRIPTION ÉVÉNEMENT/VOYAGE — nombre de personnes, enfants, accompagnateurs -->
+    <div class="mow" id="modal-inscription-event">
+      <div class="mbox" style="max-height:90vh;overflow-y:auto">
+        <div class="mh2"></div>
+        <div class="mtt" id="mie-titre">S'inscrire</div>
+        <input type="hidden" id="mie-key">
+        <input type="hidden" id="mie-type">
+
+        <label class="ml" for="mie-nb-adultes">Nombre d'adultes (vous inclus)</label>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <button onclick="mieAjusterAdultes(-1)" style="width:38px;height:38px;border-radius:10px;border:none;background:var(--color-background-secondary);color:var(--color-text-primary);font-size:18px;font-weight:700;cursor:pointer">−</button>
+          <div id="mie-nb-adultes" style="flex:1;text-align:center;font-size:20px;font-weight:800;color:var(--color-text-primary)">1</div>
+          <button onclick="mieAjusterAdultes(1)" style="width:38px;height:38px;border-radius:10px;border:none;background:var(--r);color:white;font-size:18px;font-weight:700;cursor:pointer">+</button>
+        </div>
+
+        <!-- Section enfants — visible uniquement si le voyage/événement les autorise -->
+        <div id="mie-section-enfants" style="display:none">
+          <div class="sec">Vos enfants éligibles</div>
+          <div id="mie-enfants-list" style="margin-bottom:10px"></div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:14px" id="mie-enfants-info"></div>
+        </div>
+
+        <!-- Section accompagnateur — visible uniquement si le voyage recherche des accompagnateurs -->
+        <div id="mie-section-accompagnateur" style="display:none;margin-bottom:14px">
+          <div class="card" style="background:var(--rl);border:1px solid var(--r2)">
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <input type="checkbox" id="mie-accompagnateur" style="width:18px;height:18px;margin-top:2px;accent-color:var(--r)">
+              <label for="mie-accompagnateur" style="flex:1;cursor:pointer">
+                <div style="font-size:13px;font-weight:700;color:var(--rd)">Je me propose comme accompagnateur(trice)</div>
+                <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px" id="mie-accompagnateur-info">Places d'accompagnateurs recherchées</div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div id="mie-recap" style="background:var(--color-background-secondary);border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--color-text-secondary)"></div>
+
+        <div class="mac" style="margin-top:0">
+          <button class="mc-c" onclick="document.getElementById('modal-inscription-event').classList.remove('open')">Annuler</button>
+          <button class="mc-ok" id="mie-confirm-btn" onclick="confirmerInscriptionEvent()">Confirmer l'inscription</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL PARAMÈTRES VOYAGE — gestion par la commission -->
+    <div class="mow" id="modal-param-voyage">
+      <div class="mbox">
+        <div class="mh2"></div>
+        <div class="mtt" id="mpv-titre">Paramètres du voyage</div>
+        <input type="hidden" id="mpv-key">
+
+        <label class="ml" for="mpv-places">Nombre de places total</label>
+        <input class="mi" type="number" id="mpv-places" min="1" style="margin-bottom:10px">
+
+        <label class="ml" for="mpv-max-foyer">Maximum d'adultes par foyer</label>
+        <input class="mi" type="number" id="mpv-max-foyer" min="1" max="10" style="margin-bottom:6px">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:14px">Limite le nombre d'adultes qu'un même amicaliste peut inscrire pour ce voyage (lui-même + conjoint, etc.)</div>
+
+        <div style="background:var(--color-background-secondary);border-radius:12px;padding:10px 12px;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+            <input type="checkbox" id="mpv-enfants-autorises" style="width:18px;height:18px;accent-color:var(--r)" onchange="mpvToggleEnfants()">
+            <span style="font-size:13px;font-weight:600">Voyage ouvert aux enfants</span>
+          </label>
+        </div>
+
+        <div id="mpv-section-enfants" style="display:none">
+          <label class="ml" for="mpv-age-limite">Limite d'âge des enfants</label>
+          <input class="mi" type="number" id="mpv-age-limite" min="0" max="18" style="margin-bottom:10px">
+          <label class="ml" for="mpv-tarif-enfant">Tarif enfant</label>
+          <input class="mi" type="text" id="mpv-tarif-enfant" placeholder="ex: 90 €" style="margin-bottom:10px">
+          <label class="ml" for="mpv-accompagnateurs">Accompagnateurs recherchés (0 = aucun)</label>
+          <input class="mi" type="number" id="mpv-accompagnateurs" min="0" style="margin-bottom:10px">
+        </div>
+
+        <div class="mac" style="margin-top:4px">
+          <button class="mc-c" onclick="document.getElementById('modal-param-voyage').classList.remove('open')">Annuler</button>
+          <button class="mc-ok" onclick="enregistrerParametresVoyage()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
 </body>
 </html>
