@@ -15491,69 +15491,308 @@ function enregistrerParametresVoyage(){
     </div>
 
 
-<!-- V67 — voyages / événements : inscriptions, limites, synchronisation bureau ↔ amicaliste -->
-<style id="v67-sync-css">
-  .v67-status-card{background:var(--color-background-primary);border:1px solid var(--color-border-primary);border-radius:16px;padding:10px 12px;margin:8px 0 0;font-size:12px;color:var(--color-text-secondary);box-shadow:0 3px 12px rgba(0,0,0,.04)}
-  .v67-status-card strong{color:var(--color-text-primary)}
-  .v67-list-mini{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.v67-pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:800;background:var(--color-background-secondary);color:var(--color-text-secondary)}
-  .v67-pill.ok{background:var(--grl);color:var(--grn)}.v67-pill.att{background:var(--aml);color:var(--amb)}.v67-pill.ref{background:var(--rl);color:var(--rd)}.v67-max-note{font-size:11px;color:var(--color-text-secondary);line-height:1.35;margin:-3px 0 10px}
-  @media(max-width:700px){.v67-status-card{font-size:11.5px}.v67-list-mini{gap:5px}.v67-pill{font-size:9.5px;padding:4px 7px}}
-</style>
-<script id="v67-sync-js">
+<!-- V68 — Correctif référentiel visibilité commissions partout -->
+<script id="v68-visibilite-commissions-global">
 (function(){
-'use strict';
-const D=document; const $=id=>D.getElementById(id); const toast=msg=>{if(typeof showToast==='function')showToast(msg);else console.log(msg)};
-function closeAll(){D.querySelectorAll('.modal.open,.mow.open').forEach(m=>m.classList.remove('open'));D.body.classList.remove('v60-modal-open','modal-open')}
-function safe(fn){try{return fn()}catch(e){console.warn('[V67]',e)}}
-function todayFr(){return new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}
-function data(){
-  try{ if(typeof window.VOYAGES_DATA==='undefined' && typeof VOYAGES_DATA!=='undefined') window.VOYAGES_DATA=VOYAGES_DATA; }catch(e){}
-  try{ if(typeof window.INSCRIPTIONS_VOYAGES==='undefined' && typeof INSCRIPTIONS_VOYAGES!=='undefined') window.INSCRIPTIONS_VOYAGES=INSCRIPTIONS_VOYAGES; }catch(e){}
-  try{ if(typeof window.EVENTS_DATA==='undefined' && typeof EVENTS_DATA!=='undefined') window.EVENTS_DATA=EVENTS_DATA; }catch(e){}
-  try{ if(typeof window.INSCRIPTIONS_EVENEMENTS==='undefined' && typeof INSCRIPTIONS_EVENEMENTS!=='undefined') window.INSCRIPTIONS_EVENEMENTS=INSCRIPTIONS_EVENEMENTS; }catch(e){}
-  Object.keys(window.VOYAGES_DATA||{}).forEach(k=>{const v=window.VOYAGES_DATA[k]; if(v.maxParInscription==null)v.maxParInscription=v.maxAdultesParFoyer||4; if(v.maxAdultesParFoyer==null)v.maxAdultesParFoyer=v.maxParInscription;});
-  const def={repas:4,bal:2,tournoi:1}; Object.keys(window.EVENTS_DATA||{}).forEach(k=>{const ev=window.EVENTS_DATA[k]; if(ev.maxParInscription==null)ev.maxParInscription=def[k]||4;});
-}
-function name(){return window.CURRENT_AMICALISTE || (typeof CURRENT_AMICALISTE!=='undefined'?CURRENT_AMICALISTE:'Jean Dupont')}
-function v(k){data(); return (window.VOYAGES_DATA||{})[k]} function ev(k){data(); return (window.EVENTS_DATA||{})[k]}
-function voyMine(k){data();return (window.INSCRIPTIONS_VOYAGES||[]).find(i=>i.demandeur===name()&&i.voyage===k&&i.statut!=='refusee')}
-function evMine(k){data();return (window.INSCRIPTIONS_EVENEMENTS||[]).find(i=>i.demandeur===name()&&i.evenement===k&&i.statut!=='refusee')}
-function total(i){const n=i.totalPersonnes||((i.nbAdultes||1)+(i.nbEnfants||0));return n+' personne'+(n>1?'s':'')}
-function sl(st){return st==='acceptee'?'Inscription validée':st==='refusee'?'Inscription refusée':'Inscription en attente de validation'} function sc(st){return st==='acceptee'?'ok':st==='refusee'?'ref':'att'}
-const oldOpen=window.ouvrirModalInscriptionEvent;
-window.ouvrirModalInscriptionEvent=function(type,key,nom,enfantsAutorises,ageLimiteEnfants,accompagnateursRecherches,max){
-  data(); closeAll(); const source=type==='voyage'?v(key):ev(key); max=Math.max(1,parseInt(max||(source&&(source.maxParInscription||source.maxAdultesParFoyer))||4,10));
-  if(typeof oldOpen==='function') oldOpen(type,key,nom,enfantsAutorises,ageLimiteEnfants,accompagnateursRecherches,max);
-  if(window.MIE_CONTEXT){window.MIE_CONTEXT.maxAdultesParFoyer=max;window.MIE_CONTEXT.maxParInscription=max;}
-  const t=$('mie-titre'); if(t)t.textContent=(type==='voyage'?'S’inscrire au voyage — ':'S’inscrire à l’événement — ')+nom;
-  const lab=D.querySelector('label[for="mie-nb-adultes"]'); if(lab)lab.textContent='Nombre de personnes à inscrire — max '+max;
-  const btn=$('mie-confirm-btn'); if(btn)btn.innerHTML='<i class="ti ti-send" aria-hidden="true"></i> Envoyer la demande';
-  const note=$('v67-modal-max-note'); if(note)note.remove(); const recap=$('mie-recap'); if(recap)recap.insertAdjacentHTML('afterend','<div class="v67-max-note" id="v67-modal-max-note">La demande arrivera automatiquement dans la commission '+(type==='voyage'?'Voyages':'Événements')+'.</div>');
-  const modal=$('modal-inscription-event'); if(modal)modal.classList.add('open');
-};
-const oldAdjust=window.mieAjusterAdultes; window.mieAjusterAdultes=function(delta){const max=Math.max(1,parseInt((window.MIE_CONTEXT||{}).maxParInscription||(window.MIE_CONTEXT||{}).maxAdultesParFoyer||6,10));const cur=typeof window.MIE_NB_ADULTES==='number'?window.MIE_NB_ADULTES:1;if(cur+delta>max){toast('Maximum '+max+' personne'+(max>1?'s':'')+' par inscription');return} if(typeof oldAdjust==='function')return oldAdjust(delta)};
-window.inscrireVoyage=function(key){const x=v(key);if(!x){toast('Voyage introuvable');return}const d=voyMine(key);if(d){toast(sl(d.statut)+' — '+x.nom);renderVoyagesAmicalisteV67();return}window.ouvrirModalInscriptionEvent('voyage',key,x.nom,!!x.enfantsAutorises,x.ageLimiteEnfants||14,x.accompagnateursRecherches||0,x.maxParInscription||x.maxAdultesParFoyer||4)};
-window.inscrireEvenement=function(key,btnEl){const x=ev(key);if(!x){toast('Événement introuvable');return}const d=evMine(key);if(d){toast(sl(d.statut)+' — '+x.titre);renderEvenementsAmicalisteV67();return}window.MIE_BOUTON_COURANT=btnEl||null;window.ouvrirModalInscriptionEvent('evenement',key,x.titre,!!x.enfantsAutorises,x.ageLimiteEnfants||16,x.accompagnateursRecherches||0,x.maxParInscription||4)};
-window.confirmerInscriptionEvent=function(){data();const ctx=window.MIE_CONTEXT||{};if(!ctx.type||!ctx.key){toast('Aucune inscription en cours');return}const nb=typeof window.MIE_NB_ADULTES==='number'?window.MIE_NB_ADULTES:1;const enf=[...D.querySelectorAll('.mie-enfant-cb:checked')].map(cb=>parseInt(cb.dataset.idx||cb.getAttribute('data-idx'),10));const ins={id:'i'+Date.now(),demandeur:name(),statut:'attente',nbAdultes:nb,nbEnfants:enf.length,enfantsIdx:enf,accompagnateur:!!($('mie-accompagnateur')&&$('mie-accompagnateur').checked),totalPersonnes:nb+enf.length,dateInsc:todayFr()};
-  if(ctx.type==='voyage'){const x=v(ctx.key);ins.voyage=ctx.key;ins.voyageNom=x?x.nom:ctx.nom;(window.INSCRIPTIONS_VOYAGES||[]).unshift(ins);toast('Demande envoyée à la commission Voyages — '+total(ins));renderInscriptionsVoyagesV67();renderVoyagesAmicalisteV67();}
-  else{const x=ev(ctx.key);ins.evenement=ctx.key;ins.evenementNom=x?x.titre:ctx.nom;(window.INSCRIPTIONS_EVENEMENTS||[]).unshift(ins);toast('Demande envoyée à la commission Événements — '+total(ins));renderInscriptionsEvenementsV67();renderEvenementsAmicalisteV67();}
-  const m=$('modal-inscription-event'); if(m)m.classList.remove('open');
-};
-function buttonsByCall(fn){return [...D.querySelectorAll('button')].filter(b=>(b.getAttribute('onclick')||'').includes(fn+'('))}
-function voyKeyFromButton(b){const oc=b.getAttribute('onclick')||'';const m=oc.match(/inscrireVoyage\('([^']+)'\)/)||oc.match(/inscrireVoyage\("([^"]+)"\)/);return m&&m[1]}
-function evKeyFromButton(b){const oc=b.getAttribute('onclick')||'';const m=oc.match(/inscrireEvenement\('([^']+)'\)/)||oc.match(/inscrireEvenement\("([^"]+)"\)/);return m&&m[1]}
-function addStatus(card,cls,html){if(card&&!card.querySelector('.'+cls))card.insertAdjacentHTML('beforeend',html)}
-window.renderVoyagesAmicalisteV67=function(){data();buttonsByCall('inscrireVoyage').forEach(b=>{const key=voyKeyFromButton(b);const x=v(key);if(!key||!x)return;const mine=voyMine(key);b.disabled=false;b.style.opacity='';b.style.cursor='pointer';if(mine){b.disabled=true;b.style.opacity='.9';b.style.cursor='default';b.style.background=mine.statut==='acceptee'?'var(--grn)':'var(--amb)';b.innerHTML='<i class="ti '+(mine.statut==='acceptee'?'ti-circle-check':'ti-clock')+'"></i>'+(mine.statut==='acceptee'?'Inscription validée':'Demande envoyée')}else{b.innerHTML='<i class="ti ti-send"></i>S’inscrire';b.onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}window.inscrireVoyage(key)}}const all=(window.INSCRIPTIONS_VOYAGES||[]).filter(i=>i.voyage===key&&i.statut!=='refusee');addStatus(b.closest('.card')||b.parentElement,'v67-voy-'+key,'<div class="v67-status-card v67-voy-'+key+'"><div><strong>Maximum par inscription :</strong> '+(x.maxParInscription||x.maxAdultesParFoyer||4)+' personne(s)</div>'+(mine?'<div style="margin-top:4px"><span class="v67-pill '+sc(mine.statut)+'">'+sl(mine.statut)+'</span> '+total(mine)+'</div>':'<div style="margin-top:4px">Choisissez le nombre de personnes au moment de l’inscription.</div>')+'<div class="v67-list-mini">'+(all.length?all.slice(0,6).map(i=>'<span class="v67-pill '+sc(i.statut)+'">'+i.demandeur+' · '+total(i)+'</span>').join(''):'<span class="v67-pill">Aucun inscrit pour le moment</span>')+'</div></div>')})};
-window.renderEvenementsAmicalisteV67=function(){data();buttonsByCall('inscrireEvenement').forEach(b=>{const key=evKeyFromButton(b);const x=ev(key);if(!key||!x)return;const mine=evMine(key);b.disabled=false;b.style.opacity='';b.style.cursor='pointer';if(mine){b.disabled=true;b.style.opacity='.9';b.style.cursor='default';b.style.background=mine.statut==='acceptee'?'var(--grn)':'var(--amb)';b.innerHTML='<i class="ti '+(mine.statut==='acceptee'?'ti-circle-check':'ti-clock')+'"></i>'+(mine.statut==='acceptee'?'Inscription validée':'Demande envoyée')}else{b.innerHTML='<i class="ti ti-check"></i>S’inscrire';b.onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}window.inscrireEvenement(key,b)}}const all=(window.INSCRIPTIONS_EVENEMENTS||[]).filter(i=>i.evenement===key&&i.statut!=='refusee');addStatus(b.closest('.card')||b.parentElement,'v67-ev-'+key,'<div class="v67-status-card v67-ev-'+key+'"><div><strong>Maximum par inscription :</strong> '+(x.maxParInscription||4)+' personne(s)</div>'+(mine?'<div style="margin-top:4px"><span class="v67-pill '+sc(mine.statut)+'">'+sl(mine.statut)+'</span> '+total(mine)+'</div>':'')+'<div class="v67-list-mini">'+(all.length?all.slice(0,6).map(i=>'<span class="v67-pill '+sc(i.statut)+'">'+i.demandeur+' · '+total(i)+'</span>').join(''):'<span class="v67-pill">Aucun inscrit pour le moment</span>')+'</div></div>')})};
-window.renderInscriptionsVoyagesV67=function(){if(typeof renderInscriptionsVoyages==='function')renderInscriptionsVoyages();const list=$('voy-inscriptions-list');if(list)(window.INSCRIPTIONS_VOYAGES||[]).forEach(i=>{[...list.querySelectorAll('.card')].filter(c=>(c.textContent||'').includes(i.demandeur)&&(c.textContent||'').includes(i.voyageNom)).forEach(c=>addStatus(c,'v67-persons-'+i.id,'<div class="v67-status-card v67-persons-'+i.id+'"><strong>Demande :</strong> '+total(i)+' · '+sl(i.statut)+'</div>'))});if(typeof updateNotifBadges==='function')updateNotifBadges()};
-window.renderInscriptionsEvenementsV67=function(){if(typeof renderInscriptionsEvenements==='function')renderInscriptionsEvenements();const list=$('ev-inscriptions-list');if(list)(window.INSCRIPTIONS_EVENEMENTS||[]).forEach(i=>{[...list.querySelectorAll('.card')].filter(c=>(c.textContent||'').includes(i.demandeur)&&(c.textContent||'').includes(i.evenementNom)).forEach(c=>addStatus(c,'v67-persons-'+i.id,'<div class="v67-status-card v67-persons-'+i.id+'"><strong>Demande :</strong> '+total(i)+' · '+sl(i.statut)+'</div>'))});if(typeof updateNotifBadges==='function')updateNotifBadges()};
-const ov=window.validerInscription;window.validerInscription=function(id){if(typeof ov==='function')ov(id);renderInscriptionsVoyagesV67();renderVoyagesAmicalisteV67()};const orv=window.refuserInscription;window.refuserInscription=function(id){if(typeof orv==='function')orv(id);renderInscriptionsVoyagesV67();renderVoyagesAmicalisteV67()};const ove=window.validerInscriptionEv;window.validerInscriptionEv=function(id){if(typeof ove==='function')ove(id);renderInscriptionsEvenementsV67();renderEvenementsAmicalisteV67()};const ore=window.refuserInscriptionEv;window.refuserInscriptionEv=function(id){if(typeof ore==='function')ore(id);renderInscriptionsEvenementsV67();renderEvenementsAmicalisteV67()};
-function injectFields(){data();const cd=$('creer-desc');if(cd&&!$('creer-max-inscription'))cd.insertAdjacentHTML('afterend','<label class="ml" for="creer-max-inscription" style="margin-top:8px">Maximum de personnes par inscription</label><input class="ri" type="number" id="creer-max-inscription" min="1" max="20" value="4" style="margin-bottom:8px"><div class="v67-max-note">Ce nombre sera affiché automatiquement côté amicaliste.</div>');const md=$('mod-desc-inp');if(md&&!$('mod-max-inscription'))md.insertAdjacentHTML('afterend','<label class="ml" for="mod-max-inscription" style="margin-top:8px">Maximum de personnes par inscription</label><input class="ri" type="number" id="mod-max-inscription" min="1" max="20" value="4" style="margin-bottom:8px"><div class="v67-max-note">Ce nombre est synchronisé côté amicaliste.</div>')}
-const oo=window.ouvrirModifier;window.ouvrirModifier=function(id){if(typeof oo==='function')oo(id);setTimeout(()=>{injectFields();const inp=$('mod-max-inscription');if(inp&&ev(id))inp.value=ev(id).maxParInscription||4},60)};const os=window.sauvegarderModif;window.sauvegarderModif=function(){const id=($('pg-modifier-evenement')&&$('pg-modifier-evenement').dataset.editingId)||'repas';const inp=$('mod-max-inscription');if(inp&&ev(id))ev(id).maxParInscription=Math.max(1,parseInt(inp.value,10)||4);if(typeof os==='function')os();renderEvenementsAmicalisteV67()};const op=window.publierCreer;window.publierCreer=function(){const max=Math.max(1,parseInt(($('creer-max-inscription')||{}).value,10)||4);window.__lastCreatedEventMax=max;if(typeof op==='function')op();toast('Maximum par inscription événement : '+max+' personne(s)')};const oep=window.enregistrerParametresVoyage;window.enregistrerParametresVoyage=function(){const key=($('mpv-key')||{}).value;if(typeof oep==='function')oep();if(v(key))v(key).maxParInscription=v(key).maxAdultesParFoyer||v(key).maxParInscription||4;renderVoyagesAmicalisteV67();renderInscriptionsVoyagesV67()};
-const og=window.goPage;window.goPage=function(id){if(typeof og==='function')og(id);setTimeout(()=>{safe(injectFields);if(id==='pg-voyages-amical')renderVoyagesAmicalisteV67();if(id==='pg-evenements-amical')renderEvenementsAmicalisteV67();if(id==='pg-comm-voyages')renderInscriptionsVoyagesV67();if(id==='pg-comm-evenements')renderInscriptionsEvenementsV67()},80)};
-D.addEventListener('click',function(e){const b=e.target.closest('button');if(!b)return;const key=voyKeyFromButton(b);if(key){e.preventDefault();e.stopPropagation();window.inscrireVoyage(key)}},true);
-function init(){data();injectFields();renderVoyagesAmicalisteV67();renderEvenementsAmicalisteV67();renderInscriptionsVoyagesV67();renderInscriptionsEvenementsV67();console.log('[V67] Inscriptions voyages/événements synchronisées')}
-if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',init);else setTimeout(init,0);
+  'use strict';
+  if(window.__V68_VISIBILITE_COMMISSIONS__) return;
+  window.__V68_VISIBILITE_COMMISSIONS__ = true;
+
+  function ready(fn){ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fn); else fn(); }
+  function safe(fn){ try{return fn&&fn();}catch(e){ console.warn('[V68 visibilité commissions]', e); } }
+
+  function getCommissions(){
+    try{
+      if(typeof COMMISSIONS_GEREES !== 'undefined' && Array.isArray(COMMISSIONS_GEREES)){
+        window.COMMISSIONS_GEREES = COMMISSIONS_GEREES;
+        return COMMISSIONS_GEREES;
+      }
+    }catch(e){}
+    if(Array.isArray(window.COMMISSIONS_GEREES)) return window.COMMISSIONS_GEREES;
+    return [];
+  }
+
+  function getCommission(id){
+    return getCommissions().find(function(c){ return c && c.id === id; });
+  }
+
+  function isCommissionVisible(id){
+    var c = getCommission(id);
+    if(c && c.visible === false) return false;
+    if(window.commissionsActive && Object.prototype.hasOwnProperty.call(window.commissionsActive,id)){
+      return !!window.commissionsActive[id];
+    }
+    return true;
+  }
+
+  function syncCommissionsActive(){
+    window.commissionsActive = window.commissionsActive || {};
+    getCommissions().forEach(function(c){
+      if(!c || !c.id) return;
+      if(typeof c.visible === 'undefined') c.visible = true;
+      window.commissionsActive[c.id] = c.visible !== false;
+    });
+    safe(function(){ localStorage.setItem('commissions_visibility', JSON.stringify(window.commissionsActive)); });
+  }
+
+  function loadVisibility(){
+    var saved = null;
+    safe(function(){ saved = JSON.parse(localStorage.getItem('commissions_visibility') || 'null'); });
+    if(!saved) return;
+    getCommissions().forEach(function(c){
+      if(c && c.id && Object.prototype.hasOwnProperty.call(saved,c.id)) c.visible = !!saved[c.id];
+    });
+    window.commissionsActive = Object.assign({}, window.commissionsActive || {}, saved);
+  }
+
+  function hideOutsideSettings(el,id){
+    if(!el || !id) return;
+    var keepVisible = el.closest('#gestion-comm-list') || el.closest('#modal-commission') || el.closest('#ab-commissions-multi') || el.closest('#msg-commissions-list') || el.closest('#v52-demo-commission-select');
+    if(keepVisible) return;
+    el.style.display = isCommissionVisible(id) ? '' : 'none';
+  }
+
+  function applyCommissionVisibility(){
+    syncCommissionsActive();
+
+    document.querySelectorAll('[data-comm]').forEach(function(el){
+      hideOutsideSettings(el, el.getAttribute('data-comm'));
+    });
+
+    // Les cartes fixes du bureau doivent aussi suivre le référentiel.
+    ['cal','loc','ev','voy','sport','noel','fdf'].forEach(function(id){
+      document.querySelectorAll('#tour-bureau-commissions .comm-card[data-comm="'+id+'"]').forEach(function(card){
+        card.style.display = isCommissionVisible(id) ? '' : 'none';
+      });
+    });
+
+    // La section commissions côté bureau ou amicaliste disparaît si tout est masqué.
+    ['tour-bureau-commissions','v50-amical-commissions','v49-amical-commissions','v47-amical-commissions'].forEach(function(id){
+      var section=document.getElementById(id);
+      if(!section) return;
+      var cards=section.querySelectorAll('[data-comm]');
+      if(!cards.length) return;
+      var any=[].some.call(cards,function(c){ return c.style.display !== 'none'; });
+      section.style.display = any ? '' : 'none';
+    });
+  }
+
+  // Remplace le rendu des commissions personnalisées pour exclure les commissions masquées.
+  window.renderCommissionsCustom = function(){
+    var cont=document.getElementById('commissions-custom');
+    if(!cont) return;
+    var custom=getCommissions().filter(function(c){ return c && !c.fixe && c.visible !== false; });
+    cont.innerHTML=custom.map(function(c){
+      var nom=(c.nom||'Commission').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      var ico=c.ico||'ti-users-group';
+      var col=c.col||'var(--blu)';
+      var resp=(typeof libelleResps==='function') ? libelleResps(c.resps) : ((c.resps&&c.resps.length)?c.resps.join(', '):'À désigner');
+      return '<div class="comm-card" data-comm="'+c.id+'" onclick="showToast(\'Commission '+nom.replace(/'/g,'\\\'')+' — espace dédié à venir\')">'+
+        '<div class="comm-ico" style="background:var(--bll)"><i class="ti '+ico+'" style="color:'+col+'" aria-hidden="true"></i></div>'+
+        '<div style="flex:1"><div class="comm-name">'+nom+'</div><div class="comm-sub">'+resp+'</div></div>'+
+        '<div class="comm-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>'+
+      '</div>';
+    }).join('');
+    setTimeout(applyCommissionVisibility,0);
+  };
+
+  // Toggle unique : il met à jour la commission, le référentiel, les deux interfaces, la démo et les droits.
+  window.toggleVisibiliteComm = function(id){
+    var c=getCommission(id);
+    if(!c) return;
+    c.visible = c.visible === false ? true : false;
+    syncCommissionsActive();
+    safe(function(){ if(typeof renderGestionComm === 'function') renderGestionComm(); });
+    safe(function(){ if(typeof window.renderCommissionsCustom === 'function') window.renderCommissionsCustom(); });
+    safe(function(){ if(window.AppSyncV50 && typeof window.AppSyncV50.renderAmicalisteCommissions === 'function') window.AppSyncV50.renderAmicalisteCommissions(); });
+    safe(function(){ if(window.AppCommissionsV51 && typeof window.AppCommissionsV51.refresh === 'function') window.AppCommissionsV51.refresh(); });
+    safe(function(){ if(typeof remplirSelectModeDemo === 'function') remplirSelectModeDemo(); });
+    safe(function(){ if(typeof refreshBureauCommissionCards === 'function') refreshBureauCommissionCards(); });
+    safe(function(){ if(typeof appliquerDroitsBureau === 'function') appliquerDroitsBureau(); });
+    applyCommissionVisibility();
+    if(typeof showToast === 'function') showToast('Commission '+(c.nom||id)+(c.visible?' visible':' masquée')+' partout');
+  };
+
+  // Si d'autres fonctions réaffichent les cartes, on réapplique la visibilité juste après.
+  function wrap(name){
+    if(typeof window[name] !== 'function' || window[name].__v68Wrapped) return;
+    var old=window[name];
+    var fn=function(){ var r=old.apply(this,arguments); setTimeout(applyCommissionVisibility,0); return r; };
+    fn.__v68Wrapped=true;
+    window[name]=fn;
+  }
+
+  ready(function(){
+    loadVisibility();
+    syncCommissionsActive();
+    ['renderGestionComm','appliquerVisibiliteCommissions','remplirSelectModeDemo','refreshBureauCommissionCards','appliquerDroitsBureau'].forEach(wrap);
+    if(window.AppSyncV50 && typeof window.AppSyncV50.renderAmicalisteCommissions==='function'){
+      var old=window.AppSyncV50.renderAmicalisteCommissions;
+      window.AppSyncV50.renderAmicalisteCommissions=function(){ var r=old.apply(this,arguments); setTimeout(applyCommissionVisibility,0); return r; };
+    }
+    var oldGo=window.goPage;
+    if(typeof oldGo==='function' && !oldGo.__v68Wrapped){
+      window.goPage=function(){ var r=oldGo.apply(this,arguments); setTimeout(applyCommissionVisibility,0); return r; };
+      window.goPage.__v68Wrapped=true;
+    }
+    applyCommissionVisibility();
+    setTimeout(applyCommissionVisibility,300);
+    setTimeout(applyCommissionVisibility,1000);
+  });
+
+  window.AppVisibilityV68={apply:applyCommissionVisibility,isVisible:isCommissionVisible,sync:syncCommissionsActive};
+})();
+</script>
+
+
+
+<!-- V69 — Commissions dynamiques : ouverture bureau + affichage amicaliste -->
+<style id="v69-commissions-dynamiques-css">
+  .v69-commissions-wrap{padding:6px 14px 10px;}
+  .v69-commissions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  .v69-comm-card{border:1px solid rgba(17,24,39,.08);background:rgba(255,255,255,.96);border-radius:22px;box-shadow:0 12px 32px rgba(15,23,42,.06);padding:13px;min-height:82px;display:flex;align-items:center;gap:12px;text-align:left;font-family:var(--font-sans);cursor:pointer;color:var(--color-text-primary);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;width:100%;}
+  .v69-comm-card:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(15,23,42,.10);border-color:rgba(125,43,56,.22)}
+  .v69-comm-ico{width:46px;height:46px;border-radius:17px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .v69-comm-ico i{font-size:22px;}
+  .v69-comm-title{display:block;font-size:13px;font-weight:850;line-height:1.15;}
+  .v69-comm-sub{display:block;font-size:10.5px;color:var(--color-text-secondary);margin-top:4px;line-height:1.3;}
+  body.pc-mode .v69-commissions-wrap{width:min(1280px,calc(100% - 48px));max-width:1280px;margin-left:auto;margin-right:auto;padding-left:0;padding-right:0;}
+  body.pc-mode .v69-commissions-grid{grid-template-columns:repeat(4,minmax(210px,1fr));gap:14px;}
+  @media(max-width:520px){.v69-commissions-grid{grid-template-columns:1fr}.v69-comm-card{min-height:72px;border-radius:18px}.v69-comm-ico{width:42px;height:42px;border-radius:15px}}
+  .v69-custom-hero{border-radius:22px;margin:12px;padding:16px;color:white;box-shadow:0 18px 42px rgba(15,23,42,.18);}
+  .v69-feature-card{background:white;border:1px solid rgba(17,24,39,.08);border-radius:18px;padding:14px;box-shadow:0 10px 24px rgba(15,23,42,.06);margin:10px 12px;}
+</style>
+<script id="v69-commissions-dynamiques-js">
+(function(){
+  'use strict';
+  if(window.__V69_COMMISSIONS_DYNAMIQUES__) return;
+  window.__V69_COMMISSIONS_DYNAMIQUES__=true;
+
+  function safe(fn){try{return fn&&fn();}catch(e){console.warn('[V69 commissions dynamiques]',e);}}
+  function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
+  function getCommissions(){
+    try{ if(typeof COMMISSIONS_GEREES!=='undefined' && Array.isArray(COMMISSIONS_GEREES)){ window.COMMISSIONS_GEREES=COMMISSIONS_GEREES; return COMMISSIONS_GEREES; } }catch(e){}
+    return Array.isArray(window.COMMISSIONS_GEREES)?window.COMMISSIONS_GEREES:[];
+  }
+  function getComm(id){ return getCommissions().find(function(c){return c && String(c.id)===String(id);}); }
+  function isVisible(c){ return c && c.visible!==false && !(window.commissionsActive && Object.prototype.hasOwnProperty.call(window.commissionsActive,c.id) && window.commissionsActive[c.id]===false); }
+  function iconBg(c){ return c && c.id==='fdf' ? '#fce4ec' : (c && c.id==='noel' ? 'var(--grl)' : 'var(--bll)'); }
+  function subFor(c){
+    var map={cal:'Secteurs, retours, campagne',loc:'Demandes, matériel, historique',ev:'Inscriptions, affiches, retours',voy:'Séjours, inscriptions, participants',sport:'Sport, challenges, événements',noel:'Inscriptions, familles, organisation',fdf:'Commission dédiée'};
+    if(map[c.id]) return map[c.id];
+    var feats=(c.features||[]).map(function(f){return ({notifications:'Notifications',carousel:'Carousel',evenements:'Événements',locations:'Locations',voyages:'Voyages',documents:'Documents',compta:'Comptabilité',membres:'Membres',bons_cadeaux:'Bons cadeaux'})[f]||f;});
+    return feats.length?feats.slice(0,3).join(' · '):'Commission de l\'amicale';
+  }
+
+  var FIXED_BUREAU={cal:'pg-comm-calendriers',loc:'pg-comm-locations',ev:'pg-comm-evenements',voy:'pg-comm-voyages',sport:'pg-comm-sport',noel:'pg-comm-noel',fdf:'pg-comm-fdf'};
+  var FIXED_AMICAL={cal:'pg-calendriers-amical',loc:'pg-locations-amical',ev:'pg-evenements-amical',voy:'pg-voyages-amical',sport:'pg-evenements-amical',noel:'pg-amical-noel',fdf:'pg-amical-fdf'};
+
+  window.openCommissionBureauV69=function(id){
+    var c=getComm(id);
+    if(!c){ if(window.showToast) showToast('Commission introuvable'); return false; }
+    if(!isVisible(c)){ if(window.showToast) showToast('Cette commission est masquée'); return false; }
+    var page=FIXED_BUREAU[id];
+    if(page && document.getElementById(page)){ window.goPage(page); return true; }
+    if(typeof window.ouvrirCommissionCustom==='function'){ window.ouvrirCommissionCustom(id); return true; }
+    if(window.showToast) showToast('Espace commission en préparation');
+    return false;
+  };
+
+  function ensureAmicalCustomPage(){
+    var pg=document.getElementById('pg-amical-custom');
+    if(pg) return pg;
+    pg=document.createElement('div');
+    pg.className='screen';
+    pg.id='pg-amical-custom';
+    pg.innerHTML='<div id="amical-custom-header"></div><div id="amical-custom-content" style="padding-bottom:24px"></div>';
+    document.body.appendChild(pg);
+    try{ if(window.BACK_MAP) window.BACK_MAP['pg-amical-custom']='pg-home-amical'; }catch(e){}
+    return pg;
+  }
+  function featureText(f){
+    return ({notifications:'Recevoir les informations importantes de cette commission.',carousel:'Consulter les affiches, photos et contenus publiés.',evenements:'Voir les événements et inscriptions liés à cette commission.',locations:'Consulter les demandes et informations de location.',voyages:'Voir les voyages et sorties proposés.',documents:'Accéder aux documents partagés.',compta:'Consulter les informations publiées par le bureau.',membres:'Voir les informations utiles de la commission.',bons_cadeaux:'Suivre les bons, retraits et dates limites.'})[f]||'Fonctionnalité disponible.';
+  }
+  function featureLabel(f){ return ({notifications:'Notifications',carousel:'Carousel',evenements:'Événements',locations:'Locations',voyages:'Voyages',documents:'Documents',compta:'Informations',membres:'Membres',bons_cadeaux:'Bons cadeaux'})[f]||f; }
+  function featureIcon(f){ return ({notifications:'ti-bell',carousel:'ti-photo',evenements:'ti-confetti',locations:'ti-building',voyages:'ti-plane',documents:'ti-file-text',compta:'ti-info-circle',membres:'ti-users',bons_cadeaux:'ti-gift'})[f]||'ti-circle'; }
+  window.openCommissionAmicalV69=function(id){
+    var c=getComm(id);
+    if(!c){ if(window.showToast) showToast('Commission introuvable'); return false; }
+    if(!isVisible(c)){ if(window.showToast) showToast('Cette commission n\'est pas visible côté amicaliste'); return false; }
+    var page=FIXED_AMICAL[id];
+    if(page && document.getElementById(page)){ window.goPage(page); return true; }
+    var pg=ensureAmicalCustomPage();
+    var hdr=document.getElementById('amical-custom-header');
+    var cont=document.getElementById('amical-custom-content');
+    var color=c.col||'var(--blu)';
+    hdr.innerHTML='<div class="sub-hd" style="background:'+color+'"><button class="back" onclick="goPage(\'pg-home-amical\')" aria-label="Retour"><i class="ti ti-arrow-left"></i></button><div><div class="shd-t">'+esc(c.nom)+'</div><div class="shd-s">Commission de l\'amicale</div></div></div>';
+    var feats=c.features&&c.features.length?c.features:['notifications','documents'];
+    cont.innerHTML='<div class="v69-custom-hero" style="background:'+color+'"><div style="font-size:30px;margin-bottom:8px"><i class="ti '+esc(c.ico||'ti-users-group')+'"></i></div><div style="font-size:20px;font-weight:900">'+esc(c.nom)+'</div><div style="font-size:13px;opacity:.86;margin-top:4px">'+esc(subFor(c))+'</div></div>'+
+      feats.map(function(f){return '<div class="v69-feature-card"><div style="display:flex;align-items:center;gap:12px"><div style="width:42px;height:42px;border-radius:15px;background:var(--bll);display:flex;align-items:center;justify-content:center"><i class="ti '+featureIcon(f)+'" style="font-size:21px;color:var(--blu)"></i></div><div style="flex:1"><div style="font-size:14px;font-weight:850;color:var(--color-text-primary)">'+esc(featureLabel(f))+'</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.4;margin-top:2px">'+esc(featureText(f))+'</div></div></div></div>';}).join('')+
+      '<div style="padding:10px 14px;color:var(--color-text-secondary);font-size:12px;line-height:1.45">Les contenus de cette commission seront alimentés par le bureau selon les fonctionnalités activées.</div>';
+    window.goPage('pg-amical-custom');
+    return true;
+  };
+
+  window.renderCommissionsCustom=function(){
+    var cont=document.getElementById('commissions-custom');
+    if(!cont) return;
+    var custom=getCommissions().filter(function(c){return c && !c.fixe && isVisible(c);});
+    cont.innerHTML=custom.map(function(c){
+      return '<div class="comm-card" data-comm="'+esc(c.id)+'" onclick="openCommissionBureauV69(\''+esc(c.id)+'\')">'+
+        '<div class="comm-ico" style="background:var(--bll)"><i class="ti '+esc(c.ico||'ti-users-group')+'" style="color:'+(c.col||'var(--blu)')+'" aria-hidden="true"></i></div>'+ 
+        '<div style="flex:1"><div class="comm-name">'+esc(c.nom||'Commission')+'</div><div class="comm-sub">'+esc((typeof libelleResps==='function'?libelleResps(c.resps):((c.resps||[]).join(', ')||'À désigner')))+'</div></div>'+ 
+        '<div class="comm-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>'+ 
+      '</div>';
+    }).join('');
+  };
+
+  window.renderAmicalisteCommissionsV69=function(){
+    ['v47-amical-commissions','v49-amical-commissions','v50-amical-commissions','v69-amical-commissions'].forEach(function(id){var old=document.getElementById(id); if(old) old.remove();});
+    var home=document.getElementById('pg-home-amical'); if(!home) return;
+    var list=getCommissions().filter(isVisible);
+    if(!list.length) return;
+    var wrap=document.createElement('div'); wrap.id='v69-amical-commissions'; wrap.className='v69-commissions-wrap';
+    wrap.innerHTML='<div class="sec">Commissions de l\'amicale</div><div class="v69-commissions-grid">'+list.map(function(c){
+      return '<button type="button" class="v69-comm-card" data-comm="'+esc(c.id)+'" onclick="openCommissionAmicalV69(\''+esc(c.id)+'\')"><span class="v69-comm-ico" style="background:'+iconBg(c)+'"><i class="ti '+esc(c.ico||'ti-users-group')+'" style="color:'+(c.col||'var(--r)')+'"></i></span><span><span class="v69-comm-title">'+esc(c.nom||c.id)+'</span><span class="v69-comm-sub">'+esc(subFor(c))+'</span></span></button>';
+    }).join('')+'</div>';
+    var retours=[].find.call(home.children,function(el){ return el.textContent && el.textContent.indexOf('Retour en images')>-1; });
+    if(retours) home.insertBefore(wrap,retours); else home.appendChild(wrap);
+  };
+
+  function refreshAll(){
+    safe(function(){ if(window.renderCommissionsCustom) window.renderCommissionsCustom(); });
+    safe(function(){ window.renderAmicalisteCommissionsV69(); });
+    safe(function(){ if(window.AppVisibilityV68 && window.AppVisibilityV68.apply) window.AppVisibilityV68.apply(); });
+    safe(function(){ if(typeof appliquerDroitsBureau==='function') appliquerDroitsBureau(); });
+  }
+
+  // Après création/modification/suppression/visibilité, on reconstruit les deux côtés.
+  ['confirmerCommission','supprimerCommission','toggleVisibiliteComm'].forEach(function(name){
+    var fn=window[name];
+    if(typeof fn==='function' && !fn.__v69Wrapped){
+      var wrapped=function(){ var r=fn.apply(this,arguments); setTimeout(refreshAll,40); return r; };
+      wrapped.__v69Wrapped=true; window[name]=wrapped;
+    }
+  });
+
+  var oldGo=window.goPage;
+  if(typeof oldGo==='function' && !oldGo.__v69DynWrapped){
+    var go=function(page){ var r=oldGo.apply(this,arguments); if(page==='pg-home-amical'||page==='pg-home-bureau') setTimeout(refreshAll,60); return r; };
+    go.__v69DynWrapped=true; window.goPage=go;
+  }
+
+  document.addEventListener('click',function(ev){
+    var card=ev.target.closest && ev.target.closest('#tour-bureau-commissions .comm-card[data-comm]');
+    if(card){
+      var id=card.getAttribute('data-comm');
+      var c=getComm(id);
+      if(c && !FIXED_BUREAU[id]){ ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation(); openCommissionBureauV69(id); }
+    }
+  },true);
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(refreshAll,100); setTimeout(refreshAll,700); });
+  else { setTimeout(refreshAll,100); setTimeout(refreshAll,700); }
+  window.AppCommissionsDynV69={refresh:refreshAll,openBureau:window.openCommissionBureauV69,openAmical:window.openCommissionAmicalV69};
 })();
 </script>
 
