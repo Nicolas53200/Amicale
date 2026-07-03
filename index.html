@@ -7607,8 +7607,6 @@ function resoudreProfilBureau(){
 }
 
 function connecterBureau(){
-  // Réinitialiser le flag missions pour afficher le popup à chaque login
-  try{sessionStorage.removeItem('missionsFermees');}catch(e){}
   const profil=resoudreProfilBureau();
   bureauRole=profil.role;
   bureauCommissions=profil.commissions||[];
