@@ -907,6 +907,46 @@ body.pc-mode .amical-tabbar{display:none!important}
   display:none;align-items:center;justify-content:center;padding:0 4px;
 }
 
+/* TAB BAR BUREAU */
+.bureau-tabbar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:390px;background:var(--color-background-primary);
+  border-top:0.5px solid var(--color-border-tertiary);
+  display:none;align-items:center;justify-content:center;
+  padding:4px 8px calc(4px + env(safe-area-inset-bottom,0px));
+  gap:0;z-index:160;
+  box-shadow:0 -2px 16px rgba(0,0,0,.08);
+}
+@media(max-width:420px){.bureau-tabbar{width:100%;transform:none;left:0}}
+body.pc-mode .bureau-tabbar{display:none!important}
+.btab-btn{
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  border:none;background:transparent;cursor:pointer;
+  font-family:var(--font-sans);color:var(--color-text-secondary);
+  font-size:10px;font-weight:600;padding:6px 0;flex:1;
+  border-radius:var(--border-radius-md);transition:color .15s;
+  position:relative;
+}
+.btab-btn i{font-size:22px;transition:color .15s}
+.btab-btn.on{color:var(--r)}
+.btab-btn.on i{color:var(--r)}
+.btab-badge{
+  position:absolute;top:2px;right:calc(50% - 18px);
+  min-width:16px;height:16px;border-radius:8px;
+  background:var(--r);color:white;font-size:9px;font-weight:700;
+  display:none;align-items:center;justify-content:center;padding:0 4px;
+}
+
+/* SECTIONS PLIANTES BUREAU */
+.sec-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;padding:0 14px;margin-bottom:10px;
+  -webkit-tap-highlight-color:transparent;
+}
+.sec-toggle .sec{margin-bottom:0}
+.sec-toggle i{font-size:16px;color:var(--color-text-secondary);transition:transform .2s}
+.sec-toggle.collapsed i{transform:rotate(-90deg)}
+
 /* Compensation pour que le contenu ne soit pas caché */
 .screen.on{padding-bottom:68px}
 #pg-accueil.on,#pg-splash.on{padding-bottom:0}
@@ -3089,9 +3129,12 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
       <div class="bureau-hd">
         <div class="bh-top">
           <div style="display:flex;align-items:center;gap:10px">
-            <div class="bh-av" id="bh-avatar">MD</div>
+            <div style="width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0" id="bh-logo-wrap">
+              <i class="ti ti-flame" style="font-size:21px;color:white" aria-hidden="true"></i>
+            </div>
             <div><div class="bh-name" id="bh-name">Michel Durand</div><div class="bh-role" id="bh-role">Président · Accès total</div></div>
           </div>
+          <div class="bh-av" id="bh-avatar" style="display:none">MD</div>
           <div class="bh-actions">
             <button class="bh-btn" id="tour-bureau-aide" onclick="ouvrirAide()" aria-label="Aide"><i class="ti ti-help-circle" aria-hidden="true"></i></button>
             <button class="bh-btn" onclick="goPage('pg-messagerie-bureau')" aria-label="Messagerie"><i class="ti ti-message" aria-hidden="true"></i><span class="bh-notif" id="bh-msg-badge"></span></button>
@@ -3099,12 +3142,17 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           </div>
         </div>
       </div>
+      <!-- TAB BUREAU (main content) -->
+      <div id="bureau-tab-bureau">
       <div id="tour-bureau-stats" style="margin:-38px 14px 14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
         <div class="sc" id="bh-members-card"><div class="slbl" id="bh-members-label">Membres actifs</div><div class="sval" id="bh-members-val">47</div><div class="ssub" id="bh-members-sub">dont 12 retraités</div></div>
         <div class="sc" id="bh-solde-card"><div class="slbl" id="bh-solde-label">Solde amicale</div><div class="sval" style="color:var(--grn)" id="bh-solde-val">3 840 €</div><div class="ssub" id="bh-solde-sub">mis à jour 3 juin</div></div>
       </div>
 
-      <div style="padding:0 14px;margin-bottom:10px"><div class="sec">Outils du bureau</div></div>
+      <div class="sec-toggle" onclick="toggleBureauSection('outils')">
+        <div class="sec">Outils du bureau</div>
+        <i class="ti ti-chevron-down" aria-hidden="true"></i>
+      </div>
       <div class="tools-grid" id="tour-bureau-outils">
         <button class="tool-btn" data-tool="membres" onclick="goPage('pg-membres-bureau')">
           <div class="tool-ico ti-red"><i class="ti ti-users" aria-hidden="true"></i></div>
@@ -3140,7 +3188,10 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         </button>
       </div>
 
-      <div style="padding:0 14px;margin-bottom:10px"><div class="sec">Commissions</div></div>
+      <div class="sec-toggle" onclick="toggleBureauSection('commissions')">
+        <div class="sec">Commissions</div>
+        <i class="ti ti-chevron-down" aria-hidden="true"></i>
+      </div>
       <div class="comm-list-wrap" id="tour-bureau-commissions">
         <div class="comm-card" data-comm="cal" onclick="goPage('pg-comm-calendriers')">
           <div class="comm-ico" style="background:var(--r2)"><i class="ti ti-book" style="color:var(--r)" aria-hidden="true"></i></div>
@@ -3190,8 +3241,6 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         </div>
         <div id="commissions-custom"></div>
       </div>
-      <button class="add-btn" id="tour-bureau-creer-comm" style="margin:0 14px 20px;width:calc(100% - 28px)" onclick="ouvrirGestionCommissions()"><i class="ti ti-plus" aria-hidden="true"></i>Créer / gérer les commissions</button>
-
       <div style="padding:0 14px;margin-bottom:10px"><div class="sec">Prochaines réunions</div></div>
       <div style="padding:0 14px;margin-bottom:20px">
         <div class="reun-card next">
@@ -3206,6 +3255,55 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <div class="rc-info"><div class="rc-title">Commission voyages</div><div class="rc-meta">18h30 · Caserne · Salle 1</div></div>
           <span class="badge badge-neu">À venir</span>
         </div>
+      </div>
+      </div>
+
+      <!-- TAB MESSAGES BUREAU (inline) -->
+      <div id="bureau-tab-messages" style="display:none;flex:1;overflow-y:auto;padding:14px;padding-bottom:80px">
+        <div style="display:flex;gap:6px;margin-bottom:14px">
+          <button class="fp on" id="bmsg-f-tous" onclick="filtrerMsgBureauTab('tous',this)">Tous</button>
+          <button class="fp" id="bmsg-f-nonlus" onclick="filtrerMsgBureauTab('nonlus',this)">Non lus</button>
+          <button class="fp" id="bmsg-f-envoyes" onclick="filtrerMsgBureauTab('envoyes',this)">Envoyés</button>
+        </div>
+        <div id="bureau-tab-msg-list"></div>
+        <button onclick="ouvrirComposeBureauTab()" style="position:fixed;bottom:72px;right:calc(50% - 175px);width:48px;height:48px;border-radius:50%;background:var(--r);color:white;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 12px rgba(200,30,30,.35);display:flex;align-items:center;justify-content:center;z-index:150"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+      </div>
+
+      <!-- MODAL COMPOSE MSG BUREAU TAB -->
+      <div class="mow" id="modal-compose-bureau-tab">
+        <div class="mbox" style="max-height:85vh;overflow-y:auto">
+          <div class="mh2"></div>
+          <div class="mtt">Nouveau message</div>
+          <label class="ml" for="bmsg-tab-dest">Destinataire</label>
+          <select class="ri" id="bmsg-tab-dest" style="margin-bottom:8px">
+            <option value="tous">Tous les membres du bureau</option>
+          </select>
+          <label class="ml" for="bmsg-tab-objet">Objet</label>
+          <input class="mi" type="text" id="bmsg-tab-objet">
+          <label class="ml" for="bmsg-tab-corps">Message</label>
+          <textarea class="mi" id="bmsg-tab-corps" rows="4" style="resize:none"></textarea>
+          <div class="mac" style="margin-top:12px">
+            <button class="mc-c" onclick="document.getElementById('modal-compose-bureau-tab').classList.remove('open')">Annuler</button>
+            <button class="mc-ok" onclick="envoyerMsgBureauTab()"><i class="ti ti-send" aria-hidden="true"></i> Envoyer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB BAR BUREAU -->
+      <div class="bureau-tabbar" id="bureau-tabbar">
+        <button class="btab-btn" onclick="switchBureauTab('amicaliste',this)">
+          <i class="ti ti-eye" aria-hidden="true"></i>
+          <span>Amicaliste</span>
+        </button>
+        <button class="btab-btn on" onclick="switchBureauTab('bureau',this)">
+          <i class="ti ti-briefcase" aria-hidden="true"></i>
+          <span>Bureau</span>
+        </button>
+        <button class="btab-btn" onclick="switchBureauTab('messages',this)">
+          <i class="ti ti-message" aria-hidden="true"></i>
+          <span>Messages</span>
+          <span class="btab-badge" id="btab-msg-badge"></span>
+        </button>
       </div>
     </div>
 
@@ -19138,6 +19236,179 @@ function enregistrerParametresVoyage(){
     }
     updateMsgBadge();
   });
+})();
+
+// ══════════════════════════════════════════
+// TAB BAR BUREAU + SECTIONS PLIANTES
+// ══════════════���═══════════════════════════
+(function(){
+  if(window.__BUREAU_TABBAR__) return;
+  window.__BUREAU_TABBAR__=true;
+
+  var bureauMsgFiltre='tous';
+
+  window.toggleBureauSection=function(section){
+    var targets={
+      outils: document.getElementById('tour-bureau-outils'),
+      commissions: document.getElementById('tour-bureau-commissions')
+    };
+    var el=targets[section];
+    if(!el) return;
+    var toggle=el.previousElementSibling;
+    if(!toggle||!toggle.classList.contains('sec-toggle')) return;
+    var collapsed=toggle.classList.toggle('collapsed');
+    el.style.display=collapsed?'none':'';
+  };
+
+  window.switchBureauTab=function(tab,btn){
+    var bar=document.getElementById('bureau-tabbar');
+    if(bar) bar.querySelectorAll('.btab-btn').forEach(function(b){ b.classList.remove('on'); });
+    if(btn) btn.classList.add('on');
+
+    if(tab==='amicaliste'){
+      goPage('pg-home-amical');
+      return;
+    }
+
+    var bureauContent=document.getElementById('bureau-tab-bureau');
+    var msgContent=document.getElementById('bureau-tab-messages');
+    if(tab==='bureau'){
+      if(bureauContent) bureauContent.style.display='';
+      if(msgContent) msgContent.style.display='none';
+    } else if(tab==='messages'){
+      if(bureauContent) bureauContent.style.display='none';
+      if(msgContent) msgContent.style.display='';
+      renderMsgBureauTab();
+    }
+  };
+
+  function renderMsgBureauTab(){
+    var list=document.getElementById('bureau-tab-msg-list');
+    if(!list) return;
+    var myId=typeof _getMsgId==='function'?_getMsgId():'bm1';
+    var msgs=(window.MSG_BUREAU||[]).filter(function(m){
+      if(bureauMsgFiltre==='nonlus') return !m.lu && (m.dest==='tous'||m.dest===myId);
+      if(bureauMsgFiltre==='envoyes') return m.de===myId;
+      return m.dest==='tous'||m.dest===myId||m.de===myId;
+    });
+    updateBureauMsgBadge();
+    if(!msgs.length){
+      list.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--color-text-secondary)"><i class="ti ti-mailbox" style="font-size:40px;display:block;margin-bottom:8px;opacity:.4" aria-hidden="true"></i><div style="font-size:13px">Aucun message</div></div>';
+      return;
+    }
+    function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+    function nomById(id){
+      var m=(window.BUREAU_MEMBRES||[]).find(function(x){return x.id===id;});
+      return m?m.nom:id;
+    }
+    list.innerHTML=msgs.map(function(m){
+      var isMe=m.de===myId;
+      var typeInfo=(window.MSG_TYPES||{})[m.type||'normal']||{ico:'&#128172;',label:'Message'};
+      return '<div class="card" style="margin-bottom:8px;cursor:pointer;border-left:3px solid '+(m.lu||isMe?'transparent':'var(--r)')+'" onclick="ouvrirMsgBureauDetail(\''+m.id+'\')">'
+        +'<div style="display:flex;align-items:center;gap:10px">'
+        +'<div style="width:36px;height:36px;border-radius:50%;background:'+(isMe?'var(--bll)':'var(--rl)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+        +'<span style="font-size:16px">'+typeInfo.ico+'</span></div>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;font-weight:'+(m.lu||isMe?'600':'700')+';color:var(--color-text-primary)">'+(isMe?'Envoyé à '+(m.dest==='tous'?'Tous':esc(nomById(m.dest))):esc(nomById(m.de)))+'</div>'
+        +'<div style="font-size:10px;color:var(--color-text-secondary)">'+esc(m.date||'')+'</div></div>'
+        +'<div style="font-size:12px;color:var(--color-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">'+esc(m.objet||'')+'</div>'
+        +'</div></div></div>';
+    }).join('');
+  }
+
+  window.ouvrirMsgBureauDetail=function(id){
+    var msg=(window.MSG_BUREAU||[]).find(function(m){return m.id===id;});
+    if(!msg) return;
+    msg.lu=true;
+    updateBureauMsgBadge();
+    if(typeof ouvrirMsgDetail==='function'){
+      ouvrirMsgDetail(id);
+    } else {
+      goPage('pg-messagerie-bureau');
+    }
+  };
+
+  window.filtrerMsgBureauTab=function(filtre,btn){
+    bureauMsgFiltre=filtre;
+    var wrap=btn.parentElement;
+    if(wrap) wrap.querySelectorAll('.fp').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+    renderMsgBureauTab();
+  };
+
+  window.ouvrirComposeBureauTab=function(){
+    var sel=document.getElementById('bmsg-tab-dest');
+    if(sel){
+      var opts='<option value="tous">Tous les membres du bureau</option>';
+      (window.BUREAU_MEMBRES||[]).forEach(function(m){
+        opts+='<option value="'+m.id+'">'+m.nom+' ('+m.label+')</option>';
+      });
+      sel.innerHTML=opts;
+    }
+    document.getElementById('bmsg-tab-objet').value='';
+    document.getElementById('bmsg-tab-corps').value='';
+    document.getElementById('modal-compose-bureau-tab').classList.add('open');
+  };
+
+  window.envoyerMsgBureauTab=function(){
+    var dest=document.getElementById('bmsg-tab-dest').value;
+    var objet=document.getElementById('bmsg-tab-objet').value.trim();
+    var corps=document.getElementById('bmsg-tab-corps').value.trim();
+    if(!objet||!corps){ if(typeof showToast==='function') showToast('Veuillez remplir tous les champs'); return; }
+    var myId=typeof _getMsgId==='function'?_getMsgId():'bm1';
+    var now=new Date();
+    var dateStr=('0'+now.getDate()).slice(-2)+'/'+('0'+(now.getMonth()+1)).slice(-2)+'/'+now.getFullYear();
+    var newMsg={
+      id:'bm'+Date.now(),
+      type:'normal',
+      de:myId,
+      dest:dest,
+      objet:objet,
+      corps:corps,
+      date:dateStr,
+      lu:true,
+      envoye:true,
+      presences:null
+    };
+    if(Array.isArray(window.MSG_BUREAU)) window.MSG_BUREAU.unshift(newMsg);
+    document.getElementById('modal-compose-bureau-tab').classList.remove('open');
+    renderMsgBureauTab();
+    if(typeof showToast==='function') showToast('Message envoyé');
+  };
+
+  function updateBureauMsgBadge(){
+    var myId=typeof _getMsgId==='function'?_getMsgId():'bm1';
+    var count=(window.MSG_BUREAU||[]).filter(function(m){return !m.lu && m.de!==myId && (m.dest==='tous'||m.dest===myId);}).length;
+    var badge=document.getElementById('btab-msg-badge');
+    if(badge){ badge.style.display=count?'flex':'none'; badge.textContent=count; }
+  }
+
+  var _oldGoBureau=window.goPage;
+  if(typeof _oldGoBureau==='function' && !_oldGoBureau.__bureauTab){
+    var _wrappedGoBureau=function(id){
+      var r=_oldGoBureau.apply(this,arguments);
+      setTimeout(function(){
+        var bar=document.getElementById('bureau-tabbar');
+        if(bar) bar.style.display=(id==='pg-home-bureau')?'flex':'none';
+        if(id==='pg-home-bureau'){
+          var bureauContent=document.getElementById('bureau-tab-bureau');
+          var msgContent=document.getElementById('bureau-tab-messages');
+          if(bureauContent) bureauContent.style.display='';
+          if(msgContent) msgContent.style.display='none';
+          var btns=bar?bar.querySelectorAll('.btab-btn'):[];
+          btns.forEach(function(b){b.classList.remove('on');});
+          if(btns[1]) btns[1].classList.add('on');
+          updateBureauMsgBadge();
+        }
+      },0);
+      return r;
+    };
+    _wrappedGoBureau.__bureauTab=true;
+    window.goPage=_wrappedGoBureau;
+  }
+
+  function ready(fn){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn);else setTimeout(fn,0);}
+  ready(function(){ updateBureauMsgBadge(); });
 })();
 
 </script>
