@@ -8050,6 +8050,8 @@ const MEMBRES_DATA=[
    adresse:'',tel:'',email:'',situation:'',conjoint:'',enfants:0,contactUrgence:'',avatar:'\uD83D\uDC69'},
   {p:'Claude',n:'Bernard',naiss:'27/02/1950',adh:'1985-01-01',grade:'Capitaine',type:'SPP',st:'retraite',genre:'H',
    adresse:'',tel:'',email:'',situation:'',conjoint:'',enfants:0,contactUrgence:'',avatar:'\uD83D\uDC68'},
+  {p:'Fran\u00E7ois',n:'Moreau',naiss:'18/09/1975',adh:'2008-03-01',grade:'Capitaine',type:'SPV',st:'actif',genre:'H',
+   adresse:'8 avenue de la R\u00E9publique, 53000 Laval',tel:'06 45 67 89 01',email:'francois.moreau@email.fr',situation:'marie_f',conjoint:'Anne Moreau',enfants:1,enfantsNaiss:['2010-06-15'],enfantsNoms:['Th\u00E9o'],contactUrgence:'Anne Moreau \u2014 06 54 32 10 98',avatar:'\uD83D\uDC68',codeInvitation:'INV-FRANCOIS-7788',invitationStatut:'inscrit'},
 ];
 const MB_COLORS=['#c0392b','#1a3a7c','#1a6b3a','#9b6b00','#534AB7','#0F6E56','#7d3c98','#145a32'];
 const anYrs=adh=>Math.max(0,Math.floor((Date.now()-new Date(adh))/(1000*60*60*24*365.25)));
@@ -10783,7 +10785,7 @@ function envoyerFeedback(){
 // ═══════════════════════════════════════════
 // Liste éditable des commissions (basée sur les commissions existantes)
 let COMMISSIONS_GEREES=[
-  {id:'cal', nom:'Calendriers',    resps:['Jean Dupont'],              ico:'ti-book',          col:'var(--r)',   fixe:true,visible:true,features:['notifications','documents','compta','membres']},
+  {id:'cal', nom:'Calendriers',    resps:['François Moreau'],           ico:'ti-book',          col:'var(--r)',   fixe:true,visible:true,features:['notifications','documents','compta','membres']},
   {id:'loc', nom:'Locations',      resps:['Pierre Leroy'],             ico:'ti-building',      col:'var(--blu)', fixe:true,visible:true,features:['notifications','locations','compta','membres']},
   {id:'ev',  nom:'Événements',    resps:['Sophie Martin','Marie Garnier'],ico:'ti-confetti',     col:'var(--r)',   fixe:true,visible:true,features:['notifications','carousel','evenements','compta','membres']},
   {id:'voy', nom:'Voyages',        resps:['Marie Garnier'],            ico:'ti-plane',         col:'var(--pur)', fixe:true,visible:true,features:['notifications','voyages','compta','membres']},
@@ -12352,7 +12354,7 @@ document.addEventListener('DOMContentLoaded', _persoRestore);
 // MESSAGERIE BUREAU
 // ══════════════════════════════════════════
 var MSG_BUREAU = [
-  {id:'m1', de:'Jean Dupont', role:'pres', dest:'tous', objet:'Réunion mensuelle', corps:'Bonjour à tous, rappel de notre réunion mensuelle le 15 juin à 19h au centre de secours. Merci de confirmer votre présence.', date:'14/06/2026', lu:false, envoye:false},
+  {id:'m1', de:'François Moreau', role:'pres', dest:'tous', objet:'Réunion mensuelle', corps:'Bonjour à tous, rappel de notre réunion mensuelle le 15 juin à 19h au centre de secours. Merci de confirmer votre présence.', date:'14/06/2026', lu:false, envoye:false},
   {id:'m2', de:'Marie Martin', role:'sec', dest:'pres', objet:'Compte-rendu AG', corps:'Voici le compte-rendu de l\u2019assemblée générale du 10 juin. Merci de le valider avant publication.', date:'11/06/2026', lu:false, envoye:false},
   {id:'m3', de:'Pierre Leroy', role:'trso', dest:'tous', objet:'Point budget T2', corps:'Le budget du deuxième trimestre affiche un solde positif de 1 240 €. Détail en pièce jointe.', date:'05/06/2026', lu:true, envoye:false},
 ];
@@ -12383,7 +12385,7 @@ var MSG_COURANT = null;
 
 // Membres du bureau avec leurs rôles
 var BUREAU_MEMBRES = [
-  {id:'bm1', nom:'Jean Dupont',     role:'pres',  label:'Président',    avatar:'J'},
+  {id:'bm1', nom:'François Moreau', role:'pres',  label:'Président',    avatar:'F'},
   {id:'bm2', nom:'Marie Martin',    role:'sec',   label:'Secrétaire',   avatar:'M'},
   {id:'bm3', nom:'Pierre Leroy',    role:'trso',  label:'Trésorier',    avatar:'P'},
   {id:'bm4', nom:'Sophie Bernard',  role:'comm',  label:'Commission',   avatar:'S'},
@@ -13030,7 +13032,7 @@ var ROLE_BUREAU_PERMISSIONS = {
 };
 
 var ACCES_BUREAU = [
-  {nom:'Jean Dupont', role:'president', commissions:[], code:'BUR-JEAN-53', statut:'actif'},
+  {nom:'François Moreau', role:'president', commissions:[], code:'BUR-FRANCOIS-53', statut:'actif'},
   {nom:'Marie Garnier', role:'secretaire', commissions:[{nom:'Événements',role:'membre_commission'}], code:'BUR-MARIE-53', statut:'actif'},
   {nom:'Pierre Leroy', role:'tresorier', commissions:[{nom:'Locations',role:'membre_commission'}], code:'BUR-PIERRE-53', statut:'invite'},
   {nom:'Sophie Martin', role:'responsable_commission', commissions:[{nom:'Événements',role:'responsable_commission'},{nom:'Voyages',role:'membre_commission'}], code:'BUR-SOPHIE-53', statut:'actif'},
@@ -15197,10 +15199,10 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     cal:{nom:'Calendriers',ico:'ti-book'}, loc:{nom:'Locations',ico:'ti-building'}, ev:{nom:'Événements',ico:'ti-confetti'}, voy:{nom:'Voyages',ico:'ti-plane'}, sport:{nom:'Sportive',ico:'ti-trophy'}, noel:{nom:'Arbre de Noël',ico:'ti-christmas-tree'}, fdf:{nom:'Fête des Femmes',ico:'ti-heart'}
   };
   var COMM_MEMBERS={
-    cal:[{id:'bm1',nom:'Jean Dupont',role:'Responsable'},{id:'bm4',nom:'Sophie Bernard',role:'Membre'},{id:'bm5',nom:'Claude Moreau',role:'Membre'}],
+    cal:[{id:'bm1',nom:'François Moreau',role:'Responsable'},{id:'bm4',nom:'Sophie Bernard',role:'Membre'},{id:'bm5',nom:'Claude Moreau',role:'Membre'}],
     loc:[{id:'bm5',nom:'Claude Moreau',role:'Responsable'},{id:'bm3',nom:'Pierre Leroy',role:'Membre'}],
     ev:[{id:'bm4',nom:'Sophie Bernard',role:'Responsable'},{id:'bm2',nom:'Marie Martin',role:'Membre'}],
-    voy:[{id:'bm2',nom:'Marie Martin',role:'Responsable'},{id:'bm1',nom:'Jean Dupont',role:'Membre'}],
+    voy:[{id:'bm2',nom:'Marie Martin',role:'Responsable'},{id:'bm1',nom:'François Moreau',role:'Membre'}],
     sport:[{id:'bm5',nom:'Claude Moreau',role:'Responsable'}],
     noel:[{id:'bm4',nom:'Sophie Bernard',role:'Responsable'},{id:'bm2',nom:'Marie Martin',role:'Membre'}],
     fdf:[{id:'bm4',nom:'Sophie Bernard',role:'Responsable'},{id:'bm2',nom:'Marie Martin',role:'Membre'}]
@@ -15823,7 +15825,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
       }
     });
     if(!names.length){
-      var map={cal:['Jean Dupont','Marie Garnier'],loc:['Pierre Leroy','Lucas Bernard'],ev:['Sophie Martin','Marie Garnier'],voy:['Sophie Martin','Jean Dupont'],sport:['Marc Petit'],noel:['Sophie Martin'],fdf:['Marie Garnier','Lucas Bernard']};
+      var map={cal:['François Moreau','Marie Garnier'],loc:['Pierre Leroy','Lucas Bernard'],ev:['Sophie Martin','Marie Garnier'],voy:['Sophie Martin','François Moreau'],sport:['Marc Petit'],noel:['Sophie Martin'],fdf:['Marie Garnier','Lucas Bernard']};
       names=map[commId]||[];
     }
     return Array.from(new Set(names));
@@ -19286,13 +19288,13 @@ function enregistrerParametresVoyage(){
   };
 
   function renderAmicalTabCommissions(){
+    if(typeof window.renderAmicalisteCommissions==='function'){ window.renderAmicalisteCommissions(); return; }
     var list=document.getElementById('amical-commissions-list');
     if(!list) return;
     var comms=[];
-    if(window.COMMISSIONS_FIXES_COMPLEMENTAIRES_V53) comms=comms.concat(window.COMMISSIONS_FIXES_COMPLEMENTAIRES_V53);
-    if(window.COMMISSIONS_GEREES) comms=comms.concat(window.COMMISSIONS_GEREES.filter(function(c){ return !comms.find(function(x){return x.id===c.id;}); }));
+    if(window.COMMISSIONS_GEREES) comms=comms.concat(window.COMMISSIONS_GEREES);
     var active=window.commissionsActive||{};
-    try{ active=JSON.parse(localStorage.getItem('commissionsActive')||'{}'); }catch(e){}
+    try{ var saved=JSON.parse(localStorage.getItem('commissionsActive')||'{}'); Object.keys(saved).forEach(function(k){active[k]=saved[k];}); }catch(e){}
     comms=comms.filter(function(c){ return active[c.id]!==false; });
 
     function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
