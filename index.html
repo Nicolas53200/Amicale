@@ -19222,7 +19222,12 @@ function enregistrerParametresVoyage(){
           if(accTab && accTab.style.display==='none'){} else { updateMsgBadge(); }
           var btnBureau=document.getElementById('atab-btn-bureau');
           if(btnBureau){
-            btnBureau.style.display=window.__IS_BUREAU_MEMBER__?'flex':'none';
+            var estBureauMembre=false;
+            if(typeof CURRENT_AMICALISTE==='string' && Array.isArray(window.ACCES_BUREAU)){
+              var nom=CURRENT_AMICALISTE;
+              estBureauMembre=window.ACCES_BUREAU.some(function(a){ return a.nom===nom; });
+            }
+            btnBureau.style.display=estBureauMembre?'flex':'none';
           }
         }
       },0);
@@ -19399,7 +19404,6 @@ function enregistrerParametresVoyage(){
         var bar=document.getElementById('bureau-tabbar');
         if(bar) bar.style.display=(id==='pg-home-bureau')?'flex':'none';
         if(id==='pg-home-bureau'){
-          window.__IS_BUREAU_MEMBER__=true;
           var bureauContent=document.getElementById('bureau-tab-bureau');
           var msgContent=document.getElementById('bureau-tab-messages');
           if(bureauContent) bureauContent.style.display='';
