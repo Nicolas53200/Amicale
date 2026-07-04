@@ -2196,6 +2196,9 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <label class="ml" for="ob-naissance">Date de naissance</label>
           <input class="ri" type="date" id="ob-naissance" style="margin-bottom:10px" oninput="majAgeOnboarding()">
           <div id="ob-age-info" style="font-size:11px;color:var(--color-text-secondary);margin:-6px 0 0 2px;display:none"></div>
+          <label class="ml" for="ob-date-adhesion">Date d'entrée dans l'amicale</label>
+          <input class="ri" type="date" id="ob-date-adhesion" style="margin-bottom:4px">
+          <div style="font-size:11px;color:var(--color-text-secondary);margin:0 0 10px 2px;line-height:1.3">Si vous ne connaissez pas la date exacte, laissez vide. Elle pourra être confirmée par le secrétaire ou le président.</div>
         </div>
 
         <div class="obm-card obm-step-card" data-ob-step="2">
@@ -2769,18 +2772,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 
         <!-- DOCUMENTS DE L'AMICALE -->
         <div class="sec">Documents de l'amicale</div>
-        <div class="card" style="margin-bottom:12px">
-          <div class="dr" style="cursor:pointer" onclick="showToast('Téléchargement du règlement intérieur...')">
-            <i class="ti ti-file-text" aria-hidden="true"></i>
-            <div class="dr-l">Règlement de l'amicale</div>
-            <div class="dr-v" style="color:var(--r);display:flex;align-items:center;gap:4px"><i class="ti ti-download" style="font-size:13px" aria-hidden="true"></i>PDF</div>
-          </div>
-          <div class="dr" style="border:none;cursor:pointer" onclick="showToast('Téléchargement de la présentation de l\'amicale...')">
-            <i class="ti ti-file-description" aria-hidden="true"></i>
-            <div class="dr-l">Présentation de l'amicale</div>
-            <div class="dr-v" style="color:var(--r);display:flex;align-items:center;gap:4px"><i class="ti ti-download" style="font-size:13px" aria-hidden="true"></i>PDF</div>
-          </div>
-        </div>
+        <div class="card" id="ia-docs-amicale" style="margin-bottom:12px"></div>
 
         <button class="btn-r" onclick="ouvrirModalEditProfil()"><i class="ti ti-edit" aria-hidden="true"></i>Modifier mes informations</button>
       </div>
@@ -2804,7 +2796,10 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <label class="ml" for="ep-genre">Genre</label>
         <select class="mi" id="ep-genre"><option value="H">Homme</option><option value="F">Femme</option><option value="NR">Non renseigné</option></select>
         <label class="ml" for="ep-naissance">Date de naissance</label>
-          <input class="mi" type="text" id="ep-naissance" placeholder="JJ/MM/AAAA">
+          <input class="mi" type="date" id="ep-naissance">
+          <label class="ml" for="ep-date-adhesion">Date d'entrée dans l'amicale</label>
+          <input class="mi" type="date" id="ep-date-adhesion">
+          <div id="ep-adhesion-status" style="font-size:11px;margin:2px 0 10px 2px;line-height:1.3"></div>
           <label class="ml" for="ep-adresse">Adresse</label>
           <input class="mi" type="text" id="ep-adresse" placeholder="N° et rue, code postal, ville">
           <label class="ml" for="ep-tel">Téléphone</label>
@@ -5386,8 +5381,9 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div><div class="shd-t">Réunions & archives</div><div class="shd-s">Comptes rendus et procès-verbaux</div></div>
       </div>
       <div class="nav-tabs">
-        <button class="tb on" onclick="showGenTab('reu-cr',this,'pg-reunions')"><i class="ti ti-clipboard-text" aria-hidden="true"></i>Réunions de bureau</button>
-        <button class="tb" onclick="showGenTab('reu-pv',this,'pg-reunions')"><i class="ti ti-gavel" aria-hidden="true"></i>PV d'assemblée</button>
+        <button class="tb on" onclick="showGenTab('reu-cr',this,'pg-reunions')"><i class="ti ti-clipboard-text" aria-hidden="true"></i>Réunions</button>
+        <button class="tb" onclick="showGenTab('reu-pv',this,'pg-reunions')"><i class="ti ti-gavel" aria-hidden="true"></i>PV d'AG</button>
+        <button class="tb" onclick="showGenTab('reu-docs',this,'pg-reunions')"><i class="ti ti-books" aria-hidden="true"></i>Documents</button>
       </div>
 
       <!-- COMPTES RENDUS DE RÉUNIONS DE BUREAU -->
@@ -5415,6 +5411,45 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div class="sec">Procès-verbaux archivés</div>
         <div id="pv-list"></div>
         <button class="add-btn" style="margin-top:4px" onclick="ouvrirModalDoc('pv')"><i class="ti ti-plus" aria-hidden="true"></i>Ajouter un procès-verbal</button>
+      </div>
+
+      <!-- DOCUMENTS STRUCTURANTS -->
+      <div class="tc" id="reu-docs" style="padding:12px">
+        <div style="background:var(--bll);border-radius:var(--border-radius-lg);padding:11px 13px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+          <i class="ti ti-info-circle" style="font-size:20px;color:var(--blu);flex-shrink:0" aria-hidden="true"></i>
+          <div style="font-size:12px;color:var(--color-text-primary);line-height:1.4">Documents officiels de l'amicale. Mis à jour ici, ils sont automatiquement accessibles aux amicalistes dans leur fiche membre.</div>
+        </div>
+        <div class="sec">Documents officiels</div>
+        <div id="docs-structurants-list"></div>
+        <button class="add-btn" style="margin-top:8px" onclick="ouvrirModalDocStructurant()"><i class="ti ti-plus" aria-hidden="true"></i>Ajouter un document</button>
+      </div>
+
+      <!-- MODAL AJOUT DOCUMENT STRUCTURANT -->
+      <div class="mow" id="modal-doc-structurant">
+        <div class="mbox">
+          <div class="mh2"></div>
+          <div class="mtt">Ajouter / modifier un document structurant</div>
+          <label class="ml" for="ds-type-inp">Type de document</label>
+          <select class="mi" id="ds-type-inp">
+            <option value="reglement">Règlement intérieur</option>
+            <option value="presentation">Présentation de l'amicale</option>
+            <option value="statuts">Statuts de l'association</option>
+            <option value="charte">Charte de l'amicaliste</option>
+            <option value="autre">Autre document</option>
+          </select>
+          <label class="ml" for="ds-titre-inp">Intitulé</label>
+          <input class="mi" type="text" id="ds-titre-inp" placeholder="ex: Règlement intérieur 2026">
+          <label class="ml" for="ds-date-inp">Date de mise à jour</label>
+          <input class="mi" type="date" id="ds-date-inp">
+          <div class="upload-zone" id="upload-zone-docstruct" onclick="document.getElementById('ds-file-inp').click()">
+            <i class="ti ti-cloud-upload" aria-hidden="true"></i><div class="uz-t" id="ds-uz-t">Joindre le fichier (PDF)</div><div class="uz-s">PDF, Word · max 10 Mo</div>
+          </div>
+          <input type="file" id="ds-file-inp" style="display:none" accept=".pdf,.doc,.docx" onchange="majFichierDocStructurant(this)">
+          <div class="mac" style="margin-top:4px">
+            <button class="mc-c" onclick="document.getElementById('modal-doc-structurant').classList.remove('open')">Annuler</button>
+            <button class="mc-ok" onclick="confirmerDocStructurant()">Enregistrer</button>
+          </div>
+        </div>
       </div>
 
       <!-- MODAL AJOUT DOCUMENT -->
@@ -5583,15 +5618,29 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         </div>
         <div class="sec">Aperçu du contenu</div>
         <div class="card" id="modele-detail-apercu" style="font-size:12px;line-height:1.55;color:var(--color-text-primary);white-space:pre-line"></div>
-        <div class="sec">Actions disponibles</div>
-        <div class="card">
-          <div class="dr"><i class="ti ti-copy"></i><div class="dr-l">Dupliquer le modèle</div><div class="dr-v">Création d'une copie</div></div>
-          <div class="dr"><i class="ti ti-edit"></i><div class="dr-l">Modifier avant envoi</div><div class="dr-v">Bureau</div></div>
-          <div class="dr" style="border:none"><i class="ti ti-download"></i><div class="dr-l">Exporter en PDF / Word</div><div class="dr-v">À venir</div></div>
+        <div class="sec">Actions</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <button class="add-btn" style="justify-content:center" onclick="editerModeleDepuisDetail()"><i class="ti ti-edit"></i> Modifier</button>
+          <button class="add-btn" style="justify-content:center" onclick="telechargerModeleDepuisDetail()"><i class="ti ti-download"></i> Télécharger</button>
         </div>
         <div class="mac">
           <button class="mc-c" onclick="fermerModeleDetail()">Fermer</button>
           <button class="mc-ok" id="modele-detail-utiliser" onclick="utiliserModeleDepuisDetail()">Utiliser ce modèle</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODALE ÉDITEUR DE MODÈLE -->
+    <div class="mow" id="modal-modele-editeur" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:8600">
+      <div class="mbox" style="max-height:90vh;overflow-y:auto">
+        <div class="mh2"></div>
+        <div class="mtt" id="modele-edit-titre">Modifier le modèle</div>
+        <div id="modele-edit-champs" style="margin-bottom:12px"></div>
+        <div class="sec">Aperçu</div>
+        <div class="card" id="modele-edit-preview" style="font-size:12px;line-height:1.55;white-space:pre-line;max-height:200px;overflow-y:auto"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+          <button class="mc-c" onclick="document.getElementById('modal-modele-editeur').classList.remove('open')">Annuler</button>
+          <button class="mc-ok" onclick="telechargerModeleEdite()"><i class="ti ti-download" style="margin-right:4px"></i>Télécharger</button>
         </div>
       </div>
     </div>
@@ -6957,6 +7006,7 @@ function showGenTab(id,btn,pageId){
   pg.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
   document.getElementById(id).classList.add('on');
   if(btn)btn.classList.add('on');
+  if(id==='reu-docs'&&typeof renderDocsStructurants==='function')renderDocsStructurants();
 }
 
 // ═══════════════════════════════════════════
@@ -7551,6 +7601,7 @@ function majAgeOnboarding(){
     info.style.display='none';
   }
 }
+(function(){var today=new Date().toISOString().split('T')[0];['ob-naissance','ep-naissance','ob-date-adhesion','ep-date-adhesion'].forEach(function(id){var el=document.getElementById(id);if(el)el.setAttribute('max',today);});})();
 
 // Génère les champs d'âge pour chaque enfant (onboarding et édition profil)
 function genererChampsEnfants(containerId,prefix,nb,naiss,noms){
@@ -7654,6 +7705,8 @@ function terminerOnboarding(){
   m.enfantsNoms=lireNomsEnfants('ob',m.enfants);
   m.contactUrgence=document.getElementById('ob-contact-urgence').value.trim();
   m.avatar=onboardingAvatar;
+  var obDateAdh=document.getElementById('ob-date-adhesion').value;
+  if(obDateAdh){m.dateAdhesionAmicale=dateISOversFR(obDateAdh);m.dateAdhesionConfirmee=false;}
   m.notificationPrefs=lirePrefsNotificationsOnboarding();
   m.invitationStatut='inscrit';
   m.onboarde=true;
@@ -7667,7 +7720,7 @@ function terminerOnboarding(){
   if(typeof renderMembres==='function')renderMembres();
 
   // Persister le profil
-  try{localStorage.setItem('aml_profil_v1',JSON.stringify({p:m.p,n:m.n,genre:m.genre,naiss:m.naiss,adresse:m.adresse,tel:m.tel,email:m.email,situation:m.situation,conjoint:m.conjoint,enfants:m.enfants,enfantsNoms:m.enfantsNoms,enfantsNaiss:m.enfantsNaiss,contactUrgence:m.contactUrgence,avatar:m.avatar,notificationPrefs:m.notificationPrefs,codeInvitation:m.codeInvitation,invitationStatut:m.invitationStatut,onboarde:true}));}catch(e){}
+  try{localStorage.setItem('aml_profil_v1',JSON.stringify({p:m.p,n:m.n,genre:m.genre,naiss:m.naiss,adresse:m.adresse,tel:m.tel,email:m.email,situation:m.situation,conjoint:m.conjoint,enfants:m.enfants,enfantsNoms:m.enfantsNoms,enfantsNaiss:m.enfantsNaiss,contactUrgence:m.contactUrgence,avatar:m.avatar,notificationPrefs:m.notificationPrefs,codeInvitation:m.codeInvitation,invitationStatut:m.invitationStatut,dateAdhesionAmicale:m.dateAdhesionAmicale||'',dateAdhesionConfirmee:m.dateAdhesionConfirmee||false,onboarde:true}));}catch(e){}
   amicalisteOnboarde=true;
   showToast('Profil complété — bienvenue '+m.p+' !');
   allerHomeAmicaliste();
@@ -9737,14 +9790,26 @@ function ouvrirInfoAmicaliste(){
   document.getElementById('ia-grade').textContent=m.grade+' · '+m.type;
   document.getElementById('ia-anciennete').innerHTML='<i class="ti ti-award" aria-hidden="true"></i> '+anYrs(m.adh)+" an"+(anYrs(m.adh)>1?'s':'')+" d'amicale";
   renderInfosPersonnelles(m);
+  renderDocsAmicaliste();
   goPage('pg-info-amicaliste');
+}
+function renderDocsAmicaliste(){
+  var el=document.getElementById('ia-docs-amicale');if(!el)return;
+  if(typeof DOCS_STRUCTURANTS==='undefined'||!DOCS_STRUCTURANTS.length){el.innerHTML='<div class="dr" style="border:none"><i class="ti ti-file-off" aria-hidden="true"></i><div class="dr-l">Aucun document disponible</div></div>';return;}
+  el.innerHTML=DOCS_STRUCTURANTS.map(function(doc,i){
+    return '<div class="dr" style="cursor:pointer;'+(i===DOCS_STRUCTURANTS.length-1?'border:none':'')+'" onclick="showToast(\'Téléchargement : '+doc.titre.replace(/'/g,"\\'")+'\')"><i class="ti ti-file-text" aria-hidden="true"></i><div class="dr-l">'+doc.titre+'</div><div class="dr-v" style="color:var(--r);display:flex;align-items:center;gap:4px"><i class="ti ti-download" style="font-size:13px"></i>PDF</div></div>';
+  }).join('');
 }
 
 function renderInfosPersonnelles(m){
   const el=document.getElementById('ia-infos');
   if(!el)return;
+  var adhAmicaleVal=m.dateAdhesionAmicale||'Non renseignée';
+  if(m.dateAdhesionAmicale&&!m.dateAdhesionConfirmee)adhAmicaleVal+=' <span style="font-size:10px;color:var(--amb)">(en attente)</span>';
+  else if(m.dateAdhesionAmicale&&m.dateAdhesionConfirmee)adhAmicaleVal+=' <span style="font-size:10px;color:var(--grn)">(confirmée)</span>';
   const rows=[
     {ico:'ti-cake',lbl:'Date de naissance',val:m.naiss||'Non renseignée'},
+    {ico:'ti-calendar-event',lbl:"Date d'entrée dans l'amicale",val:adhAmicaleVal},
     {ico:'ti-map-pin',lbl:'Adresse',val:m.adresse||'Non renseignée'},
     {ico:'ti-phone',lbl:'Téléphone',val:m.tel||'Non renseigné'},
     {ico:'ti-mail',lbl:'E-mail',val:m.email||'Non renseignée'},
@@ -9774,7 +9839,16 @@ function ouvrirModalEditProfil(){
   document.getElementById('ep-avatar-display').textContent=profilAvatarChoisi;
   document.getElementById('ep-prenom').value=m.p;
   document.getElementById('ep-nom').value=m.n;
-  document.getElementById('ep-naissance').value=m.naiss||'';
+  var naissISO=m.naiss?m.naiss.split('/').reverse().join('-'):'';
+  document.getElementById('ep-naissance').value=naissISO;
+  var adhISO=m.dateAdhesionAmicale?m.dateAdhesionAmicale.split('/').reverse().join('-'):'';
+  document.getElementById('ep-date-adhesion').value=adhISO;
+  var adhStatus=document.getElementById('ep-adhesion-status');
+  if(adhStatus){
+    if(m.dateAdhesionConfirmee)adhStatus.innerHTML='<span style="color:var(--grn)"><i class="ti ti-circle-check" style="font-size:12px"></i> Confirmée par le bureau</span>';
+    else if(m.dateAdhesionAmicale)adhStatus.innerHTML='<span style="color:var(--amb)"><i class="ti ti-clock" style="font-size:12px"></i> En attente de confirmation</span>';
+    else adhStatus.textContent='';
+  }
   document.getElementById('ep-adresse').value=m.adresse||'';
   document.getElementById('ep-tel').value=m.tel||'';
   document.getElementById('ep-email').value=m.email||'';
@@ -9816,7 +9890,8 @@ function enregistrerProfilAmicaliste(){
   m.p=prenom;
   m.n=nom;
   m.genre=document.getElementById('ep-genre').value||m.genre||'NR';
-  m.naiss=document.getElementById('ep-naissance').value.trim();
+  var naissVal=document.getElementById('ep-naissance').value.trim();
+  m.naiss=naissVal?dateISOversFR(naissVal):m.naiss;
   m.adresse=document.getElementById('ep-adresse').value.trim();
   m.tel=document.getElementById('ep-tel').value.trim();
   m.email=document.getElementById('ep-email').value.trim();
@@ -9826,6 +9901,8 @@ function enregistrerProfilAmicaliste(){
   m.enfantsNaiss=lireNaissEnfants('ep',m.enfants);
   m.enfantsNoms=lireNomsEnfants('ep',m.enfants);
   m.contactUrgence=document.getElementById('ep-contact-urgence').value.trim();
+  var epDateAdh=document.getElementById('ep-date-adhesion').value;
+  if(epDateAdh){m.dateAdhesionAmicale=dateISOversFR(epDateAdh);if(!m.dateAdhesionConfirmee)m.dateAdhesionConfirmee=false;}
   m.avatar=profilAvatarChoisi;
 
   // Mettre à jour CURRENT_AMICALISTE si le nom a changé
@@ -12749,12 +12826,24 @@ function ouvrirAlbumSouvenir(nom){
   showToast('Ouverture de l\u2019album : '+nom);
 }
 var MODELES_BUREAU = {
-  pv:{nom:'PV de réunion de bureau', couleur:'var(--bll)', icone:'ti-file-text', iconeColor:'var(--blu)', desc:'Ordre du jour, présents, décisions, votes et signatures.', apercu:'PV DE RÉUNION DE BUREAU\n\nDate : … / … / …\nLieu : …\nPrésents : …\nExcusés : …\n\n1. Ouverture de séance\n2. Ordre du jour\n3. Décisions prises\n4. Actions à suivre\n5. Signature du président et du secrétaire'},
-  convocation:{nom:'Convocation réunion', couleur:'var(--rl)', icone:'ti-mail-forward', iconeColor:'var(--r)', desc:'Invitation prête pour le bureau, une commission ou une assemblée générale.', apercu:'CONVOCATION\n\nBonjour,\nVous êtes convié à la réunion du … à …\nLieu : …\n\nOrdre du jour :\n- Point 1\n- Point 2\n- Questions diverses\n\nMerci de confirmer votre présence.'},
-  budget:{nom:'Budget commission', couleur:'var(--grl)', icone:'ti-calculator', iconeColor:'var(--grn)', desc:'Prévisionnel recettes / dépenses pour une commission ou un événement.', apercu:'BUDGET PRÉVISIONNEL\n\nCommission / événement : …\nResponsable : …\n\nRecettes prévues : … €\nDépenses prévues : … €\nSolde prévisionnel : … €\n\nCommentaires / validations : …'},
-  bilan:{nom:'Bilan d\u2019activité', couleur:'var(--aml)', icone:'ti-chart-bar', iconeColor:'var(--amb)', desc:'Bilan événement, commission ou bilan annuel.', apercu:'BILAN D\u2019ACTIVITÉ\n\nPériode : …\nResponsable : …\n\nActions réalisées :\n- …\n\nRésultats : …\nBudget utilisé : … €\nPoints positifs : …\nAxes d\u2019amélioration : …'},
-  affiche:{nom:'Affiche événement', couleur:'var(--pul)', icone:'ti-photo-edit', iconeColor:'var(--pur)', desc:'Base d\u2019affiche pour bal, repas, loto, voyage ou Sainte-Barbe.', apercu:'AFFICHE ÉVÉNEMENT\n\nTitre : …\nDate : …\nLieu : …\nHoraires : …\nTarif : …\nInscriptions : via l\u2019application\n\nVisuel / photo / logo de l\u2019amicale'},
-  cr:{nom:'Compte rendu commission', couleur:'var(--color-background-secondary)', icone:'ti-clipboard-text', iconeColor:'var(--color-text-secondary)', desc:'Compte rendu simple avec actions, responsables et échéances.', apercu:'COMPTE RENDU COMMISSION\n\nCommission : …\nDate : …\nPrésents : …\n\nSujets abordés :\n- …\n\nDécisions :\n- …\n\nActions à suivre :\n- Action / Responsable / Échéance'}
+  pv:{nom:'PV de réunion de bureau', couleur:'var(--bll)', icone:'ti-file-text', iconeColor:'var(--blu)', desc:'Ordre du jour, présents, décisions, votes et signatures.',
+    champs:[{id:'date',label:'Date de la réunion',type:'date'},{id:'lieu',label:'Lieu',type:'text',placeholder:'Local de l’amicale'},{id:'presents',label:'Membres présents',type:'textarea',placeholder:'Jean Dupont (Président), Sophie Martin (Trésorière)...'},{id:'excuses',label:'Membres excusés',type:'text',placeholder:'Pierre Leroy'},{id:'ouverture',label:'Ouverture de séance',type:'textarea',placeholder:'Le président ouvre la séance à 18h00...'},{id:'ordre',label:'Ordre du jour',type:'textarea',placeholder:'1. Approbation du PV précédent\n2. Point financier\n3. Événements à venir\n4. Questions diverses'},{id:'decisions',label:'Décisions prises',type:'textarea',placeholder:'- Validation du budget Sainte-Barbe : 1 500 €\n- Achat de matériel : approuvé à l’unanimité'},{id:'actions',label:'Actions à suivre',type:'textarea',placeholder:'- Réserver la salle (Pierre) avant le 15/06\n- Envoyer les convocations (Sophie) avant le 20/06'},{id:'cloture',label:'Clôture',type:'text',placeholder:'La séance est levée à 19h30.'}],
+    generer:function(d){return 'PROCÈS-VERBAL DE RÉUNION DE BUREAU\nAmicale des Sapeurs-Pompiers\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nDate : '+(d.date||'___/___/______')+'\nLieu : '+(d.lieu||'_________________________')+'\n\nPRÉSENTS :\n'+(d.presents||'_________________________')+'\n\nEXCUSÉS :\n'+(d.excuses||'Aucun')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n1. OUVERTURE DE SÉANCE\n'+(d.ouverture||'Le président ouvre la séance.')+'\n\n2. ORDRE DU JOUR\n'+(d.ordre||'_________________________')+'\n\n3. DÉCISIONS PRISES\n'+(d.decisions||'_________________________')+'\n\n4. ACTIONS À SUIVRE\n'+(d.actions||'_________________________')+'\n\nCLÔTURE\n'+(d.cloture||'La séance est levée.')+'\n\n\nSignature du Président                    Signature du Secrétaire\n\n\n___________________                    ___________________';}},
+  convocation:{nom:'Convocation réunion', couleur:'var(--rl)', icone:'ti-mail-forward', iconeColor:'var(--r)', desc:'Invitation pour le bureau, une commission ou une AG.',
+    champs:[{id:'typeReunion',label:'Type de réunion',type:'select',options:['Réunion de bureau','Assemblée générale ordinaire','Assemblée générale extraordinaire','Réunion de commission']},{id:'date',label:'Date et heure',type:'text',placeholder:'Dimanche 15 juin 2026 à 18h00'},{id:'lieu',label:'Lieu',type:'text',placeholder:'Local de l’amicale, 12 rue des Pompiers'},{id:'ordre',label:'Ordre du jour',type:'textarea',placeholder:'1. Approbation du PV de la dernière réunion\n2. Point financier\n3. Organisation Sainte-Barbe\n4. Questions diverses'},{id:'destinataires',label:'Destinataires',type:'text',placeholder:'Tous les membres du bureau'},{id:'limite',label:'Date limite de réponse',type:'date'}],
+    generer:function(d){return 'CONVOCATION\n'+(d.typeReunion||'Réunion de bureau')+'\nAmicale des Sapeurs-Pompiers\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nMesdames, Messieurs,\n\nVous êtes cordialement convié(e)s à la prochaine '+(d.typeReunion||'réunion de bureau').toLowerCase()+' qui se tiendra :\n\nDate : '+(d.date||'___/___/______ à __h__')+'\nLieu : '+(d.lieu||'_________________________')+'\n\nORDRE DU JOUR :\n'+(d.ordre||'1. ___\n2. ___\n3. Questions diverses')+'\n\nMerci de confirmer votre présence avant le '+(d.limite||'___/___/______')+'.\nEn cas d’absence, merci de prévenir le secrétaire.\n\nCordialement,\nLe Président de l’Amicale\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nDestinataires : '+(d.destinataires||'Membres du bureau');}},
+  budget:{nom:'Budget prévisionnel', couleur:'var(--grl)', icone:'ti-calculator', iconeColor:'var(--grn)', desc:'Prévisionnel recettes / dépenses pour une commission ou un événement.',
+    champs:[{id:'intitule',label:'Commission / Événement',type:'text',placeholder:'Sainte-Barbe 2026'},{id:'responsable',label:'Responsable',type:'text',placeholder:'Jean Dupont'},{id:'dateValid',label:'Date de validation',type:'date'},{id:'recettes',label:'Recettes détaillées',type:'textarea',placeholder:'Cotisations : 500 €\nSubvention mairie : 300 €\nBilletterie : 1 200 €\nBuvette : 800 €'},{id:'depenses',label:'Dépenses détaillées',type:'textarea',placeholder:'Location salle : 400 €\nTraiteur : 1 000 €\nAnimation DJ : 350 €\nDécoration : 150 €\nDivers / imprévus : 100 €'},{id:'commentaires',label:'Commentaires',type:'textarea',placeholder:'Budget validé en réunion de bureau du ...'}],
+    generer:function(d){return 'BUDGET PRÉVISIONNEL\nAmicale des Sapeurs-Pompiers\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nIntitulé : '+(d.intitule||'_________________________')+'\nResponsable : '+(d.responsable||'_________________________')+'\nDate de validation : '+(d.dateValid||'___/___/______')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nRECETTES PRÉVISIONNELLES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'+(d.recettes||'_________________________')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nDÉPENSES PRÉVISIONNELLES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'+(d.depenses||'_________________________')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSOLDE PRÉVISIONNEL : à calculer\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nCommentaires :\n'+(d.commentaires||'')+'\n\nSignature du Trésorier                    Signature du Président\n\n___________________                    ___________________';}},
+  bilan:{nom:'Bilan d\u2019activité', couleur:'var(--aml)', icone:'ti-chart-bar', iconeColor:'var(--amb)', desc:'Bilan d\u2019un événement, d\u2019une commission ou bilan annuel.',
+    champs:[{id:'intitule',label:'Intitulé',type:'text',placeholder:'Bilan Sainte-Barbe 2025'},{id:'periode',label:'Période concernée',type:'text',placeholder:'Du 01/12/2025 au 05/12/2025'},{id:'responsable',label:'Responsable',type:'text',placeholder:'Commission Événements'},{id:'objectifs',label:'Objectifs initiaux',type:'textarea',placeholder:'- Réunir 200 participants\n- Respecter le budget de 2 000 €\n- Proposer un programme familial'},{id:'actions',label:'Actions réalisées',type:'textarea',placeholder:'- Location salle communale\n- Traiteur La Bonne Table\n- Animation DJ + tombola'},{id:'resultats',label:'Résultats',type:'textarea',placeholder:'- 185 participants (93% objectif)\n- Budget respecté : 1 870 € dépensés'},{id:'budget',label:'Budget utilisé',type:'text',placeholder:'1 870 € / 2 000 € prévus'},{id:'positif',label:'Points positifs',type:'textarea',placeholder:'- Bonne ambiance générale\n- Tombola très appréciée'},{id:'ameliorer',label:'Axes d\u2019amélioration',type:'textarea',placeholder:'- Anticiper les inscriptions plus tôt\n- Prévoir une solution de repli en cas de pluie'}],
+    generer:function(d){return 'BILAN D\u2019ACTIVITÉ\nAmicale des Sapeurs-Pompiers\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nIntitulé : '+(d.intitule||'_________________________')+'\nPériode : '+(d.periode||'_________________________')+'\nResponsable : '+(d.responsable||'_________________________')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nOBJECTIFS INITIAUX\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'+(d.objectifs||'_________________________')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nACTIONS RÉALISÉES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'+(d.actions||'_________________________')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nRÉSULTATS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'+(d.resultats||'_________________________')+'\n\nBudget : '+(d.budget||'_____ € / _____ €')+'\n\nPOINTS POSITIFS :\n'+(d.positif||'_________________________')+'\n\nAXES D\u2019AMÉLIORATION :\n'+(d.ameliorer||'_________________________')+'\n\n\nFait le ___/___/______\nSignature du Responsable';}},
+  affiche:{nom:'Affiche événement', couleur:'var(--pul)', icone:'ti-photo-edit', iconeColor:'var(--pur)', desc:'Modèle d\u2019affiche pour bal, repas, loto, voyage ou Sainte-Barbe.',
+    champs:[{id:'titre',label:'Titre de l\u2019événement',type:'text',placeholder:'Grand Bal des Pompiers 2026'},{id:'sousTitre',label:'Sous-titre',type:'text',placeholder:'Organisé par l\u2019Amicale des Sapeurs-Pompiers'},{id:'date',label:'Date',type:'text',placeholder:'Samedi 4 décembre 2026'},{id:'horaires',label:'Horaires',type:'text',placeholder:'�� partir de 20h00 — Fin à 02h00'},{id:'lieu',label:'Lieu',type:'text',placeholder:'Salle des fêtes, 53000 Laval'},{id:'programme',label:'Programme',type:'textarea',placeholder:'20h00 — Apéritif\n20h30 — Repas\n22h00 — Soirée dansante\n23h30 — Tombola'},{id:'tarif',label:'Tarifs',type:'textarea',placeholder:'Adulte : 25 € / Enfant (-12 ans) : 12 €'},{id:'inscription',label:'Inscriptions',type:'text',placeholder:'Via l\u2019application Amicale'},{id:'contact',label:'Contact',type:'text',placeholder:'Commission Événements'}],
+    generer:function(d){return '╔══════════════════════════════════════╗\n║   AMICALE DES SAPEURS-POMPIERS       ║\n╠══════════════════════════════════════╣\n║   '+(d.titre||'ÉVÉNEMENT').toUpperCase()+'   ║\n║   '+(d.sousTitre||'')+'\n╚══════════════════════════════════════╝\n\n  Date : '+(d.date||'_________________________')+'\n  Horaires : '+(d.horaires||'_________________________')+'\n  Lieu : '+(d.lieu||'_________________________')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  PROGRAMME\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'+(d.programme||'_________________________')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  TARIFS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'+(d.tarif||'_________________________')+'\n\n  Inscriptions : '+(d.inscription||'_________________________')+'\n  Contact : '+(d.contact||'_________________________');}},
+  cr:{nom:'Compte rendu de commission', couleur:'var(--color-background-secondary)', icone:'ti-clipboard-text', iconeColor:'var(--color-text-secondary)', desc:'CR avec actions, responsables et échéances.',
+    champs:[{id:'commission',label:'Commission',type:'text',placeholder:'Commission Événements'},{id:'date',label:'Date de la réunion',type:'date'},{id:'presents',label:'Présents',type:'textarea',placeholder:'Jean Dupont, Sophie Martin, Pierre Leroy'},{id:'sujets',label:'Sujets abordés',type:'textarea',placeholder:'1. Organisation Sainte-Barbe\n2. Bilan financier\n3. Planning des prochaines actions'},{id:'decisions',label:'Décisions prises',type:'textarea',placeholder:'- Validation du menu traiteur\n- Report de la soirée loto au 15 mars'},{id:'actions',label:'Actions à suivre',type:'textarea',placeholder:'- Confirmer le traiteur avant le 10/06 (Jean)\n- Réserver la salle (Sophie)'},{id:'prochaine',label:'Prochaine réunion',type:'text',placeholder:'Mercredi 25 juin 2026 à 19h00'}],
+    generer:function(d){return 'COMPTE RENDU DE COMMISSION\nAmicale des Sapeurs-Pompiers\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nCommission : '+(d.commission||'_________________________')+'\nDate : '+(d.date||'___/___/______')+'\n\nPRÉSENTS :\n'+(d.presents||'_________________________')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSUJETS ABORDÉS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'+(d.sujets||'_________________________')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nDÉCISIONS PRISES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'+(d.decisions||'_________________________')+'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nACTIONS À SUIVRE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'+(d.actions||'Action / Responsable / Échéance')+'\n\nProchaine réunion : '+(d.prochaine||'à définir')+'\n\nRédigé par : ___________________';}}
 };
 var MODELE_SELECTIONNE = null;
 function ouvrirModeleDetail(cle){
@@ -12763,7 +12852,8 @@ function ouvrirModeleDetail(cle){
   MODELE_SELECTIONNE = cle;
   document.getElementById('modele-detail-titre').textContent = modele.nom;
   document.getElementById('modele-detail-desc').textContent = modele.desc;
-  document.getElementById('modele-detail-apercu').textContent = modele.apercu;
+  var emptyData={};modele.champs.forEach(function(c){emptyData[c.id]='';});
+  document.getElementById('modele-detail-apercu').textContent = modele.generer(emptyData);
   var ico = document.getElementById('modele-detail-icone');
   ico.style.background = modele.couleur;
   ico.innerHTML = '<i class="ti '+modele.icone+'" style="font-size:22px;color:'+modele.iconeColor+'"></i>';
@@ -12775,13 +12865,71 @@ function fermerModeleDetail(){
   if(modal) modal.classList.remove('open');
 }
 function utiliserModele(nom){
-  showToast('Modèle dupliqué : '+nom);
+  var cle=Object.keys(MODELES_BUREAU).find(function(k){return MODELES_BUREAU[k].nom===nom;});
+  if(cle){editerModele(cle);}else{showToast('Modèle dupliqué : '+nom);}
 }
 function utiliserModeleDepuisDetail(){
-  var modele = MODELES_BUREAU[MODELE_SELECTIONNE];
-  if(!modele){ fermerModeleDetail(); return; }
+  if(!MODELE_SELECTIONNE)return;
   fermerModeleDetail();
-  showToast('Modèle prêt à compléter : '+modele.nom);
+  editerModele(MODELE_SELECTIONNE);
+}
+function editerModeleDepuisDetail(){
+  if(!MODELE_SELECTIONNE)return;
+  fermerModeleDetail();
+  editerModele(MODELE_SELECTIONNE);
+}
+function editerModele(cle){
+  var modele=MODELES_BUREAU[cle];if(!modele)return;
+  document.getElementById('modele-edit-titre').textContent='Compléter : '+modele.nom;
+  var container=document.getElementById('modele-edit-champs');
+  var html='';
+  modele.champs.forEach(function(c){
+    html+='<label class="ml" for="me-'+c.id+'">'+c.label+'</label>';
+    if(c.type==='textarea'){
+      html+='<textarea class="mi" id="me-'+c.id+'" rows="3" placeholder="'+(c.placeholder||'').replace(/"/g,'&quot;')+'" oninput="majPreviewModele(\''+cle+'\')"></textarea>';
+    }else if(c.type==='select'){
+      html+='<select class="mi" id="me-'+c.id+'" onchange="majPreviewModele(\''+cle+'\')">'; 
+      c.options.forEach(function(o){html+='<option>'+o+'</option>';});
+      html+='</select>';
+    }else{
+      html+='<input class="mi" type="'+c.type+'" id="me-'+c.id+'" placeholder="'+(c.placeholder||'').replace(/"/g,'&quot;')+'" oninput="majPreviewModele(\''+cle+'\')">'; 
+    }
+  });
+  container.innerHTML=html;
+  majPreviewModele(cle);
+  document.getElementById('modal-modele-editeur').classList.add('open');
+}
+function majPreviewModele(cle){
+  var modele=MODELES_BUREAU[cle];if(!modele)return;
+  var data={};
+  modele.champs.forEach(function(c){var el=document.getElementById('me-'+c.id);data[c.id]=el?el.value:'';});
+  document.getElementById('modele-edit-preview').textContent=modele.generer(data);
+}
+function telechargerModeleEdite(){
+  var cle=null;
+  Object.keys(MODELES_BUREAU).forEach(function(k){if(document.getElementById('modele-edit-titre').textContent.indexOf(MODELES_BUREAU[k].nom)!==-1)cle=k;});
+  if(!cle)cle=MODELE_SELECTIONNE;
+  var modele=MODELES_BUREAU[cle];if(!modele){showToast('Erreur');return;}
+  var data={};
+  modele.champs.forEach(function(c){var el=document.getElementById('me-'+c.id);data[c.id]=el?el.value:'';});
+  var contenu=modele.generer(data);
+  var blob=new Blob([contenu],{type:'text/plain;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=modele.nom.replace(/[^a-zA-Z\u00e9\u00e8\u00ea\u00eb\u00e0\u00e2\u00f4\u00f9\u00fb\u00ee\u00ef\u00e70-9 ]/g,'').replace(/\s+/g,'_')+'.txt';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  showToast('Document téléchargé');
+  document.getElementById('modal-modele-editeur').classList.remove('open');
+}
+function telechargerModeleDepuisDetail(){
+  if(!MODELE_SELECTIONNE)return;
+  var modele=MODELES_BUREAU[MODELE_SELECTIONNE];if(!modele)return;
+  var emptyData={};modele.champs.forEach(function(c){emptyData[c.id]='';});
+  var contenu=modele.generer(emptyData);
+  var blob=new Blob([contenu],{type:'text/plain;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=modele.nom.replace(/[^a-zA-Z\u00e9\u00e8\u00ea\u00eb\u00e0\u00e2\u00f4\u00f9\u00fb\u00ee\u00ef\u00e70-9 ]/g,'').replace(/\s+/g,'_')+'_vierge.txt';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  showToast('Modèle vierge téléchargé');
 }
 function filtrerModelesBureau(type,btn){
   const root=document.getElementById('pg-biblio-modeles');
@@ -12792,6 +12940,60 @@ function filtrerModelesBureau(type,btn){
   document.querySelectorAll('#liste-modeles-bureau [data-modele]').forEach(el=>{
     el.style.display=(type==='tous'||el.getAttribute('data-modele')===type)?'flex':'none';
   });
+}
+
+// ═══════════════════════════════════════════
+// DOCUMENTS STRUCTURANTS
+// ═══════════════════════════════════════════
+var DOCS_STRUCTURANTS=[
+  {id:1,type:'reglement',titre:'Règlement intérieur 2026',date:'01/01/2026',taille:'2.4 Mo'},
+  {id:2,type:'presentation',titre:'Présentation de l\u2019amicale',date:'15/09/2025',taille:'1.1 Mo'},
+  {id:3,type:'statuts',titre:'Statuts de l\u2019association',date:'12/03/2024',taille:'850 Ko'}
+];
+var DS_ICONES={reglement:{ico:'ti-gavel',bg:'var(--aml)',color:'var(--amb)'},presentation:{ico:'ti-presentation',bg:'var(--bll)',color:'var(--blu)'},statuts:{ico:'ti-certificate',bg:'var(--grl)',color:'var(--grn)'},charte:{ico:'ti-heart-handshake',bg:'var(--pul)',color:'var(--pur)'},autre:{ico:'ti-file',bg:'var(--color-background-secondary)',color:'var(--color-text-secondary)'}};
+function renderDocsStructurants(){
+  var el=document.getElementById('docs-structurants-list');if(!el)return;
+  if(!DOCS_STRUCTURANTS.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--color-text-secondary);font-size:13px">Aucun document structurant pour le moment.</div>';return;}
+  el.innerHTML=DOCS_STRUCTURANTS.map(function(doc){
+    var style=DS_ICONES[doc.type]||DS_ICONES.autre;
+    return '<div class="doc-card" style="cursor:pointer" onclick="telechargerDocStructurant('+doc.id+')"><div class="doc-ico" style="background:'+style.bg+'"><i class="ti '+style.ico+'" style="color:'+style.color+'"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:700">'+doc.titre+'</div><div style="font-size:11px;color:var(--color-text-secondary)">Mis à jour le '+doc.date+' \u00b7 '+doc.taille+'</div></div><div class="doc-actions"><button class="doc-btn" onclick="event.stopPropagation();telechargerDocStructurant('+doc.id+')"><i class="ti ti-download"></i></button><button class="doc-btn" onclick="event.stopPropagation();supprimerDocStructurant('+doc.id+')"><i class="ti ti-trash"></i></button></div></div>';
+  }).join('');
+}
+function telechargerDocStructurant(id){
+  var doc=DOCS_STRUCTURANTS.find(function(d){return d.id===id;});
+  if(doc)showToast('Téléchargement : '+doc.titre);
+}
+function supprimerDocStructurant(id){
+  DOCS_STRUCTURANTS=DOCS_STRUCTURANTS.filter(function(d){return d.id!==id;});
+  renderDocsStructurants();
+  showToast('Document supprimé');
+}
+var DS_FILE_SELECTED=null;
+function ouvrirModalDocStructurant(){
+  document.getElementById('ds-titre-inp').value='';
+  document.getElementById('ds-date-inp').value=new Date().toISOString().split('T')[0];
+  document.getElementById('ds-type-inp').value='reglement';
+  document.getElementById('ds-uz-t').textContent='Joindre le fichier (PDF)';
+  DS_FILE_SELECTED=null;
+  document.getElementById('modal-doc-structurant').classList.add('open');
+}
+function majFichierDocStructurant(input){
+  if(input.files&&input.files[0]){
+    DS_FILE_SELECTED=input.files[0];
+    document.getElementById('ds-uz-t').textContent=DS_FILE_SELECTED.name;
+  }
+}
+function confirmerDocStructurant(){
+  var titre=document.getElementById('ds-titre-inp').value.trim();
+  var type=document.getElementById('ds-type-inp').value;
+  var date=document.getElementById('ds-date-inp').value;
+  if(!titre){showToast('Veuillez saisir un intitulé');return;}
+  var dateFR=date?date.split('-').reverse().join('/'):'';
+  var newId=DOCS_STRUCTURANTS.length?Math.max.apply(null,DOCS_STRUCTURANTS.map(function(d){return d.id;}))+1:1;
+  DOCS_STRUCTURANTS.push({id:newId,type:type,titre:titre,date:dateFR,taille:DS_FILE_SELECTED?(Math.round(DS_FILE_SELECTED.size/1024)+' Ko'):'—'});
+  renderDocsStructurants();
+  document.getElementById('modal-doc-structurant').classList.remove('open');
+  showToast('Document ajouté : '+titre);
 }
 
 
@@ -19222,7 +19424,12 @@ function enregistrerParametresVoyage(){
           if(accTab && accTab.style.display==='none'){} else { updateMsgBadge(); }
           var btnBureau=document.getElementById('atab-btn-bureau');
           if(btnBureau){
-            btnBureau.style.display=window.__IS_BUREAU_MEMBER__?'flex':'none';
+            var estBureauMembre=false;
+            if(typeof CURRENT_AMICALISTE==='string' && Array.isArray(window.ACCES_BUREAU)){
+              var nom=CURRENT_AMICALISTE;
+              estBureauMembre=window.ACCES_BUREAU.some(function(a){ return a.nom===nom; });
+            }
+            btnBureau.style.display=estBureauMembre?'flex':'none';
           }
         }
       },0);
@@ -19399,7 +19606,6 @@ function enregistrerParametresVoyage(){
         var bar=document.getElementById('bureau-tabbar');
         if(bar) bar.style.display=(id==='pg-home-bureau')?'flex':'none';
         if(id==='pg-home-bureau'){
-          window.__IS_BUREAU_MEMBER__=true;
           var bureauContent=document.getElementById('bureau-tab-bureau');
           var msgContent=document.getElementById('bureau-tab-messages');
           if(bureauContent) bureauContent.style.display='';
