@@ -2523,6 +2523,10 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <span>Messages</span>
           <span class="atab-badge" id="atab-msg-badge"></span>
         </button>
+        <button class="atab-btn" id="atab-btn-bureau" style="display:none" onclick="goPage('pg-home-bureau')">
+          <i class="ti ti-briefcase" aria-hidden="true"></i>
+          <span>Bureau</span>
+        </button>
       </div>
 
     </div>
@@ -19216,6 +19220,10 @@ function enregistrerParametresVoyage(){
         if(id==='pg-home-amical'){
           var accTab=document.getElementById('amical-tab-accueil');
           if(accTab && accTab.style.display==='none'){} else { updateMsgBadge(); }
+          var btnBureau=document.getElementById('atab-btn-bureau');
+          if(btnBureau){
+            btnBureau.style.display=window.__IS_BUREAU_MEMBER__?'flex':'none';
+          }
         }
       },0);
       return r;
@@ -19391,6 +19399,7 @@ function enregistrerParametresVoyage(){
         var bar=document.getElementById('bureau-tabbar');
         if(bar) bar.style.display=(id==='pg-home-bureau')?'flex':'none';
         if(id==='pg-home-bureau'){
+          window.__IS_BUREAU_MEMBER__=true;
           var bureauContent=document.getElementById('bureau-tab-bureau');
           var msgContent=document.getElementById('bureau-tab-messages');
           if(bureauContent) bureauContent.style.display='';
