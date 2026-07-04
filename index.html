@@ -877,6 +877,36 @@ body.pc-mode .bottom-nav{display:none!important}
 .bnav-btn.blu{color:var(--blu)}
 .bnav-sep{width:1px;height:28px;background:var(--color-border-tertiary);flex-shrink:0}
 
+/* TAB BAR AMICALISTE */
+.amical-tabbar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:390px;background:var(--color-background-primary);
+  border-top:0.5px solid var(--color-border-tertiary);
+  display:none;align-items:center;justify-content:center;
+  padding:4px 8px calc(4px + env(safe-area-inset-bottom,0px));
+  gap:0;z-index:160;
+  box-shadow:0 -2px 16px rgba(0,0,0,.08);
+}
+@media(max-width:420px){.amical-tabbar{width:100%;transform:none;left:0}}
+body.pc-mode .amical-tabbar{display:none!important}
+.atab-btn{
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  border:none;background:transparent;cursor:pointer;
+  font-family:var(--font-sans);color:var(--color-text-secondary);
+  font-size:10px;font-weight:600;padding:6px 0;flex:1;
+  border-radius:var(--border-radius-md);transition:color .15s;
+  position:relative;
+}
+.atab-btn i{font-size:22px;transition:color .15s}
+.atab-btn.on{color:var(--r)}
+.atab-btn.on i{color:var(--r)}
+.atab-badge{
+  position:absolute;top:2px;right:calc(50% - 18px);
+  min-width:16px;height:16px;border-radius:8px;
+  background:var(--r);color:white;font-size:9px;font-weight:700;
+  display:none;align-items:center;justify-content:center;padding:0 4px;
+}
+
 /* Compensation pour que le contenu ne soit pas caché */
 .screen.on{padding-bottom:68px}
 #pg-accueil.on,#pg-splash.on{padding-bottom:0}
@@ -2306,38 +2336,155 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         </div>
       </div><!-- fin padding carousel -->
 
-      <!-- ACCÈS RAPIDE : Calendriers + Locations + Voyages + Événements -->
-      <div style="padding:4px 14px 8px"><div class="sec">Accès rapide</div></div>
-      <div class="big-btn-row" id="tour-acces-rapide">
-        <button class="big-btn" onclick="goPage('pg-calendriers-amical')">
-          <div class="bb-ico" style="background:var(--r2)"><i class="ti ti-book" style="color:var(--r)" aria-hidden="true"></i></div>
-          <div><div class="bb-label">Calendriers</div><div class="bb-sub">T7 · Argentré</div></div>
+      <!-- CALENDRIER VERTICAL : prochains événements / actualités -->
+      <div id="amical-tab-accueil">
+      <div style="padding:4px 14px 8px"><div class="sec">Prochains événements</div></div>
+      <div style="padding:0 14px 90px" id="amical-timeline">
+        <div style="position:relative;padding-left:28px">
+          <div style="position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--color-border-secondary);border-radius:2px"></div>
+
+          <div style="position:relative;margin-bottom:16px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+            <div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--r);border:2px solid var(--color-background-primary);z-index:1"></div>
+            <div style="font-size:10px;font-weight:700;color:var(--r);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Sam. 14 juin 2026</div>
+            <div class="card" style="margin:0;padding:10px 12px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:38px;height:38px;border-radius:10px;background:var(--rl);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-tools-kitchen-2" style="font-size:18px;color:var(--r)" aria-hidden="true"></i></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">Repas annuel de l'amicale</div>
+                  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> 12h00 · Salle des fêtes, Argentré</div>
+                </div>
+                <div style="background:var(--rl);color:var(--r);font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap">Dans 8j</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:relative;margin-bottom:16px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+            <div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--amb);border:2px solid var(--color-background-primary);z-index:1"></div>
+            <div style="font-size:10px;font-weight:700;color:var(--amb);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Ven. 27 juin 2026</div>
+            <div class="card" style="margin:0;padding:10px 12px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:38px;height:38px;border-radius:10px;background:var(--aml);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-music" style="font-size:18px;color:var(--amb)" aria-hidden="true"></i></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">Bal des pompiers</div>
+                  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> 21h00 · Salle polyvalente</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:relative;margin-bottom:16px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+            <div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--pur);border:2px solid var(--color-background-primary);z-index:1"></div>
+            <div style="font-size:10px;font-weight:700;color:var(--pur);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Sam. 12 juil. 2026</div>
+            <div class="card" style="margin:0;padding:10px 12px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:38px;height:38px;border-radius:10px;background:var(--pul);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-trophy" style="font-size:18px;color:var(--pur)" aria-hidden="true"></i></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">Tournoi sportif inter-centres</div>
+                  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> 10h00 · Stade municipal</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:relative;margin-bottom:16px;cursor:pointer" onclick="goPage('pg-voyages-amical')">
+            <div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--blu);border:2px solid var(--color-background-primary);z-index:1"></div>
+            <div style="font-size:10px;font-weight:700;color:var(--blu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">5-6 sept. 2026</div>
+            <div class="card" style="margin:0;padding:10px 12px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:38px;height:38px;border-radius:10px;background:var(--bll);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-sailboat" style="font-size:18px;color:var(--blu)" aria-hidden="true"></i></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">Weekend Saint-Malo</div>
+                  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px"><i class="ti ti-users" style="font-size:10px" aria-hidden="true"></i> 28/42 inscrits · 85 € / pers.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:relative;margin-bottom:16px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+            <div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--grn);border:2px solid var(--color-background-primary);z-index:1"></div>
+            <div style="font-size:10px;font-weight:700;color:var(--grn);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Déc. 2026</div>
+            <div class="card" style="margin:0;padding:10px 12px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:38px;height:38px;border-radius:10px;background:var(--grl);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-christmas-tree" style="font-size:18px;color:var(--grn)" aria-hidden="true"></i></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">Arbre de Noël</div>
+                  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px">Date à confirmer</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      </div><!-- fin amical-tab-accueil -->
+
+      <!-- VUE COMMISSIONS (onglet) -->
+      <div id="amical-tab-commissions" style="display:none;padding:14px 14px 90px">
+        <div class="sec">Commissions de l'amicale</div>
+        <div id="amical-commissions-list"></div>
+      </div>
+
+      <!-- VUE MESSAGES (onglet) -->
+      <div id="amical-tab-messages" style="display:none;padding:14px 14px 90px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="sec" style="margin:0">Messages</div>
+          <button style="border:none;background:var(--r);color:white;font-size:11px;font-weight:600;padding:7px 14px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:var(--font-sans)" onclick="ouvrirNouveauMsgAmical()"><i class="ti ti-pencil-plus" style="font-size:14px" aria-hidden="true"></i> Nouveau</button>
+        </div>
+        <div style="display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none">
+          <button class="fp on" onclick="filtrerMsgAmical(this,'tous')">Tous</button>
+          <button class="fp" onclick="filtrerMsgAmical(this,'nonlus')">Non lus</button>
+          <button class="fp" onclick="filtrerMsgAmical(this,'envoyes')">Envoyés</button>
+        </div>
+        <div id="amical-msg-list"></div>
+      </div>
+
+      <!-- MODAL NOUVEAU MESSAGE AMICALISTE -->
+      <div class="mow" id="modal-msg-amical">
+        <div class="mbox" style="max-height:90vh;overflow-y:auto">
+          <div class="mh2"></div>
+          <div class="mtt">Envoyer un message</div>
+          <label class="ml">Destinataire</label>
+          <select class="mi" id="msg-amical-dest" style="margin-bottom:8px">
+            <option value="president">Président</option>
+            <option value="secretaire">Secrétaire</option>
+            <option value="tresorier">Trésorier / Comptable</option>
+            <option value="saintebarbe">Commission Sainte-Barbe</option>
+            <option value="noel">Commission Arbre de Noël</option>
+            <option value="fdf">Commission Fête des Femmes</option>
+            <option value="calendriers">Commission Calendriers</option>
+            <option value="locations">Commission Locations</option>
+            <option value="voyages">Commission Voyages</option>
+            <option value="evenements">Commission Événements</option>
+            <option value="sportive">Commission Sportive</option>
+          </select>
+          <label class="ml">Objet</label>
+          <input class="mi" type="text" id="msg-amical-objet" placeholder="Ex: Question sur les calendriers">
+          <label class="ml">Message</label>
+          <textarea class="mi" id="msg-amical-corps" rows="4" style="resize:none" placeholder="Votre message..."></textarea>
+          <div class="mac" style="margin-top:10px">
+            <button class="mc-c" onclick="document.getElementById('modal-msg-amical').classList.remove('open')">Annuler</button>
+            <button class="mc-ok" onclick="envoyerMsgAmical()"><i class="ti ti-send" aria-hidden="true"></i> Envoyer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB BAR AMICALISTE -->
+      <div class="amical-tabbar" id="amical-tabbar">
+        <button class="atab-btn on" onclick="switchAmicalTab('accueil',this)">
+          <i class="ti ti-home" aria-hidden="true"></i>
+          <span>Accueil</span>
         </button>
-        <button class="big-btn" onclick="goPage('pg-locations-amical')">
-          <div class="bb-ico" style="background:var(--bll)"><i class="ti ti-building" style="color:var(--blu)" aria-hidden="true"></i></div>
-          <div><div class="bb-label">Locations</div><div class="bb-sub">5 biens</div></div>
+        <button class="atab-btn" onclick="switchAmicalTab('commissions',this)">
+          <i class="ti ti-users-group" aria-hidden="true"></i>
+          <span>Commissions</span>
         </button>
-        <button class="big-btn" onclick="goPage('pg-voyages-amical')">
-          <div class="bb-ico" style="background:var(--pul)"><i class="ti ti-plane" style="color:var(--pur)" aria-hidden="true"></i></div>
-          <div><div class="bb-label">Voyages</div><div class="bb-sub">3 proposés</div></div>
-        </button>
-        <button class="big-btn" onclick="goPage('pg-evenements-amical')">
-          <div class="bb-ico" style="background:var(--grl)"><i class="ti ti-confetti" style="color:var(--grn)" aria-hidden="true"></i></div>
-          <div><div class="bb-label">Événements</div><div class="bb-sub">Prochains</div></div>
-        </button>
-        <button class="big-btn" onclick="goPage('pg-retour-images')">
-          <div class="bb-ico" style="background:var(--rl)"><i class="ti ti-camera-heart" style="color:var(--r)" aria-hidden="true"></i></div>
-          <div><div class="bb-label">Retours en images</div><div class="bb-sub">Souvenirs & albums</div></div>
-        </button>
-        <button class="big-btn" data-comm="noel" onclick="goPage('pg-amical-noel')">
-          <div class="bb-ico" style="background:var(--grl)"><i class="ti ti-christmas-tree" style="color:var(--grn)" aria-hidden="true"></i></div>
-          <div><div class="bb-label">Arbre de Noël</div><div class="bb-sub">Commission</div></div>
-        </button>
-        <button class="big-btn" data-comm="fdf" onclick="goPage('pg-amical-fdf')">
-          <div class="bb-ico" style="background:#fce4ec"><i class="ti ti-heart" style="color:#e91e8c" aria-hidden="true"></i></div>
-          <div><div class="bb-label">Fête des Femmes</div><div class="bb-sub">Commission</div></div>
+        <button class="atab-btn" onclick="switchAmicalTab('messages',this)">
+          <i class="ti ti-message" aria-hidden="true"></i>
+          <span>Messages</span>
+          <span class="atab-badge" id="atab-msg-badge"></span>
         </button>
       </div>
+
     </div>
 
 
@@ -16982,12 +17129,19 @@ function enregistrerParametresVoyage(){
 
   window.renderAmicalisteCommissions=function(){
     ensureFixed();
-    var home=document.getElementById('pg-home-amical'), carousel=document.getElementById('tour-carousel'); if(!home||!carousel) return;
     ['v47-amical-commissions','v49-amical-commissions','v50-amical-commissions','v53-amical-commissions','v55-amical-commissions','v56-amical-commissions'].forEach(function(id){ var el=document.getElementById(id); if(el) el.remove(); });
     var access=document.getElementById('tour-acces-rapide'); if(access){ access.style.display='none'; var prev=access.previousElementSibling; if(prev) prev.style.display='none'; }
-    var wrap=document.createElement('div'); wrap.id='v56-amical-commissions'; wrap.className='v49-amical-commissions-wrap v50-amical-commissions-wrap';
-    wrap.innerHTML='<div class="sec">Commissions de l\'amicale</div><div class="v49-amical-commissions-grid">'+sortedFixed().filter(isVisible).map(function(c){return cardHtml(c,'',true);}).join('')+'</div>';
-    var sec=carousel.closest('div[style*="padding:12px 14px"]')||carousel.parentElement; sec.insertAdjacentElement('afterend',wrap);
+    var tabList=document.getElementById('amical-commissions-list');
+    if(tabList){
+      tabList.innerHTML=sortedFixed().filter(isVisible).map(function(c){
+        return '<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer" onclick="ouvrirCommissionAmicalisteV56(\''+esc(c.id)+'\')">'
+          +'<div style="width:42px;height:42px;border-radius:12px;background:'+(c.bg||'var(--color-background-secondary)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+          +'<i class="ti '+(c.ico||'ti-users-group')+'" style="font-size:20px;color:'+(c.col||'var(--blu)')+'" aria-hidden="true"></i></div>'
+          +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">'+esc(c.nom||c.id)+'</div>'
+          +'<div style="font-size:11px;color:var(--color-text-secondary)">'+esc(c.sub||'')+'</div></div>'
+          +'<i class="ti ti-chevron-right" style="font-size:16px;color:var(--color-text-secondary);flex-shrink:0" aria-hidden="true"></i></div>';
+      }).join('');
+    }
   };
 
   window.renderGestionComm=function(){
@@ -18792,6 +18946,197 @@ function enregistrerParametresVoyage(){
        document.getElementById('fy-dashboard').classList.contains('on')){
       window.renderFoyerBureau();
     }
+  });
+})();
+
+/* ═══════════════════════════════════════════════
+   TAB BAR AMICALISTE — navigation Accueil / Commissions / Messages
+   ═══════════════════════════════════════════════ */
+(function(){
+  if(window.__AMICAL_TABBAR__) return;
+  window.__AMICAL_TABBAR__=true;
+
+  var MSG_AMICAL = [];
+  try { MSG_AMICAL = JSON.parse(localStorage.getItem('MSG_AMICAL')||'[]'); } catch(e){}
+
+  var msgFiltre='tous';
+
+  function saveMsgAmical(){ try{ localStorage.setItem('MSG_AMICAL',JSON.stringify(MSG_AMICAL)); }catch(e){} }
+
+  function currentName(){
+    try{ var m=typeof getCurrentMember==='function'&&getCurrentMember(); if(m) return (m.p+' '+m.n).trim(); }catch(e){}
+    return 'Amicaliste';
+  }
+
+  window.switchAmicalTab=function(tab,btn){
+    var tabs=['accueil','commissions','messages'];
+    tabs.forEach(function(t){
+      var el=document.getElementById('amical-tab-'+t);
+      if(el) el.style.display=(t===tab)?'':'none';
+    });
+    var bar=document.getElementById('amical-tabbar');
+    if(bar) bar.querySelectorAll('.atab-btn').forEach(function(b){ b.classList.remove('on'); });
+    if(btn) btn.classList.add('on');
+    if(tab==='commissions') renderAmicalTabCommissions();
+    if(tab==='messages') renderMsgAmical();
+  };
+
+  function renderAmicalTabCommissions(){
+    var list=document.getElementById('amical-commissions-list');
+    if(!list) return;
+    var comms=[];
+    if(window.COMMISSIONS_FIXES_COMPLEMENTAIRES_V53) comms=comms.concat(window.COMMISSIONS_FIXES_COMPLEMENTAIRES_V53);
+    if(window.COMMISSIONS_GEREES) comms=comms.concat(window.COMMISSIONS_GEREES.filter(function(c){ return !comms.find(function(x){return x.id===c.id;}); }));
+    var active=window.commissionsActive||{};
+    try{ active=JSON.parse(localStorage.getItem('commissionsActive')||'{}'); }catch(e){}
+    comms=comms.filter(function(c){ return active[c.id]!==false; });
+
+    function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+    list.innerHTML=comms.map(function(c){
+      var page=c.pageAmical||c.pageBureauModele||c.page||'';
+      return '<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer" onclick="goPage(\''+esc(page)+'\')">'
+        +'<div style="width:42px;height:42px;border-radius:12px;background:'+(c.bg||'var(--color-background-secondary)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+        +'<i class="ti '+(c.ico||'ti-users-group')+'" style="font-size:20px;color:'+(c.col||'var(--blu)')+'" aria-hidden="true"></i></div>'
+        +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">'+esc(c.nom||c.id)+'</div>'
+        +'<div style="font-size:11px;color:var(--color-text-secondary)">'+esc(c.sub||'')+'</div></div>'
+        +'<i class="ti ti-chevron-right" style="font-size:16px;color:var(--color-text-secondary);flex-shrink:0" aria-hidden="true"></i>'
+        +'</div>';
+    }).join('');
+    if(!comms.length) list.innerHTML='<div style="text-align:center;padding:30px;color:var(--color-text-secondary);font-size:13px">Aucune commission visible pour le moment.</div>';
+  }
+
+  function renderMsgAmical(){
+    var list=document.getElementById('amical-msg-list');
+    if(!list) return;
+    var nom=currentName();
+    var msgs=MSG_AMICAL.filter(function(m){
+      if(msgFiltre==='nonlus') return !m.lu && m.de!==nom;
+      if(msgFiltre==='envoyes') return m.de===nom;
+      return true;
+    });
+    updateMsgBadge();
+    if(!msgs.length){
+      list.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--color-text-secondary)"><i class="ti ti-mailbox" style="font-size:40px;display:block;margin-bottom:8px;opacity:.4" aria-hidden="true"></i><div style="font-size:13px">Aucun message</div></div>';
+      return;
+    }
+    function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+    list.innerHTML=msgs.map(function(m,i){
+      var isMe=m.de===nom;
+      return '<div class="card" style="margin-bottom:8px;cursor:pointer;border-left:3px solid '+(m.lu||isMe?'transparent':'var(--r)')+'" onclick="ouvrirMsgAmicalDetail('+i+')">'
+        +'<div style="display:flex;align-items:center;gap:10px">'
+        +'<div style="width:36px;height:36px;border-radius:50%;background:'+(isMe?'var(--bll)':'var(--rl)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+        +'<i class="ti '+(isMe?'ti-send':'ti-mail')+'" style="font-size:16px;color:'+(isMe?'var(--blu)':'var(--r)')+'" aria-hidden="true"></i></div>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;font-weight:'+(m.lu||isMe?'600':'700')+';color:var(--color-text-primary)">'+(isMe?'Envoyé à '+esc(m.dest||''):esc(m.de||''))+'</div>'
+        +'<div style="font-size:10px;color:var(--color-text-secondary)">'+esc(m.date||'')+'</div></div>'
+        +'<div style="font-size:12px;color:var(--color-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">'+esc(m.objet||'')+'</div>'
+        +'</div></div></div>';
+    }).join('');
+  }
+
+  window.filtrerMsgAmical=function(btn,filtre){
+    msgFiltre=filtre;
+    var wrap=btn.parentElement;
+    wrap.querySelectorAll('.fp').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+    renderMsgAmical();
+  };
+
+  window.ouvrirMsgAmicalDetail=function(idx){
+    var nom=currentName();
+    var msgs=MSG_AMICAL.filter(function(m){
+      if(msgFiltre==='nonlus') return !m.lu && m.de!==nom;
+      if(msgFiltre==='envoyes') return m.de===nom;
+      return true;
+    });
+    var m=msgs[idx]; if(!m) return;
+    if(m.de!==nom) m.lu=true;
+    saveMsgAmical();
+    updateMsgBadge();
+    renderMsgAmical();
+    function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+    var html='<div class="mh2"></div><div class="mtt">'+esc(m.objet||'Message')+'</div>'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+      +'<div style="font-size:12px;color:var(--color-text-secondary)"><strong>De :</strong> '+esc(m.de||'')+'</div>'
+      +'<div style="font-size:12px;color:var(--color-text-secondary)"><strong>À :</strong> '+esc(m.dest||'')+'</div>'
+      +'<div style="font-size:11px;color:var(--color-text-secondary);margin-left:auto">'+esc(m.date||'')+'</div></div>'
+      +'<div style="font-size:13px;color:var(--color-text-primary);line-height:1.6;padding:10px 0;border-top:1px solid var(--color-border)">'+esc(m.corps||'')+'</div>'
+      +'<div class="mac"><button class="mc-c" onclick="document.getElementById(\'modal-msg-amical-detail\').classList.remove(\'open\')">Fermer</button></div>';
+    var modal=document.getElementById('modal-msg-amical-detail');
+    if(!modal){
+      modal=document.createElement('div');modal.className='mow';modal.id='modal-msg-amical-detail';
+      modal.innerHTML='<div class="mbox" style="max-height:90vh;overflow-y:auto"></div>';
+      document.getElementById('pg-home-amical').appendChild(modal);
+    }
+    modal.querySelector('.mbox').innerHTML=html;
+    modal.classList.add('open');
+  };
+
+  window.ouvrirNouveauMsgAmical=function(){
+    document.getElementById('modal-msg-amical').classList.add('open');
+  };
+
+  window.envoyerMsgAmical=function(){
+    var dest=document.getElementById('msg-amical-dest').value;
+    var objet=document.getElementById('msg-amical-objet').value.trim();
+    var corps=document.getElementById('msg-amical-corps').value.trim();
+    if(!objet||!corps){ if(typeof toast==='function') toast('Veuillez remplir tous les champs'); return; }
+    var destLabels={president:'Président',secretaire:'Secrétaire',tresorier:'Trésorier',saintebarbe:'Commission Sainte-Barbe',noel:'Commission Arbre de Noël',fdf:'Commission Fête des Femmes',calendriers:'Commission Calendriers',locations:'Commission Locations',voyages:'Commission Voyages',evenements:'Commission Événements',sportive:'Commission Sportive'};
+    var now=new Date();
+    var dateStr=('0'+now.getDate()).slice(-2)+'/'+('0'+(now.getMonth()+1)).slice(-2)+'/'+now.getFullYear();
+    MSG_AMICAL.unshift({
+      id:'ma'+Date.now(),
+      de:currentName(),
+      dest:destLabels[dest]||dest,
+      objet:objet,
+      corps:corps,
+      date:dateStr,
+      lu:true
+    });
+    saveMsgAmical();
+    document.getElementById('msg-amical-objet').value='';
+    document.getElementById('msg-amical-corps').value='';
+    document.getElementById('modal-msg-amical').classList.remove('open');
+    renderMsgAmical();
+    if(typeof toast==='function') toast('Message envoyé !');
+  };
+
+  function updateMsgBadge(){
+    var nom=currentName();
+    var count=MSG_AMICAL.filter(function(m){ return !m.lu && m.de!==nom; }).length;
+    var badge=document.getElementById('atab-msg-badge');
+    if(badge){ badge.style.display=count?'flex':'none'; badge.textContent=count; }
+  }
+
+  var _oldGoTab=window.goPage;
+  if(typeof _oldGoTab==='function' && !_oldGoTab.__amicalTab){
+    var _wrappedGoTab=function(id){
+      var r=_oldGoTab.apply(this,arguments);
+      setTimeout(function(){
+        var bar=document.getElementById('amical-tabbar');
+        if(bar) bar.style.display=(id==='pg-home-amical')?'flex':'none';
+        if(id==='pg-home-amical'){
+          var accTab=document.getElementById('amical-tab-accueil');
+          if(accTab && accTab.style.display==='none'){} else { updateMsgBadge(); }
+        }
+      },0);
+      return r;
+    };
+    _wrappedGoTab.__amicalTab=true;
+    window.goPage=_wrappedGoTab;
+  }
+
+  function ready(fn){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn);else setTimeout(fn,0);}
+  ready(function(){
+    if(!MSG_AMICAL.length){
+      MSG_AMICAL=[
+        {id:'ma1',de:'Président',dest:'Tous les amicalistes',objet:'Bienvenue sur l’application',corps:'Chers amicalistes, l’application de notre amicale est désormais en ligne. Vous pouvez consulter les événements, vous inscrire et communiquer avec le bureau.',date:'01/07/2026',lu:false},
+        {id:'ma2',de:'Commission Sainte-Barbe',dest:'Tous les amicalistes',objet:'Inscriptions Sainte-Barbe ouvertes',corps:'Les inscriptions pour le repas de la Sainte-Barbe sont ouvertes. Rendez-vous dans la section dédiée pour vous inscrire.',date:'28/06/2026',lu:false},
+        {id:'ma3',de:'Secrétaire',dest:'Tous les amicalistes',objet:'Mise à jour du règlement intérieur',corps:'Le règlement intérieur a été mis à jour suite à l’assemblée générale du 10 juin. Consultez la version actualisée dans l’espace documents.',date:'15/06/2026',lu:true}
+      ];
+      saveMsgAmical();
+    }
+    updateMsgBadge();
   });
 })();
 
