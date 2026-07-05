@@ -7436,6 +7436,10 @@ let splashStatut='actif';           // statut choisi sur la page Bienvenue
 // ── Restauration du profil au chargement ──
 (function restoreProfile(){
   try {
+    var ident=localStorage.getItem('aml_identite');
+    if(ident && typeof syncIdentite==='function') syncIdentite(ident);
+  } catch(e){}
+  try {
     const saved = localStorage.getItem('aml_profil_v1');
     if (!saved) return;
     const p = JSON.parse(saved);
@@ -7995,6 +7999,8 @@ function connecterBureau(){
     roleLabel=infos.label+(labels?' · '+labels:'');
   }
   document.getElementById('bh-role').textContent=roleLabel;
+
+  syncIdentite(infos.nom);
 
   appliquerDroitsBureau();
   majSoldeBureau();
@@ -8666,8 +8672,25 @@ const DEMANDES_LOCATION=[
    dateDemande:'20 avril 2025',dateTraitement:'21 avril 2025',traitePar:'Pierre Leroy',motifValidation:null,caution:'150 €',etatRetour:'Non concerné',observations:'Proposition faite de décaler la demande au week-end suivant.'},
 ];
 
-// Utilisateur amicaliste actuellement connecté (pour "Mes locations")
+// Utilisateur actuellement connecté — synchronisé entre bureau et amicaliste
 let CURRENT_AMICALISTE='Jean Dupont';
+
+function syncIdentite(nomComplet){
+  if(!nomComplet) return false;
+  var parts=nomComplet.split(' ');
+  var prenom=parts[0], nom=parts.slice(1).join(' ');
+  var idx=MEMBRES_DATA.findIndex(function(m){return m.p===prenom&&m.n===nom;});
+  if(idx<0) return false;
+  if(idx>0){var tmp=MEMBRES_DATA[0];MEMBRES_DATA[0]=MEMBRES_DATA[idx];MEMBRES_DATA[idx]=tmp;}
+  CURRENT_AMICALISTE=prenom+' '+nom;
+  var hNom=document.getElementById('ah-user-nom');
+  var m=MEMBRES_DATA[0];
+  if(hNom){var tl=m.st==='retraite'?'Retraité':(m.st==='honneur'?"Membre d'honneur":(m.type||'SPV'));hNom.textContent=m.p+' '+m.n+' · '+tl;}
+  var hAv=document.getElementById('header-avatar-emoji');
+  if(hAv)hAv.textContent=m.avatar||'🚒';
+  try{localStorage.setItem('aml_identite',nomComplet);}catch(e){}
+  return true;
+}
 
 // ═══════════════════════════════════════════
 // INSCRIPTIONS VOYAGES — amicaliste → commission Voyages
@@ -13119,7 +13142,8 @@ var ACCES_BUREAU = [
   {nom:'Michel Durand', role:'president', commissions:[], code:'BUR-MICHEL-53', statut:'actif'},
   {nom:'François Moreau', role:'vice-president', commissions:[], code:'BUR-FRANCOIS-53', statut:'actif'},
   {nom:'Marie Garnier', role:'secretaire', commissions:[{nom:'Événements',role:'membre_commission'}], code:'BUR-MARIE-53', statut:'actif'},
-  {nom:'Pierre Leroy', role:'tresorier', commissions:[{nom:'Locations',role:'membre_commission'}], code:'BUR-PIERRE-53', statut:'invite'},
+  {nom:'Isabelle Blanc', role:'tresorier', commissions:[], code:'BUR-ISABELLE-53', statut:'actif'},
+  {nom:'Pierre Leroy', role:'membre_commission', commissions:[{nom:'Locations',role:'membre_commission'}], code:'BUR-PIERRE-53', statut:'invite'},
   {nom:'Sophie Martin', role:'responsable_commission', commissions:[{nom:'Événements',role:'responsable_commission'},{nom:'Voyages',role:'membre_commission'}], code:'BUR-SOPHIE-53', statut:'actif'},
   {nom:'Lucas Bernard', role:'responsable_communication', commissions:[{nom:'Événements',role:'membre_commission'}], permissions:['messagerie','reunions','documents','journal','modeles','archives','evenements','photos'], code:'BUR-LUCAS-53', statut:'actif'}
 ];
@@ -19892,22 +19916,9 @@ function ouvrirFicheVoyage(voyKey){
 
     if(tab==='amicaliste'){
       var role=window.bureauRole||(typeof bureauRole!=='undefined'?bureauRole:'pres');
-      var roles=window.BUREAU_ROLES||BUREAU_ROLES;
+      var roles=window.BUREAU_ROLES||(typeof BUREAU_ROLES!=='undefined'?BUREAU_ROLES:{});
       var info=roles[role];
-      if(info&&info.nom){
-        var parts=info.nom.split(' ');
-        var prenom=parts[0], nomF=parts.slice(1).join(' ');
-        var idx=MEMBRES_DATA.findIndex(function(m){return m.p===prenom&&m.n===nomF;});
-        if(idx>=0){
-          if(idx>0){var tmp=MEMBRES_DATA[0];MEMBRES_DATA[0]=MEMBRES_DATA[idx];MEMBRES_DATA[idx]=tmp;}
-          CURRENT_AMICALISTE=prenom+' '+nomF;
-          var hNom=document.getElementById('ah-user-nom');
-          var m=MEMBRES_DATA[0];
-          if(hNom){var tl=m.st==='retraite'?'Retraité':(m.st==='honneur'?"Membre d'honneur":(m.type||'SPV'));hNom.textContent=m.p+' '+m.n+' · '+tl;}
-          var hAv=document.getElementById('header-avatar-emoji');
-          if(hAv)hAv.textContent=m.avatar||'🚒';
-        }
-      }
+      if(info&&info.nom) syncIdentite(info.nom);
       goPage('pg-home-amical');
       return;
     }
