@@ -12438,7 +12438,7 @@ document.addEventListener('DOMContentLoaded', _persoRestore);
 // MESSAGERIE BUREAU
 // ══════════════════════════════════════════
 var MSG_BUREAU = [
-  {id:'m1', de:'François Moreau', role:'pres', dest:'tous', objet:'Réunion mensuelle', corps:'Bonjour à tous, rappel de notre réunion mensuelle le 15 juin à 19h au centre de secours. Merci de confirmer votre présence.', date:'14/06/2026', lu:false, envoye:false},
+  {id:'m1', de:'Michel Durand', role:'pres', dest:'tous', objet:'Réunion mensuelle', corps:'Bonjour à tous, rappel de notre réunion mensuelle le 15 juin à 19h au centre de secours. Merci de confirmer votre présence.', date:'14/06/2026', lu:false, envoye:false},
   {id:'m2', de:'Marie Martin', role:'sec', dest:'pres', objet:'Compte-rendu AG', corps:'Voici le compte-rendu de l\u2019assemblée générale du 10 juin. Merci de le valider avant publication.', date:'11/06/2026', lu:false, envoye:false},
   {id:'m3', de:'Pierre Leroy', role:'trso', dest:'tous', objet:'Point budget T2', corps:'Le budget du deuxième trimestre affiche un solde positif de 1 240 €. Détail en pièce jointe.', date:'05/06/2026', lu:true, envoye:false},
 ];
@@ -12469,7 +12469,7 @@ var MSG_COURANT = null;
 
 // Membres du bureau avec leurs rôles
 var BUREAU_MEMBRES = [
-  {id:'bm1', nom:'François Moreau', role:'pres',  label:'Président',    avatar:'F'},
+  {id:'bm1', nom:'Michel Durand', role:'pres',  label:'Président',    avatar:'M'},
   {id:'bm2', nom:'Marie Martin',    role:'sec',   label:'Secrétaire',   avatar:'M'},
   {id:'bm3', nom:'Pierre Leroy',    role:'trso',  label:'Trésorier',    avatar:'P'},
   {id:'bm4', nom:'Sophie Bernard',  role:'comm',  label:'Commission',   avatar:'S'},
@@ -13116,7 +13116,8 @@ var ROLE_BUREAU_PERMISSIONS = {
 };
 
 var ACCES_BUREAU = [
-  {nom:'François Moreau', role:'president', commissions:[], code:'BUR-FRANCOIS-53', statut:'actif'},
+  {nom:'Michel Durand', role:'president', commissions:[], code:'BUR-MICHEL-53', statut:'actif'},
+  {nom:'François Moreau', role:'vice-president', commissions:[], code:'BUR-FRANCOIS-53', statut:'actif'},
   {nom:'Marie Garnier', role:'secretaire', commissions:[{nom:'Événements',role:'membre_commission'}], code:'BUR-MARIE-53', statut:'actif'},
   {nom:'Pierre Leroy', role:'tresorier', commissions:[{nom:'Locations',role:'membre_commission'}], code:'BUR-PIERRE-53', statut:'invite'},
   {nom:'Sophie Martin', role:'responsable_commission', commissions:[{nom:'Événements',role:'responsable_commission'},{nom:'Voyages',role:'membre_commission'}], code:'BUR-SOPHIE-53', statut:'actif'},
@@ -19890,6 +19891,23 @@ function ouvrirFicheVoyage(voyKey){
     if(btn) btn.classList.add('on');
 
     if(tab==='amicaliste'){
+      var role=window.bureauRole||(typeof bureauRole!=='undefined'?bureauRole:'pres');
+      var roles=window.BUREAU_ROLES||BUREAU_ROLES;
+      var info=roles[role];
+      if(info&&info.nom){
+        var parts=info.nom.split(' ');
+        var prenom=parts[0], nomF=parts.slice(1).join(' ');
+        var idx=MEMBRES_DATA.findIndex(function(m){return m.p===prenom&&m.n===nomF;});
+        if(idx>=0){
+          if(idx>0){var tmp=MEMBRES_DATA[0];MEMBRES_DATA[0]=MEMBRES_DATA[idx];MEMBRES_DATA[idx]=tmp;}
+          CURRENT_AMICALISTE=prenom+' '+nomF;
+          var hNom=document.getElementById('ah-user-nom');
+          var m=MEMBRES_DATA[0];
+          if(hNom){var tl=m.st==='retraite'?'Retraité':(m.st==='honneur'?"Membre d'honneur":(m.type||'SPV'));hNom.textContent=m.p+' '+m.n+' · '+tl;}
+          var hAv=document.getElementById('header-avatar-emoji');
+          if(hAv)hAv.textContent=m.avatar||'🚒';
+        }
+      }
       goPage('pg-home-amical');
       return;
     }
