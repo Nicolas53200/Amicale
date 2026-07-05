@@ -2308,7 +2308,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
       </div>
 
       <!-- CAROUSEL horizontal défilant, pleine largeur -->
-      <div style="padding:12px 14px 8px">
+      <div id="amical-carousel-section" style="padding:12px 14px 8px">
         <div class="sec">À la une</div>
         <div id="tour-carousel" style="overflow:hidden;border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,0.13)">
           <!-- PISTE DU CAROUSEL -->
@@ -17746,8 +17746,10 @@ function ouvrirFicheVoyage(voyKey){
     {id:'anciens',nom:'Anciens Sapeurs-Pompiers',ico:'ti-users-group',col:'var(--pur)',bg:'var(--color-background-secondary)',sub:'Anciens, retraités et mémoire',modele:'simple',pageBureau:'pg-comm-evenements',pageAmical:'pg-evenements-amical',budget:0,features:['notifications','evenements','documents','compta','membres']},
     {id:'saintebarbe',nom:'Sainte-Barbe',ico:'ti-flame',col:'#a83246',bg:'#a8324622',sub:'Cérémonie et soirée annuelle',modele:'evenement',pageBureau:'pg-comm-saintebarbe',pageAmical:'pg-saintebarbe-amical',budget:0,features:['notifications','evenements','documents','compta','membres']},
     {id:'solidarite',nom:'Action sociale / Solidarité',ico:'ti-heart-handshake',col:'#1d4ed8',bg:'#1d4ed822',sub:'Aides et accompagnement',modele:'simple',pageBureau:'pg-comm-solidarite',pageAmical:'pg-solidarite-amical',budget:0,features:['notifications','documents','compta','membres']},
-    {id:'foyer',nom:'Commission Foyer',ico:'ti-coffee',col:'#b45309',bg:'#b4530922',sub:'Conso · abonnements · jeux',modele:'simple',pageBureau:'pg-comm-foyer',pageAmical:null,budget:0,features:['notifications','compta','membres']}
+    {id:'foyer',nom:'Commission Foyer',ico:'ti-coffee',col:'#b45309',bg:'#b4530922',sub:'Conso · abonnements · jeux',modele:'simple',pageBureau:'pg-comm-foyer',pageAmical:null,budget:0,features:['notifications','compta','membres'],visibleAmicaliste:false}
   ];
+
+  var ORDRE_AMICAL=['cal','voy','loc','saintebarbe','noel','fdf','ev','sport','jsp','anciens','solidarite','foyer'];
 
   function arrComms(){ try{ if(typeof COMMISSIONS_GEREES!=='undefined' && Array.isArray(COMMISSIONS_GEREES)) return COMMISSIONS_GEREES; }catch(e){} window.COMMISSIONS_GEREES=Array.isArray(window.COMMISSIONS_GEREES)?window.COMMISSIONS_GEREES:[]; return window.COMMISSIONS_GEREES; }
   function arrCompta(){ try{ if(typeof COMMISSIONS_COMPTA!=='undefined' && Array.isArray(COMMISSIONS_COMPTA)) return COMMISSIONS_COMPTA; }catch(e){} window.COMMISSIONS_COMPTA=Array.isArray(window.COMMISSIONS_COMPTA)?window.COMMISSIONS_COMPTA:[]; return window.COMMISSIONS_COMPTA; }
@@ -17758,12 +17760,16 @@ function ouvrirFicheVoyage(voyKey){
     var comms=arrComms(), compta=arrCompta();
     window.commissionsActive=window.commissionsActive||{};
     try{ var saved=JSON.parse(localStorage.getItem('commissionsActive')||'{}'); Object.keys(saved||{}).forEach(function(k){ if(!(k in window.commissionsActive)) window.commissionsActive[k]=saved[k]; }); }catch(e){}
+    window.commVisAmicaliste=window.commVisAmicaliste||{};
+    try{ var savedA=JSON.parse(localStorage.getItem('commVisAmicaliste')||'{}'); Object.keys(savedA||{}).forEach(function(k){ window.commVisAmicaliste[k]=savedA[k]; }); }catch(e){}
     var pages=getMap('COMM_PAGES'), labels=getMap('COMM_LABELS_SOLDE'), noms=getMap('COMM_NOM_COMPTA');
     FIXED.forEach(function(def){
       var c=comms.find(function(x){return x && x.id===def.id;});
       if(!c){ c={id:def.id,resps:[],membresBureau:[],visible:true,fixe:true,supprimee:false}; comms.push(c); }
       Object.assign(c,{nom:def.nom,modele:def.modele,ico:def.ico,col:def.col,bg:def.bg,sub:def.sub,fixe:true,supprimee:false,features:def.features.slice(),page:def.pageBureau,pageBureau:def.pageBureau,pageBureauModele:def.pageBureau,pageAmical:def.pageAmical});
       if(c.visible===undefined) c.visible=true;
+      if(c.visibleAmicaliste===undefined) c.visibleAmicaliste=(def.visibleAmicaliste!==false);
+      if(def.id in window.commVisAmicaliste) c.visibleAmicaliste=window.commVisAmicaliste[def.id];
       c.resps=norm(c.resps); c.membresBureau=norm(c.membresBureau);
       if(!(def.id in window.commissionsActive)) window.commissionsActive[def.id]=c.visible!==false;
       var b=compta.find(function(x){return x && x.id===def.id;});
@@ -17777,8 +17783,10 @@ function ouvrirFicheVoyage(voyKey){
   function byId(id){ ensureFixed(); return arrComms().find(function(c){return c && c.id===id && !c.supprimee;}); }
   function budget(id){ return arrCompta().find(function(b){return b&&b.id===id;}) || {budget:0,recettes:0,depenses:0}; }
   function isVisible(c){ return c && c.visible!==false && !(window.commissionsActive && window.commissionsActive[c.id]===false); }
+  function isVisibleAmicaliste(c){ return isVisible(c) && c.visibleAmicaliste!==false; }
   function fixedList(){ ensureFixed(); return FIXED.map(function(def){return byId(def.id);}).filter(Boolean); }
   function sortedFixed(){ return fixedList().sort(function(a,b){ var va=isVisible(a)?0:1, vb=isVisible(b)?0:1; if(va!==vb) return va-vb; return String(a.nom||'').localeCompare(String(b.nom||''),'fr'); }); }
+  function sortedAmical(){ return ORDRE_AMICAL.map(function(id){return byId(id);}).filter(function(c){return c && isVisibleAmicaliste(c);}); }
   function allForGestion(){
     ensureFixed();
     var ids={}; FIXED.forEach(function(f){ids[f.id]=1;});
@@ -17823,14 +17831,15 @@ function ouvrirFicheVoyage(voyKey){
     var access=document.getElementById('tour-acces-rapide'); if(access){ access.style.display='none'; var prev=access.previousElementSibling; if(prev) prev.style.display='none'; }
     var tabList=document.getElementById('amical-commissions-list');
     if(tabList){
-      tabList.innerHTML=sortedFixed().filter(isVisible).map(function(c){
-        return '<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer" onclick="ouvrirCommissionAmicalisteV56(\''+esc(c.id)+'\')">'
-          +'<div style="width:42px;height:42px;border-radius:12px;background:'+(c.bg||'var(--color-background-secondary)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
-          +'<i class="ti '+(c.ico||'ti-users-group')+'" style="font-size:20px;color:'+(c.col||'var(--blu)')+'" aria-hidden="true"></i></div>'
-          +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">'+esc(c.nom||c.id)+'</div>'
-          +'<div style="font-size:11px;color:var(--color-text-secondary)">'+esc(c.sub||'')+'</div></div>'
-          +'<i class="ti ti-chevron-right" style="font-size:16px;color:var(--color-text-secondary);flex-shrink:0" aria-hidden="true"></i></div>';
-      }).join('');
+      var comms=sortedAmical();
+      tabList.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+comms.map(function(c){
+        return '<div class="card" style="margin:0;padding:14px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px" onclick="ouvrirCommissionAmicalisteV56(\''+esc(c.id)+'\')">'
+          +'<div style="width:48px;height:48px;border-radius:14px;background:'+(c.bg||'var(--color-background-secondary)')+';display:flex;align-items:center;justify-content:center">'
+          +'<i class="ti '+(c.ico||'ti-users-group')+'" style="font-size:22px;color:'+(c.col||'var(--blu)')+'" aria-hidden="true"></i></div>'
+          +'<div><div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">'+esc(c.nom||c.id)+'</div>'
+          +'<div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">'+esc(c.sub||'')+'</div></div></div>';
+      }).join('')+'</div>';
+      if(!comms.length) tabList.innerHTML='<div style="text-align:center;padding:30px;color:var(--color-text-secondary);font-size:13px">Aucune commission visible pour le moment.</div>';
     }
   };
 
@@ -17839,13 +17848,14 @@ function ouvrirFicheVoyage(voyKey){
     var list=document.getElementById('gestion-comm-list'); if(!list) return;
     list.innerHTML='';
     allForGestion().forEach(function(c){
-      var b=budget(c.id), vis=isVisible(c);
+      var b=budget(c.id), vis=isVisible(c), visA=c.visibleAmicaliste!==false;
       var card=document.createElement('div'); card.className='card';
-      card.style.cssText='display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;opacity:'+(vis?'1':'.62');
-      card.innerHTML='<div style="width:40px;height:40px;border-radius:12px;background:'+(c.bg||'var(--color-background-secondary)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti '+esc(c.ico||'ti-users-group')+'" style="font-size:20px;color:'+(c.col||'var(--blu)')+'" aria-hidden="true"></i></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">'+esc(c.nom)+'</div><div style="font-size:11px;color:var(--color-text-secondary)">'+esc(resp(c))+' · Budget '+(Number(b.budget)||0)+' € · '+esc(model(c))+' · '+(vis?'Visible':'Masquée')+'</div></div><button data-act="open" style="background:none;border:none;cursor:pointer;padding:6px;min-width:30px;color:var(--blu)" title="Ouvrir"><i class="ti ti-layout-dashboard" style="font-size:17px"></i></button><button data-act="vis" style="background:none;border:none;cursor:pointer;padding:6px;min-width:30px;color:'+(vis?'var(--grn)':'var(--color-text-secondary)')+'" title="'+(vis?'Masquer aux amicalistes':'Afficher aux amicalistes')+'"><i class="ti '+(vis?'ti-eye':'ti-eye-off')+'" style="font-size:17px"></i></button><button data-act="edit" style="background:none;border:none;cursor:pointer;color:var(--blu);padding:6px;min-width:30px" title="Modifier"><i class="ti ti-edit" style="font-size:17px"></i></button>';
+      card.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;opacity:'+(vis?'1':'.62');
+      card.innerHTML='<div style="width:40px;height:40px;border-radius:12px;background:'+(c.bg||'var(--color-background-secondary)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti '+esc(c.ico||'ti-users-group')+'" style="font-size:20px;color:'+(c.col||'var(--blu)')+'" aria-hidden="true"></i></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">'+esc(c.nom)+'</div><div style="font-size:11px;color:var(--color-text-secondary)">'+esc(resp(c))+' · '+(Number(b.budget)||0)+' € · '+(vis?'Bureau ':'Masquée ')+(visA?'· Amicaliste ':'')+'</div></div><button data-act="open" style="background:none;border:none;cursor:pointer;padding:4px;min-width:26px;color:var(--blu)" title="Ouvrir"><i class="ti ti-layout-dashboard" style="font-size:16px"></i></button><button data-act="vis" style="background:none;border:none;cursor:pointer;padding:4px;min-width:26px;color:'+(vis?'var(--grn)':'var(--color-text-secondary)')+'" title="'+(vis?'Masquer (bureau+amical)':'Afficher (bureau+amical)')+'"><i class="ti '+(vis?'ti-eye':'ti-eye-off')+'" style="font-size:16px"></i></button><button data-act="vis-amical" style="background:none;border:none;cursor:pointer;padding:4px;min-width:26px;color:'+(visA?'var(--pur)':'var(--color-text-secondary)')+'" title="'+(visA?'Masquer côté amicaliste':'Afficher côté amicaliste')+'"><i class="ti '+(visA?'ti-user-check':'ti-user-off')+'" style="font-size:16px"></i></button><button data-act="edit" style="background:none;border:none;cursor:pointer;color:var(--blu);padding:4px;min-width:26px" title="Modifier"><i class="ti ti-edit" style="font-size:16px"></i></button>';
       card.onclick=function(){ openCommission(c.id,false); };
       card.querySelector('[data-act="open"]').onclick=function(e){ e.stopPropagation(); openCommission(c.id,false); };
       card.querySelector('[data-act="vis"]').onclick=function(e){ e.stopPropagation(); toggleVisibiliteCommFixeV56(c.id); };
+      card.querySelector('[data-act="vis-amical"]').onclick=function(e){ e.stopPropagation(); toggleVisibiliteAmicalisteV56(c.id); };
       card.querySelector('[data-act="edit"]').onclick=function(e){ e.stopPropagation(); if(typeof window.ouvrirModalCommission==='function') window.ouvrirModalCommission(c.id); };
       list.appendChild(card);
     });
@@ -17861,6 +17871,16 @@ function ouvrirFicheVoyage(voyKey){
   };
   window.toggleVisibiliteCommFixeV55=window.toggleVisibiliteCommFixeV56;
   window.toggleVisibiliteCommFixeV53=window.toggleVisibiliteCommFixeV56;
+
+  window.toggleVisibiliteAmicalisteV56=function(id){
+    var c=byId(id); if(!c) return;
+    var next=!(c.visibleAmicaliste!==false);
+    c.visibleAmicaliste=next;
+    window.commVisAmicaliste=window.commVisAmicaliste||{};
+    window.commVisAmicaliste[id]=next;
+    try{ localStorage.setItem('commVisAmicaliste',JSON.stringify(window.commVisAmicaliste)); }catch(e){}
+    refreshV56(); toast(c.nom+' : '+(next?'visible pour les amicalistes':'masquée pour les amicalistes'));
+  };
 
   function titleFix(){ document.querySelectorAll('.sec,.shd-t,.mtt,button,.tool-title,.comm-name,.bb-label').forEach(function(n){ if((n.textContent||'').trim()==='Créer une commission') n.textContent='Gestion des commissions'; }); }
   function refreshV56(){ ensureFixed(); titleFix(); try{window.renderBureauCommissionsV56();}catch(e){} try{window.renderGestionComm();}catch(e){} try{window.renderAmicalisteCommissions();}catch(e){} }
@@ -19664,6 +19684,8 @@ function ouvrirFicheVoyage(voyKey){
       var el=document.getElementById('amical-tab-'+t);
       if(el) el.style.display=(t===tab)?'':'none';
     });
+    var carousel=document.getElementById('amical-carousel-section');
+    if(carousel) carousel.style.display=(tab==='accueil')?'':'none';
     var bar=document.getElementById('amical-tabbar');
     if(bar) bar.querySelectorAll('.atab-btn').forEach(function(b){ b.classList.remove('on'); });
     if(btn) btn.classList.add('on');
