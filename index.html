@@ -41,118 +41,132 @@
 
 /* ── 1. Variables globales ── */
 :root {
-  --r:        #7D2B38 !important;
-  --rl:       #FBE9EB !important;
-  --r2:       #F5D5D8 !important;
-  --rd:       #5C1E28 !important;
-  --color-background-primary:   #F5EFE6 !important;
-  --color-background-secondary: #EDE5D8 !important;
-  --color-background-tertiary:  #E4D9C8 !important;
-  --color-text-primary:   #1A1A2E !important;
-  --color-text-secondary: #6B6B80 !important;
-  --color-text-tertiary:  #A8A8B8 !important;
-  --color-border:           #E0D8CC !important;
-  --color-border-secondary: #D5CBBC !important;
-  --color-border-tertiary:  #C8BCAA !important;
-  --border-radius-md: 12px !important;
-  --border-radius-lg: 18px !important;
+  --r:        #E8553A !important;
+  --rl:       #FFF0ED !important;
+  --r2:       #FFD9D2 !important;
+  --rd:       #C43E26 !important;
+  --accent:   #FF6B35 !important;
+  --accent-light: #FFF4EE !important;
+  --accent-gradient: linear-gradient(135deg,#FF8A4C 0%,#E8553A 50%,#D94066 100%) !important;
+  --color-background-primary:   #FFFFFF !important;
+  --color-background-secondary: #F7F7F8 !important;
+  --color-background-tertiary:  #F2F2F7 !important;
+  --color-text-primary:   #1C1C1E !important;
+  --color-text-secondary: #8E8E93 !important;
+  --color-text-tertiary:  #AEAEB2 !important;
+  --color-border:           #F2F2F7 !important;
+  --color-border-secondary: #E5E5EA !important;
+  --color-border-tertiary:  #E5E5EA !important;
+  --border-radius-md: 14px !important;
+  --border-radius-lg: 20px !important;
+  --border-radius-xl: 24px !important;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04),0 1px 2px rgba(0,0,0,0.06) !important;
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04) !important;
+  --shadow-lg: 0 8px 28px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04) !important;
 }
 
 /* ── 2. Cards — fond blanc, ombre douce, bords arrondis ── */
 .card {
   background: #FFFFFF !important;
-  border-radius: 16px !important;
-  box-shadow: 0 2px 10px rgba(26,26,46,0.07) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border: none !important;
 }
 .sc {
   background: #FFFFFF !important;
-  border-radius: 16px !important;
-  box-shadow: 0 2px 10px rgba(26,26,46,0.07) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 .comm-card {
   background: #FFFFFF !important;
-  border-radius: 16px !important;
-  box-shadow: 0 2px 10px rgba(26,26,46,0.07) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
 /* ── 3. Big buttons — fond blanc avec ombre ── */
 .big-btn {
   background: #FFFFFF !important;
-  border-radius: 16px !important;
-  box-shadow: 0 2px 10px rgba(26,26,46,0.07) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
   border: none !important;
 }
 .big-btn:active { transform: scale(0.97) !important; }
 
-/* ── 4. Boutons principaux bordeaux ── */
+/* ── 4. Boutons principaux ── */
 .btn-r {
-  background: linear-gradient(135deg, #7D2B38, #A33F4E) !important;
+  background: var(--accent-gradient) !important;
   border-radius: 14px !important;
-  box-shadow: 0 4px 14px rgba(125,43,56,0.30) !important;
+  box-shadow: 0 4px 14px rgba(255,107,53,0.25) !important;
 }
 .mc-ok {
-  background: linear-gradient(135deg, #7D2B38, #A33F4E) !important;
-  border-radius: 12px !important;
+  background: var(--accent-gradient) !important;
+  border-radius: 14px !important;
 }
 
 /* ── 5. Sub-headers (toutes les pages secondaires) ── */
 .sub-hd {
-  background: linear-gradient(145deg, #7D2B38, #A33F4E) !important;
+  background: var(--accent-gradient) !important;
 }
 
 /* ── 6. Navigation tabs ── */
 .nav-tabs {
   background: #FFFFFF !important;
-  border-bottom: 1px solid #E0D8CC !important;
+  border-bottom: 1px solid var(--color-border-secondary) !important;
 }
-.tb { color: #6B6B80 !important; }
+.tb { color: var(--color-text-secondary) !important; }
 .tb.on {
-  color: #7D2B38 !important;
-  border-bottom-color: #7D2B38 !important;
+  color: var(--accent) !important;
+  border-bottom-color: var(--accent) !important;
 }
 
 /* ── 7. Bottom nav ── */
 .nav-bar, .bottom-nav, [class*="nav-bar"], footer.nav {
-  background: #FFFFFF !important;
-  border-top: 1px solid #E0D8CC !important;
+  background: rgba(255,255,255,0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-top: 0.5px solid rgba(0,0,0,0.08) !important;
 }
 .nav-item.on i, .nav-item.active i,
-.nav-item.on span, .nav-item.active span { color: #7D2B38 !important; }
+.nav-item.on span, .nav-item.active span { color: var(--accent) !important; }
 
 /* ── 8. Filtres pills ── */
 .fp {
-  background: #EDE5D8 !important;
-  color: #6B6B80 !important;
-  border-radius: 10px !important;
+  background: var(--color-background-secondary) !important;
+  color: var(--color-text-secondary) !important;
+  border-radius: 20px !important;
   border: none !important;
 }
 .fp.on {
-  background: #7D2B38 !important;
+  background: var(--accent) !important;
   color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(255,107,53,0.25) !important;
 }
 
 /* ── 9. Inputs ── */
 .mi, .ri, input[class="mi"], input[class="ri"] {
   background: #FFFFFF !important;
-  border: 1px solid #E0D8CC !important;
-  border-radius: 12px !important;
-  color: #1A1A2E !important;
+  border: 1px solid var(--color-border-secondary) !important;
+  border-radius: var(--border-radius-md) !important;
+  color: var(--color-text-primary) !important;
 }
 .mi:focus, .ri:focus {
-  border-color: #7D2B38 !important;
+  border-color: var(--accent) !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba(125,43,56,0.12) !important;
+  box-shadow: 0 0 0 3px rgba(255,107,53,0.12) !important;
 }
 textarea.mi, textarea.ri {
   background: #FFFFFF !important;
-  border: 1px solid #E0D8CC !important;
-  border-radius: 12px !important;
+  border: 1px solid var(--color-border-secondary) !important;
+  border-radius: var(--border-radius-md) !important;
 }
 
 /* ── 10. Labels de sections ── */
 .sec {
-  color: #A8A8B8 !important;
-  letter-spacing: 0.8px !important;
+  color: var(--color-text-primary) !important;
+  letter-spacing: 0.2px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
 }
 
 /* ── 11. Modals ── */
@@ -161,45 +175,46 @@ textarea.mi, textarea.ri {
   border-radius: 24px 24px 0 0 !important;
 }
 .mc-c {
-  background: #EDE5D8 !important;
-  color: #6B6B80 !important;
-  border-radius: 12px !important;
+  background: var(--color-background-secondary) !important;
+  color: var(--color-text-secondary) !important;
+  border-radius: var(--border-radius-md) !important;
   border: none !important;
 }
 
 /* ── 12. Login hero (espace bureau) ── */
 .login-hero {
-  background: linear-gradient(145deg, #7D2B38, #A33F4E) !important;
+  background: var(--accent-gradient) !important;
 }
 .lh-shield {
-  background: rgba(255,255,255,0.15) !important;
-  border-color: rgba(255,255,255,0.25) !important;
+  background: rgba(255,255,255,0.2) !important;
+  border-color: rgba(255,255,255,0.3) !important;
 }
 
 /* ── 13. Home amicaliste header ── */
 #pg-home-amical .ah-header,
-.ah-header {
-  background: linear-gradient(145deg, #7D2B38, #A33F4E) !important;
+.ah-header,
+.amical-hd-modern {
+  background: var(--accent-gradient) !important;
 }
 
 /* ── 14. Home bureau header ── */
 #pg-home-bureau .bh-header,
 .bh-header {
-  background: linear-gradient(145deg, #7D2B38, #A33F4E) !important;
+  background: var(--accent-gradient) !important;
 }
 
 /* ── 15. Splash screen ── */
 #pg-splash {
-  background: linear-gradient(155deg, #6B2232, #7D2B38, #A33F4E) !important;
+  background: var(--accent-gradient) !important;
 }
 
 /* ── 16. Scroll bars ── */
 ::-webkit-scrollbar { width: 4px !important; }
-::-webkit-scrollbar-thumb { background: #D5CBBC !important; border-radius: 4px !important; }
+::-webkit-scrollbar-thumb { background: var(--color-border-secondary) !important; border-radius: 4px !important; }
 
 /* ── 17. Active states / accents ── */
-input[type="checkbox"] { accent-color: #7D2B38 !important; }
-input[type="radio"]    { accent-color: #7D2B38 !important; }
+input[type="checkbox"] { accent-color: var(--accent) !important; }
+input[type="radio"]    { accent-color: var(--accent) !important; }
 
 /* ── 18. Toasts ── */
 #toast { border-radius: 12px !important; }
@@ -212,7 +227,7 @@ input[type="radio"]    { accent-color: #7D2B38 !important; }
 }
 
 /* ── 20. Stat values ── */
-.sval { color: #7D2B38 !important; }
+.sval { color: var(--accent) !important; }
 
 /* ── 21. FDF pink maintenu ── */
 #pg-comm-fdf .sub-hd,
@@ -225,7 +240,7 @@ input[type="radio"]    { accent-color: #7D2B38 !important; }
   align-items: center !important;
   overflow: hidden !important;
   padding: 0 !important;
-  background: #F5EFE6 !important;
+  background: var(--color-background-secondary) !important;
 }
 
 /* ── 23. Comm-ico backgrounds ── */
@@ -245,8 +260,8 @@ input[type="radio"]    { accent-color: #7D2B38 !important; }
 .dr { border-bottom-color: #F0EAE0 !important; }
 
 /* ── 27. Onboarding steps ── */
-.step.on { background: #7D2B38 !important; }
-.step { background: #E0D8CC !important; }
+.step.on { background: var(--accent) !important; }
+.step { background: var(--color-border-secondary) !important; }
 
 
 /* Correctif PC : aucun bloc amicaliste ne doit sortir d’un écran actif */
@@ -318,41 +333,40 @@ body.pc-mode #tour-bureau-creer-comm{
    sans modifier la logique métier existante.
 ========================================================== */
 :root{
-  --brand-primary:#121827 !important;
-  --brand-secondary:#7D2B38 !important;
-  --brand-accent:#FF6B4A !important;
-  --brand-soft:#F6F1EA !important;
+  --brand-primary:#1C1C1E !important;
+  --brand-secondary:#E8553A !important;
+  --brand-accent:#FF6B35 !important;
+  --brand-soft:#F7F7F8 !important;
   --brand-card:#FFFFFF !important;
-  --brand-muted:#6F7380 !important;
-  --brand-border:rgba(18,24,39,.08) !important;
-  --brand-shadow:0 18px 45px rgba(18,24,39,.10) !important;
-  --brand-shadow-soft:0 8px 24px rgba(18,24,39,.08) !important;
-  --radius-xl:26px !important;
+  --brand-muted:#8E8E93 !important;
+  --brand-border:rgba(0,0,0,.06) !important;
+  --brand-shadow:0 8px 28px rgba(0,0,0,.08) !important;
+  --brand-shadow-soft:0 4px 12px rgba(0,0,0,.06) !important;
+  --radius-xl:24px !important;
   --radius-lg2:20px !important;
 }
 
 html,body{
-  background:radial-gradient(circle at 20% 0%, rgba(255,107,74,.12), transparent 28%),
-             linear-gradient(145deg,#F8F4EF 0%,#EEF1F6 100%) !important;
+  background:#E8E8ED !important;
 }
 body{letter-spacing:-.01em !important;}
 .app-shell{
-  background:#F7F3ED !important;
-  border:1px solid rgba(255,255,255,.7) !important;
-  box-shadow:0 28px 80px rgba(18,24,39,.26) !important;
+  background:var(--color-background-secondary) !important;
+  border:none !important;
+  box-shadow:0 24px 80px rgba(0,0,0,.15),0 8px 24px rgba(0,0,0,.08) !important;
 }
 body.pc-mode .app-shell{
   max-width:1180px !important;
   border-radius:30px !important;
-  background:rgba(247,243,237,.92) !important;
+  background:rgba(247,247,248,.95) !important;
   backdrop-filter:blur(18px) !important;
 }
 
 /* Topbar PC plus premium */
 .pc-topbar{
-  background:linear-gradient(135deg,#111827 0%,#20283A 55%,#7D2B38 100%) !important;
-  box-shadow:0 18px 45px rgba(18,24,39,.18) !important;
-  border-bottom:1px solid rgba(255,255,255,.12) !important;
+  background:var(--accent-gradient) !important;
+  box-shadow:0 12px 32px rgba(255,107,53,.15) !important;
+  border-bottom:none !important;
 }
 .pc-topbar-title{font-weight:800 !important;letter-spacing:-.03em !important;}
 .pc-nav-btn{
@@ -367,12 +381,12 @@ body.pc-mode .app-shell{
 
 /* Accueil d'entrée plus marqué */
 #pg-accueil{
-  background:linear-gradient(160deg,#F9F5EF 0%,#EEF2F8 100%) !important;
+  background:var(--color-background-secondary) !important;
 }
 #pg-accueil > div:nth-of-type(1){
-  background:linear-gradient(145deg,#111827 0%,#1F2937 42%,#7D2B38 76%,#F06A4B 100%) !important;
-  border-radius:0 0 42px 42px !important;
-  box-shadow:0 18px 45px rgba(18,24,39,.18) !important;
+  background:var(--accent-gradient) !important;
+  border-radius:0 0 36px 36px !important;
+  box-shadow:0 12px 32px rgba(255,107,53,.15) !important;
 }
 #pg-accueil button{
   border-radius:18px !important;
@@ -383,25 +397,28 @@ body.pc-mode .app-shell{
 #pg-home-bureau .bureau-hd,
 .bureau-hd,
 .amical-hd,
+.amical-hd-modern,
 .pg-hd[style*="background:var(--r)"],
 .pg-hd[style*="background: var(--r)"]{
   background:
-    radial-gradient(circle at 92% 15%, rgba(255,255,255,.22), transparent 22%),
-    radial-gradient(circle at 10% 80%, rgba(255,107,74,.22), transparent 28%),
-    linear-gradient(145deg,#111827 0%,#1E2638 48%,#7D2B38 100%) !important;
-  box-shadow:0 18px 44px rgba(18,24,39,.20) !important;
+    radial-gradient(circle at 90% 20%, rgba(255,255,255,.12), transparent 25%),
+    radial-gradient(circle at 10% 80%, rgba(255,160,100,.15), transparent 30%),
+    var(--accent-gradient) !important;
+  box-shadow:none !important;
 }
 #pg-home-amical > div:first-child{
-  padding:18px 18px 18px !important;
-  border-radius:0 0 28px 28px !important;
+  padding:0 !important;
+  border-radius:0 !important;
 }
 #pg-home-bureau .bureau-hd{
   padding:20px 18px 58px !important;
-  border-radius:0 0 30px 30px !important;
+  border-radius:0 0 28px 28px !important;
 }
 .ah-bell,.bh-btn,.back{
-  background:rgba(255,255,255,.14) !important;
-  border:1px solid rgba(255,255,255,.22) !important;
+  background:rgba(255,255,255,.2) !important;
+  border:none !important;
+  backdrop-filter:blur(8px) !important;
+  -webkit-backdrop-filter:blur(8px) !important;
   backdrop-filter:blur(8px) !important;
 }
 .ah-bell:hover,.bh-btn:hover,.back:hover{transform:translateY(-1px) !important;background:rgba(255,255,255,.22) !important;}
@@ -412,10 +429,12 @@ body.pc-mode .app-shell{
 
 /* Sections plus modernes */
 .sec{
-  font-size:11px !important;
-  letter-spacing:.9px !important;
-  color:#777C88 !important;
+  font-size:13px !important;
+  letter-spacing:.2px !important;
+  color:var(--color-text-primary) !important;
   margin-bottom:10px !important;
+  font-weight:700 !important;
+  text-transform:none !important;
 }
 .screen > div[style*="padding:0 14px"],
 .screen > div[style*="padding:14px"]{
@@ -424,16 +443,15 @@ body.pc-mode .app-shell{
 
 /* Cards premium */
 .card,.sc,.doc-card,.comm-card,.tool-btn,.big-btn,.membre-card,.reun-card,.rapport-card,.voy-card,.loc-thumb,.secteur-card,.mini-cal,.valid-box{
-  background:rgba(255,255,255,.92) !important;
-  border:1px solid rgba(18,24,39,.07) !important;
-  border-radius:22px !important;
-  box-shadow:var(--brand-shadow-soft) !important;
-  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+  background:rgba(255,255,255,.98) !important;
+  border:none !important;
+  border-radius:var(--border-radius-lg) !important;
+  box-shadow:var(--shadow-sm) !important;
+  transition:transform .18s ease, box-shadow .18s ease !important;
 }
 .card:hover,.sc:hover,.doc-card:hover,.comm-card:hover,.tool-btn:hover,.big-btn:hover,.membre-card:hover,.reun-card:hover,.loc-thumb:hover,.voy-card:hover{
   transform:translateY(-2px) !important;
-  box-shadow:0 16px 34px rgba(18,24,39,.12) !important;
-  border-color:rgba(125,43,56,.18) !important;
+  box-shadow:var(--shadow-md) !important;
 }
 .sc{padding:16px !important;}
 .sval{font-size:24px !important;letter-spacing:-.04em !important;color:#111827 !important;}
@@ -478,9 +496,9 @@ body.pc-mode .app-shell{
 
 /* Carousel : aspect affiche événement premium */
 #tour-carousel{
-  border-radius:28px !important;
-  box-shadow:0 22px 55px rgba(18,24,39,.22) !important;
-  border:1px solid rgba(255,255,255,.55) !important;
+  border-radius:var(--border-radius-xl) !important;
+  box-shadow:var(--shadow-lg) !important;
+  border:none !important;
   overflow:hidden !important;
 }
 #carousel-inner > div > div:first-child{
@@ -504,20 +522,22 @@ body.pc-mode .app-shell{
 }
 .ri:focus,.mi:focus,.srch-i:focus,select:focus,textarea:focus,input:focus{
   outline:none !important;
-  border-color:rgba(125,43,56,.45) !important;
-  box-shadow:0 0 0 4px rgba(125,43,56,.10) !important;
+  border-color:var(--accent) !important;
+  box-shadow:0 0 0 4px rgba(255,107,53,.12) !important;
 }
 
 /* Boutons */
-.btn-r,.btn-grn,.btn-blu,.login-btn,.export-btn,.valid-btn,.voy-voir-btn,.mc-ok,.ib-p.ready{
+.btn-r,.login-btn,.export-btn,.valid-btn,.voy-voir-btn,.mc-ok,.ib-p.ready{
   border-radius:16px !important;
-  background:linear-gradient(135deg,#111827,#7D2B38) !important;
-  box-shadow:0 10px 24px rgba(125,43,56,.22) !important;
+  background:var(--accent-gradient) !important;
+  box-shadow:0 6px 20px rgba(255,107,53,.25) !important;
   transition:transform .16s ease, box-shadow .16s ease !important;
 }
+.btn-grn{border-radius:16px !important;background:linear-gradient(135deg,#22C55E,#16A34A) !important;box-shadow:0 6px 20px rgba(22,163,74,.25) !important;transition:transform .16s ease, box-shadow .16s ease !important;}
+.btn-blu{border-radius:16px !important;background:linear-gradient(135deg,#3B82F6,#2563EB) !important;box-shadow:0 6px 20px rgba(37,99,235,.25) !important;transition:transform .16s ease, box-shadow .16s ease !important;}
 .btn-r:hover,.btn-grn:hover,.btn-blu:hover,.login-btn:hover,.export-btn:hover,.valid-btn:hover,.voy-voir-btn:hover,.mc-ok:hover{
   transform:translateY(-1px) !important;
-  box-shadow:0 14px 30px rgba(125,43,56,.28) !important;
+  box-shadow:0 10px 28px rgba(255,107,53,.32) !important;
 }
 .btn-sec,.mc-c,.ib-s,.add-btn{
   border-radius:16px !important;
@@ -539,7 +559,7 @@ body.pc-mode .app-shell{
   border-bottom:none !important;
 }
 .tb.on{
-  background:#111827 !important;
+  background:var(--accent) !important;
   color:#FFFFFF !important;
   border-bottom:none !important;
 }
@@ -550,15 +570,15 @@ body.pc-mode .app-shell{
   border:1px solid rgba(18,24,39,.08) !important;
   box-shadow:0 4px 12px rgba(18,24,39,.05) !important;
 }
-.fp.on{background:#111827 !important;color:#FFFFFF !important;border-color:#111827 !important;}
+.fp.on{background:var(--accent) !important;color:#FFFFFF !important;border-color:var(--accent) !important;box-shadow:0 2px 8px rgba(255,107,53,0.25) !important;}
 
 /* Modales : plus propres */
 .mow{backdrop-filter:blur(8px) !important;background:rgba(17,24,39,.42) !important;}
 .mbox{
-  border-radius:28px 28px 0 0 !important;
-  background:#F8F4EF !important;
-  box-shadow:0 -22px 55px rgba(18,24,39,.22) !important;
-  border:1px solid rgba(255,255,255,.75) !important;
+  border-radius:24px 24px 0 0 !important;
+  background:#FFFFFF !important;
+  box-shadow:var(--shadow-lg) !important;
+  border:none !important;
 }
 body.pc-mode .mbox{border-radius:28px !important;}
 .mtt{font-size:18px !important;font-weight:850 !important;letter-spacing:-.04em !important;color:#111827 !important;}
@@ -569,7 +589,7 @@ body.pc-mode .mbox{border-radius:28px !important;}
   overflow:hidden !important;
 }
 .comm-list-wrap .comm-card::before{
-  content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(#FF6B4A,#7D2B38);opacity:.9;
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0 4px 4px 0;background:var(--accent-gradient);opacity:.9;
 }
 .comm-arrow i{color:#A0A6B3 !important;}
 
@@ -580,7 +600,7 @@ body.pc-mode .mbox{border-radius:28px !important;}
 
 /* Mobile : plus respirant */
 @media(max-width:420px){
-  .app-shell{background:#F8F4EF !important;}
+  .app-shell{background:var(--color-background-secondary) !important;}
   #pg-home-amical > div:first-child{padding-top:18px !important;}
   #tour-carousel{margin-top:2px !important;}
   #carousel-inner > div > div:first-child{min-height:196px !important;}
@@ -617,24 +637,29 @@ body.pc-mode #tour-bureau-stats{gap:14px !important;}
 ═══════════════════════════════════════════ */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --r:#7D2B38;--rl:#FBE9EB;--r2:#F5D5D8;--rd:#5C1E28;
+  --r:#E8553A;--rl:#FFF0ED;--r2:#FFD9D2;--rd:#C43E26;
   --grn:#1E7A4A;--grl:#E8F5EE;--grn2:#A3D9B8;
-  --blu:#1D4ED8;--bll:#EEF2FF;
-  --pur:#6D28D9;--pul:#EDE9FE;
-  --amb:#C47A20;--aml:#FEF3DC;
+  --blu:#3478F6;--bll:#EBF3FF;
+  --pur:#8B5CF6;--pul:#F0EBFF;
+  --amb:#F59E0B;--aml:#FEF7E0;
   --tea:#0F6E56;--tel:#E1F5EE;
-  --color-background-primary:#F5EFE6;
-  --color-background-secondary:#EDE5D8;
-  --color-background-tertiary:#E4D9C8;
-  --color-text-primary:#1A1A2E;
-  --color-text-secondary:#6B6B80;
-  --color-text-tertiary:#A8A8B8;
-  --color-border:#E0D8CC;
-  --color-border-secondary:#D5CBBC;
-  --color-border-tertiary:#C8BCAA;
-  --border-radius-md:12px;
-  --border-radius-lg:18px;
-  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --accent:#FF6B35;--accent-light:#FFF4EE;--accent-gradient:linear-gradient(135deg,#FF8A4C 0%,#E8553A 50%,#D94066 100%);
+  --color-background-primary:#FFFFFF;
+  --color-background-secondary:#F7F7F8;
+  --color-background-tertiary:#F2F2F7;
+  --color-text-primary:#1C1C1E;
+  --color-text-secondary:#8E8E93;
+  --color-text-tertiary:#AEAEB2;
+  --color-border:#F2F2F7;
+  --color-border-secondary:#E5E5EA;
+  --color-border-tertiary:#E5E5EA;
+  --border-radius-md:14px;
+  --border-radius-lg:20px;
+  --border-radius-xl:24px;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.04),0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04);
+  --shadow-lg:0 8px 28px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);
 }
 @media(prefers-color-scheme:dark){:root{
   --color-background-primary:#1c1c1e;
@@ -642,8 +667,13 @@ body.pc-mode #tour-bureau-stats{gap:14px !important;}
   --color-background-tertiary:#141414;
   --color-text-primary:#f5f5f7;
   --color-text-secondary:#a0a0a8;
+  --color-text-tertiary:#636366;
+  --color-border:#2c2c2e;
   --color-border-tertiary:#3a3a3c;
   --color-border-secondary:#505052;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.2);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.25);
+  --shadow-lg:0 8px 28px rgba(0,0,0,0.35);
 }}
 /* ════════════════════════════════════
    MODE MOBILE (défaut)
@@ -651,7 +681,7 @@ body.pc-mode #tour-bureau-stats{gap:14px !important;}
 html,body{height:100%;overflow:hidden}
 body{
   font-family:var(--font-sans);
-  background:var(--color-background-tertiary);
+  background:#E8E8ED;
   color:var(--color-text-primary);
   display:flex;align-items:center;justify-content:center;
 }
@@ -660,11 +690,10 @@ body{
    MODE PC
 ════════════════════════════════════ */
 body.pc-mode{
-  /* On reprend le contrôle total */
   height:auto;
   overflow:auto;
   display:block;
-  background:var(--color-background-tertiary);
+  background:var(--color-background-secondary);
 }
 /* Le shell devient une vraie page web */
 body.pc-mode .app-shell{
@@ -789,11 +818,11 @@ body.pc-mode .toggle-pc-btn{display:none !important}
 .app-shell{
   width:390px;
   height:844px;
-  background:var(--color-background-tertiary);
+  background:var(--color-background-secondary);
   border-radius:24px;
   overflow:hidden;
   position:relative;
-  box-shadow:0 24px 80px rgba(0,0,0,0.25);
+  box-shadow:0 24px 80px rgba(0,0,0,0.15),0 8px 24px rgba(0,0,0,0.08);
   display:flex;flex-direction:column;
 }
 @media(max-width:420px){
@@ -806,7 +835,7 @@ body.pc-mode .toggle-pc-btn{display:none !important}
   overflow-y:auto;overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
-  background:var(--color-background-tertiary);
+  background:var(--color-background-secondary);
   display:none;
 }
 .screen::-webkit-scrollbar{display:none}
@@ -827,7 +856,7 @@ body.pc-mode .toggle-pc-btn{display:none !important}
   transition:all .2s;
 }
 .isw-btn i{font-size:14px}
-.isw-amical{background:var(--r);color:white}
+.isw-amical{background:var(--accent);color:white}
 .isw-bureau{background:var(--blu);color:white}
 .isw-btn.active{opacity:1;transform:scale(1.05)}
 .isw-btn:not(.active){opacity:.6}
@@ -841,15 +870,15 @@ body.pc-mode .toggle-pc-btn{display:none !important}
   bottom:0;left:50%;
   transform:translateX(-50%);
   width:390px;
-  background:var(--color-background-primary);
-  border-top:0.5px solid var(--color-border-tertiary);
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:0.5px solid rgba(0,0,0,0.08);
   display:none;
   align-items:center;
   justify-content:center;
   padding:6px 8px;
   gap:0;
   z-index:150;
-  box-shadow:0 -2px 16px rgba(0,0,0,.1);
 }
 /* Visible uniquement quand un écran secondaire est actif */
 .screen.on.has-back .bottom-nav{display:flex}
@@ -873,38 +902,40 @@ body.pc-mode .bottom-nav{display:none!important}
 }
 .bnav-btn i{font-size:20px}
 .bnav-btn:hover{background:var(--color-background-secondary)}
-.bnav-btn.red{color:var(--r)}
+.bnav-btn.red{color:var(--accent)}
 .bnav-btn.blu{color:var(--blu)}
 .bnav-sep{width:1px;height:28px;background:var(--color-border-tertiary);flex-shrink:0}
 
 /* TAB BAR AMICALISTE */
 .amical-tabbar{
   position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:390px;background:var(--color-background-primary);
-  border-top:0.5px solid var(--color-border-tertiary);
+  width:390px;background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:0.5px solid rgba(0,0,0,0.08);
   display:none;align-items:center;justify-content:center;
-  padding:4px 8px calc(4px + env(safe-area-inset-bottom,0px));
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
   gap:0;z-index:160;
-  box-shadow:0 -2px 16px rgba(0,0,0,.08);
 }
+@media(prefers-color-scheme:dark){.amical-tabbar{background:rgba(28,28,30,0.92);border-top:0.5px solid rgba(255,255,255,0.08)}}
 @media(max-width:420px){.amical-tabbar{width:100%;transform:none;left:0}}
 body.pc-mode .amical-tabbar{display:none!important}
 .atab-btn{
-  display:flex;flex-direction:column;align-items:center;gap:1px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
   border:none;background:transparent;cursor:pointer;
-  font-family:var(--font-sans);color:var(--color-text-secondary);
-  font-size:10px;font-weight:600;padding:6px 0;flex:1;
-  border-radius:var(--border-radius-md);transition:color .15s;
+  font-family:var(--font-sans);color:var(--color-text-tertiary);
+  font-size:10px;font-weight:500;padding:4px 0;flex:1;
+  border-radius:var(--border-radius-md);transition:color .2s;
   position:relative;
 }
-.atab-btn i{font-size:22px;transition:color .15s}
-.atab-btn.on{color:var(--r)}
-.atab-btn.on i{color:var(--r)}
+.atab-btn i{font-size:24px;transition:color .2s}
+.atab-btn.on{color:var(--accent);font-weight:600}
+.atab-btn.on i{color:var(--accent)}
 .atab-badge{
-  position:absolute;top:2px;right:calc(50% - 18px);
-  min-width:16px;height:16px;border-radius:8px;
-  background:var(--r);color:white;font-size:9px;font-weight:700;
+  position:absolute;top:0;right:calc(50% - 18px);
+  min-width:17px;height:17px;border-radius:9px;
+  background:var(--accent);color:white;font-size:9px;font-weight:700;
   display:none;align-items:center;justify-content:center;padding:0 4px;
+  box-shadow:0 2px 6px rgba(255,107,53,0.3);
 }
 
 /* TAB BAR BUREAU */
@@ -959,8 +990,8 @@ body.pc-mode .bureau-tabbar{display:none!important}
 .back i{font-size:17px}
 .shd-t{font-size:15px;font-weight:600;color:white}
 .shd-s{font-size:11px;color:rgba(255,255,255,0.72);margin-top:1px}
-.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px;margin-bottom:8px}
-.sec{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:8px}
+.card{background:var(--color-background-primary);border:none;border-radius:var(--border-radius-lg);padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.sec{font-size:13px;font-weight:700;letter-spacing:.2px;text-transform:none;color:var(--color-text-primary);margin-bottom:10px}
 .ml{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;color:var(--color-text-secondary);margin-bottom:4px;display:block}
 .ri{padding:9px 11px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans);width:100%}
 .mg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:8px}
@@ -998,8 +1029,8 @@ body.pc-mode .bureau-tabbar{display:none!important}
 /* FBAR */
 .fbar{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px;padding-bottom:2px}
 .fbar::-webkit-scrollbar{display:none}
-.fp{flex:none;padding:5px 11px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);font-size:11px;font-weight:500;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
-.fp.on{background:var(--r);border-color:var(--r);color:white}
+.fp{flex:none;padding:7px 14px;border-radius:20px;border:none;background:var(--color-background-secondary);font-size:12px;font-weight:600;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all .2s}
+.fp.on{background:var(--accent);color:white;box-shadow:0 2px 8px rgba(255,107,53,0.25)}
 
 /* STATUS BADGES */
 .badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;display:inline-block}
@@ -1027,20 +1058,23 @@ body.pc-mode .bureau-tabbar{display:none!important}
 /* MODAL */
 .mow{min-height:400px;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;position:fixed;inset:0;z-index:200}
 .mow.open{display:flex}
-.mbox{background:var(--color-background-primary);border-radius:20px 20px 0 0;padding:18px 16px 30px;width:100%;max-width:390px;margin:0 auto;max-height:85dvh;overflow-y:auto}
-.mh2{width:34px;height:4px;background:var(--color-border-secondary);border-radius:2px;margin:0 auto 14px}
-.mtt{font-size:15px;font-weight:600;color:var(--color-text-primary);margin-bottom:13px}
-.mi{width:100%;padding:10px 12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-secondary);color:var(--color-text-primary);font-family:var(--font-sans);margin-bottom:10px}
-.mac{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
-.mc-c{padding:12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;font-size:13px;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
-.mc-ok{padding:12px;border:none;border-radius:var(--border-radius-md);background:var(--r);font-size:13px;font-weight:600;color:white;cursor:pointer;font-family:var(--font-sans)}
+.mbox{background:var(--color-background-primary);border-radius:24px 24px 0 0;padding:20px 18px 34px;width:100%;max-width:390px;margin:0 auto;max-height:85dvh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.mh2{width:36px;height:5px;background:var(--color-border-secondary);border-radius:3px;margin:0 auto 16px}
+.mtt{font-size:17px;font-weight:700;color:var(--color-text-primary);margin-bottom:14px;letter-spacing:-0.2px}
+.mi{width:100%;padding:12px 14px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:14px;background:var(--color-background-secondary);color:var(--color-text-primary);font-family:var(--font-sans);margin-bottom:10px;transition:border-color .2s}
+.mi:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(255,107,53,0.1)}
+.mac{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.mc-c{padding:13px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;font-size:14px;font-weight:500;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:background .15s}
+.mc-c:hover{background:var(--color-background-secondary)}
+.mc-ok{padding:13px;border:none;border-radius:var(--border-radius-md);background:var(--accent);font-size:14px;font-weight:600;color:white;cursor:pointer;font-family:var(--font-sans);box-shadow:0 2px 8px rgba(255,107,53,0.3);transition:transform .15s}
+.mc-ok:active{transform:scale(0.97)}
 
 /* TOGGLE */
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
 .toggle-row:last-child{border-bottom:none}
 .tr-lbl{font-size:13px;color:var(--color-text-primary)}
 .tr-sub{font-size:11px;color:var(--color-text-secondary)}
-.toggle{width:38px;height:22px;border-radius:11px;background:var(--r);position:relative;cursor:pointer;flex-shrink:0;transition:background .2s}
+.toggle{width:42px;height:24px;border-radius:12px;background:var(--accent);position:relative;cursor:pointer;flex-shrink:0;transition:background .2s}
 .toggle.off{background:var(--color-border-secondary)}
 .tgl-dot{position:absolute;top:3px;right:3px;width:16px;height:16px;background:white;border-radius:50%;transition:right .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .toggle.off .tgl-dot{right:auto;left:3px}
@@ -1058,9 +1092,10 @@ body.pc-mode .bureau-tabbar{display:none!important}
 .ah-av{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.22);border:1.5px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white}
 .ah-name{font-size:14px;font-weight:600;color:white}
 .ah-role{font-size:11px;color:rgba(255,255,255,0.72);margin-top:1px}
-.ah-bell{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;position:relative}
-.ah-bell i{font-size:17px}
-.ah-notif{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#f6ad55;border-radius:50%;border:1.5px solid var(--r)}
+.ah-bell{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;position:relative;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:background .2s}
+.ah-bell:hover{background:rgba(255,255,255,0.3) !important}
+.ah-bell i{font-size:18px}
+.ah-notif{position:absolute;top:5px;right:5px;width:8px;height:8px;background:#FF3B30;border-radius:50%;border:2px solid rgba(255,255,255,0.9)}
 
 /* PILLS NAVIGATION */
 .nav-pills{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:0 14px 12px}
@@ -1084,13 +1119,14 @@ body.pc-mode .bureau-tabbar{display:none!important}
 .cc-arr i{font-size:12px;color:var(--r)}
 
 /* MENU BUREAU/COMMISSIONS */
-.big-btn-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 14px;margin-bottom:14px}
-.big-btn{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:16px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left}
-.big-btn:hover{border-color:var(--r)}
-.bb-ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.bb-ico i{font-size:19px}
-.bb-label{font-size:12px;font-weight:600;color:var(--color-text-primary);line-height:1.3}
-.bb-sub{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.big-btn-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 16px;margin-bottom:16px}
+.big-btn{background:var(--color-background-primary);border:none;border-radius:var(--border-radius-lg);padding:16px;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;box-shadow:var(--shadow-sm);transition:transform .15s,box-shadow .15s}
+.big-btn:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.big-btn:active{transform:scale(0.97)}
+.bb-ico{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bb-ico i{font-size:20px}
+.bb-label{font-size:13px;font-weight:700;color:var(--color-text-primary);line-height:1.3}
+.bb-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
 
 /* ═══════════════════════════════════════════
    INTERFACE AMICALISTE — CALENDRIERS
@@ -1181,7 +1217,7 @@ body.pc-mode .bureau-tabbar{display:none!important}
 /* ═══════════════════════════════════════════
    INTERFACE BUREAU
 ═══════════════════════════════════════════ */
-.bureau-hd{background:var(--r);padding:18px 16px 52px}
+.bureau-hd{background:var(--accent-gradient);padding:18px 16px 52px}
 .bh-top{display:flex;align-items:center;justify-content:space-between}
 .bh-av{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white}
 .bh-name{font-size:14px;font-weight:600;color:white}
@@ -1280,16 +1316,16 @@ body.pc-mode .bureau-tabbar{display:none!important}
 .export-btn i{font-size:15px}
 
 /* LOGIN BUREAU */
-.login-hero{background:var(--r);padding:44px 28px 36px;display:flex;flex-direction:column;align-items:center;clip-path:ellipse(100% 88% at 50% 0%);margin-bottom:4px}
+.login-hero{background:var(--accent-gradient);padding:44px 28px 36px;display:flex;flex-direction:column;align-items:center;clip-path:ellipse(100% 88% at 50% 0%);margin-bottom:4px}
 .lh-shield{width:76px;height:76px;border-radius:22px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
 .lh-shield i{font-size:38px;color:white}
 .role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:20px}
 .role-btn{border:1.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:12px 10px;cursor:pointer;background:var(--color-background-primary);display:flex;flex-direction:column;align-items:center;gap:5px}
 .role-btn i{font-size:22px;color:var(--color-text-secondary)}
 .role-btn span{font-size:12px;font-weight:500;color:var(--color-text-secondary)}
-.role-btn.on{border-color:var(--r);border-width:2px;background:var(--rl)}
-.role-btn.on i,.role-btn.on span{color:var(--r)}
-.login-btn{width:100%;padding:14px;background:var(--r);color:white;border:none;border-radius:var(--border-radius-lg);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-sans)}
+.role-btn.on{border-color:var(--accent);border-width:2px;background:var(--accent-light)}
+.role-btn.on i,.role-btn.on span{color:var(--accent)}
+.login-btn{width:100%;padding:14px;background:var(--accent-gradient);color:white;border:none;border-radius:var(--border-radius-lg);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-sans);box-shadow:0 4px 14px rgba(255,107,53,0.3)}
 
 /* FICHE MEMBRE BUREAU */
 .fh-av{width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.2);border:2.5px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:white;margin-bottom:10px}
@@ -1390,7 +1426,7 @@ body.pc-mode{
   display:block!important;
   align-items:initial!important;
   justify-content:initial!important;
-  background:#F5EFE6!important;
+  background:#FFFFFF!important;
 }
 body.pc-mode .app-shell{
   width:100%!important;
@@ -1400,7 +1436,7 @@ body.pc-mode .app-shell{
   border-radius:0!important;
   box-shadow:none!important;
   overflow:visible!important;
-  background:#F5EFE6!important;
+  background:#FFFFFF!important;
 }
 body.pc-mode .app-content{
   width:100%!important;
@@ -1433,7 +1469,7 @@ body.pc-mode .screen.on{
   height:auto!important;
   overflow:visible!important;
   padding-bottom:48px!important;
-  background:#F5EFE6!important;
+  background:#FFFFFF!important;
 }
 /* Nettoyage des blocs qui auraient été insérés hors écran par erreur */
 body.pc-mode .app-content > :not(.screen):not(.mow):not(.toast):not(.tour-overlay):not(.notif-panel):not(.missions-overlay){
@@ -1446,7 +1482,7 @@ body.pc-mode #pg-onboarding.on,
 body.pc-mode #pg-login-bureau.on{
   display:block!important;
   padding:0!important;
-  background:#F5EFE6!important;
+  background:#FFFFFF!important;
 }
 body.pc-mode #pg-accueil.on > *,
 body.pc-mode #pg-splash.on > *,
@@ -1718,9 +1754,9 @@ body:not(.pc-mode) #pg-comm-calendriers .division-toggle{grid-template-columns:1
    Objectif : moderniser sans casser la logique métier
 ═══════════════════════════════════════════ */
 :root{
-  --brand:#7D2B38;
-  --brand-dark:#511824;
-  --brand-soft:#F7E8EC;
+  --brand:#E8553A;
+  --brand-dark:#C43E26;
+  --brand-soft:#FFF4EE;
   --ink:#111827;
   --muted:#6B7280;
   --surface:#FFFFFF;
@@ -1731,18 +1767,18 @@ body:not(.pc-mode) #pg-comm-calendriers .division-toggle{grid-template-columns:1
   --radius-xl:22px;
   --radius-lg2:18px;
 }
-html{background:linear-gradient(145deg,#F8F5EF 0%,#ECE7DE 100%) !important;}
-body{background:radial-gradient(circle at top left,rgba(125,43,56,.09),transparent 34%),linear-gradient(145deg,#F8F5EF,#EEE8DE) !important;color:var(--ink) !important;}
-.app-shell{background:#F7F4EF !important;border:1px solid rgba(255,255,255,.55) !important;box-shadow:0 28px 90px rgba(17,24,39,.22) !important;}
+html{background:#E8E8ED !important;}
+body{background:#E8E8ED !important;color:var(--ink) !important;}
+.app-shell{background:#FFFFFF !important;border:none !important;box-shadow:0 28px 90px rgba(17,24,39,.12) !important;}
 .card,.sc,.doc-card,.membre-card,.comm-card,.reun-card,.rapport-card,.loc-thumb,.voy-card,.tool-btn,.big-btn{background:rgba(255,255,255,.92) !important;border:1px solid rgba(17,24,39,.07) !important;box-shadow:var(--shadow-card) !important;backdrop-filter:saturate(1.05) blur(10px);}
 .card,.sc,.doc-card,.membre-card,.comm-card,.reun-card,.rapport-card,.loc-thumb,.voy-card{border-radius:20px !important;}
 .big-btn,.tool-btn{border-radius:20px !important;transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease !important;}
-.big-btn:hover,.tool-btn:hover,.comm-card:hover,.membre-card:hover,.loc-thumb:hover,.voy-card:hover{transform:translateY(-1px);box-shadow:0 14px 32px rgba(17,24,39,.10) !important;border-color:rgba(125,43,56,.22) !important;}
+.big-btn:hover,.tool-btn:hover,.comm-card:hover,.membre-card:hover,.loc-thumb:hover,.voy-card:hover{transform:translateY(-1px);box-shadow:0 14px 32px rgba(17,24,39,.10) !important;border-color:rgba(255,107,53,.22) !important;}
 .bb-ico,.tool-ico,.comm-ico,.doc-ico{border-radius:16px !important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.55) !important;}
 .sec{font-size:11px !important;letter-spacing:.9px !important;color:#6B7280 !important;margin-top:2px !important;}
-.pg-hd,.sub-hd,.amical-hd,.bureau-hd{background:linear-gradient(135deg,var(--brand-dark),var(--brand)) !important;box-shadow:0 16px 38px rgba(125,43,56,.18) !important;}
+.pg-hd,.sub-hd,.amical-hd,.bureau-hd{background:var(--accent-gradient) !important;box-shadow:0 16px 38px rgba(255,107,53,.18) !important;}
 .pg-t,.shd-t,.ah-name,.bh-name{letter-spacing:-.02em !important;}
-.btn-r,.login-btn,.mc-ok,.export-btn,.voy-voir-btn{background:linear-gradient(135deg,var(--brand),#A64253) !important;border:none !important;box-shadow:0 10px 22px rgba(125,43,56,.20) !important;border-radius:15px !important;}
+.btn-r,.login-btn,.mc-ok,.export-btn,.voy-voir-btn{background:var(--accent-gradient) !important;border:none !important;box-shadow:0 10px 22px rgba(255,107,53,.20) !important;border-radius:15px !important;}
 .btn-sec,.mc-c{border-radius:15px !important;background:#F3F4F6 !important;border:1px solid rgba(17,24,39,.08) !important;color:#374151 !important;}
 .ri,.mi,.srch-i{border-radius:16px !important;border:1px solid rgba(17,24,39,.10) !important;background:#FFFFFF !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.8) !important;}
 .nav-pills .np,.fp{border-radius:999px !important;box-shadow:0 4px 12px rgba(17,24,39,.05) !important;}
@@ -1794,39 +1830,39 @@ body.theme-sombre .ri,body.theme-sombre .mi,body.theme-sombre .srch-i{background
 
 <style id="v45-onboarding-ux-css">
 /* V45 — onboarding plus simple : suppression de la colonne latérale et formulaire en cartes */
-#pg-onboarding.screen.on{display:block!important;background:#F5EFE6!important;min-height:100vh!important;padding:0!important;}
-body.pc-mode #pg-onboarding.screen.on{display:block!important;background:#F5EFE6!important;}
+#pg-onboarding.screen.on{display:block!important;background:#FFFFFF!important;min-height:100vh!important;padding:0!important;}
+body.pc-mode #pg-onboarding.screen.on{display:block!important;background:#FFFFFF!important;}
 body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!important;margin-right:auto!important;}
 .onboarding-modern{width:min(980px,100%);margin:0 auto;padding:18px 14px 36px;}
-.obm-hero{position:relative;overflow:hidden;border-radius:28px;padding:22px 18px;display:flex;gap:14px;align-items:center;background:linear-gradient(135deg,#182235 0%,#7D2B38 100%);box-shadow:0 18px 55px rgba(24,34,53,.22);color:#fff;margin-bottom:14px;}
+.obm-hero{position:relative;overflow:hidden;border-radius:28px;padding:22px 18px;display:flex;gap:14px;align-items:center;background:linear-gradient(135deg,#FF8A4C 0%,#E8553A 50%,#D94066 100%);box-shadow:0 18px 55px rgba(232,85,58,.22);color:#fff;margin-bottom:14px;}
 .obm-hero:after{content:"";position:absolute;right:-50px;top:-65px;width:180px;height:180px;border-radius:999px;background:rgba(255,255,255,.10);}
 .obm-logo{width:54px;height:54px;border-radius:18px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex:0 0 auto;border:1px solid rgba(255,255,255,.22);}
 .obm-logo i{font-size:28px;color:#fff;}
 .obm-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:800;color:rgba(255,255,255,.68);margin-bottom:4px;}
 .obm-hero h1{font-size:23px;line-height:1.1;margin:0 0 6px;font-weight:850;}
 .obm-hero p{font-size:13px;line-height:1.45;margin:0;color:rgba(255,255,255,.78);max-width:680px;}
-.obm-progress-wrap{background:rgba(255,255,255,.75);border:1px solid rgba(126,43,56,.12);border-radius:18px;padding:12px 14px;margin-bottom:12px;backdrop-filter:blur(10px);}
+.obm-progress-wrap{background:rgba(255,255,255,.75);border:1px solid rgba(255,107,53,.12);border-radius:18px;padding:12px 14px;margin-bottom:12px;backdrop-filter:blur(10px);}
 .obm-progress-text{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#667085;margin-bottom:8px;gap:10px;}
-.obm-progress-text strong{color:#7D2B38;font-size:12px;}
-.obm-progress{height:8px;background:#E7DCCF;border-radius:999px;overflow:hidden;}
-.obm-progress span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7D2B38,#C04A5A);}
-.obm-card{background:rgba(255,255,255,.92);border:1px solid rgba(126,43,56,.10);border-radius:24px;padding:16px;margin-bottom:12px;box-shadow:0 12px 35px rgba(24,34,53,.07);}
+.obm-progress-text strong{color:#E8553A;font-size:12px;}
+.obm-progress{height:8px;background:#E5E5EA;border-radius:999px;overflow:hidden;}
+.obm-progress span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FF8A4C,#E8553A);}
+.obm-card{background:rgba(255,255,255,.92);border:1px solid rgba(255,107,53,.10);border-radius:24px;padding:16px;margin-bottom:12px;box-shadow:0 12px 35px rgba(24,34,53,.07);}
 .obm-section-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:#182235;margin-bottom:10px;}
-.obm-section-title i{font-size:18px;color:#7D2B38;}
+.obm-section-title i{font-size:18px;color:#E8553A;}
 .obm-section-sub{font-size:12px;line-height:1.45;color:#667085;margin:-4px 0 12px;}
 .obm-profile-photo{display:grid;grid-template-columns:1fr auto;align-items:center;gap:16px;}
 .obm-avatar-row{display:flex;align-items:center;gap:12px;min-width:290px;}
-.obm-avatar{width:70px;height:70px;border-radius:24px;background:#F7E8EC;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:inset 0 0 0 1px rgba(126,43,56,.12);}
+.obm-avatar{width:70px;height:70px;border-radius:24px;background:#FFF4EE;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:inset 0 0 0 1px rgba(255,107,53,.12);}
 .obm-avatar-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-start;}
-.obm-soft-btn{border:1px solid rgba(126,43,56,.14);background:#fff;border-radius:14px;padding:9px 12px;font-size:12px;font-weight:750;color:#7D2B38;display:flex;gap:6px;align-items:center;cursor:pointer;font-family:var(--font-sans);}
+.obm-soft-btn{border:1px solid rgba(255,107,53,.14);background:#fff;border-radius:14px;padding:9px 12px;font-size:12px;font-weight:750;color:#E8553A;display:flex;gap:6px;align-items:center;cursor:pointer;font-family:var(--font-sans);}
 .obm-emoji-grid{display:flex;gap:5px;flex-wrap:wrap;}
 .obm-grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px;}
-.obm-card .ri{border-radius:16px!important;border:1px solid #E4D8CB!important;background:#fff!important;padding:12px 14px!important;font-size:14px!important;}
+.obm-card .ri{border-radius:16px!important;border:1px solid #E5E5EA!important;background:#fff!important;padding:12px 14px!important;font-size:14px!important;}
 .obm-card .ml{font-size:11px!important;font-weight:800!important;letter-spacing:.45px!important;color:#74798A!important;margin-bottom:6px!important;}
 .obm-chips{display:flex;flex-wrap:wrap;gap:8px;}
-.obm-chips label{display:flex;align-items:center;gap:7px;border:1px solid #E4D8CB;background:#fff;border-radius:999px;padding:9px 12px;font-size:12px;font-weight:700;color:#2E3446;cursor:pointer;}
-.obm-chips input{accent-color:#7D2B38;}
-.obm-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;position:sticky;bottom:0;background:linear-gradient(to top,#F5EFE6 72%,rgba(245,239,230,0));padding:16px 0 4px;}
+.obm-chips label{display:flex;align-items:center;gap:7px;border:1px solid #E5E5EA;background:#fff;border-radius:999px;padding:9px 12px;font-size:12px;font-weight:700;color:#2E3446;cursor:pointer;}
+.obm-chips input{accent-color:#E8553A;}
+.obm-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;position:sticky;bottom:0;background:linear-gradient(to top,#FFFFFF 72%,rgba(255,255,255,0));padding:16px 0 4px;}
 .obm-actions .btn-sec,.obm-actions .btn-r{margin:0!important;border-radius:16px!important;padding:13px!important;font-size:13px!important;}
 @media(max-width:720px){
   .onboarding-modern{padding:12px 12px 28px;}
@@ -1842,24 +1878,24 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 
 /* V46 — onboarding en 5 étapes */
 .obm-stepper{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
-.obm-step-pill{height:7px;border-radius:999px;background:#E7DCCF;overflow:hidden}
-.obm-step-pill.on{background:linear-gradient(90deg,#7D2B38,#C04A5A)}
+.obm-step-pill{height:7px;border-radius:999px;background:#E5E5EA;overflow:hidden}
+.obm-step-pill.on{background:linear-gradient(90deg,#FF8A4C,#E8553A)}
 .obm-step-card{display:none}
 .obm-step-card.active{display:block;animation:obmFade .18s ease-out}
 @keyframes obmFade{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .obm-step-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
-.obm-step-count{font-size:11px;font-weight:850;color:#7D2B38;background:#F7E8EC;border-radius:999px;padding:6px 10px;white-space:nowrap}
+.obm-step-count{font-size:11px;font-weight:850;color:#E8553A;background:#FFF4EE;border-radius:999px;padding:6px 10px;white-space:nowrap}
 .obm-actions{grid-template-columns:1fr 1fr 1.35fr!important}
 .obm-actions .btn-sec,.obm-actions .btn-r{min-height:46px}
 .obm-notif-list{display:grid;gap:8px}
-.obm-notif-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid #E4D8CB;border-radius:16px;padding:11px 12px}
+.obm-notif-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid #E5E5EA;border-radius:16px;padding:11px 12px}
 .obm-notif-row .left{display:flex;align-items:center;gap:10px;min-width:0}
-.obm-notif-ico{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#F7E8EC;color:#7D2B38;flex:0 0 auto}
+.obm-notif-ico{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#FFF4EE;color:#E8553A;flex:0 0 auto}
 .obm-notif-name{font-size:13px;font-weight:800;color:#182235;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.obm-switch{width:42px;height:24px;border-radius:999px;background:#D7CABE;position:relative;flex:0 0 auto;cursor:pointer;transition:.18s}
+.obm-switch{width:42px;height:24px;border-radius:999px;background:#E5E5EA;position:relative;flex:0 0 auto;cursor:pointer;transition:.18s}
 .obm-switch input{display:none}
 .obm-switch span{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:.18s}
-.obm-switch:has(input:checked){background:#7D2B38}
+.obm-switch:has(input:checked){background:#E8553A}
 .obm-switch:has(input:checked) span{left:21px}
 @media(max-width:720px){.obm-actions{grid-template-columns:1fr 1fr!important}.obm-actions .btn-r{grid-column:1 / -1}.obm-step-head{display:block}.obm-step-count{display:inline-flex;margin-top:4px}}
 </style>
@@ -2013,7 +2049,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
     display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;
     padding:12px 14px calc(14px + env(safe-area-inset-bottom))!important;
     background:rgba(245,239,230,.96)!important;box-shadow:0 -14px 36px rgba(24,34,53,.12)!important;
-    border-top:1px solid rgba(126,43,56,.10)!important;backdrop-filter:blur(10px)!important;
+    border-top:1px solid rgba(255,107,53,.10)!important;backdrop-filter:blur(10px)!important;
   }
   .obm-actions .btn-r{grid-column:1 / -1!important;grid-row:1!important;width:100%!important;min-height:56px!important;border-radius:22px!important;font-size:15px!important;font-weight:850!important;}
   .obm-actions #ob-prev-btn{grid-column:1!important;grid-row:2!important;min-height:48px!important;border-radius:18px!important;}
@@ -2057,15 +2093,15 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
     <!-- ══════════════════════════════════════
          ÉCRAN ACCUEIL — CHOIX INTERFACE
     ══════════════════════════════════════ -->
-    <div class="screen on" id="pg-accueil" style="background:#F5EFE6;overflow:hidden;">
+    <div class="screen on" id="pg-accueil" style="background:#FFFFFF;overflow:hidden;">
 
       <!-- Roue crantée super admin (discrète) -->
       <button onclick="ouvrirLoginSuperAdmin()" style="position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:50%;background:#1a1a2e;color:#fff;border:2px solid rgba(255,255,255,.85);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999999;box-shadow:0 4px 14px rgba(0,0,0,.45);" aria-label="Admin">
         <i class="ti ti-settings" style="font-size:18px;color:#fff"></i>
       </button>
 
-      <!-- BANDE BORDEAUX HAUTE -->
-      <div style="width:100%;background:linear-gradient(155deg,#6B2232 0%,#7D2B38 45%,#A33F4E 80%,#B85566 100%);border-radius:0 0 55% 55% / 0 0 56px 56px;padding:32px 24px 52px;display:flex;flex-direction:column;align-items:center;overflow:hidden;position:relative;flex-shrink:0;">
+      <!-- BANDE GRADIENT HAUTE -->
+      <div style="width:100%;background:linear-gradient(155deg,#FF8A4C 0%,#E8553A 45%,#D94066 80%,#C93070 100%);border-radius:0 0 55% 55% / 0 0 56px 56px;padding:32px 24px 52px;display:flex;flex-direction:column;align-items:center;overflow:hidden;position:relative;flex-shrink:0;">
         <!-- Cercles décoratifs fondus -->
         <div style="position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,210,190,0.13);top:-60px;right:-60px;pointer-events:none;"></div>
         <div style="position:absolute;width:130px;height:130px;border-radius:50%;background:rgba(255,230,210,0.10);top:80px;right:10px;pointer-events:none;"></div>
@@ -2073,7 +2109,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div style="position:absolute;width:70px;height:70px;border-radius:50%;background:rgba(255,220,200,0.08);top:160px;left:20px;pointer-events:none;"></div>
         <!-- Logo flamme -->
         <div style="width:74px;height:74px;border-radius:22px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;z-index:1;box-shadow:0 10px 32px rgba(0,0,0,0.22);">
-          <i class="ti ti-flame" style="font-size:36px;color:#7D2B38;" aria-hidden="true"></i>
+          <i class="ti ti-flame" style="font-size:36px;color:#E8553A;" aria-hidden="true"></i>
         </div>
         <div style="font-size:25px;font-weight:800;color:white;text-align:center;margin-bottom:4px;position:relative;z-index:1;">Bienvenue&nbsp;!</div>
         <div style="font-size:12px;color:rgba(255,255,255,0.72);text-align:center;line-height:1.5;position:relative;z-index:1;">Amicale des Sapeurs-Pompiers<br>Laval (53)</div>
@@ -2084,25 +2120,25 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 
         <!-- Bannière invitation -->
         <div id="acc-invitation" style="background:#FFFFFF;border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 2px 10px rgba(26,26,46,0.07);">
-          <div style="width:8px;height:8px;border-radius:50%;background:#7D2B38;flex-shrink:0;margin-top:4px;"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;"></div>
           <div>
-            <div style="font-size:13px;font-weight:700;color:#7D2B38;margin-bottom:2px;">Vous êtes invité(e) à rejoindre l’amicale</div>
+            <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:2px;">Vous êtes invité(e) à rejoindre l’amicale</div>
             <div style="font-size:12px;color:#6B6B80;">Créez votre profil pour accéder à l’application.</div>
           </div>
         </div>
 
         <!-- Code invitation amicaliste -->
         <div style="background:#FFFFFF;border-radius:16px;padding:12px 14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(26,26,46,0.07);">
-          <label class="ml" for="code-invitation-amicaliste" style="color:#7D2B38">Code d’invitation</label>
+          <label class="ml" for="code-invitation-amicaliste" style="color:var(--accent)">Code d’invitation</label>
           <div style="display:flex;gap:8px;align-items:center">
             <input class="ri" id="code-invitation-amicaliste" type="text" value="INV-JEAN-4587" placeholder="Ex : INV-JEAN-4587" style="margin-bottom:0;text-transform:uppercase;letter-spacing:.6px;font-weight:700">
-            <button onclick="showToast('QR code scanné — code renseigné automatiquement')" style="width:42px;height:42px;border-radius:12px;border:none;background:#F5EFE6;color:#7D2B38;display:flex;align-items:center;justify-content:center;cursor:pointer" title="Scanner un QR code"><i class="ti ti-qrcode" style="font-size:20px"></i></button>
+            <button onclick="showToast('QR code scanné — code renseigné automatiquement')" style="width:42px;height:42px;border-radius:12px;border:none;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer" title="Scanner un QR code"><i class="ti ti-qrcode" style="font-size:20px"></i></button>
           </div>
           <div style="font-size:11px;color:#6B6B80;margin-top:7px">Le code transmis par le bureau pré-remplit votre profil avec les informations déjà connues.</div>
         </div>
 
         <!-- Bouton rejoindre -->
-        <button onclick="rejoindreAmicalisteParCode()" style="width:100%;padding:15px;border-radius:16px;background:linear-gradient(135deg,#7D2B38,#A33F4E);color:white;font-size:15px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;box-shadow:0 6px 20px rgba(125,43,56,0.35);font-family:var(--font-sans);">
+        <button onclick="rejoindreAmicalisteParCode()" style="width:100%;padding:15px;border-radius:16px;background:linear-gradient(135deg,#FF8A4C,#E8553A);color:white;font-size:15px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;box-shadow:0 6px 20px rgba(255,107,53,0.3);font-family:var(--font-sans);">
           <i class="ti ti-user-plus" aria-hidden="true"></i>Rejoindre l’amicale
         </button>
 
@@ -2121,8 +2157,8 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 
       <!-- VAGUE BORDEAUX BAS — flex item, colle au bas -->
       <svg style="width:100%;height:72px;flex-shrink:0;display:block;" viewBox="0 0 300 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0,38 C55,8 125,65 185,34 C225,12 268,54 300,28 L300,72 L0,72 Z" fill="#7D2B38" opacity="0.80"/>
-        <path d="M0,52 C50,28 118,68 178,44 C220,28 268,58 300,42 L300,72 L0,72 Z" fill="#5C1E28" opacity="0.50"/>
+        <path d="M0,38 C55,8 125,65 185,34 C225,12 268,54 300,28 L300,72 L0,72 Z" fill="#E8553A" opacity="0.75"/>
+        <path d="M0,52 C50,28 118,68 178,44 C220,28 268,58 300,42 L300,72 L0,72 Z" fill="#D94066" opacity="0.45"/>
       </svg>
 
     </div>
@@ -2161,11 +2197,11 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           </div>
         </div>
 
-        <div id="ob-prefill-box" style="display:none;background:#fff;border:1px solid rgba(125,43,56,.12);border-radius:18px;padding:12px 14px;margin:0 0 14px;box-shadow:0 6px 22px rgba(26,26,46,.06)">
+        <div id="ob-prefill-box" style="display:none;background:#fff;border:1px solid rgba(255,107,53,.12);border-radius:18px;padding:12px 14px;margin:0 0 14px;box-shadow:0 6px 22px rgba(26,26,46,.06)">
           <div style="display:flex;gap:10px;align-items:flex-start">
-            <div style="width:34px;height:34px;border-radius:12px;background:#F5EFE6;color:#7D2B38;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-file-check"></i></div>
+            <div style="width:34px;height:34px;border-radius:12px;background:#FFF4EE;color:#E8553A;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-file-check"></i></div>
             <div>
-              <div style="font-size:13px;font-weight:800;color:#7D2B38">Profil pré-rempli depuis la liste du bureau</div>
+              <div style="font-size:13px;font-weight:800;color:#E8553A">Profil pré-rempli depuis la liste du bureau</div>
               <div style="font-size:12px;color:#6B6B80;line-height:1.35;margin-top:2px">Vérifiez les informations déjà connues, corrigez si besoin, puis complétez ce qui manque.</div>
             </div>
           </div>
@@ -2283,88 +2319,92 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
     <!-- HOME AMICALISTE -->
     <div class="screen" id="pg-home-amical">
 
-      <!-- HEADER : logo + nom amicale + pills Voyages/Événements -->
-      <div style="background:var(--r);padding:14px 16px 12px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <i class="ti ti-flame" style="font-size:21px;color:white" aria-hidden="true"></i>
+      <!-- HEADER : gradient moderne + greeting -->
+      <div class="amical-hd-modern" style="background:var(--accent-gradient);padding:0">
+        <div style="padding:48px 20px 20px;position:relative">
+          <div style="position:absolute;top:-30px;right:-20px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.06)"></div>
+          <div style="position:absolute;bottom:-20px;left:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.04)"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.22);border:2px solid rgba(255,255,255,0.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
+                <span id="header-avatar-emoji" style="font-size:22px;line-height:1">🚒</span>
+              </div>
+              <div>
+                <div id="ah-greeting" style="font-size:22px;font-weight:800;color:white;line-height:1.2;letter-spacing:-0.3px">Bonjour 👋</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px;font-weight:500" id="ah-user-nom">Jean Dupont · SPV</div>
+              </div>
             </div>
-            <div>
-              <div style="font-size:15px;font-weight:700;color:white;line-height:1.2">Amicale SP Laval</div>
-              <div style="font-size:11px;color:rgba(255,255,255,0.72);margin-top:1px" id="ah-user-nom">Jean Dupont · SPV</div>
+            <div style="display:flex;gap:8px" id="tour-header-btns">
+              <button class="ah-bell" aria-label="Mes informations" onclick="ouvrirInfoAmicaliste()" id="tour-btn-infos">
+                <i class="ti ti-user" aria-hidden="true" style="font-size:18px"></i>
+              </button>
+              <button class="ah-bell" aria-label="Notifications" id="tour-btn-cloche" onclick="toggleNotifPanel()">
+                <i class="ti ti-bell" aria-hidden="true"></i>
+                <span class="ah-notif"></span>
+              </button>
             </div>
-          </div>
-          <div style="display:flex;gap:8px" id="tour-header-btns">
-            <button class="ah-bell" aria-label="Mes informations" onclick="ouvrirInfoAmicaliste()" id="tour-btn-infos">
-              <span id="header-avatar-emoji" style="font-size:18px;line-height:1">🚒</span>
-            </button>
-            <button class="ah-bell" aria-label="Notifications" id="tour-btn-cloche" onclick="toggleNotifPanel()">
-              <i class="ti ti-bell" aria-hidden="true"></i>
-              <span class="ah-notif"></span>
-            </button>
           </div>
         </div>
       </div>
 
       <!-- CAROUSEL horizontal défilant, pleine largeur -->
-      <div id="amical-carousel-section" style="padding:12px 14px 8px">
-        <div class="sec">À la une</div>
-        <div id="tour-carousel" style="overflow:hidden;border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,0.13)">
+      <div id="amical-carousel-section" style="padding:16px 16px 8px">
+        <div class="sec" style="font-size:18px;font-weight:800;letter-spacing:-0.3px;margin-bottom:12px">À la une</div>
+        <div id="tour-carousel" style="overflow:hidden;border-radius:var(--border-radius-xl);box-shadow:var(--shadow-lg)">
           <!-- PISTE DU CAROUSEL -->
           <div id="carousel-inner" style="display:flex;transition:transform .35s ease;will-change:transform;cursor:grab;user-select:none">
 
             <!-- SLIDE 1 : Événement à la une (dynamique) -->
             <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-              <div id="carousel-slide1-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),var(--r);background-size:cover;background-position:center;padding:20px 18px 16px;position:relative;height:clamp(160px,38vw,230px);display:flex;flex-direction:column;justify-content:flex-end">
-                <i class="ti ti-tools-kitchen-2" style="position:absolute;top:12px;right:14px;font-size:clamp(46px,12vw,68px);color:rgba(255,255,255,0.13)" aria-hidden="true"></i>
-                <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.22);color:white;font-size:10px;font-weight:600;padding:3px 9px;border-radius:8px;margin-bottom:7px;width:fit-content">
-                  <i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i>&nbsp;Dans 8 jours
+              <div id="carousel-slide1-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0.1) 55%),linear-gradient(135deg,#FF8A4C,#E8553A);background-size:cover;background-position:center;padding:22px 20px 18px;position:relative;height:clamp(170px,40vw,240px);display:flex;flex-direction:column;justify-content:flex-end">
+                <i class="ti ti-tools-kitchen-2" style="position:absolute;top:16px;right:16px;font-size:clamp(50px,13vw,72px);color:rgba(255,255,255,0.1)" aria-hidden="true"></i>
+                <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:white;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;margin-bottom:8px;width:fit-content">
+                  <i class="ti ti-clock" style="font-size:11px" aria-hidden="true"></i>&nbsp;Dans 8 jours
                 </div>
-                <div style="font-size:clamp(16px,4.5vw,22px);font-weight:700;color:white;line-height:1.25;margin-bottom:3px;text-shadow:0 1px 4px rgba(0,0,0,0.3)">Repas annuel de l'amicale</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.92);display:flex;align-items:center;gap:4px;text-shadow:0 1px 3px rgba(0,0,0,0.3)">
-                  <i class="ti ti-calendar" style="font-size:12px" aria-hidden="true"></i>Sam. 14 juin 2026 · 12h00
+                <div style="font-size:clamp(18px,5vw,24px);font-weight:800;color:white;line-height:1.2;margin-bottom:4px;letter-spacing:-0.3px">Repas annuel de l'amicale</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:5px">
+                  <i class="ti ti-calendar" style="font-size:13px" aria-hidden="true"></i>Sam. 14 juin 2026 · 12h00
                 </div>
               </div>
-              <div style="background:var(--color-background-primary);padding:8px 14px;display:flex;align-items:center;justify-content:space-between">
-                <div style="font-size:11px;color:var(--color-text-secondary);display:flex;align-items:center;gap:3px"><i class="ti ti-map-pin" style="font-size:12px" aria-hidden="true"></i>Salle des fêtes, Argentré</div>
-                <div style="font-size:11px;color:var(--r);font-weight:600;display:flex;align-items:center;gap:3px">Voir&nbsp;<i class="ti ti-arrow-right" style="font-size:12px" aria-hidden="true"></i></div>
+              <div style="background:var(--color-background-primary);padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:4px"><i class="ti ti-map-pin" style="font-size:13px" aria-hidden="true"></i>Salle des fêtes, Argentré</div>
+                <div style="font-size:12px;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:4px">Voir&nbsp;<i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i></div>
               </div>
             </div>
 
             <!-- SLIDE 2 : Saint-Malo -->
             <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-voyages-amical')">
-              <div style="background:var(--blu);padding:20px 18px 16px;position:relative;height:clamp(160px,38vw,230px);display:flex;flex-direction:column;justify-content:flex-end">
-                <i class="ti ti-sailboat" style="position:absolute;top:12px;right:14px;font-size:clamp(46px,12vw,68px);color:rgba(255,255,255,0.13)" aria-hidden="true"></i>
-                <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.22);color:white;font-size:10px;font-weight:600;padding:3px 9px;border-radius:8px;margin-bottom:7px;width:fit-content">
-                  <i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i>&nbsp;5–6 sept. 2026
+              <div style="background:linear-gradient(135deg,#4A90D9,#2563EB,#3478F6);padding:22px 20px 18px;position:relative;height:clamp(170px,40vw,240px);display:flex;flex-direction:column;justify-content:flex-end">
+                <i class="ti ti-sailboat" style="position:absolute;top:16px;right:16px;font-size:clamp(50px,13vw,72px);color:rgba(255,255,255,0.1)" aria-hidden="true"></i>
+                <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:white;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;margin-bottom:8px;width:fit-content">
+                  <i class="ti ti-clock" style="font-size:11px" aria-hidden="true"></i>&nbsp;5–6 sept. 2026
                 </div>
-                <div style="font-size:clamp(16px,4.5vw,22px);font-weight:700;color:white;line-height:1.25;margin-bottom:3px">Weekend à Saint-Malo</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.82);display:flex;align-items:center;gap:4px">
-                  <i class="ti ti-users" style="font-size:12px" aria-hidden="true"></i>28/42 inscrits · 85 € / pers.
+                <div style="font-size:clamp(18px,5vw,24px);font-weight:800;color:white;line-height:1.2;margin-bottom:4px;letter-spacing:-0.3px">Weekend à Saint-Malo</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.85);display:flex;align-items:center;gap:5px">
+                  <i class="ti ti-users" style="font-size:13px" aria-hidden="true"></i>28/42 inscrits · 85 € / pers.
                 </div>
               </div>
-              <div style="background:var(--color-background-primary);padding:8px 14px;display:flex;align-items:center;justify-content:space-between">
-                <div style="font-size:11px;color:var(--color-text-secondary);display:flex;align-items:center;gap:3px"><i class="ti ti-map-pin" style="font-size:12px" aria-hidden="true"></i>Bretagne · France</div>
-                <div style="font-size:11px;color:var(--blu);font-weight:600;display:flex;align-items:center;gap:3px">Voir&nbsp;<i class="ti ti-arrow-right" style="font-size:12px" aria-hidden="true"></i></div>
+              <div style="background:var(--color-background-primary);padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:4px"><i class="ti ti-map-pin" style="font-size:13px" aria-hidden="true"></i>Bretagne · France</div>
+                <div style="font-size:12px;color:var(--blu);font-weight:700;display:flex;align-items:center;gap:4px">Voir&nbsp;<i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i></div>
               </div>
             </div>
 
             <!-- SLIDE 3 : Bal -->
             <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-              <div style="background:var(--amb);padding:20px 18px 16px;position:relative;height:clamp(160px,38vw,230px);display:flex;flex-direction:column;justify-content:flex-end">
-                <i class="ti ti-music" style="position:absolute;top:12px;right:14px;font-size:clamp(46px,12vw,68px);color:rgba(255,255,255,0.13)" aria-hidden="true"></i>
-                <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.22);color:white;font-size:10px;font-weight:600;padding:3px 9px;border-radius:8px;margin-bottom:7px;width:fit-content">
-                  <i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i>&nbsp;27 juin 2026
+              <div style="background:linear-gradient(135deg,#F59E0B,#EA580C);padding:22px 20px 18px;position:relative;height:clamp(170px,40vw,240px);display:flex;flex-direction:column;justify-content:flex-end">
+                <i class="ti ti-music" style="position:absolute;top:16px;right:16px;font-size:clamp(50px,13vw,72px);color:rgba(255,255,255,0.1)" aria-hidden="true"></i>
+                <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:white;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;margin-bottom:8px;width:fit-content">
+                  <i class="ti ti-clock" style="font-size:11px" aria-hidden="true"></i>&nbsp;27 juin 2026
                 </div>
-                <div style="font-size:clamp(16px,4.5vw,22px);font-weight:700;color:white;line-height:1.25;margin-bottom:3px">Bal des pompiers</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.82);display:flex;align-items:center;gap:4px">
-                  <i class="ti ti-clock" style="font-size:12px" aria-hidden="true"></i>À partir de 21h00
+                <div style="font-size:clamp(18px,5vw,24px);font-weight:800;color:white;line-height:1.2;margin-bottom:4px;letter-spacing:-0.3px">Bal des pompiers</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.85);display:flex;align-items:center;gap:5px">
+                  <i class="ti ti-clock" style="font-size:13px" aria-hidden="true"></i>À partir de 21h00
                 </div>
               </div>
-              <div style="background:var(--color-background-primary);padding:8px 14px;display:flex;align-items:center;justify-content:space-between">
-                <div style="font-size:11px;color:var(--color-text-secondary);display:flex;align-items:center;gap:3px"><i class="ti ti-map-pin" style="font-size:12px" aria-hidden="true"></i>Salle polyvalente</div>
-                <div style="font-size:11px;color:var(--amb);font-weight:600;display:flex;align-items:center;gap:3px">Voir&nbsp;<i class="ti ti-arrow-right" style="font-size:12px" aria-hidden="true"></i></div>
+              <div style="background:var(--color-background-primary);padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:4px"><i class="ti ti-map-pin" style="font-size:13px" aria-hidden="true"></i>Salle polyvalente</div>
+                <div style="font-size:12px;color:var(--amb);font-weight:700;display:flex;align-items:center;gap:4px">Voir&nbsp;<i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i></div>
               </div>
             </div>
 
@@ -2372,86 +2412,86 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         </div><!-- fin overflow:hidden -->
 
         <!-- POINTS DE NAVIGATION -->
-        <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:9px">
-          <div id="dot-0" style="width:20px;height:5px;border-radius:3px;background:var(--r);transition:all .3s;cursor:pointer" onclick="goSlide(0)"></div>
-          <div id="dot-1" style="width:7px;height:5px;border-radius:3px;background:var(--color-border-secondary);transition:all .3s;cursor:pointer" onclick="goSlide(1)"></div>
-          <div id="dot-2" style="width:7px;height:5px;border-radius:3px;background:var(--color-border-secondary);transition:all .3s;cursor:pointer" onclick="goSlide(2)"></div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px">
+          <div id="dot-0" style="width:22px;height:6px;border-radius:3px;background:var(--accent);transition:all .3s;cursor:pointer" onclick="goSlide(0)"></div>
+          <div id="dot-1" style="width:6px;height:6px;border-radius:3px;background:var(--color-border-secondary);transition:all .3s;cursor:pointer" onclick="goSlide(1)"></div>
+          <div id="dot-2" style="width:6px;height:6px;border-radius:3px;background:var(--color-border-secondary);transition:all .3s;cursor:pointer" onclick="goSlide(2)"></div>
         </div>
       </div><!-- fin padding carousel -->
 
       <!-- CALENDRIER VERTICAL : prochains événements / actualités -->
       <div id="amical-tab-accueil">
-      <div style="padding:4px 14px 8px"><div class="sec">Prochains événements</div></div>
-      <div style="padding:0 14px 90px" id="amical-timeline">
+      <div style="padding:8px 16px 8px"><div class="sec" style="font-size:18px;font-weight:800;letter-spacing:-0.3px">Prochains événements</div></div>
+      <div style="padding:0 16px 90px" id="amical-timeline">
         <div style="position:relative;padding-left:28px">
           <div style="position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--color-border-secondary);border-radius:2px"></div>
 
-          <div style="position:relative;margin-bottom:16px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-            <div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--r);border:2px solid var(--color-background-primary);z-index:1"></div>
-            <div style="font-size:10px;font-weight:700;color:var(--r);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Sam. 14 juin 2026</div>
-            <div class="card" style="margin:0;padding:10px 12px">
-              <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:38px;height:38px;border-radius:10px;background:var(--rl);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-tools-kitchen-2" style="font-size:18px;color:var(--r)" aria-hidden="true"></i></div>
+          <div style="position:relative;margin-bottom:14px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+            <div style="position:absolute;left:-23px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2.5px solid var(--color-background-primary);z-index:1;box-shadow:0 0 0 2px var(--accent)"></div>
+            <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Sam. 14 juin 2026</div>
+            <div class="card" style="margin:0;padding:12px 14px">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:42px;height:42px;border-radius:14px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-tools-kitchen-2" style="font-size:20px;color:var(--accent)" aria-hidden="true"></i></div>
                 <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">Repas annuel de l'amicale</div>
-                  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> 12h00 · Salle des fêtes, Argentré</div>
+                  <div style="font-size:14px;font-weight:700;color:var(--color-text-primary)">Repas annuel de l'amicale</div>
+                  <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px"><i class="ti ti-clock" style="font-size:11px" aria-hidden="true"></i> 12h00 · Salle des fêtes</div>
                 </div>
-                <div style="background:var(--rl);color:var(--r);font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap">Dans 8j</div>
+                <div style="background:var(--accent-light);color:var(--accent);font-size:10px;font-weight:700;padding:4px 10px;border-radius:10px;white-space:nowrap">8j</div>
               </div>
             </div>
           </div>
 
-          <div style="position:relative;margin-bottom:16px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-            <div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--amb);border:2px solid var(--color-background-primary);z-index:1"></div>
-            <div style="font-size:10px;font-weight:700;color:var(--amb);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Ven. 27 juin 2026</div>
-            <div class="card" style="margin:0;padding:10px 12px">
-              <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:38px;height:38px;border-radius:10px;background:var(--aml);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-music" style="font-size:18px;color:var(--amb)" aria-hidden="true"></i></div>
+          <div style="position:relative;margin-bottom:14px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+            <div style="position:absolute;left:-23px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--amb);border:2.5px solid var(--color-background-primary);z-index:1"></div>
+            <div style="font-size:11px;font-weight:700;color:var(--amb);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Ven. 27 juin 2026</div>
+            <div class="card" style="margin:0;padding:12px 14px">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:42px;height:42px;border-radius:14px;background:var(--aml);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-music" style="font-size:20px;color:var(--amb)" aria-hidden="true"></i></div>
                 <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">Bal des pompiers</div>
-                  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> 21h00 · Salle polyvalente</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style="position:relative;margin-bottom:16px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-            <div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--pur);border:2px solid var(--color-background-primary);z-index:1"></div>
-            <div style="font-size:10px;font-weight:700;color:var(--pur);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Sam. 12 juil. 2026</div>
-            <div class="card" style="margin:0;padding:10px 12px">
-              <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:38px;height:38px;border-radius:10px;background:var(--pul);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-trophy" style="font-size:18px;color:var(--pur)" aria-hidden="true"></i></div>
-                <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">Tournoi sportif inter-centres</div>
-                  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> 10h00 · Stade municipal</div>
+                  <div style="font-size:14px;font-weight:700;color:var(--color-text-primary)">Bal des pompiers</div>
+                  <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px"><i class="ti ti-clock" style="font-size:11px" aria-hidden="true"></i> 21h00 · Salle polyvalente</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div style="position:relative;margin-bottom:16px;cursor:pointer" onclick="goPage('pg-voyages-amical')">
-            <div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--blu);border:2px solid var(--color-background-primary);z-index:1"></div>
-            <div style="font-size:10px;font-weight:700;color:var(--blu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">5-6 sept. 2026</div>
-            <div class="card" style="margin:0;padding:10px 12px">
-              <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:38px;height:38px;border-radius:10px;background:var(--bll);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-sailboat" style="font-size:18px;color:var(--blu)" aria-hidden="true"></i></div>
+          <div style="position:relative;margin-bottom:14px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+            <div style="position:absolute;left:-23px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--pur);border:2.5px solid var(--color-background-primary);z-index:1"></div>
+            <div style="font-size:11px;font-weight:700;color:var(--pur);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Sam. 12 juil. 2026</div>
+            <div class="card" style="margin:0;padding:12px 14px">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:42px;height:42px;border-radius:14px;background:var(--pul);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-trophy" style="font-size:20px;color:var(--pur)" aria-hidden="true"></i></div>
                 <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">Weekend Saint-Malo</div>
-                  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px"><i class="ti ti-users" style="font-size:10px" aria-hidden="true"></i> 28/42 inscrits · 85 € / pers.</div>
+                  <div style="font-size:14px;font-weight:700;color:var(--color-text-primary)">Tournoi sportif inter-centres</div>
+                  <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px"><i class="ti ti-clock" style="font-size:11px" aria-hidden="true"></i> 10h00 · Stade municipal</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div style="position:relative;margin-bottom:16px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-            <div style="position:absolute;left:-23px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--grn);border:2px solid var(--color-background-primary);z-index:1"></div>
-            <div style="font-size:10px;font-weight:700;color:var(--grn);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Déc. 2026</div>
-            <div class="card" style="margin:0;padding:10px 12px">
-              <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:38px;height:38px;border-radius:10px;background:var(--grl);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-christmas-tree" style="font-size:18px;color:var(--grn)" aria-hidden="true"></i></div>
+          <div style="position:relative;margin-bottom:14px;cursor:pointer" onclick="goPage('pg-voyages-amical')">
+            <div style="position:absolute;left:-23px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--blu);border:2.5px solid var(--color-background-primary);z-index:1"></div>
+            <div style="font-size:11px;font-weight:700;color:var(--blu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">5-6 sept. 2026</div>
+            <div class="card" style="margin:0;padding:12px 14px">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:42px;height:42px;border-radius:14px;background:var(--bll);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-sailboat" style="font-size:20px;color:var(--blu)" aria-hidden="true"></i></div>
                 <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">Arbre de Noël</div>
-                  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px">Date à confirmer</div>
+                  <div style="font-size:14px;font-weight:700;color:var(--color-text-primary)">Weekend Saint-Malo</div>
+                  <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px"><i class="ti ti-users" style="font-size:11px" aria-hidden="true"></i> 28/42 inscrits · 85 € / pers.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:relative;margin-bottom:14px;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+            <div style="position:absolute;left:-23px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--grn);border:2.5px solid var(--color-background-primary);z-index:1"></div>
+            <div style="font-size:11px;font-weight:700;color:var(--grn);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Déc. 2026</div>
+            <div class="card" style="margin:0;padding:12px 14px">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:42px;height:42px;border-radius:14px;background:var(--grl);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-christmas-tree" style="font-size:20px;color:var(--grn)" aria-hidden="true"></i></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;font-weight:700;color:var(--color-text-primary)">Arbre de Noël</div>
+                  <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Date à confirmer</div>
                 </div>
               </div>
             </div>
@@ -2462,18 +2502,18 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
       </div><!-- fin amical-tab-accueil -->
 
       <!-- VUE COMMISSIONS (onglet) -->
-      <div id="amical-tab-commissions" style="display:none;padding:14px 14px 90px">
-        <div class="sec">Commissions de l'amicale</div>
+      <div id="amical-tab-commissions" style="display:none;padding:16px 16px 90px">
+        <div class="sec" style="font-size:18px;font-weight:800;letter-spacing:-0.3px">Commissions</div>
         <div id="amical-commissions-list"></div>
       </div>
 
       <!-- VUE MESSAGES (onglet) -->
-      <div id="amical-tab-messages" style="display:none;padding:14px 14px 90px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div class="sec" style="margin:0">Messages</div>
-          <button style="border:none;background:var(--r);color:white;font-size:11px;font-weight:600;padding:7px 14px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:var(--font-sans)" onclick="ouvrirNouveauMsgAmical()"><i class="ti ti-pencil-plus" style="font-size:14px" aria-hidden="true"></i> Nouveau</button>
+      <div id="amical-tab-messages" style="display:none;padding:16px 16px 90px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div class="sec" style="margin:0;font-size:18px;font-weight:800;letter-spacing:-0.3px">Messages</div>
+          <button style="border:none;background:var(--accent);color:white;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--font-sans);box-shadow:0 2px 8px rgba(255,107,53,0.3);transition:transform .15s" onclick="ouvrirNouveauMsgAmical()"><i class="ti ti-pencil-plus" style="font-size:14px" aria-hidden="true"></i> Nouveau</button>
         </div>
-        <div style="display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none">
+        <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none">
           <button class="fp on" onclick="filtrerMsgAmical(this,'tous')">Tous</button>
           <button class="fp" onclick="filtrerMsgAmical(this,'nonlus')">Non lus</button>
           <button class="fp" onclick="filtrerMsgAmical(this,'envoyes')">Envoyés</button>
@@ -5441,7 +5481,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 
     <!-- RETOUR EN IMAGES - AMICALISTE -->
     <div class="screen" id="pg-retour-images">
-      <div class="sub-hd" style="background:linear-gradient(135deg,var(--r),#7D2B38)">
+      <div class="sub-hd" style="background:var(--accent-gradient)">
         <button class="back" onclick="goPage('pg-home-amical')" aria-label="Retour"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
         <div><div class="shd-t">Retours en images</div><div class="shd-s">Les souvenirs des événements passés</div></div>
       </div>
@@ -5787,7 +5827,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div class="card" style="margin-bottom:16px">
           <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">S’applique sur tous les headers, boutons et accents de l’application.</div>
           <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px">
-            <div onclick="persoColorApply('#7D2B38')" style="height:44px;border-radius:12px;background:#7D2B38;cursor:pointer;position:relative" id="psw-7D2B38"><i class="ti ti-check" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:white;font-size:18px"></i></div>
+            <div onclick="persoColorApply('#E8553A')" style="height:44px;border-radius:12px;background:#E8553A;cursor:pointer;position:relative" id="psw-E8553A"><i class="ti ti-check" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:white;font-size:18px"></i></div>
             <div onclick="persoColorApply('#1a3a7c')" style="height:44px;border-radius:12px;background:#1a3a7c;cursor:pointer;position:relative" id="psw-1a3a7c"><i class="ti ti-check" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:white;font-size:18px"></i></div>
             <div onclick="persoColorApply('#1a6b3a')" style="height:44px;border-radius:12px;background:#1a6b3a;cursor:pointer;position:relative" id="psw-1a6b3a"><i class="ti ti-check" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:white;font-size:18px"></i></div>
             <div onclick="persoColorApply('#534AB7')" style="height:44px;border-radius:12px;background:#534AB7;cursor:pointer;position:relative" id="psw-534AB7"><i class="ti ti-check" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:white;font-size:18px"></i></div>
@@ -5795,7 +5835,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           </div>
           <div style="display:flex;align-items:center;gap:10px">
             <span style="font-size:12px;color:var(--color-text-secondary);flex:1">Couleur libre</span>
-            <input type="color" id="perso-color-free" value="#7D2B38" onchange="persoColorApply(this.value)" style="width:48px;height:38px;border:2px solid var(--color-border);border-radius:10px;cursor:pointer;padding:2px;background:white">
+            <input type="color" id="perso-color-free" value="#E8553A" onchange="persoColorApply(this.value)" style="width:48px;height:38px;border:2px solid var(--color-border);border-radius:10px;cursor:pointer;padding:2px;background:white">
           </div>
         </div>
 
@@ -5953,7 +5993,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 .v44-missions-header-btn i{font-size:17px;}
 .v44-missions-badge{
   position:absolute;top:5px;right:3px;min-width:15px;height:15px;border-radius:10px;
-  background:#f6ad55;color:white;border:1.5px solid rgba(125,43,56,.95);
+  background:#f6ad55;color:white;border:1.5px solid rgba(255,107,53,.95);
   font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;
   padding:0 4px;line-height:1;
 }
@@ -5962,8 +6002,8 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 .v44-action-center-btn{
   min-width:78px;height:46px;border-radius:17px;border:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:7px;
-  background:linear-gradient(135deg,#111827,#7D2B38);color:white;
-  box-shadow:0 10px 22px rgba(125,43,56,.22);font-family:var(--font-sans,system-ui);
+  background:var(--accent-gradient);color:white;
+  box-shadow:0 10px 22px rgba(255,107,53,.22);font-family:var(--font-sans,system-ui);
   font-size:11px;font-weight:850;letter-spacing:-.01em;position:relative;padding:0 12px;
 }
 .v44-action-center-btn i{font-size:17px;color:white;}
@@ -5992,7 +6032,7 @@ body.pc-mode{
   width:100%!important;
   margin:0!important;
   display:block!important;
-  background:#F5EFE6!important;
+  background:#FFFFFF!important;
 }
 body.pc-mode .app-shell{
   width:100%!important;
@@ -6077,7 +6117,7 @@ body.pc-mode .v47-amical-commissions-grid{grid-template-columns:repeat(4,minmax(
 .v49-amical-commissions-wrap{padding:6px 14px 10px;}
 .v49-amical-commissions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
 .v49-amical-comm-card{border:1px solid rgba(17,24,39,.08);background:rgba(255,255,255,.94);border-radius:22px;box-shadow:0 12px 32px rgba(15,23,42,.06);padding:13px;min-height:82px;display:flex;align-items:center;gap:12px;text-align:left;font-family:var(--font-sans);cursor:pointer;color:var(--color-text-primary);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;}
-.v49-amical-comm-card:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(15,23,42,.10);border-color:rgba(125,43,56,.22)}
+.v49-amical-comm-card:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(15,23,42,.10);border-color:rgba(255,107,53,.22)}
 .v49-amical-comm-ico{width:46px;height:46px;border-radius:17px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
 .v49-amical-comm-ico i{font-size:22px;}
 .v49-amical-comm-title{display:block;font-size:13px;font-weight:850;line-height:1.15;}
@@ -6218,14 +6258,14 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
     pointer-events:auto!important;
     cursor:pointer!important;
     touch-action:manipulation;
-    -webkit-tap-highlight-color:rgba(125,43,56,.15);
+    -webkit-tap-highlight-color:rgba(255,107,53,.15);
   }
   .v56-commission-dest-list{display:none;border:1px solid var(--color-border-secondary);border-radius:14px;padding:10px;margin:-2px 0 10px;background:var(--color-background-secondary)}
   .v56-commission-dest-list.on{display:block}
-  .v56-commission-dest-list .row{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid rgba(125,43,56,.08)}
+  .v56-commission-dest-list .row{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid rgba(255,107,53,.08)}
   .v56-commission-dest-list .row:last-child{border-bottom:0}
   .v56-commission-dest-list input{width:17px;height:17px;accent-color:var(--r)}
-  .v56-recipient-preview{font-size:11px;color:var(--color-text-secondary);line-height:1.45;margin:-4px 0 10px;padding:8px 10px;background:rgba(125,43,56,.06);border-radius:12px}
+  .v56-recipient-preview{font-size:11px;color:var(--color-text-secondary);line-height:1.45;margin:-4px 0 10px;padding:8px 10px;background:rgba(255,107,53,.06);border-radius:12px}
 </style>
 
 
@@ -6371,7 +6411,7 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
     pointer-events:auto!important;
     cursor:pointer!important;
     touch-action:manipulation!important;
-    -webkit-tap-highlight-color:rgba(125,43,56,.18);
+    -webkit-tap-highlight-color:rgba(255,107,53,.18);
   }
 </style>
 
@@ -6628,7 +6668,7 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
 
 <!-- V54 — Commission fixe Sainte-Barbe dédiée : repas, inscriptions, prestataires, budget -->
 <div class="screen" id="pg-comm-saintebarbe">
-  <div class="sub-hd" style="background:linear-gradient(135deg,#7D2B38,#a83246)">
+  <div class="sub-hd" style="background:var(--accent-gradient)">
     <button class="back" onclick="goPage('pg-home-bureau')" aria-label="Retour"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
     <div><div class="shd-t">Sainte-Barbe</div><div class="shd-s">Inscriptions · repas · prestataires · budget</div></div>
     <button class="bh-btn" onclick="sbOuvrirParametres()" title="Paramètres"><i class="ti ti-settings" aria-hidden="true"></i></button>
@@ -7814,6 +7854,8 @@ function allerHomeAmicaliste(){
     const typeLbl=m.st==='retraite'?'Retraité':(m.st==='honneur'?"Membre d'honneur":(m.type||'SPV'));
     headerNom.textContent=m.p+' '+m.n+' · '+typeLbl;
   }
+  var hGreet=document.getElementById('ah-greeting');
+  if(hGreet)hGreet.textContent='Bonjour '+m.p+' 👋';
   goPage('pg-home-amical');
 }
 
@@ -8686,6 +8728,8 @@ function syncIdentite(nomComplet){
   var hNom=document.getElementById('ah-user-nom');
   var m=MEMBRES_DATA[0];
   if(hNom){var tl=m.st==='retraite'?'Retraité':(m.st==='honneur'?"Membre d'honneur":(m.type||'SPV'));hNom.textContent=m.p+' '+m.n+' · '+tl;}
+  var hGreet=document.getElementById('ah-greeting');
+  if(hGreet)hGreet.textContent='Bonjour '+m.p+' 👋';
   var hAv=document.getElementById('header-avatar-emoji');
   if(hAv)hAv.textContent=m.avatar||'🚒';
   try{localStorage.setItem('aml_identite',nomComplet);}catch(e){}
@@ -11360,8 +11404,8 @@ function goSlide(idx){
   for(let i=0;i<CAROUSEL_TOTAL;i++){
     const dot=document.getElementById('dot-'+i);
     if(!dot)continue;
-    dot.style.width=i===carouselIdx?'20px':'7px';
-    dot.style.background=i===carouselIdx?'var(--r)':'var(--color-border-secondary)';
+    dot.style.width=i===carouselIdx?'22px':'6px';
+    dot.style.background=i===carouselIdx?'var(--accent)':'var(--color-border-secondary)';
   }
 }
 
@@ -12410,7 +12454,7 @@ function ouvrirPersonnalisation(){
   var ni = document.getElementById('perso-nom'); if(ni) ni.value = p.nom||'Amicale des Sapeurs-Pompiers';
   var vi = document.getElementById('perso-ville'); if(vi) vi.value = p.ville||'Laval (53)';
   var mi = document.getElementById('perso-msg'); if(mi) mi.value = p.msg||'';
-  var pk = document.getElementById('perso-color-free'); if(pk){ try{ pk.value = p.couleur||'#7D2B38'; }catch(e){} }
+  var pk = document.getElementById('perso-color-free'); if(pk){ try{ pk.value = p.couleur||'#E8553A'; }catch(e){} }
   // Highlight couleur active
   if(p.couleur){
     ['7D2B38','1a3a7c','1a6b3a','534AB7','b45309'].forEach(function(id){
@@ -14121,15 +14165,15 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
         <div style="margin:-26px 14px 14px;background:linear-gradient(135deg,#ffffff 0%,#fff7f2 48%,#eef3ff 100%);border:1px solid rgba(18,24,39,.08);border-radius:26px;padding:16px;box-shadow:0 18px 45px rgba(18,24,39,.11);">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
             <div>
-              <div style="font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#7D2B38;margin-bottom:4px">Centre de pilotage</div>
+              <div style="font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#E8553A;margin-bottom:4px">Centre de pilotage</div>
               <div style="font-size:18px;font-weight:850;letter-spacing:-.04em;color:#111827">Votre amicale en un coup d'œil</div>
             </div>
-            <div style="width:46px;height:46px;border-radius:17px;background:linear-gradient(135deg,#111827,#7D2B38);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(125,43,56,.22)"><i class="ti ti-layout-dashboard" style="font-size:23px;color:white"></i></div>
+            <div style="width:46px;height:46px;border-radius:17px;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(255,107,53,.22)"><i class="ti ti-layout-dashboard" style="font-size:23px;color:white"></i></div>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
             <div style="background:white;border-radius:18px;padding:10px;border:1px solid rgba(18,24,39,.06)"><div style="font-size:20px;font-weight:850;color:#111827;line-height:1">5</div><div style="font-size:10px;color:#777C88;margin-top:3px">missions</div></div>
             <div style="background:white;border-radius:18px;padding:10px;border:1px solid rgba(18,24,39,.06)"><div style="font-size:20px;font-weight:850;color:#128A46;line-height:1">OK</div><div style="font-size:10px;color:#777C88;margin-top:3px">trésorerie</div></div>
-            <div style="background:white;border-radius:18px;padding:10px;border:1px solid rgba(18,24,39,.06)"><div style="font-size:20px;font-weight:850;color:#7D2B38;line-height:1">7</div><div style="font-size:10px;color:#777C88;margin-top:3px">commissions</div></div>
+            <div style="background:white;border-radius:18px;padding:10px;border:1px solid rgba(18,24,39,.06)"><div style="font-size:20px;font-weight:850;color:#E8553A;line-height:1">7</div><div style="font-size:10px;color:#777C88;margin-top:3px">commissions</div></div>
           </div>
         </div>`;
       stats.parentNode.insertBefore(hero, stats);
@@ -14144,7 +14188,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
       quick.innerHTML = `
         <div style="padding:0 14px 12px">
           <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
-            <button onclick="goPage('pg-evenements-amical')" style="border:none;background:white;border-radius:18px;padding:11px 8px;box-shadow:0 8px 20px rgba(18,24,39,.08);font-family:var(--font-sans);cursor:pointer"><i class="ti ti-calendar-event" style="font-size:20px;color:#7D2B38"></i><div style="font-size:10px;font-weight:800;color:#111827;margin-top:5px">Événements</div></button>
+            <button onclick="goPage('pg-evenements-amical')" style="border:none;background:white;border-radius:18px;padding:11px 8px;box-shadow:0 8px 20px rgba(18,24,39,.08);font-family:var(--font-sans);cursor:pointer"><i class="ti ti-calendar-event" style="font-size:20px;color:#E8553A"></i><div style="font-size:10px;font-weight:800;color:#111827;margin-top:5px">Événements</div></button>
             <button onclick="goPage('pg-locations-amical')" style="border:none;background:white;border-radius:18px;padding:11px 8px;box-shadow:0 8px 20px rgba(18,24,39,.08);font-family:var(--font-sans);cursor:pointer"><i class="ti ti-building" style="font-size:20px;color:#2563EB"></i><div style="font-size:10px;font-weight:800;color:#111827;margin-top:5px">Locations</div></button>
             <button onclick="goPage('pg-calendriers-amical')" style="border:none;background:white;border-radius:18px;padding:11px 8px;box-shadow:0 8px 20px rgba(18,24,39,.08);font-family:var(--font-sans);cursor:pointer"><i class="ti ti-book" style="font-size:20px;color:#128A46"></i><div style="font-size:10px;font-weight:800;color:#111827;margin-top:5px">Calendriers</div></button>
           </div>
@@ -17857,12 +17901,12 @@ function ouvrirFicheVoyage(voyKey){
     var tabList=document.getElementById('amical-commissions-list');
     if(tabList){
       var comms=sortedAmical();
-      tabList.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+comms.map(function(c){
-        return '<div class="card" style="margin:0;padding:14px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px" onclick="ouvrirCommissionAmicalisteV56(\''+esc(c.id)+'\')">'
-          +'<div style="width:48px;height:48px;border-radius:14px;background:'+(c.bg||'var(--color-background-secondary)')+';display:flex;align-items:center;justify-content:center">'
-          +'<i class="ti '+(c.ico||'ti-users-group')+'" style="font-size:22px;color:'+(c.col||'var(--blu)')+'" aria-hidden="true"></i></div>'
-          +'<div><div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">'+esc(c.nom||c.id)+'</div>'
-          +'<div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">'+esc(c.sub||'')+'</div></div></div>';
+      tabList.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+comms.map(function(c){
+        return '<div class="card" style="margin:0;padding:16px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;transition:transform .15s" onclick="ouvrirCommissionAmicalisteV56(\''+esc(c.id)+'\')" onmousedown="this.style.transform=\'scale(0.97)\'" onmouseup="this.style.transform=\'\'" onmouseleave="this.style.transform=\'\'">'
+          +'<div style="width:52px;height:52px;border-radius:16px;background:'+(c.bg||'var(--color-background-secondary)')+';display:flex;align-items:center;justify-content:center">'
+          +'<i class="ti '+(c.ico||'ti-users-group')+'" style="font-size:24px;color:'+(c.col||'var(--blu)')+'" aria-hidden="true"></i></div>'
+          +'<div><div style="font-size:14px;font-weight:700;color:var(--color-text-primary)">'+esc(c.nom||c.id)+'</div>'
+          +'<div style="font-size:12px;color:var(--color-text-secondary);margin-top:3px">'+esc(c.sub||'')+'</div></div></div>';
       }).join('')+'</div>';
       if(!comms.length) tabList.innerHTML='<div style="text-align:center;padding:30px;color:var(--color-text-secondary);font-size:13px">Aucune commission visible pour le moment.</div>';
     }
