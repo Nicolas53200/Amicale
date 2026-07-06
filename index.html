@@ -2435,6 +2435,25 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
                 </div>
               </div>
 
+              <!-- SLIDE 4 : Tournoi sportif -->
+              <div style="flex:0 0 100%;cursor:pointer" onclick="if(typeof ouvrirFicheEvenement==='function') ouvrirFicheEvenement('tournoi'); else goPage('pg-evenements-amical')">
+                <div id="carousel-slide4-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#7C3AED,#534AB7);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
+                  <i class="ti ti-trophy" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
+                  <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
+                    12 juillet 2026
+                  </div>
+                  <div>
+                    <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Tournoi sportif</div>
+                    <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">10h00 · Stade municipal</div>
+                    <div style="display:flex;align-items:center;justify-content:flex-end">
+                      <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
+                        Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div><!-- fin carousel-inner -->
           </div><!-- fin overflow:hidden -->
 
@@ -2443,6 +2462,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
             <div id="dot-0" style="width:22px;height:6px;border-radius:3px;background:white;transition:all .3s;cursor:pointer" onclick="goSlide(0)"></div>
             <div id="dot-1" style="width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.4);transition:all .3s;cursor:pointer" onclick="goSlide(1)"></div>
             <div id="dot-2" style="width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.4);transition:all .3s;cursor:pointer" onclick="goSlide(2)"></div>
+            <div id="dot-3" style="width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.4);transition:all .3s;cursor:pointer" onclick="goSlide(3)"></div>
           </div>
         </div><!-- fin padding carousel -->
 
@@ -7422,6 +7442,7 @@ const EVENTS_DATA={
     desc:'Tournoi amical entre les centres de secours du département.',
     icon:'ti-trophy',color:'#534AB7',publie:false},
 };
+window.EVENTS_DATA=EVENTS_DATA;
 
 // ═══════════════════════════════════════════
 // BÉNÉVOLES — par événement
@@ -7441,6 +7462,7 @@ const BENEVOLES_DATA={
     {nom:'Jean Dupont',poste:'Arbitrage'},
   ]},
 };
+window.BENEVOLES_DATA=BENEVOLES_DATA;
 
 function ouvrirModifier(id){
   const ev=EVENTS_DATA[id];
@@ -8817,6 +8839,7 @@ const DEMANDES_LOCATION=[
 
 // Utilisateur actuellement connecté — synchronisé entre bureau et amicaliste
 let CURRENT_AMICALISTE='Jean Dupont';
+window.CURRENT_AMICALISTE=CURRENT_AMICALISTE;
 
 function syncIdentite(nomComplet){
   if(!nomComplet) return false;
@@ -8826,6 +8849,7 @@ function syncIdentite(nomComplet){
   if(idx<0) return false;
   if(idx>0){var tmp=MEMBRES_DATA[0];MEMBRES_DATA[0]=MEMBRES_DATA[idx];MEMBRES_DATA[idx]=tmp;}
   CURRENT_AMICALISTE=prenom+' '+nom;
+  window.CURRENT_AMICALISTE=CURRENT_AMICALISTE;
   var hNom=document.getElementById('ah-user-nom');
   var m=MEMBRES_DATA[0];
   if(hNom)hNom.textContent='Amicale SP Laval';
@@ -8846,6 +8870,8 @@ const VOYAGES_DATA={
   colo_ete:{nom:'Colonie d\u2019été des enfants',destination:'Centre de vacances, Vendée',duree:'8 jours / 7 nuits',dates:'10–17 juil. 2026',tarif:'120 €',places:30,placesMin:15,enfantsAutorises:true,ageLimiteEnfants:14,tarifEnfant:'90 €',accompagnateursRecherches:4,maxAdultesParFoyer:2,transport:'Car privatisé',hebergement:'Centre de vacances \u00b7 Pension complète',programme:'Activités nautiques, randonnées, veillées',ico:'ti-tent',color:'#1a7a1a',image:null,inclus:['Transport A/R','Pension complète 7 nuits','Activités encadrées','Assurance'],nonInclus:['Argent de poche','Équipement personnel']},
 };
 
+window.VOYAGES_DATA=VOYAGES_DATA;
+
 var PRESTATAIRES_VOYAGES=[
   {id:'pv1',voyage:'saintmalo',nom:'Cars Dupuis',type:'Transport',montant:'1 200 \u20ac',devis:true,facture:false,envoye:true,statut:'valide'},
   {id:'pv2',voyage:'saintmalo',nom:'Hôtel Le Corsaire',type:'Hébergement',montant:'2 380 \u20ac',devis:true,facture:true,envoye:true,statut:'paye'},
@@ -8864,6 +8890,7 @@ const INSCRIPTIONS_VOYAGES=[
   {id:'iv3',demandeur:'Jean Dupont',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'acceptee',dateInsc:'2 mai 2026'},
   {id:'iv4',demandeur:'Pierre Leroy',voyage:'strasbourg',voyageNom:'Marché de Noël — Strasbourg',statut:'acceptee',dateInsc:'15 mai 2026'},
 ];
+window.INSCRIPTIONS_VOYAGES=INSCRIPTIONS_VOYAGES;
 
 // ═══════════════════════════════════════════
 // INSCRIPTIONS ÉVÉNEMENTS — amicaliste → commission Événements
@@ -8872,6 +8899,7 @@ const INSCRIPTIONS_EVENEMENTS=[
   {id:'ie1',demandeur:'Marie Garnier',evenement:'repas',evenementNom:"Repas annuel de l'amicale",statut:'attente',dateInsc:'9 juin 2026'},
   {id:'ie2',demandeur:'Claude Bernard',evenement:'bal',evenementNom:'Bal des pompiers',statut:'attente',dateInsc:'10 juin 2026'},
 ];
+window.INSCRIPTIONS_EVENEMENTS=INSCRIPTIONS_EVENEMENTS;
 
 function buildLocCal(bienKey, gridId, lblId, legendId){
   bienKey = bienKey || locBien;
@@ -11576,7 +11604,7 @@ function saveModalCompta(){
 // CAROUSEL — navigation + swipe tactile
 // ═══════════════════════════════════════════
 let carouselIdx=0;
-const CAROUSEL_TOTAL=3;
+const CAROUSEL_TOTAL=4;
 
 function goSlide(idx){
   carouselIdx=((idx%CAROUSEL_TOTAL)+CAROUSEL_TOTAL)%CAROUSEL_TOTAL;
