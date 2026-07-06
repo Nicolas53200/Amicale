@@ -2398,7 +2398,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
               </div>
 
               <!-- SLIDE 2 : Repas annuel -->
-              <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+              <div style="flex:0 0 100%;cursor:pointer" onclick="if(typeof ouvrirFicheEvenement==='function') ouvrirFicheEvenement('repas'); else goPage('pg-evenements-amical')">
                 <div id="carousel-slide2-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#FF8A4C,#E8553A);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
                   <i class="ti ti-tools-kitchen-2" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
                   <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
@@ -2417,7 +2417,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
               </div>
 
               <!-- SLIDE 3 : Bal -->
-              <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+              <div style="flex:0 0 100%;cursor:pointer" onclick="if(typeof ouvrirFicheEvenement==='function') ouvrirFicheEvenement('bal'); else goPage('pg-evenements-amical')">
                 <div id="carousel-slide3-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#F59E0B,#EA580C);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
                   <i class="ti ti-music" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
                   <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
@@ -3083,7 +3083,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <button class="fp" onclick="document.querySelectorAll('#pg-evenements-amical .fp').forEach(b=>b.classList.remove('on'));this.classList.add('on')">Bal</button>
           <button class="fp" onclick="document.querySelectorAll('#pg-evenements-amical .fp').forEach(b=>b.classList.remove('on'));this.classList.add('on')">Sport</button>
         </div>
-        <div class="card" style="overflow:hidden;padding:0">
+        <div class="card" style="overflow:hidden;padding:0" data-ev-key="repas">
           <div style="height:140px;background:var(--r);display:flex;flex-direction:column;justify-content:flex-end;padding:14px;position:relative"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,rgba(0,0,0,.05) 60%)"></div><i class="ti ti-tools-kitchen-2" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:50px;color:rgba(255,255,255,.15)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:16px;font-weight:700;color:white;margin-bottom:4px">Repas annuel de l'amicale</div><div style="font-size:12px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:8px"><i class="ti ti-calendar" style="font-size:13px" aria-hidden="true"></i>Sam. 14 juin 2026 · 12h00 · Salle des fêtes, Argentré</div></div></div>
           <div style="padding:12px">
             <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--rl);color:var(--r)">Repas</span><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--grl);color:var(--grn)">Membres + familles</span><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--aml);color:var(--amb)">Bénévoles 4/6</span></div>
@@ -3091,14 +3091,14 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
             <button class="btn-r" style="margin-bottom:0" onclick="inscrireEvenement('repas',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
           </div>
         </div>
-        <div class="card" style="overflow:hidden;padding:0">
+        <div class="card" style="overflow:hidden;padding:0" data-ev-key="bal">
           <div style="height:90px;background:var(--amb);display:flex;align-items:flex-end;padding:12px;position:relative"><div style="position:absolute;inset:0;background:rgba(0,0,0,.15)"></div><i class="ti ti-music" style="position:absolute;top:10px;right:12px;font-size:34px;color:rgba(255,255,255,.2)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:14px;font-weight:700;color:white">Bal des pompiers</div><div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:2px"><i class="ti ti-calendar" style="font-size:12px" aria-hidden="true"></i> Ven. 27 juin 2026 · 21h00 · Salle polyvalente</div></div></div>
           <div style="padding:12px">
             <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Soirée dansante ouverte à tous, buvette et restauration sur place.</div>
             <button class="btn-r" style="margin-bottom:0;background:var(--amb)" onclick="inscrireEvenement('bal',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
           </div>
         </div>
-        <div class="card" style="overflow:hidden;padding:0">
+        <div class="card" style="overflow:hidden;padding:0" data-ev-key="tournoi">
           <div style="height:90px;background:var(--pur);display:flex;align-items:flex-end;padding:12px;position:relative"><div style="position:absolute;inset:0;background:rgba(0,0,0,.15)"></div><i class="ti ti-trophy" style="position:absolute;top:10px;right:12px;font-size:34px;color:rgba(255,255,255,.2)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:14px;font-weight:700;color:white">Tournoi sportif inter-centres</div><div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:2px"><i class="ti ti-calendar" style="font-size:12px" aria-hidden="true"></i> Sam. 12 juil. 2026 · 10h00 · Stade municipal</div></div></div>
           <div style="padding:12px">
             <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Tournoi amical entre les centres de secours du département. Toutes catégories bienvenues.</div>
@@ -6527,7 +6527,7 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
         <div id="mie-recap" style="background:var(--color-background-secondary);border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--color-text-secondary)"></div>
 
         <div class="mac" style="margin-top:0">
-          <button class="mc-c" onclick="document.getElementById('modal-inscription-event').classList.remove('open')">Annuler</button>
+          <button class="mc-c" onclick="if(typeof AMICALE_closeAllPopups==='function') AMICALE_closeAllPopups(); else document.getElementById('modal-inscription-event').classList.remove('open')">Annuler</button>
           <button class="mc-ok" id="mie-confirm-btn" onclick="confirmerInscriptionEvent()">Confirmer l'inscription</button>
         </div>
       </div>
@@ -9469,6 +9469,18 @@ function refuserInscription(id){
   i.statut='refusee';
   showToast('Inscription refusée — '+i.demandeur+' notifié(e)');
   renderInscriptionsVoyages();
+}
+
+function ouvrirFicheEvenement(evKey){
+  goPage('pg-evenements-amical');
+  setTimeout(function(){
+    var card=document.querySelector('#pg-evenements-amical .card[data-ev-key="'+evKey+'"]');
+    if(card){
+      card.scrollIntoView({behavior:'smooth',block:'center'});
+      card.style.boxShadow='0 0 0 3px var(--r)';
+      setTimeout(function(){ card.style.boxShadow=''; },2000);
+    }
+  },150);
 }
 
 // ═══════════════════════════════════════════
@@ -16951,7 +16963,8 @@ function confirmerInscriptionEvent(){
     'Inscription — '+MIE_CONTEXT.nom,
     'Votre demande d\'inscription pour '+MIE_CONTEXT.nom+' ('+totalPersonnes+' personne'+(totalPersonnes>1?'s':'')+') a bien été enregistrée. Elle est en attente de validation par '+commLabel+'. Vous serez informé(e) dès qu\'une réponse sera apportée.'
   );
-  document.getElementById('modal-inscription-event').classList.remove('open');
+  if(typeof AMICALE_closeAllPopups==='function') AMICALE_closeAllPopups();
+  else document.getElementById('modal-inscription-event').classList.remove('open');
   MIE_BOUTON_COURANT=null;
 }
 
