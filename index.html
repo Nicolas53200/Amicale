@@ -196,7 +196,7 @@ textarea.mi, textarea.ri {
   background: var(--accent-gradient) !important;
 }
 #pg-home-amical > .amical-hd-modern {
-  background: white !important;
+  background: var(--accent-gradient) !important;
   box-shadow: none !important;
 }
 
@@ -410,7 +410,6 @@ body.pc-mode .app-shell{
 #pg-home-amical > div:first-child{
   padding:0 !important;
   border-radius:0 !important;
-  background:white !important;
   box-shadow:none !important;
 }
 #pg-home-bureau .bureau-hd{
@@ -418,12 +417,12 @@ body.pc-mode .app-shell{
   border-radius:0 0 28px 28px !important;
 }
 #pg-home-amical .ah-bell{
-  background:#F2F2F7 !important;
+  background:rgba(255,255,255,.2) !important;
   border:none !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
+  backdrop-filter:blur(8px) !important;
+  -webkit-backdrop-filter:blur(8px) !important;
 }
-#pg-home-amical .ah-bell:hover{transform:translateY(-1px) !important;background:#E5E5EA !important;}
+#pg-home-amical .ah-bell:hover{transform:translateY(-1px) !important;background:rgba(255,255,255,.28) !important;}
 .bh-btn,.back{
   background:rgba(255,255,255,.2) !important;
   border:none !important;
@@ -2328,120 +2327,128 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
     <!-- HOME AMICALISTE -->
     <div class="screen" id="pg-home-amical">
 
-      <!-- HEADER : fond blanc, greeting + avatar rond -->
-      <div class="amical-hd-modern" style="background:white;padding:0">
-        <div style="padding:52px 20px 16px;position:relative">
+      <!-- ZONE GRADIENT : header + messages + carousel + vague -->
+      <div class="amical-hd-modern" style="background:var(--accent-gradient);padding:0;position:relative;overflow:hidden">
+        <!-- Cercles décoratifs subtils -->
+        <div style="position:absolute;top:-60px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.06)"></div>
+        <div style="position:absolute;top:120px;left:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,0.04)"></div>
+
+        <!-- HEADER -->
+        <div style="padding:52px 20px 14px;position:relative;z-index:2">
           <div style="display:flex;align-items:center;justify-content:space-between">
             <div>
-              <div id="ah-greeting" style="font-size:26px;font-weight:800;color:#1C1C1E;line-height:1.15;letter-spacing:-0.4px">Bonjour Jean <span style="font-size:24px">👋</span></div>
-              <div style="font-size:14px;color:#8E8E93;margin-top:3px;font-weight:500" id="ah-user-nom">Amicale SP Laval</div>
+              <div id="ah-greeting" style="font-size:26px;font-weight:800;color:white;line-height:1.15;letter-spacing:-0.4px">Bonjour Jean <span style="font-size:24px">👋</span></div>
+              <div style="font-size:14px;color:rgba(255,255,255,0.8);margin-top:3px;font-weight:500" id="ah-user-nom">Amicale SP Laval</div>
             </div>
             <div style="display:flex;align-items:center;gap:12px" id="tour-header-btns">
-              <button class="ah-bell" aria-label="Notifications" id="tour-btn-cloche" onclick="toggleNotifPanel()" style="width:42px;height:42px;border-radius:50%;border:none;background:#F2F2F7;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative">
-                <i class="ti ti-bell" aria-hidden="true" style="font-size:20px;color:#1C1C1E"></i>
+              <button class="ah-bell" aria-label="Notifications" id="tour-btn-cloche" onclick="toggleNotifPanel()" style="width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative">
+                <i class="ti ti-bell" aria-hidden="true" style="font-size:20px;color:white"></i>
                 <span class="ah-notif"></span>
               </button>
-              <div onclick="ouvrirInfoAmicaliste()" id="tour-btn-infos" style="width:44px;height:44px;border-radius:50%;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;box-shadow:0 4px 12px rgba(255,107,53,0.25)">
-                <span id="header-avatar-emoji" style="font-size:22px;line-height:1;color:white">🚒</span>
+              <div onclick="ouvrirInfoAmicaliste()" id="tour-btn-infos" style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,0.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer">
+                <span id="header-avatar-emoji" style="font-size:22px;line-height:1">🚒</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- BANNIÈRE MESSAGES -->
-      <div style="padding:0 16px 8px">
-        <div onclick="switchAmicalTab('messages',document.querySelector('.atab-btn[data-tab=messages]'))" style="background:white;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04)">
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 10px rgba(255,107,53,0.2)">
-            <i class="ti ti-message-circle" style="font-size:20px;color:white" aria-hidden="true"></i>
+        <!-- BANNIÈRE MESSAGES -->
+        <div style="padding:0 16px 12px;position:relative;z-index:2">
+          <div onclick="switchAmicalTab('messages',document.querySelector('.atab-btn[data-tab=messages]'))" style="background:rgba(255,255,255,0.95);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.08)">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 10px rgba(255,107,53,0.2)">
+              <i class="ti ti-message-circle" style="font-size:20px;color:white" aria-hidden="true"></i>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:15px;font-weight:700;color:#1C1C1E">Messages</div>
+              <div style="font-size:12px;color:#8E8E93;margin-top:1px">Vous avez des messages en attente</div>
+            </div>
+            <i class="ti ti-chevron-right" style="font-size:18px;color:#C7C7CC" aria-hidden="true"></i>
           </div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:15px;font-weight:700;color:#1C1C1E">Messages</div>
-            <div style="font-size:12px;color:#8E8E93;margin-top:1px">Vous avez des messages en attente</div>
-          </div>
-          <i class="ti ti-chevron-right" style="font-size:18px;color:#C7C7CC" aria-hidden="true"></i>
         </div>
-      </div>
 
-      <!-- ÉVÉNEMENT VEDETTE : grande card photo -->
-      <div id="amical-carousel-section" style="padding:8px 16px 8px">
-        <div id="tour-carousel" style="overflow:hidden;border-radius:24px;box-shadow:0 8px 30px rgba(0,0,0,0.12)">
-          <div id="carousel-inner" style="display:flex;transition:transform .35s ease;will-change:transform;cursor:grab;user-select:none">
+        <!-- ÉVÉNEMENT VEDETTE : grande card photo -->
+        <div id="amical-carousel-section" style="padding:0 16px 0;position:relative;z-index:2">
+          <div id="tour-carousel" style="overflow:hidden;border-radius:24px;box-shadow:0 8px 30px rgba(0,0,0,0.15)">
+            <div id="carousel-inner" style="display:flex;transition:transform .35s ease;will-change:transform;cursor:grab;user-select:none">
 
-            <!-- SLIDE 1 : Weekend Saint-Malo (photo) -->
-            <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-voyages-amical')">
-              <div id="carousel-slide1-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(to bottom,rgba(232,85,58,0.85) 0%,rgba(217,64,102,0.6) 25%,transparent 50%),url('https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80') center/cover no-repeat;height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
-                <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
-                  Prochain événement
-                </div>
-                <div>
-                  <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Weekend à Saint-Malo</div>
-                  <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">5 - 6 septembre</div>
-                  <div style="display:flex;align-items:center;justify-content:space-between">
-                    <div style="display:flex;align-items:center;gap:8px">
-                      <div style="display:flex;align-items:center">
-                        <div style="width:26px;height:26px;border-radius:50%;background:var(--accent);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;z-index:3">J</div>
-                        <div style="width:26px;height:26px;border-radius:50%;background:#3478F6;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;margin-left:-8px;z-index:2">M</div>
-                        <div style="width:26px;height:26px;border-radius:50%;background:#34C759;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;margin-left:-8px;z-index:1">P</div>
+              <!-- SLIDE 1 : Weekend Saint-Malo (photo) -->
+              <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-voyages-amical')">
+                <div id="carousel-slide1-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(to bottom,rgba(232,85,58,0.85) 0%,rgba(217,64,102,0.6) 25%,transparent 50%),url('https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80') center/cover no-repeat;height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
+                  <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
+                    Prochain événement
+                  </div>
+                  <div>
+                    <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Weekend à Saint-Malo</div>
+                    <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">5 - 6 septembre</div>
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <div style="display:flex;align-items:center">
+                          <div style="width:26px;height:26px;border-radius:50%;background:var(--accent);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;z-index:3">J</div>
+                          <div style="width:26px;height:26px;border-radius:50%;background:#3478F6;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;margin-left:-8px;z-index:2">M</div>
+                          <div style="width:26px;height:26px;border-radius:50%;background:#34C759;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;margin-left:-8px;z-index:1">P</div>
+                        </div>
+                        <span style="font-size:13px;color:white;font-weight:600">28 participants</span>
                       </div>
-                      <span style="font-size:13px;color:white;font-weight:600">28 participants</span>
-                    </div>
-                    <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
-                      Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- SLIDE 2 : Repas annuel -->
-            <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-              <div style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),var(--accent-gradient);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
-                <i class="ti ti-tools-kitchen-2" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
-                <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
-                  Dans 8 jours
-                </div>
-                <div>
-                  <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Repas annuel</div>
-                  <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">Sam. 14 juin 2026 · 12h00</div>
-                  <div style="display:flex;align-items:center;justify-content:flex-end">
-                    <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
-                      Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
+                      <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
+                        Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- SLIDE 3 : Bal -->
-            <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-              <div style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#F59E0B,#EA580C);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
-                <i class="ti ti-music" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
-                <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
-                  27 juin 2026
-                </div>
-                <div>
-                  <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Bal des pompiers</div>
-                  <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">21h00 · Centre-ville</div>
-                  <div style="display:flex;align-items:center;justify-content:flex-end">
-                    <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
-                      Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
+              <!-- SLIDE 2 : Repas annuel -->
+              <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+                <div style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#FF8A4C,#E8553A);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
+                  <i class="ti ti-tools-kitchen-2" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
+                  <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
+                    Dans 8 jours
+                  </div>
+                  <div>
+                    <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Repas annuel</div>
+                    <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">Sam. 14 juin 2026 · 12h00</div>
+                    <div style="display:flex;align-items:center;justify-content:flex-end">
+                      <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
+                        Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-          </div><!-- fin carousel-inner -->
-        </div><!-- fin overflow:hidden -->
+              <!-- SLIDE 3 : Bal -->
+              <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
+                <div style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#F59E0B,#EA580C);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
+                  <i class="ti ti-music" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
+                  <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
+                    27 juin 2026
+                  </div>
+                  <div>
+                    <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Bal des pompiers</div>
+                    <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">21h00 · Centre-ville</div>
+                    <div style="display:flex;align-items:center;justify-content:flex-end">
+                      <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
+                        Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-        <!-- POINTS DE NAVIGATION -->
-        <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px">
-          <div id="dot-0" style="width:22px;height:6px;border-radius:3px;background:var(--accent);transition:all .3s;cursor:pointer" onclick="goSlide(0)"></div>
-          <div id="dot-1" style="width:6px;height:6px;border-radius:3px;background:#D1D1D6;transition:all .3s;cursor:pointer" onclick="goSlide(1)"></div>
-          <div id="dot-2" style="width:6px;height:6px;border-radius:3px;background:#D1D1D6;transition:all .3s;cursor:pointer" onclick="goSlide(2)"></div>
-        </div>
-      </div><!-- fin padding carousel -->
+            </div><!-- fin carousel-inner -->
+          </div><!-- fin overflow:hidden -->
+
+          <!-- POINTS DE NAVIGATION -->
+          <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;padding-bottom:4px">
+            <div id="dot-0" style="width:22px;height:6px;border-radius:3px;background:white;transition:all .3s;cursor:pointer" onclick="goSlide(0)"></div>
+            <div id="dot-1" style="width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.4);transition:all .3s;cursor:pointer" onclick="goSlide(1)"></div>
+            <div id="dot-2" style="width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.4);transition:all .3s;cursor:pointer" onclick="goSlide(2)"></div>
+          </div>
+        </div><!-- fin padding carousel -->
+
+        <!-- VAGUE SVG : transition gradient → blanc -->
+        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" style="display:block;width:100%;height:40px;position:relative;z-index:1;margin-top:-2px"><path d="M0,64 C360,120 720,0 1080,64 C1260,96 1380,80 1440,64 L1440,120 L0,120 Z" fill="white"/></svg>
+      </div><!-- fin zone gradient -->
 
       <!-- PROCHAINS ÉVÉNEMENTS : liste avec date badges -->
       <div id="amical-tab-accueil">
@@ -11438,7 +11445,7 @@ function goSlide(idx){
     const dot=document.getElementById('dot-'+i);
     if(!dot)continue;
     dot.style.width=i===carouselIdx?'22px':'6px';
-    dot.style.background=i===carouselIdx?'var(--accent)':'var(--color-border-secondary)';
+    dot.style.background=i===carouselIdx?'white':'rgba(255,255,255,0.4)';
   }
 }
 
