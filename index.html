@@ -5607,7 +5607,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 </button>
 
 <!-- MODAL LISTE DES INSCRITS (voyages & événements) -->
-<div class="mow" id="modal-inscrits-voyage">
+<div class="mow" id="modal-inscrits-voyage" style="z-index:9000">
   <div class="mbox">
     <div class="mh2"></div>
     <div class="mtt" id="modal-inscrits-titre">Inscrits</div>
@@ -6401,7 +6401,7 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
 
 
     <!-- MODAL INSCRIPTION ÉVÉNEMENT/VOYAGE — nombre de personnes, enfants, accompagnateurs -->
-    <div class="mow" id="modal-inscription-event">
+    <div class="mow" id="modal-inscription-event" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
       <div class="mbox" style="max-height:90vh;overflow-y:auto">
         <div class="mh2"></div>
         <div class="mtt" id="mie-titre">S'inscrire</div>
@@ -6445,7 +6445,7 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
     </div>
 
     <!-- MODAL BÉNÉVOLE AMICALISTE — s'inscrire comme bénévole -->
-    <div class="mow" id="modal-benevole-amical" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="mow" id="modal-benevole-amical" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
       <div class="mbox" style="max-height:90vh;overflow-y:auto">
         <div class="mh2"></div>
         <div class="mtt" id="mba-titre">Devenir bénévole</div>
@@ -6459,7 +6459,7 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
     </div>
 
     <!-- MODAL PARAMÈTRES VOYAGE — gestion par la commission -->
-    <div class="mow" id="modal-param-voyage" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="mow" id="modal-param-voyage" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
       <div class="mbox" style="max-height:90vh;overflow-y:auto">
         <div class="mh2"></div>
         <div class="mtt" id="mpv-titre">Paramètres du voyage</div>
@@ -6598,7 +6598,7 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
     </div>
 
     <!-- MODAL AJOUTER PRESTATAIRE VOYAGE -->
-    <div class="mow" id="modal-presta-voyage" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="mow" id="modal-presta-voyage" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
       <div class="mbox">
         <div class="mh2"></div>
         <div class="mtt">Ajouter un prestataire</div>
