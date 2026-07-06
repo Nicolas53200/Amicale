@@ -3015,28 +3015,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <button class="fp" onclick="document.querySelectorAll('#pg-evenements-amical .fp').forEach(b=>b.classList.remove('on'));this.classList.add('on')">Bal</button>
           <button class="fp" onclick="document.querySelectorAll('#pg-evenements-amical .fp').forEach(b=>b.classList.remove('on'));this.classList.add('on')">Sport</button>
         </div>
-        <div class="card" style="overflow:hidden;padding:0" data-ev-key="repas">
-          <div style="height:140px;background:var(--r);display:flex;flex-direction:column;justify-content:flex-end;padding:14px;position:relative"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,rgba(0,0,0,.05) 60%)"></div><i class="ti ti-tools-kitchen-2" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:50px;color:rgba(255,255,255,.15)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:16px;font-weight:700;color:white;margin-bottom:4px">Repas annuel de l'amicale</div><div style="font-size:12px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:8px"><i class="ti ti-calendar" style="font-size:13px" aria-hidden="true"></i>Sam. 14 juin 2026 · 12h00 · Salle des fêtes, Argentré</div></div></div>
-          <div style="padding:12px">
-            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--rl);color:var(--r)">Repas</span><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--grl);color:var(--grn)">Membres + familles</span><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--aml);color:var(--amb)">Bénévoles 4/6</span></div>
-            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Repas traiteur 3 services · apéritif maison · remise des distinctions. Inscription souhaitée avant le 7 juin.</div>
-            <button class="btn-r" style="margin-bottom:0" onclick="inscrireEvenement('repas',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
-          </div>
-        </div>
-        <div class="card" style="overflow:hidden;padding:0" data-ev-key="bal">
-          <div style="height:90px;background:var(--amb);display:flex;align-items:flex-end;padding:12px;position:relative"><div style="position:absolute;inset:0;background:rgba(0,0,0,.15)"></div><i class="ti ti-music" style="position:absolute;top:10px;right:12px;font-size:34px;color:rgba(255,255,255,.2)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:14px;font-weight:700;color:white">Bal des pompiers</div><div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:2px"><i class="ti ti-calendar" style="font-size:12px" aria-hidden="true"></i> Ven. 27 juin 2026 · 21h00 · Salle polyvalente</div></div></div>
-          <div style="padding:12px">
-            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Soirée dansante ouverte à tous, buvette et restauration sur place.</div>
-            <button class="btn-r" style="margin-bottom:0;background:var(--amb)" onclick="inscrireEvenement('bal',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
-          </div>
-        </div>
-        <div class="card" style="overflow:hidden;padding:0" data-ev-key="tournoi">
-          <div style="height:90px;background:var(--pur);display:flex;align-items:flex-end;padding:12px;position:relative"><div style="position:absolute;inset:0;background:rgba(0,0,0,.15)"></div><i class="ti ti-trophy" style="position:absolute;top:10px;right:12px;font-size:34px;color:rgba(255,255,255,.2)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:14px;font-weight:700;color:white">Tournoi sportif inter-centres</div><div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:2px"><i class="ti ti-calendar" style="font-size:12px" aria-hidden="true"></i> Sam. 12 juil. 2026 · 10h00 · Stade municipal</div></div></div>
-          <div style="padding:12px">
-            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Tournoi amical entre les centres de secours du département. Toutes catégories bienvenues.</div>
-            <button class="btn-r" style="margin-bottom:0;background:var(--pur)" onclick="inscrireEvenement('tournoi',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
-          </div>
-        </div>
+        <div id="evenements-cards-container"></div>
       </div>
     </div>
 
@@ -6591,6 +6570,33 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
       </div>
     </div>
 
+    <!-- MODAL FICHE ÉVÉNEMENT (détail amicaliste) -->
+    <div class="mow" id="modal-fiche-evenement" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:8500">
+      <div class="mbox" style="max-height:95vh;overflow-y:auto;padding:0;border-radius:20px">
+        <div id="mfe-header" style="height:200px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background-size:cover;background-position:center">
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,rgba(0,0,0,.08) 50%);border-radius:20px 20px 0 0"></div>
+          <button onclick="document.getElementById('modal-fiche-evenement').classList.remove('open')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.4);border:none;color:white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2"><i class="ti ti-x"></i></button>
+          <div id="mfe-badge" style="position:absolute;top:12px;left:12px;z-index:2"></div>
+          <div style="position:relative;z-index:1">
+            <div id="mfe-lieu" style="font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:4px"></div>
+            <div id="mfe-titre" style="font-size:20px;font-weight:800;color:white;line-height:1.2"></div>
+            <div id="mfe-date-header" style="font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;display:flex;align-items:center;gap:4px"></div>
+          </div>
+        </div>
+        <div style="padding:16px">
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px">
+            <div style="text-align:center;padding:10px;background:var(--color-background-secondary);border-radius:12px"><i class="ti ti-calendar" style="font-size:18px;color:var(--pur)"></i><div id="mfe-date-info" style="font-size:12px;font-weight:700;margin-top:4px"></div><div style="font-size:10px;color:var(--color-text-secondary)">Date</div></div>
+            <div style="text-align:center;padding:10px;background:var(--color-background-secondary);border-radius:12px"><i class="ti ti-clock" style="font-size:18px;color:var(--blu)"></i><div id="mfe-heure-info" style="font-size:12px;font-weight:700;margin-top:4px"></div><div style="font-size:10px;color:var(--color-text-secondary)">Heure</div></div>
+            <div style="text-align:center;padding:10px;background:var(--color-background-secondary);border-radius:12px"><i class="ti ti-map-pin" style="font-size:18px;color:var(--grn)"></i><div id="mfe-lieu-info" style="font-size:11px;font-weight:700;margin-top:4px"></div><div style="font-size:10px;color:var(--color-text-secondary)">Lieu</div></div>
+          </div>
+          <div id="mfe-desc-zone" style="margin-bottom:16px"></div>
+          <div id="mfe-benevoles-zone" style="margin-bottom:16px"></div>
+          <div id="mfe-inscrits-zone" style="margin-bottom:16px"></div>
+          <div id="mfe-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL AJOUTER PRESTATAIRE VOYAGE -->
     <div class="mow" id="modal-presta-voyage" onclick="if(event.target===this)this.classList.remove('open')">
       <div class="mbox">
@@ -9465,16 +9471,110 @@ function refuserInscription(id){
 }
 
 function ouvrirFicheEvenement(evKey){
-  goPage('pg-evenements-amical');
-  setTimeout(function(){
-    var card=document.querySelector('#pg-evenements-amical .card[data-ev-key="'+evKey+'"]');
-    if(card){
-      card.scrollIntoView({behavior:'smooth',block:'center'});
-      card.style.boxShadow='0 0 0 3px var(--r)';
-      setTimeout(function(){ card.style.boxShadow=''; },2000);
+  var ev=EVENTS_DATA[evKey];
+  if(!ev)return;
+
+  var header=document.getElementById('mfe-header');
+  if(ev.image){
+    header.style.cssText='height:220px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background-image:url('+ev.image+');background-size:cover;background-position:center';
+  } else {
+    header.style.cssText='height:220px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background:'+(ev.color||'var(--r)');
+  }
+
+  var evDate=new Date(ev.date);
+  var now=new Date();now.setHours(0,0,0,0);
+  var diff=Math.ceil((evDate-now)/86400000);
+  var badgeText=diff===0?"Aujourd'hui":diff===1?'Demain':diff>1?'Dans '+diff+' jours':evDate.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+  var badgeColor=diff<=7?'var(--r)':diff<=30?'var(--amb)':'var(--grn)';
+  document.getElementById('mfe-badge').innerHTML='<span style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.22);backdrop-filter:blur(8px);color:white">'+badgeText+'</span>';
+
+  document.getElementById('mfe-lieu').innerHTML='<i class="ti ti-map-pin" style="font-size:11px"></i> '+ev.lieu;
+  document.getElementById('mfe-titre').textContent=ev.titre;
+  var dateFormatted=evDate.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('mfe-date-header').innerHTML='<i class="ti ti-calendar" style="font-size:12px"></i> '+dateFormatted+(ev.heure?' · '+ev.heure:'');
+
+  document.getElementById('mfe-date-info').textContent=evDate.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  document.getElementById('mfe-heure-info').textContent=ev.heure||'—';
+  document.getElementById('mfe-lieu-info').textContent=ev.lieu;
+
+  var descHtml='';
+  if(ev.desc){descHtml='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:6px"><i class="ti ti-info-circle" style="font-size:13px"></i> Description</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">'+ev.desc+'</div>';}
+  document.getElementById('mfe-desc-zone').innerHTML=descHtml;
+
+  var benHtml='';
+  if(typeof BENEVOLES_DATA!=='undefined'&&BENEVOLES_DATA[evKey]){
+    var ben=BENEVOLES_DATA[evKey];
+    benHtml='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:8px"><i class="ti ti-heart-handshake" style="font-size:13px"></i> Bénévoles ('+ben.liste.length+'/'+ben.max+')</div>';
+    if(ben.liste.length){
+      benHtml+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+      ben.liste.forEach(function(b){
+        benHtml+='<div style="display:flex;align-items:center;gap:6px;background:var(--color-background-secondary);border-radius:10px;padding:6px 10px">'
+          +'<div style="width:26px;height:26px;border-radius:50%;background:var(--amb);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0">'+b.nom.split(' ').map(function(w){return w[0];}).join('')+'</div>'
+          +'<div><div style="font-size:11px;font-weight:600">'+b.nom+'</div><div style="font-size:9px;color:var(--color-text-secondary)">'+b.poste+'</div></div></div>';
+      });
+      benHtml+='</div>';
     }
-  },150);
+    if(ben.liste.length<ben.max){
+      benHtml+='<div style="margin-top:8px;text-align:center;padding:8px;font-size:11px;color:var(--amb);background:var(--aml);border-radius:8px;font-weight:600">'+(ben.max-ben.liste.length)+' poste(s) encore disponible(s)</div>';
+    }
+  }
+  document.getElementById('mfe-benevoles-zone').innerHTML=benHtml;
+
+  var inscrits=INSCRIPTIONS_EVENEMENTS.filter(function(i){return i.evenement===evKey&&i.statut!=='refusee';});
+  var insHtml='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:8px"><i class="ti ti-users" style="font-size:13px"></i> Inscrits ('+inscrits.length+')</div>';
+  if(!inscrits.length){
+    insHtml+='<div style="text-align:center;padding:14px;font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:12px">Aucun inscrit pour le moment</div>';
+  } else {
+    insHtml+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+    inscrits.forEach(function(i){
+      var col=i.statut==='acceptee'?'var(--grn)':'var(--amb)';
+      insHtml+='<div style="display:flex;align-items:center;gap:6px;background:var(--color-background-secondary);border-radius:10px;padding:6px 10px">'
+        +'<div style="width:26px;height:26px;border-radius:50%;background:var(--pur);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0">'+i.demandeur.split(' ').map(function(w){return w[0];}).join('')+'</div>'
+        +'<div><div style="font-size:11px;font-weight:600">'+i.demandeur+'</div><div style="font-size:9px;color:'+col+'">'+(i.statut==='acceptee'?'Confirmé':'En attente')+'</div></div></div>';
+    });
+    insHtml+='</div>';
+  }
+  document.getElementById('mfe-inscrits-zone').innerHTML=insHtml;
+
+  var actHtml='<button style="padding:12px;border-radius:12px;background:'+(ev.color||'var(--r)')+';color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-evenement\').classList.remove(\'open\');inscrireEvenement(\''+evKey+'\')"><i class="ti ti-send"></i>S\'inscrire</button>';
+  actHtml+='<button style="padding:12px;border-radius:12px;background:var(--color-background-secondary);color:var(--color-text-primary);border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-evenement\').classList.remove(\'open\')"><i class="ti ti-x"></i>Fermer</button>';
+  document.getElementById('mfe-actions').innerHTML=actHtml;
+
+  document.getElementById('modal-fiche-evenement').classList.add('open');
 }
+
+function renderEvenementsCards(){
+  var container=document.getElementById('evenements-cards-container');
+  if(!container)return;
+  var evData=window.EVENTS_DATA||{};
+  var keys=Object.keys(evData);
+  keys.sort(function(a,b){return (evData[a].date||'')>(evData[b].date||'')?1:-1;});
+
+  var html='';
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i],ev=evData[k];
+    var evDate=new Date(ev.date);
+    var dateStr=evDate.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+    var bgStyle=ev.image?"background-image:linear-gradient(to top,rgba(0,0,0,.6) 0%,rgba(0,0,0,.05) 60%),url('"+ev.image+"');background-size:cover;background-position:center":"background:"+(ev.color||'var(--r)');
+
+    html+='<div class="card" style="overflow:hidden;padding:0;cursor:pointer" data-ev-key="'+k+'" onclick="ouvrirFicheEvenement(\''+k+'\')">';
+    html+='<div style="height:120px;display:flex;align-items:flex-end;padding:14px;position:relative;'+bgStyle+'">';
+    html+='<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,rgba(0,0,0,.05) 60%)"></div>';
+    if(!ev.image)html+='<i class="ti '+(ev.icon||'ti-confetti')+'" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:50px;color:rgba(255,255,255,.15)" aria-hidden="true"></i>';
+    html+='<div style="position:relative;z-index:1">';
+    html+='<div style="font-size:16px;font-weight:700;color:white;margin-bottom:4px">'+ev.titre+'</div>';
+    html+='<div style="font-size:12px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:8px"><i class="ti ti-calendar" style="font-size:13px" aria-hidden="true"></i>'+dateStr+(ev.heure?' · '+ev.heure:'')+(ev.lieu?' · '+ev.lieu:'')+'</div>';
+    html+='</div></div>';
+    html+='<div style="padding:12px">';
+    if(ev.desc)html+='<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">'+ev.desc+'</div>';
+    if(!ev.publie)html+='<span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--color-background-secondary);color:var(--color-text-secondary);margin-bottom:8px;display:inline-block">Brouillon</span>';
+    html+='<button class="btn-r" style="margin-bottom:0;background:'+(ev.color||'var(--r)')+'" onclick="event.stopPropagation();inscrireEvenement(\''+k+'\',this)"><i class="ti ti-check" aria-hidden="true"></i>S\'inscrire</button>';
+    html+='</div></div>';
+  }
+  container.innerHTML=html;
+  if(typeof _initEtatBoutonsInscriptionEv==='function')_initEtatBoutonsInscriptionEv();
+}
+window.renderEvenementsCards=renderEvenementsCards;
 
 // ═══════════════════════════════════════════
 // INSCRIPTIONS ÉVÉNEMENTS — amicaliste → commission Événements
@@ -16017,9 +16117,9 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
   const oldGoPage=window.goPage;
   window.goPage=function(id){
     if(oldGoPage) oldGoPage(id);
-    setTimeout(()=>{ if(id==='pg-voyages-amical') renderVoyagesAmicalisteV58(); if(id==='pg-evenements-amical') renderEvenementsAmicalisteV58(); patchButtonsV58(); },60);
+    setTimeout(()=>{ if(id==='pg-voyages-amical') renderVoyagesAmicalisteV58(); if(id==='pg-evenements-amical'){ if(typeof renderEvenementsCards==='function') renderEvenementsCards(); renderEvenementsAmicalisteV58(); } patchButtonsV58(); },60);
   };
-  ready(function(){ enrichVoyagesData(); patchButtonsV58(); renderVoyagesAmicalisteV58(); renderEvenementsAmicalisteV58(); });
+  ready(function(){ enrichVoyagesData(); patchButtonsV58(); renderVoyagesAmicalisteV58(); if(typeof renderEvenementsCards==='function') renderEvenementsCards(); renderEvenementsAmicalisteV58(); });
 })();
 
 /* ── id="v60-rc2-js" ── */
@@ -16090,7 +16190,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     safe(function(){ if(id==='pg-amical-noel'&&typeof initPageAmicalNoel==='function') setTimeout(initPageAmicalNoel,50); });
     safe(function(){ if(id==='pg-amical-fdf'&&typeof initPageAmicalFDF==='function') setTimeout(initPageAmicalFDF,50); });
     safe(function(){ if(id==='pg-voyages-amical'&&typeof renderVoyagesAmicalisteV58==='function') setTimeout(renderVoyagesAmicalisteV58,50); });
-    safe(function(){ if(id==='pg-evenements-amical'&&typeof renderEvenementsAmicalisteV58==='function') setTimeout(renderEvenementsAmicalisteV58,50); });
+    safe(function(){ if(id==='pg-evenements-amical'){ if(typeof renderEvenementsCards==='function') setTimeout(renderEvenementsCards,40); if(typeof renderEvenementsAmicalisteV58==='function') setTimeout(renderEvenementsAmicalisteV58,50); } });
     safe(function(){ if(id==='pg-home-amical'&&typeof renderCarouselDynamique==='function') setTimeout(renderCarouselDynamique,50); });
     if(window.isPCMode){ window.scrollTo({top:0,behavior:'auto'}); } else { pg.scrollTop=0; window.scrollTo(0,0); }
     setTimeout(bindCommissionCards,30);
