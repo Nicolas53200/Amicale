@@ -1064,7 +1064,7 @@ body.pc-mode .bureau-tabbar{display:none!important}
 .doc-btn i{font-size:13px;color:var(--color-text-secondary)}
 
 /* MODAL */
-.mow{min-height:400px;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;position:fixed;inset:0;z-index:200}
+.mow{min-height:400px;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;position:fixed;inset:0;z-index:6000}
 .mow.open{display:flex}
 .mbox{background:var(--color-background-primary);border-radius:24px 24px 0 0;padding:20px 18px 34px;width:100%;max-width:390px;margin:0 auto;max-height:85dvh;overflow-y:auto;box-shadow:var(--shadow-lg)}
 .mh2{width:36px;height:5px;background:var(--color-border-secondary);border-radius:3px;margin:0 auto 16px}
@@ -1088,7 +1088,7 @@ body.pc-mode .bureau-tabbar{display:none!important}
 .toggle.off .tgl-dot{right:auto;left:3px}
 
 /* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--grn);color:white;font-size:13px;font-weight:500;padding:10px 18px;border-radius:20px;display:none;align-items:center;gap:6px;z-index:300;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--grn);color:white;font-size:13px;font-weight:500;padding:10px 18px;border-radius:20px;display:none;align-items:center;gap:6px;z-index:9800;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25)}
 .toast.show{display:flex}
 .toast i{font-size:16px}
 
@@ -5622,7 +5622,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 <input type="file" id="compta-doc-input" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="ajouterDocCompta(this)">
 
 <!-- TOUR GUIDÉ — première connexion -->
-<div id="tour-overlay" style="display:none;position:fixed;inset:0;z-index:9000">
+<div id="tour-overlay" style="display:none;position:fixed;inset:0;z-index:9100">
   <!-- Voile sombre avec trou (spotlight) créé dynamiquement -->
   <div id="tour-mask" style="position:absolute;inset:0;background:rgba(0,0,0,0.55);transition:all .3s"></div>
   <!-- Encart d'explication -->
@@ -8257,16 +8257,17 @@ const MEMBRES_DATA=[
   {p:'Marie',n:'Garnier',naiss:'30/04/1990',adh:'2018-09-01',grade:'Sapeur',type:'SPV',st:'actif',genre:'F',
    adresse:'',tel:'',email:'',situation:'celibataire',conjoint:'',enfants:1,enfantsNaiss:['2022-08-08'],enfantsNoms:['Léa'],contactUrgence:'',avatar:'\uD83D\uDC69',codeInvitation:'INV-MARIE-5566',invitationStatut:'non_invite'},
   {p:'Michel',n:'Durand',naiss:'12/01/1965',adh:'2005-01-01',grade:'Lieutenant',type:'SPP',st:'actif',genre:'H',
-   adresse:'',tel:'',email:'',situation:'',conjoint:'',enfants:0,contactUrgence:'',avatar:'\uD83D\uDC68'},
+   adresse:'',tel:'',email:'',situation:'',conjoint:'',enfants:0,enfantsNaiss:[],enfantsNoms:[],contactUrgence:'',avatar:'\uD83D\uDC68',codeInvitation:'INV-MICHEL-3301',invitationStatut:'non_invite'},
   {p:'Robert',n:'Chevalier',naiss:'14/06/1958',adh:'1998-01-01',grade:'Adj.-chef',type:'SPP',st:'retraite',genre:'H',
-   adresse:'',tel:'',email:'',situation:'',conjoint:'',enfants:0,contactUrgence:'',avatar:'\uD83D\uDC68'},
+   adresse:'',tel:'',email:'',situation:'',conjoint:'',enfants:0,enfantsNaiss:[],enfantsNoms:[],contactUrgence:'',avatar:'\uD83D\uDC68',codeInvitation:'INV-ROBERT-3302',invitationStatut:'non_invite'},
   {p:'Isabelle',n:'Blanc',naiss:'03/09/1972',adh:'2002-04-10',grade:'Lieutenant',type:'SPV',st:'retraite',genre:'F',
-   adresse:'',tel:'',email:'',situation:'',conjoint:'',enfants:0,contactUrgence:'',avatar:'\uD83D\uDC69'},
+   adresse:'',tel:'',email:'',situation:'',conjoint:'',enfants:0,enfantsNaiss:[],enfantsNoms:[],contactUrgence:'',avatar:'\uD83D\uDC69',codeInvitation:'INV-ISABELLE-3303',invitationStatut:'non_invite'},
   {p:'Claude',n:'Bernard',naiss:'27/02/1950',adh:'1985-01-01',grade:'Capitaine',type:'SPP',st:'retraite',genre:'H',
-   adresse:'',tel:'',email:'',situation:'',conjoint:'',enfants:0,contactUrgence:'',avatar:'\uD83D\uDC68'},
+   adresse:'',tel:'',email:'',situation:'',conjoint:'',enfants:0,enfantsNaiss:[],enfantsNoms:[],contactUrgence:'',avatar:'\uD83D\uDC68',codeInvitation:'INV-CLAUDE-3304',invitationStatut:'non_invite'},
   {p:'Fran\u00E7ois',n:'Moreau',naiss:'18/09/1975',adh:'2008-03-01',grade:'Capitaine',type:'SPV',st:'actif',genre:'H',
    adresse:'8 avenue de la R\u00E9publique, 53000 Laval',tel:'06 45 67 89 01',email:'francois.moreau@email.fr',situation:'marie_f',conjoint:'Anne Moreau',enfants:1,enfantsNaiss:['2010-06-15'],enfantsNoms:['Th\u00E9o'],contactUrgence:'Anne Moreau \u2014 06 54 32 10 98',avatar:'\uD83D\uDC68',codeInvitation:'INV-FRANCOIS-7788',invitationStatut:'inscrit'},
 ];
+window.MEMBRES_DATA=MEMBRES_DATA;
 const MB_COLORS=['#c0392b','#1a3a7c','#1a6b3a','#9b6b00','#534AB7','#0F6E56','#7d3c98','#145a32'];
 const anYrs=adh=>Math.max(0,Math.floor((Date.now()-new Date(adh))/(1000*60*60*24*365.25)));
 const stLbl=s=>s==='retraite'?'Retraité':'Actif';
@@ -11884,7 +11885,7 @@ const BACK_MAP={
   'pg-solidarite-amical':'pg-home-amical',
   'pg-journal-bureau':'pg-home-bureau',
   'pg-journal-amicale':'pg-home-amical',
-  'pg-retour-images':'pg-home-bureau',
+  'pg-retour-images':'pg-home-amical',
   'pg-biblio-modeles':'pg-home-bureau',
   'pg-commission-dynamique-bureau':'pg-home-bureau',
 };
@@ -16213,7 +16214,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     {id:'loc',nom:'Locations',label:'Locations',ico:'ti-building',pageAmical:'pg-locations-amical',pageBureau:'pg-comm-locations',sub:'Demandes et disponibilités'},
     {id:'ev',nom:'Événements',label:'Événements',ico:'ti-confetti',pageAmical:'pg-evenements-amical',pageBureau:'pg-comm-evenements',sub:'Agenda et inscriptions'},
     {id:'voy',nom:'Voyages',label:'Voyages',ico:'ti-plane',pageAmical:'pg-voyages-amical',pageBureau:'pg-comm-voyages',sub:'Voyages proposés'},
-    {id:'sport',nom:'Sportive',label:'Sportive',ico:'ti-trophy',pageAmical:'pg-comm-sport',pageBureau:'pg-comm-sport',sub:'Activités sportives'},
+    {id:'sport',nom:'Sportive',label:'Sportive',ico:'ti-trophy',pageAmical:'pg-evenements-amical',pageBureau:'pg-comm-sport',sub:'Activités sportives'},
     {id:'noel',nom:'Arbre de Noël',label:'Arbre de Noël',ico:'ti-christmas-tree',pageAmical:'pg-amical-noel',pageBureau:'pg-comm-noel',sub:'Familles et enfants'},
     {id:'fdf',nom:'Fête des Femmes',label:'Fête des Femmes',ico:'ti-heart',pageAmical:'pg-amical-fdf',pageBureau:'pg-comm-fdf',sub:'Bons cadeaux'},
     {id:'saintebarbe',nom:'Sainte-Barbe',label:'Sainte-Barbe',ico:'ti-flame',pageAmical:'pg-saintebarbe-amical',pageBureau:'pg-comm-saintebarbe',sub:'Repas annuel'},
@@ -16268,6 +16269,8 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     safe(function(){ if(id==='pg-voyages-amical'&&typeof renderVoyagesAmicalisteV58==='function') setTimeout(renderVoyagesAmicalisteV58,50); });
     safe(function(){ if(id==='pg-evenements-amical'){ if(typeof renderEvenementsCards==='function') setTimeout(renderEvenementsCards,40); if(typeof renderEvenementsAmicalisteV58==='function') setTimeout(renderEvenementsAmicalisteV58,50); } });
     safe(function(){ if(id==='pg-home-amical'&&typeof renderCarouselDynamique==='function') setTimeout(renderCarouselDynamique,50); });
+    safe(function(){ if(id==='pg-locations-amical'&&typeof renderBiensAmical==='function') setTimeout(renderBiensAmical,40); });
+    safe(function(){ if(id==='pg-comm-locations'&&typeof renderBiensBureau==='function') setTimeout(renderBiensBureau,40); });
     if(window.isPCMode){ window.scrollTo({top:0,behavior:'auto'}); } else { pg.scrollTop=0; window.scrollTo(0,0); }
     setTimeout(bindCommissionCards,30);
     return true;
@@ -17663,7 +17666,7 @@ function ouvrirFicheVoyage(voyKey){
       if(!html)html=actionLine('ti-info-circle','Informations','Cette commission est visible pour les amicalistes.');
       actions.innerHTML=html;
     }
-    if(typeof window.goPage==='function')window.openCommissionSafeV73 ? openCommissionSafeV73(_currentDynCommId,'amical') : goPage('pg-home-amical');
+    if(typeof window.goPage==='function')goPage('pg-commission-dynamique-amical');
   };
 
   document.addEventListener('click',function(e){
