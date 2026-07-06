@@ -8745,7 +8745,7 @@ const BIENS_AMICAL={
       {ico:'ti-cash',lbl:'Acompte',val:'30% à la réservation'},
       {ico:'ti-shield',lbl:'Caution',val:'300 €'},
     ],
-    photos:[],
+    photos:[],couverture:null,
     docs:{inventaire:null,etatLieux:null,reglement:null}
   },
   barnum:{
@@ -8759,7 +8759,7 @@ const BIENS_AMICAL={
       {ico:'ti-shield',lbl:'Caution',val:'200 €'},
       {ico:'ti-tools',lbl:'Montage',val:'Inclus par la commission'},
     ],
-    photos:[],
+    photos:[],couverture:null,
     docs:{inventaire:null,etatLieux:null,reglement:null}
   },
   remor:{
@@ -8773,7 +8773,7 @@ const BIENS_AMICAL={
       {ico:'ti-shield',lbl:'Caution',val:'150 €'},
       {ico:'ti-license',lbl:'Permis requis',val:'Permis B'},
     ],
-    photos:[],
+    photos:[],couverture:null,
     docs:{inventaire:null,etatLieux:null,reglement:null}
   },
   camping:{
@@ -8787,7 +8787,7 @@ const BIENS_AMICAL={
       {ico:'ti-pool',lbl:'Équipements',val:'Piscine, sanitaires'},
       {ico:'ti-calendar',lbl:'Saison',val:'Avril → Octobre'},
     ],
-    photos:[],
+    photos:[],couverture:null,
     docs:{inventaire:null,etatLieux:null,reglement:null}
   },
 };
@@ -8943,9 +8943,18 @@ function ouvrirFicheBien(key){
 
   // Header
   document.getElementById('fb-titre').textContent=bien.nom;
-  document.getElementById('fb-photo').style.background=bien.bg;
-  document.getElementById('fb-photo-ico').className='ti '+bien.icon;
-  document.getElementById('fb-photo-ico').style.color=bien.color;
+  const fbPhotoEl=document.getElementById('fb-photo');
+  const fbIcoEl=document.getElementById('fb-photo-ico');
+  const covIdx=bien.couverture!=null&&bien.couverture<bien.photos.length?bien.couverture:0;
+  if(bien.photos.length>0){
+    fbPhotoEl.style.background='url('+bien.photos[covIdx]+') center/cover no-repeat';
+    fbIcoEl.style.display='none';
+  } else {
+    fbPhotoEl.style.background=bien.bg;
+    fbIcoEl.style.display='';
+    fbIcoEl.className='ti '+bien.icon;
+    fbIcoEl.style.color=bien.color;
+  }
   const dispoEl=document.getElementById('fb-dispo');
   dispoEl.textContent=bien.dispo;
   dispoEl.className='lt-dispo '+bien.dispoClass;
@@ -8991,11 +9000,15 @@ function renderFicheGalerie(containerId,photos){
     el.innerHTML=`<img src="${photos[0]}" style="width:100%;height:180px;object-fit:cover;border-radius:var(--border-radius-lg);cursor:pointer" onclick="if('${photos[0]}')window.open('${photos[0]}','_blank')">`;
     return;
   }
+  const arrowStyle='position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.45);border:none;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;backdrop-filter:blur(4px)';
   el.innerHTML=`
-    <div style="overflow:hidden;border-radius:var(--border-radius-lg)">
+    <div style="position:relative;border-radius:var(--border-radius-lg);overflow:hidden">
       <div id="${containerId}-track" style="display:flex;transition:transform .35s ease">
         ${photos.map(src=>`<img src="${src}" style="width:100%;height:180px;object-fit:cover;flex:0 0 100%;cursor:pointer" onclick="if('${src}'&&'${src}'!=='undefined')window.open('${src}','_blank')">`).join('')}
       </div>
+      <button onclick="goFicheGalerieSlide('${containerId}',fbGalerieIdx-1,${photos.length})" style="${arrowStyle};left:6px"><i class="ti ti-chevron-left" style="font-size:16px"></i></button>
+      <button onclick="goFicheGalerieSlide('${containerId}',fbGalerieIdx+1,${photos.length})" style="${arrowStyle};right:6px"><i class="ti ti-chevron-right" style="font-size:16px"></i></button>
+      <div style="position:absolute;bottom:8px;right:10px;background:rgba(0,0,0,0.5);color:white;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600" id="${containerId}-counter">1 / ${photos.length}</div>
     </div>
     <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px">
       ${photos.map((_,i)=>`<div id="${containerId}-dot-${i}" style="width:${i===0?20:7}px;height:5px;border-radius:3px;background:${i===0?'var(--blu)':'var(--color-border-secondary)'};transition:all .3s;cursor:pointer" onclick="goFicheGalerieSlide('${containerId}',${i},${photos.length})"></div>`).join('')}
@@ -9013,6 +9026,8 @@ function goFicheGalerieSlide(containerId,idx,total){
     dot.style.width=i===fbGalerieIdx?'20px':'7px';
     dot.style.background=i===fbGalerieIdx?'var(--blu)':'var(--color-border-secondary)';
   }
+  const counter=document.getElementById(containerId+'-counter');
+  if(counter)counter.textContent=(fbGalerieIdx+1)+' / '+total;
 }
 
 function initFicheGalerieSwipe(containerId,total){
@@ -9982,9 +9997,18 @@ function ouvrirFicheBienBureau(key){
   ficheBureauYear=2026;ficheBureauMonth=6;
 
   document.getElementById('fbb-titre').textContent=bien.nom;
-  document.getElementById('fbb-photo').style.background=bien.bg;
-  document.getElementById('fbb-photo-ico').className='ti '+bien.icon;
-  document.getElementById('fbb-photo-ico').style.color=bien.color;
+  const fbbPhEl=document.getElementById('fbb-photo');
+  const fbbIcEl=document.getElementById('fbb-photo-ico');
+  const fbbCov=bien.couverture!=null&&bien.couverture<bien.photos.length?bien.couverture:0;
+  if(bien.photos.length>0){
+    fbbPhEl.style.background='url('+bien.photos[fbbCov]+') center/cover no-repeat';
+    fbbIcEl.style.display='none';
+  } else {
+    fbbPhEl.style.background=bien.bg;
+    fbbIcEl.style.display='';
+    fbbIcEl.className='ti '+bien.icon;
+    fbbIcEl.style.color=bien.color;
+  }
 
   const dispoEl=document.getElementById('fbb-dispo');
   dispoEl.textContent=bien.dispo;
@@ -10013,13 +10037,18 @@ function renderGalerieBureau(){
   const el=document.getElementById('fbb-galerie');
   const zone=document.getElementById('fbb-photo-upload-zone');
   if(!bien||!el)return;
-  el.innerHTML=bien.photos.map((src,i)=>`
-    <div style="position:relative;flex-shrink:0">
-      <img src="${src}" style="width:90px;height:70px;object-fit:cover;border-radius:var(--border-radius-md)">
+  const covIdx=bien.couverture!=null&&bien.couverture<bien.photos.length?bien.couverture:0;
+  el.innerHTML=bien.photos.map((src,i)=>{
+    const isCov=i===covIdx;
+    return `<div style="position:relative;flex-shrink:0">
+      <img src="${src}" style="width:90px;height:70px;object-fit:cover;border-radius:var(--border-radius-md);border:${isCov?'2px solid var(--blu)':'none'}">
+      ${isCov?'<div style="position:absolute;bottom:3px;left:3px;background:var(--blu);color:white;font-size:8px;padding:1px 5px;border-radius:8px;font-weight:600">Couverture</div>':''}
+      <button onclick="setCouvertureBien(${i})" title="Définir comme couverture" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:${isCov?'var(--blu)':'rgba(0,0,0,0.55)'};border:none;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-star${isCov?'-filled':''}" style="font-size:11px" aria-hidden="true"></i></button>
       <button onclick="supprimerPhotoBien(${i})" style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.55);border:none;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-x" style="font-size:11px" aria-hidden="true"></i></button>
-    </div>`).join('');
-  // Masquer la zone d'upload si 5 photos atteintes
+    </div>`;
+  }).join('');
   if(zone)zone.style.display=bien.photos.length>=5?'none':'flex';
+  updateFbbCouverture();
 }
 
 function ajouterPhotoBien(input){
@@ -10038,9 +10067,37 @@ function ajouterPhotoBien(input){
 function supprimerPhotoBien(idx){
   const bien=BIENS_AMICAL[ficheBureauBien];
   if(!bien)return;
+  const cov=bien.couverture!=null?bien.couverture:0;
   bien.photos.splice(idx,1);
+  if(bien.photos.length===0)bien.couverture=null;
+  else if(idx<cov)bien.couverture=cov-1;
+  else if(idx===cov)bien.couverture=0;
   renderGalerieBureau();
   showToast('Photo supprimée');
+}
+
+function setCouvertureBien(idx){
+  const bien=BIENS_AMICAL[ficheBureauBien];
+  if(!bien||idx>=bien.photos.length)return;
+  bien.couverture=idx;
+  renderGalerieBureau();
+  showToast('Photo de couverture définie');
+}
+
+function updateFbbCouverture(){
+  const bien=BIENS_AMICAL[ficheBureauBien];
+  if(!bien)return;
+  const photoEl=document.getElementById('fbb-photo');
+  const icoEl=document.getElementById('fbb-photo-ico');
+  if(!photoEl)return;
+  const covIdx=bien.couverture!=null&&bien.couverture<bien.photos.length?bien.couverture:0;
+  if(bien.photos.length>0){
+    photoEl.style.background='url('+bien.photos[covIdx]+') center/cover no-repeat';
+    if(icoEl)icoEl.style.display='none';
+  } else {
+    photoEl.style.background=bien.bg;
+    if(icoEl){icoEl.style.display='';icoEl.style.opacity='.3';}
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -10124,8 +10181,10 @@ function renderBiensBureau(){
     const tarifInfo=b.infos.find(i=>i.lbl==='Tarif');
     const cautionInfo=b.infos.find(i=>i.lbl==='Caution');
     const sousTitre=cautionInfo?`${tarifInfo?tarifInfo.val:''} · Caution ${cautionInfo.val}`:(tarifInfo?tarifInfo.val:'');
+    const ci=b.couverture!=null&&b.couverture<b.photos.length?b.couverture:0;
+    const hasCov=b.photos.length>0;
     html+=`<div class="loc-thumb" onclick="ouvrirFicheBienBureau('${key}')">
-      <div class="lt-photo" style="background:${b.bg}"><i class="ti ${b.icon}" style="color:${b.color}" aria-hidden="true"></i><span class="lt-dispo ${b.dispoClass}">${b.dispo}</span></div>
+      <div class="lt-photo" style="background:${hasCov?'url('+b.photos[ci]+') center/cover no-repeat':b.bg}">${hasCov?'':'<i class="ti '+b.icon+'" style="color:'+b.color+'" aria-hidden="true"></i>'}<span class="lt-dispo ${b.dispoClass}">${b.dispo}</span></div>
       <div class="lt-body"><div class="lt-name">${b.nom}</div><div class="lt-tarif">${sousTitre}</div></div>
     </div>`;
   }
@@ -10142,8 +10201,10 @@ function renderBiensAmical(){
   for(const key in BIENS_AMICAL){
     const b=BIENS_AMICAL[key];
     const tarifInfo=b.infos.find(i=>i.lbl==='Tarif');
+    const ci=b.couverture!=null&&b.couverture<b.photos.length?b.couverture:0;
+    const hasCov=b.photos.length>0;
     html+=`<div class="loc-thumb" onclick="ouvrirFicheBien('${key}')">
-      <div class="lt-photo" style="background:${b.bg}"><i class="ti ${b.icon}" style="color:${b.color}" aria-hidden="true"></i><span class="lt-dispo ${b.dispoClass}">${b.dispo}</span></div>
+      <div class="lt-photo" style="background:${hasCov?'url('+b.photos[ci]+') center/cover no-repeat':b.bg}">${hasCov?'':'<i class="ti '+b.icon+'" style="color:'+b.color+'" aria-hidden="true"></i>'}<span class="lt-dispo ${b.dispoClass}">${b.dispo}</span></div>
       <div class="lt-body"><div class="lt-name">${b.nom}</div><div class="lt-tarif">${tarifInfo?tarifInfo.val:''}</div></div>
     </div>`;
   }
@@ -10412,7 +10473,7 @@ function confirmerAjoutBien(){
     desc:desc||'Description à compléter par la commission.',
     tags:[],
     infos:infos,
-    photos:[],
+    photos:[],couverture:null,
     docs:{inventaire:null,etatLieux:null,reglement:null}
   };
   RESA[finalKey]=[];
