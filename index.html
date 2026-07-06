@@ -2399,7 +2399,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 
               <!-- SLIDE 2 : Repas annuel -->
               <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-                <div style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#FF8A4C,#E8553A);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
+                <div id="carousel-slide2-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#FF8A4C,#E8553A);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
                   <i class="ti ti-tools-kitchen-2" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
                   <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
                     Dans 8 jours
@@ -2418,7 +2418,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 
               <!-- SLIDE 3 : Bal -->
               <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-evenements-amical')">
-                <div style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#F59E0B,#EA580C);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
+                <div id="carousel-slide3-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#F59E0B,#EA580C);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
                   <i class="ti ti-music" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
                   <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
                     27 juin 2026
@@ -7299,38 +7299,74 @@ function publierCreer(){
     showToast('Événement "'+titre+'" publié dans le carousel !');
     // Synchroniser avec le carousel bureau (aperçu)
     syncCarouselAmical('creer',titre,lieu);
-    // Synchroniser avec le VRAI carousel amicaliste (slide 1) + persister
-    appliquerAfficheCarouselAmicaliste(titre,lieu,currentAfficheURL['creer']);
+    // Synchroniser avec le carousel amicaliste — slide 2 par défaut pour nouveau événement
+    appliquerImageCarousel(2,titre,lieu,currentAfficheURL['creer']);
   }
   goPage('pg-comm-evenements');
 }
 
-// Applique l'affiche uploadée sur la slide 1 du carousel amicaliste réel et persiste en localStorage
-function appliquerAfficheCarouselAmicaliste(titre,lieu,afficheUrl){
-  const bg=document.getElementById('carousel-slide1-bg');
-  if(bg&&afficheUrl){
-    bg.style.backgroundImage="linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+afficheUrl+"')";
+// Applique une image/affiche sur une slide du carousel amicaliste et persiste en localStorage
+function appliquerImageCarousel(slideNum,titre,lieu,imageUrl){
+  var bg=document.getElementById('carousel-slide'+slideNum+'-bg');
+  if(bg&&imageUrl){
+    bg.style.backgroundImage="linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+imageUrl+"')";
     bg.style.backgroundSize='cover';
     bg.style.backgroundPosition='center';
   }
-  // Mettre à jour le titre/lieu affichés sur la slide si présents
   try{
-    localStorage.setItem('aml_carousel_slide1', JSON.stringify({titre:titre,lieu:lieu,affiche:afficheUrl||null}));
+    var all=JSON.parse(localStorage.getItem('aml_carousel_slides')||'{}');
+    all['slide'+slideNum]={titre:titre,lieu:lieu,image:imageUrl||null};
+    localStorage.setItem('aml_carousel_slides',JSON.stringify(all));
   }catch(e){}
 }
 
-// Restaure l'affiche du carousel amicaliste au chargement (persistance)
+// Rétro-compatibilité : ancienne fonction pour la slide 1
+function appliquerAfficheCarouselAmicaliste(titre,lieu,afficheUrl){
+  appliquerImageCarousel(1,titre,lieu,afficheUrl);
+}
+
+// Restaure les images de toutes les slides du carousel au chargement
 function restaurerCarouselAmicaliste(){
   try{
-    const saved=localStorage.getItem('aml_carousel_slide1');
-    if(!saved)return;
-    const data=JSON.parse(saved);
-    if(data&&data.affiche){
-      const bg=document.getElementById('carousel-slide1-bg');
-      if(bg){
-        bg.style.backgroundImage="linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+data.affiche+"')";
-        bg.style.backgroundSize='cover';
-        bg.style.backgroundPosition='center';
+    // Migration ancienne clé slide1 vers nouveau format
+    var old=localStorage.getItem('aml_carousel_slide1');
+    if(old){
+      var d=JSON.parse(old);
+      if(d&&d.affiche){
+        var all=JSON.parse(localStorage.getItem('aml_carousel_slides')||'{}');
+        if(!all.slide1)all.slide1={titre:d.titre,lieu:d.lieu,image:d.affiche};
+        localStorage.setItem('aml_carousel_slides',JSON.stringify(all));
+      }
+      localStorage.removeItem('aml_carousel_slide1');
+    }
+    var saved=JSON.parse(localStorage.getItem('aml_carousel_slides')||'{}');
+    for(var key in saved){
+      var num=key.replace('slide','');
+      var data=saved[key];
+      if(data&&data.image){
+        var bg=document.getElementById('carousel-slide'+num+'-bg');
+        if(bg){
+          bg.style.backgroundImage="linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+data.image+"')";
+          bg.style.backgroundSize='cover';
+          bg.style.backgroundPosition='center';
+        }
+      }
+    }
+  }catch(e){}
+  // Appliquer aussi les images voyages depuis VOYAGES_DATA
+  try{
+    if(window.VOYAGES_DATA){
+      var voySlides={saintmalo:1,strasbourg:1,colo_ete:1};
+      for(var vk in VOYAGES_DATA){
+        if(VOYAGES_DATA[vk].image&&VOYAGES_DATA[vk].carouselSlide){
+          var s=VOYAGES_DATA[vk].carouselSlide;
+          var bg2=document.getElementById('carousel-slide'+s+'-bg');
+          if(bg2){
+            bg2.style.backgroundImage="linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+VOYAGES_DATA[vk].image+"')";
+            bg2.style.backgroundSize='cover';
+            bg2.style.backgroundPosition='center';
+          }
+        }
       }
     }
   }catch(e){}
@@ -7459,8 +7495,12 @@ function sauvegarderModif(){
   if(bccIco)bccIco.className='ti '+currentEvIcon2.mod;
   if(bccBgImg&&currentAfficheURL.mod)bccBgImg.style.backgroundImage=`url('${currentAfficheURL.mod}')`;
 
-  // Synchroniser carousel amicaliste (même index de slide)
+  // Synchroniser carousel amicaliste — repas=slide2, bal=slide3
+  var carSlide=id==='repas'?2:id==='bal'?3:2;
   syncCarouselAmicalIndex(slideIdx,titre,lieu);
+  if(currentAfficheURL.mod){
+    appliquerImageCarousel(carSlide,titre,lieu,currentAfficheURL.mod);
+  }
 
   showToast('Modifications enregistrées et carousel mis à jour');
   goPage('pg-comm-evenements');
@@ -8780,7 +8820,7 @@ function syncIdentite(nomComplet){
 // INSCRIPTIONS VOYAGES — amicaliste → commission Voyages
 // ═══════════════════════════════════════════
 const VOYAGES_DATA={
-  saintmalo:{nom:'Weekend à Saint-Malo',destination:'Saint-Malo, Bretagne',duree:'2 jours / 1 nuit',dates:'5–6 sept. 2026',tarif:'85 €',places:42,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:4,transport:'Car privatisé',hebergement:'Hôtel 3\u2605 \u00b7 Demi-pension',programme:'Visite intra-muros, plage, dîner fruits de mer',ico:'ti-sailboat',color:'#1a5276',image:null,inclus:['Transport A/R en car','1 nuit hôtel 3\u2605','Petit-déjeuner + dîner','Visite guidée intra-muros'],nonInclus:['Déjeuner du samedi','Dépenses personnelles']},
+  saintmalo:{nom:'Weekend à Saint-Malo',destination:'Saint-Malo, Bretagne',duree:'2 jours / 1 nuit',dates:'5–6 sept. 2026',tarif:'85 €',places:42,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:4,transport:'Car privatisé',hebergement:'Hôtel 3\u2605 \u00b7 Demi-pension',programme:'Visite intra-muros, plage, dîner fruits de mer',ico:'ti-sailboat',color:'#1a5276',image:null,carouselSlide:1,inclus:['Transport A/R en car','1 nuit hôtel 3\u2605','Petit-déjeuner + dîner','Visite guidée intra-muros'],nonInclus:['Déjeuner du samedi','Dépenses personnelles']},
   strasbourg:{nom:'Marché de Noël — Strasbourg',destination:'Strasbourg, Alsace',duree:'3 jours / 2 nuits',dates:'5–7 déc. 2026',tarif:'145 €',places:38,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:2,transport:'TGV',hebergement:'Hôtel 3\u2605 \u00b7 Petit-déj inclus',programme:'Marchés de Noël, cathédrale, Petite France, croisière',ico:'ti-building-arch',color:'#1a6b3a',image:null,inclus:['TGV A/R 2nde classe','2 nuits hôtel centre-ville','Petits-déjeuners','Croisière sur l\u2019Ill'],nonInclus:['Repas midi et soir','Entrées musées','Dépenses personnelles']},
   colo_ete:{nom:'Colonie d\u2019été des enfants',destination:'Centre de vacances, Vendée',duree:'8 jours / 7 nuits',dates:'10–17 juil. 2026',tarif:'120 €',places:30,placesMin:15,enfantsAutorises:true,ageLimiteEnfants:14,tarifEnfant:'90 €',accompagnateursRecherches:4,maxAdultesParFoyer:2,transport:'Car privatisé',hebergement:'Centre de vacances \u00b7 Pension complète',programme:'Activités nautiques, randonnées, veillées',ico:'ti-tent',color:'#1a7a1a',image:null,inclus:['Transport A/R','Pension complète 7 nuits','Activités encadrées','Assurance'],nonInclus:['Argent de poche','Équipement personnel']},
 };
@@ -17017,9 +17057,15 @@ function chargerImageVoyage(input){
   var reader=new FileReader();
   reader.onload=function(e){
     var voyKey=document.getElementById('mpv-key').value;
-    if(voyKey&&VOYAGES_DATA[voyKey])VOYAGES_DATA[voyKey].image=e.target.result;
+    if(voyKey&&VOYAGES_DATA[voyKey]){
+      VOYAGES_DATA[voyKey].image=e.target.result;
+      var slideMap={saintmalo:1,strasbourg:1,colo_ete:1};
+      if(VOYAGES_DATA[voyKey].carouselSlide){
+        appliquerImageCarousel(VOYAGES_DATA[voyKey].carouselSlide,VOYAGES_DATA[voyKey].nom,VOYAGES_DATA[voyKey].destination,e.target.result);
+      }
+    }
     document.getElementById('mpv-image-preview').innerHTML='<img src="'+e.target.result+'" style="width:100%;height:120px;object-fit:cover;border-radius:12px">';
-    showToast('Image chargée');
+    showToast('Image chargée et appliquée au carousel');
   };
   reader.readAsDataURL(input.files[0]);
 }
