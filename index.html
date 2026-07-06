@@ -2370,99 +2370,11 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div id="amical-carousel-section" style="padding:0 16px 0;position:relative;z-index:2">
           <div id="tour-carousel" style="overflow:hidden;border-radius:24px;box-shadow:0 8px 30px rgba(0,0,0,0.15)">
             <div id="carousel-inner" style="display:flex;transition:transform .35s ease;will-change:transform;cursor:grab;user-select:none">
-
-              <!-- SLIDE 1 : Weekend Saint-Malo (photo) -->
-              <div style="flex:0 0 100%;cursor:pointer" onclick="if(typeof ouvrirFicheVoyage==='function') ouvrirFicheVoyage('saintmalo'); else goPage('pg-voyages-amical')">
-                <div id="carousel-slide1-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(to bottom,rgba(232,85,58,0.85) 0%,rgba(217,64,102,0.6) 25%,transparent 50%),url('https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80') center/cover no-repeat;height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
-                  <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
-                    Prochain événement
-                  </div>
-                  <div>
-                    <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Weekend à Saint-Malo</div>
-                    <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">5 - 6 septembre</div>
-                    <div style="display:flex;align-items:center;justify-content:space-between">
-                      <div style="display:flex;align-items:center;gap:8px">
-                        <div style="display:flex;align-items:center">
-                          <div style="width:26px;height:26px;border-radius:50%;background:var(--accent);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;z-index:3">J</div>
-                          <div style="width:26px;height:26px;border-radius:50%;background:#3478F6;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;margin-left:-8px;z-index:2">M</div>
-                          <div style="width:26px;height:26px;border-radius:50%;background:#34C759;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;margin-left:-8px;z-index:1">P</div>
-                        </div>
-                        <span style="font-size:13px;color:white;font-weight:600">28 participants</span>
-                      </div>
-                      <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
-                        Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- SLIDE 2 : Repas annuel -->
-              <div style="flex:0 0 100%;cursor:pointer" onclick="if(typeof ouvrirFicheEvenement==='function') ouvrirFicheEvenement('repas'); else goPage('pg-evenements-amical')">
-                <div id="carousel-slide2-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#FF8A4C,#E8553A);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
-                  <i class="ti ti-tools-kitchen-2" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
-                  <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
-                    Dans 8 jours
-                  </div>
-                  <div>
-                    <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Repas annuel</div>
-                    <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">Sam. 14 juin 2026 · 12h00</div>
-                    <div style="display:flex;align-items:center;justify-content:flex-end">
-                      <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
-                        Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- SLIDE 3 : Bal -->
-              <div style="flex:0 0 100%;cursor:pointer" onclick="if(typeof ouvrirFicheEvenement==='function') ouvrirFicheEvenement('bal'); else goPage('pg-evenements-amical')">
-                <div id="carousel-slide3-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#F59E0B,#EA580C);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
-                  <i class="ti ti-music" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
-                  <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
-                    27 juin 2026
-                  </div>
-                  <div>
-                    <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Bal des pompiers</div>
-                    <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">21h00 · Centre-ville</div>
-                    <div style="display:flex;align-items:center;justify-content:flex-end">
-                      <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
-                        Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- SLIDE 4 : Tournoi sportif -->
-              <div style="flex:0 0 100%;cursor:pointer" onclick="if(typeof ouvrirFicheEvenement==='function') ouvrirFicheEvenement('tournoi'); else goPage('pg-evenements-amical')">
-                <div id="carousel-slide4-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,#7C3AED,#534AB7);height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
-                  <i class="ti ti-trophy" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>
-                  <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
-                    12 juillet 2026
-                  </div>
-                  <div>
-                    <div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">Tournoi sportif</div>
-                    <div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">10h00 · Stade municipal</div>
-                    <div style="display:flex;align-items:center;justify-content:flex-end">
-                      <div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
-                        Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
             </div><!-- fin carousel-inner -->
           </div><!-- fin overflow:hidden -->
 
-          <!-- POINTS DE NAVIGATION -->
-          <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;padding-bottom:4px">
-            <div id="dot-0" style="width:22px;height:6px;border-radius:3px;background:white;transition:all .3s;cursor:pointer" onclick="goSlide(0)"></div>
-            <div id="dot-1" style="width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.4);transition:all .3s;cursor:pointer" onclick="goSlide(1)"></div>
-            <div id="dot-2" style="width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.4);transition:all .3s;cursor:pointer" onclick="goSlide(2)"></div>
-            <div id="dot-3" style="width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.4);transition:all .3s;cursor:pointer" onclick="goSlide(3)"></div>
+          <!-- POINTS DE NAVIGATION (générés dynamiquement) -->
+          <div id="carousel-dots" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;padding-bottom:4px">
           </div>
         </div><!-- fin padding carousel -->
 
@@ -3103,28 +3015,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <button class="fp" onclick="document.querySelectorAll('#pg-evenements-amical .fp').forEach(b=>b.classList.remove('on'));this.classList.add('on')">Bal</button>
           <button class="fp" onclick="document.querySelectorAll('#pg-evenements-amical .fp').forEach(b=>b.classList.remove('on'));this.classList.add('on')">Sport</button>
         </div>
-        <div class="card" style="overflow:hidden;padding:0" data-ev-key="repas">
-          <div style="height:140px;background:var(--r);display:flex;flex-direction:column;justify-content:flex-end;padding:14px;position:relative"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,rgba(0,0,0,.05) 60%)"></div><i class="ti ti-tools-kitchen-2" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:50px;color:rgba(255,255,255,.15)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:16px;font-weight:700;color:white;margin-bottom:4px">Repas annuel de l'amicale</div><div style="font-size:12px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:8px"><i class="ti ti-calendar" style="font-size:13px" aria-hidden="true"></i>Sam. 14 juin 2026 · 12h00 · Salle des fêtes, Argentré</div></div></div>
-          <div style="padding:12px">
-            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--rl);color:var(--r)">Repas</span><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--grl);color:var(--grn)">Membres + familles</span><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--aml);color:var(--amb)">Bénévoles 4/6</span></div>
-            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Repas traiteur 3 services · apéritif maison · remise des distinctions. Inscription souhaitée avant le 7 juin.</div>
-            <button class="btn-r" style="margin-bottom:0" onclick="inscrireEvenement('repas',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
-          </div>
-        </div>
-        <div class="card" style="overflow:hidden;padding:0" data-ev-key="bal">
-          <div style="height:90px;background:var(--amb);display:flex;align-items:flex-end;padding:12px;position:relative"><div style="position:absolute;inset:0;background:rgba(0,0,0,.15)"></div><i class="ti ti-music" style="position:absolute;top:10px;right:12px;font-size:34px;color:rgba(255,255,255,.2)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:14px;font-weight:700;color:white">Bal des pompiers</div><div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:2px"><i class="ti ti-calendar" style="font-size:12px" aria-hidden="true"></i> Ven. 27 juin 2026 · 21h00 · Salle polyvalente</div></div></div>
-          <div style="padding:12px">
-            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Soirée dansante ouverte à tous, buvette et restauration sur place.</div>
-            <button class="btn-r" style="margin-bottom:0;background:var(--amb)" onclick="inscrireEvenement('bal',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
-          </div>
-        </div>
-        <div class="card" style="overflow:hidden;padding:0" data-ev-key="tournoi">
-          <div style="height:90px;background:var(--pur);display:flex;align-items:flex-end;padding:12px;position:relative"><div style="position:absolute;inset:0;background:rgba(0,0,0,.15)"></div><i class="ti ti-trophy" style="position:absolute;top:10px;right:12px;font-size:34px;color:rgba(255,255,255,.2)" aria-hidden="true"></i><div style="position:relative;z-index:1"><div style="font-size:14px;font-weight:700;color:white">Tournoi sportif inter-centres</div><div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:2px"><i class="ti ti-calendar" style="font-size:12px" aria-hidden="true"></i> Sam. 12 juil. 2026 · 10h00 · Stade municipal</div></div></div>
-          <div style="padding:12px">
-            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">Tournoi amical entre les centres de secours du département. Toutes catégories bienvenues.</div>
-            <button class="btn-r" style="margin-bottom:0;background:var(--pur)" onclick="inscrireEvenement('tournoi',this)"><i class="ti ti-check" aria-hidden="true"></i>S'inscrire</button>
-          </div>
-        </div>
+        <div id="evenements-cards-container"></div>
       </div>
     </div>
 
@@ -6679,6 +6570,33 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
       </div>
     </div>
 
+    <!-- MODAL FICHE ÉVÉNEMENT (détail amicaliste) -->
+    <div class="mow" id="modal-fiche-evenement" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:8500">
+      <div class="mbox" style="max-height:95vh;overflow-y:auto;padding:0;border-radius:20px">
+        <div id="mfe-header" style="height:200px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background-size:cover;background-position:center">
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,rgba(0,0,0,.08) 50%);border-radius:20px 20px 0 0"></div>
+          <button onclick="document.getElementById('modal-fiche-evenement').classList.remove('open')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.4);border:none;color:white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2"><i class="ti ti-x"></i></button>
+          <div id="mfe-badge" style="position:absolute;top:12px;left:12px;z-index:2"></div>
+          <div style="position:relative;z-index:1">
+            <div id="mfe-lieu" style="font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:4px"></div>
+            <div id="mfe-titre" style="font-size:20px;font-weight:800;color:white;line-height:1.2"></div>
+            <div id="mfe-date-header" style="font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;display:flex;align-items:center;gap:4px"></div>
+          </div>
+        </div>
+        <div style="padding:16px">
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px">
+            <div style="text-align:center;padding:10px;background:var(--color-background-secondary);border-radius:12px"><i class="ti ti-calendar" style="font-size:18px;color:var(--pur)"></i><div id="mfe-date-info" style="font-size:12px;font-weight:700;margin-top:4px"></div><div style="font-size:10px;color:var(--color-text-secondary)">Date</div></div>
+            <div style="text-align:center;padding:10px;background:var(--color-background-secondary);border-radius:12px"><i class="ti ti-clock" style="font-size:18px;color:var(--blu)"></i><div id="mfe-heure-info" style="font-size:12px;font-weight:700;margin-top:4px"></div><div style="font-size:10px;color:var(--color-text-secondary)">Heure</div></div>
+            <div style="text-align:center;padding:10px;background:var(--color-background-secondary);border-radius:12px"><i class="ti ti-map-pin" style="font-size:18px;color:var(--grn)"></i><div id="mfe-lieu-info" style="font-size:11px;font-weight:700;margin-top:4px"></div><div style="font-size:10px;color:var(--color-text-secondary)">Lieu</div></div>
+          </div>
+          <div id="mfe-desc-zone" style="margin-bottom:16px"></div>
+          <div id="mfe-benevoles-zone" style="margin-bottom:16px"></div>
+          <div id="mfe-inscrits-zone" style="margin-bottom:16px"></div>
+          <div id="mfe-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL AJOUTER PRESTATAIRE VOYAGE -->
     <div class="mow" id="modal-presta-voyage" onclick="if(event.target===this)this.classList.remove('open')">
       <div class="mbox">
@@ -7338,78 +7256,136 @@ function publierCreer(){
   if(isProg&&dateP){
     showToast('Événement programmé — publication le '+new Date(dateP).toLocaleDateString('fr-FR'));
   } else {
-    showToast('Événement "'+titre+'" publié dans le carousel !');
-    syncCarouselAmical('creer',titre,lieu);
-    appliquerImageCarousel(2,titre,lieu,currentAfficheURL['creer']);
+    showToast('Événement "'+titre+'" publié !');
+    renderCarouselDynamique();
   }
   goPage('pg-comm-evenements');
 }
 
-// Applique une image/affiche sur une slide du carousel amicaliste et persiste en localStorage
-function appliquerImageCarousel(slideNum,titre,lieu,imageUrl){
-  var bg=document.getElementById('carousel-slide'+slideNum+'-bg');
-  if(bg&&imageUrl){
-    bg.style.backgroundImage="linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+imageUrl+"')";
-    bg.style.backgroundSize='cover';
-    bg.style.backgroundPosition='center';
+function appliquerImageCarousel(){
+  renderCarouselDynamique();
+}
+function appliquerAfficheCarouselAmicaliste(){
+  renderCarouselDynamique();
+}
+
+function carouselLighten(hex){
+  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  r=Math.min(255,r+70);g=Math.min(255,g+70);b=Math.min(255,b+70);
+  return '#'+(r<16?'0':'')+r.toString(16)+(g<16?'0':'')+g.toString(16)+(b<16?'0':'')+b.toString(16);
+}
+
+function carouselParseDateApprox(str){
+  if(!str)return '9999-12-31';
+  var months={janv:'01',fevr:'02',mars:'03',avr:'04',mai:'05',juin:'06',juil:'07',aout:'08',sept:'09',oct:'10',nov:'11',dec:'12'};
+  var lower=str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  for(var m in months){
+    if(lower.indexOf(m)!==-1){
+      var ym=lower.match(/(\d{4})/);var year=ym?ym[1]:'2099';
+      var dm=lower.match(/(\d{1,2})/);var day=dm?dm[1].padStart(2,'0'):'01';
+      return year+'-'+months[m]+'-'+day;
+    }
   }
-  try{
-    var all=JSON.parse(localStorage.getItem('aml_carousel_slides')||'{}');
-    all['slide'+slideNum]={titre:titre,lieu:lieu,image:imageUrl||null};
-    localStorage.setItem('aml_carousel_slides',JSON.stringify(all));
-  }catch(e){}
+  return '9999-12-31';
 }
 
-// Rétro-compatibilité : ancienne fonction pour la slide 1
-function appliquerAfficheCarouselAmicaliste(titre,lieu,afficheUrl){
-  appliquerImageCarousel(1,titre,lieu,afficheUrl);
-}
+function renderCarouselDynamique(){
+  var inner=document.getElementById('carousel-inner');
+  var dotsC=document.getElementById('carousel-dots');
+  if(!inner)return;
 
-// Restaure les images de toutes les slides du carousel au chargement
+  var slides=[];
+  var evData=window.EVENTS_DATA||{};
+  var voyData=window.VOYAGES_DATA||{};
+
+  var evKeys=Object.keys(evData);
+  for(var i=0;i<evKeys.length;i++){
+    var k=evKeys[i],ev=evData[k];
+    if(!ev.publie)continue;
+    slides.push({type:'event',key:k,titre:ev.titre,date:ev.date,heure:ev.heure||'',lieu:ev.lieu||'',icon:ev.icon||'ti-confetti',color:ev.color||'#E8553A',image:ev.image||null,sortDate:ev.date||'9999-12-31'});
+  }
+
+  var voyKeys=Object.keys(voyData);
+  for(var j=0;j<voyKeys.length;j++){
+    var vk=voyKeys[j],vo=voyData[vk];
+    slides.push({type:'voyage',key:vk,titre:vo.nom,dates:vo.dates||'',destination:vo.destination||'',icon:vo.ico||'ti-map-pin',color:vo.color||'#1a5276',image:vo.image||null,sortDate:carouselParseDateApprox(vo.dates)});
+  }
+
+  slides.sort(function(a,b){return a.sortDate<b.sortDate?-1:a.sortDate>b.sortDate?1:0;});
+
+  if(slides.length===0){
+    inner.innerHTML='<div style="flex:0 0 100%;height:clamp(200px,50vw,280px);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#E8553A,#D94066);color:white;font-size:18px;font-weight:700;border-radius:0">Aucun événement à venir</div>';
+    CAROUSEL_TOTAL=1;
+    if(dotsC)dotsC.innerHTML='';
+    carouselIdx=0;
+    return;
+  }
+
+  CAROUSEL_TOTAL=slides.length;
+  var html='';
+  var today=new Date();today.setHours(0,0,0,0);
+
+  for(var s=0;s<slides.length;s++){
+    var sl=slides[s];
+    var onclickAttr,badge,subtitle,bgStyle;
+
+    if(sl.type==='event'){
+      onclickAttr="ouvrirFicheEvenement('"+sl.key+"')";
+      var evDate=new Date(sl.date);
+      var diff=Math.ceil((evDate-today)/(86400000));
+      if(diff===0)badge="Aujourd’hui";
+      else if(diff===1)badge='Demain';
+      else if(diff>1&&diff<=30)badge='Dans '+diff+' jours';
+      else badge=evDate.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+      subtitle=(sl.heure?sl.heure+' · ':'')+sl.lieu;
+      if(sl.image){
+        bgStyle="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+sl.image.replace(/'/g,"\\'")+"') center/cover no-repeat";
+      } else {
+        bgStyle="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,"+carouselLighten(sl.color)+","+sl.color+")";
+      }
+    } else {
+      onclickAttr="ouvrirFicheVoyage('"+sl.key+"')";
+      badge='Voyage · '+sl.dates;
+      subtitle=sl.destination;
+      if(sl.image){
+        bgStyle="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+sl.image.replace(/'/g,"\\'")+"') center/cover no-repeat";
+      } else {
+        bgStyle="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(135deg,"+carouselLighten(sl.color)+","+sl.color+")";
+      }
+    }
+
+    html+='<div style="flex:0 0 100%;cursor:pointer" onclick="'+onclickAttr+'">';
+    html+='<div id="carousel-dyn-'+s+'" style="'+bgStyle+';height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">';
+    if(!sl.image)html+='<i class="ti '+sl.icon+'" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;color:rgba(255,255,255,0.08)" aria-hidden="true"></i>';
+    html+='<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">';
+    html+=badge+'</div>';
+    html+='<div>';
+    html+='<div style="font-size:24px;font-weight:800;color:white;line-height:1.15;margin-bottom:4px;letter-spacing:-0.3px">'+sl.titre+'</div>';
+    html+='<div style="font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:12px;font-weight:500">'+subtitle+'</div>';
+    html+='<div style="display:flex;align-items:center;justify-content:flex-end">';
+    html+='<div style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1C1C1E;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15)">';
+    html+='Voir le détail <i class="ti ti-arrow-right" style="font-size:13px" aria-hidden="true"></i>';
+    html+='</div></div></div>';
+    html+='</div></div>';
+  }
+
+  inner.innerHTML=html;
+
+  if(dotsC){
+    var dotsHtml='';
+    for(var d=0;d<slides.length;d++){
+      dotsHtml+='<div id="dot-'+d+'" style="width:'+(d===0?'22':'6')+'px;height:6px;border-radius:3px;background:'+(d===0?'white':'rgba(255,255,255,0.4)')+';transition:all .3s;cursor:pointer" onclick="goSlide('+d+')"></div>';
+    }
+    dotsC.innerHTML=dotsHtml;
+  }
+
+  if(carouselIdx>=CAROUSEL_TOTAL)carouselIdx=0;
+  goSlide(carouselIdx);
+}
+window.renderCarouselDynamique=renderCarouselDynamique;
+
 function restaurerCarouselAmicaliste(){
-  try{
-    // Migration ancienne clé slide1 vers nouveau format
-    var old=localStorage.getItem('aml_carousel_slide1');
-    if(old){
-      var d=JSON.parse(old);
-      if(d&&d.affiche){
-        var all=JSON.parse(localStorage.getItem('aml_carousel_slides')||'{}');
-        if(!all.slide1)all.slide1={titre:d.titre,lieu:d.lieu,image:d.affiche};
-        localStorage.setItem('aml_carousel_slides',JSON.stringify(all));
-      }
-      localStorage.removeItem('aml_carousel_slide1');
-    }
-    var saved=JSON.parse(localStorage.getItem('aml_carousel_slides')||'{}');
-    for(var key in saved){
-      var num=key.replace('slide','');
-      var data=saved[key];
-      if(data&&data.image){
-        var bg=document.getElementById('carousel-slide'+num+'-bg');
-        if(bg){
-          bg.style.backgroundImage="linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+data.image+"')";
-          bg.style.backgroundSize='cover';
-          bg.style.backgroundPosition='center';
-        }
-      }
-    }
-  }catch(e){}
-  // Appliquer aussi les images voyages depuis VOYAGES_DATA
-  try{
-    if(window.VOYAGES_DATA){
-      var voySlides={saintmalo:1,strasbourg:1,colo_ete:1};
-      for(var vk in VOYAGES_DATA){
-        if(VOYAGES_DATA[vk].image&&VOYAGES_DATA[vk].carouselSlide){
-          var s=VOYAGES_DATA[vk].carouselSlide;
-          var bg2=document.getElementById('carousel-slide'+s+'-bg');
-          if(bg2){
-            bg2.style.backgroundImage="linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.05) 55%),url('"+VOYAGES_DATA[vk].image+"')";
-            bg2.style.backgroundSize='cover';
-            bg2.style.backgroundPosition='center';
-          }
-        }
-      }
-    }
-  }catch(e){}
+  renderCarouselDynamique();
 }
 document.addEventListener('DOMContentLoaded',restaurerCarouselAmicaliste);
 
@@ -7538,14 +7514,9 @@ function sauvegarderModif(){
   if(bccIco)bccIco.className='ti '+currentEvIcon2.mod;
   if(bccBgImg&&currentAfficheURL.mod)bccBgImg.style.backgroundImage=`url('${currentAfficheURL.mod}')`;
 
-  // Synchroniser carousel amicaliste — repas=slide2, bal=slide3
-  var carSlide=id==='repas'?2:id==='bal'?3:2;
-  syncCarouselAmicalIndex(slideIdx,titre,lieu);
-  if(currentAfficheURL.mod){
-    appliquerImageCarousel(carSlide,titre,lieu,currentAfficheURL.mod);
-  }
+  renderCarouselDynamique();
 
-  showToast('Modifications enregistrées et carousel mis à jour');
+  showToast('Modifications enregistrées');
   goPage('pg-comm-evenements');
 }
 
@@ -9500,16 +9471,110 @@ function refuserInscription(id){
 }
 
 function ouvrirFicheEvenement(evKey){
-  goPage('pg-evenements-amical');
-  setTimeout(function(){
-    var card=document.querySelector('#pg-evenements-amical .card[data-ev-key="'+evKey+'"]');
-    if(card){
-      card.scrollIntoView({behavior:'smooth',block:'center'});
-      card.style.boxShadow='0 0 0 3px var(--r)';
-      setTimeout(function(){ card.style.boxShadow=''; },2000);
+  var ev=EVENTS_DATA[evKey];
+  if(!ev)return;
+
+  var header=document.getElementById('mfe-header');
+  if(ev.image){
+    header.style.cssText='height:220px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background-image:url('+ev.image+');background-size:cover;background-position:center';
+  } else {
+    header.style.cssText='height:220px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background:'+(ev.color||'var(--r)');
+  }
+
+  var evDate=new Date(ev.date);
+  var now=new Date();now.setHours(0,0,0,0);
+  var diff=Math.ceil((evDate-now)/86400000);
+  var badgeText=diff===0?"Aujourd'hui":diff===1?'Demain':diff>1?'Dans '+diff+' jours':evDate.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+  var badgeColor=diff<=7?'var(--r)':diff<=30?'var(--amb)':'var(--grn)';
+  document.getElementById('mfe-badge').innerHTML='<span style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.22);backdrop-filter:blur(8px);color:white">'+badgeText+'</span>';
+
+  document.getElementById('mfe-lieu').innerHTML='<i class="ti ti-map-pin" style="font-size:11px"></i> '+ev.lieu;
+  document.getElementById('mfe-titre').textContent=ev.titre;
+  var dateFormatted=evDate.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('mfe-date-header').innerHTML='<i class="ti ti-calendar" style="font-size:12px"></i> '+dateFormatted+(ev.heure?' · '+ev.heure:'');
+
+  document.getElementById('mfe-date-info').textContent=evDate.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  document.getElementById('mfe-heure-info').textContent=ev.heure||'—';
+  document.getElementById('mfe-lieu-info').textContent=ev.lieu;
+
+  var descHtml='';
+  if(ev.desc){descHtml='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:6px"><i class="ti ti-info-circle" style="font-size:13px"></i> Description</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">'+ev.desc+'</div>';}
+  document.getElementById('mfe-desc-zone').innerHTML=descHtml;
+
+  var benHtml='';
+  if(typeof BENEVOLES_DATA!=='undefined'&&BENEVOLES_DATA[evKey]){
+    var ben=BENEVOLES_DATA[evKey];
+    benHtml='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:8px"><i class="ti ti-heart-handshake" style="font-size:13px"></i> Bénévoles ('+ben.liste.length+'/'+ben.max+')</div>';
+    if(ben.liste.length){
+      benHtml+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+      ben.liste.forEach(function(b){
+        benHtml+='<div style="display:flex;align-items:center;gap:6px;background:var(--color-background-secondary);border-radius:10px;padding:6px 10px">'
+          +'<div style="width:26px;height:26px;border-radius:50%;background:var(--amb);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0">'+b.nom.split(' ').map(function(w){return w[0];}).join('')+'</div>'
+          +'<div><div style="font-size:11px;font-weight:600">'+b.nom+'</div><div style="font-size:9px;color:var(--color-text-secondary)">'+b.poste+'</div></div></div>';
+      });
+      benHtml+='</div>';
     }
-  },150);
+    if(ben.liste.length<ben.max){
+      benHtml+='<div style="margin-top:8px;text-align:center;padding:8px;font-size:11px;color:var(--amb);background:var(--aml);border-radius:8px;font-weight:600">'+(ben.max-ben.liste.length)+' poste(s) encore disponible(s)</div>';
+    }
+  }
+  document.getElementById('mfe-benevoles-zone').innerHTML=benHtml;
+
+  var inscrits=INSCRIPTIONS_EVENEMENTS.filter(function(i){return i.evenement===evKey&&i.statut!=='refusee';});
+  var insHtml='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:8px"><i class="ti ti-users" style="font-size:13px"></i> Inscrits ('+inscrits.length+')</div>';
+  if(!inscrits.length){
+    insHtml+='<div style="text-align:center;padding:14px;font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:12px">Aucun inscrit pour le moment</div>';
+  } else {
+    insHtml+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+    inscrits.forEach(function(i){
+      var col=i.statut==='acceptee'?'var(--grn)':'var(--amb)';
+      insHtml+='<div style="display:flex;align-items:center;gap:6px;background:var(--color-background-secondary);border-radius:10px;padding:6px 10px">'
+        +'<div style="width:26px;height:26px;border-radius:50%;background:var(--pur);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0">'+i.demandeur.split(' ').map(function(w){return w[0];}).join('')+'</div>'
+        +'<div><div style="font-size:11px;font-weight:600">'+i.demandeur+'</div><div style="font-size:9px;color:'+col+'">'+(i.statut==='acceptee'?'Confirmé':'En attente')+'</div></div></div>';
+    });
+    insHtml+='</div>';
+  }
+  document.getElementById('mfe-inscrits-zone').innerHTML=insHtml;
+
+  var actHtml='<button style="padding:12px;border-radius:12px;background:'+(ev.color||'var(--r)')+';color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-evenement\').classList.remove(\'open\');inscrireEvenement(\''+evKey+'\')"><i class="ti ti-send"></i>S\'inscrire</button>';
+  actHtml+='<button style="padding:12px;border-radius:12px;background:var(--color-background-secondary);color:var(--color-text-primary);border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-evenement\').classList.remove(\'open\')"><i class="ti ti-x"></i>Fermer</button>';
+  document.getElementById('mfe-actions').innerHTML=actHtml;
+
+  document.getElementById('modal-fiche-evenement').classList.add('open');
 }
+
+function renderEvenementsCards(){
+  var container=document.getElementById('evenements-cards-container');
+  if(!container)return;
+  var evData=window.EVENTS_DATA||{};
+  var keys=Object.keys(evData);
+  keys.sort(function(a,b){return (evData[a].date||'')>(evData[b].date||'')?1:-1;});
+
+  var html='';
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i],ev=evData[k];
+    var evDate=new Date(ev.date);
+    var dateStr=evDate.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+    var bgStyle=ev.image?"background-image:linear-gradient(to top,rgba(0,0,0,.6) 0%,rgba(0,0,0,.05) 60%),url('"+ev.image+"');background-size:cover;background-position:center":"background:"+(ev.color||'var(--r)');
+
+    html+='<div class="card" style="overflow:hidden;padding:0;cursor:pointer" data-ev-key="'+k+'" onclick="ouvrirFicheEvenement(\''+k+'\')">';
+    html+='<div style="height:120px;display:flex;align-items:flex-end;padding:14px;position:relative;'+bgStyle+'">';
+    html+='<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,rgba(0,0,0,.05) 60%)"></div>';
+    if(!ev.image)html+='<i class="ti '+(ev.icon||'ti-confetti')+'" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:50px;color:rgba(255,255,255,.15)" aria-hidden="true"></i>';
+    html+='<div style="position:relative;z-index:1">';
+    html+='<div style="font-size:16px;font-weight:700;color:white;margin-bottom:4px">'+ev.titre+'</div>';
+    html+='<div style="font-size:12px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:8px"><i class="ti ti-calendar" style="font-size:13px" aria-hidden="true"></i>'+dateStr+(ev.heure?' · '+ev.heure:'')+(ev.lieu?' · '+ev.lieu:'')+'</div>';
+    html+='</div></div>';
+    html+='<div style="padding:12px">';
+    if(ev.desc)html+='<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5">'+ev.desc+'</div>';
+    if(!ev.publie)html+='<span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--color-background-secondary);color:var(--color-text-secondary);margin-bottom:8px;display:inline-block">Brouillon</span>';
+    html+='<button class="btn-r" style="margin-bottom:0;background:'+(ev.color||'var(--r)')+'" onclick="event.stopPropagation();inscrireEvenement(\''+k+'\',this)"><i class="ti ti-check" aria-hidden="true"></i>S\'inscrire</button>';
+    html+='</div></div>';
+  }
+  container.innerHTML=html;
+  if(typeof _initEtatBoutonsInscriptionEv==='function')_initEtatBoutonsInscriptionEv();
+}
+window.renderEvenementsCards=renderEvenementsCards;
 
 // ═══════════════════════════════════════════
 // INSCRIPTIONS ÉVÉNEMENTS — amicaliste → commission Événements
@@ -11604,9 +11669,10 @@ function saveModalCompta(){
 // CAROUSEL — navigation + swipe tactile
 // ═══════════════════════════════════════════
 let carouselIdx=0;
-const CAROUSEL_TOTAL=4;
+var CAROUSEL_TOTAL=0;
 
 function goSlide(idx){
+  if(CAROUSEL_TOTAL<=0)return;
   carouselIdx=((idx%CAROUSEL_TOTAL)+CAROUSEL_TOTAL)%CAROUSEL_TOTAL;
   const inner=document.getElementById('carousel-inner');
   if(inner)inner.style.transform='translateX(-'+carouselIdx+'00%)';
@@ -15994,6 +16060,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     closeModalV58('modal-v58-generic');
     if(typeof showToast==='function') showToast('Voyage enregistré — informations synchronisées côté amicaliste');
     renderVoyagesAmicalisteV58();
+    if(typeof renderCarouselDynamique==='function') renderCarouselDynamique();
   };
   function val(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
   function openGenericV58(content){
@@ -16050,9 +16117,9 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
   const oldGoPage=window.goPage;
   window.goPage=function(id){
     if(oldGoPage) oldGoPage(id);
-    setTimeout(()=>{ if(id==='pg-voyages-amical') renderVoyagesAmicalisteV58(); if(id==='pg-evenements-amical') renderEvenementsAmicalisteV58(); patchButtonsV58(); },60);
+    setTimeout(()=>{ if(id==='pg-voyages-amical') renderVoyagesAmicalisteV58(); if(id==='pg-evenements-amical'){ if(typeof renderEvenementsCards==='function') renderEvenementsCards(); renderEvenementsAmicalisteV58(); } patchButtonsV58(); },60);
   };
-  ready(function(){ enrichVoyagesData(); patchButtonsV58(); renderVoyagesAmicalisteV58(); renderEvenementsAmicalisteV58(); });
+  ready(function(){ enrichVoyagesData(); patchButtonsV58(); renderVoyagesAmicalisteV58(); if(typeof renderEvenementsCards==='function') renderEvenementsCards(); renderEvenementsAmicalisteV58(); });
 })();
 
 /* ── id="v60-rc2-js" ── */
@@ -16123,7 +16190,8 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     safe(function(){ if(id==='pg-amical-noel'&&typeof initPageAmicalNoel==='function') setTimeout(initPageAmicalNoel,50); });
     safe(function(){ if(id==='pg-amical-fdf'&&typeof initPageAmicalFDF==='function') setTimeout(initPageAmicalFDF,50); });
     safe(function(){ if(id==='pg-voyages-amical'&&typeof renderVoyagesAmicalisteV58==='function') setTimeout(renderVoyagesAmicalisteV58,50); });
-    safe(function(){ if(id==='pg-evenements-amical'&&typeof renderEvenementsAmicalisteV58==='function') setTimeout(renderEvenementsAmicalisteV58,50); });
+    safe(function(){ if(id==='pg-evenements-amical'){ if(typeof renderEvenementsCards==='function') setTimeout(renderEvenementsCards,40); if(typeof renderEvenementsAmicalisteV58==='function') setTimeout(renderEvenementsAmicalisteV58,50); } });
+    safe(function(){ if(id==='pg-home-amical'&&typeof renderCarouselDynamique==='function') setTimeout(renderCarouselDynamique,50); });
     if(window.isPCMode){ window.scrollTo({top:0,behavior:'auto'}); } else { pg.scrollTop=0; window.scrollTo(0,0); }
     setTimeout(bindCommissionCards,30);
     return true;
@@ -17215,10 +17283,7 @@ function chargerImageVoyage(input){
     var voyKey=document.getElementById('mpv-key').value;
     if(voyKey&&VOYAGES_DATA[voyKey]){
       VOYAGES_DATA[voyKey].image=e.target.result;
-      var slideMap={saintmalo:1,strasbourg:1,colo_ete:1};
-      if(VOYAGES_DATA[voyKey].carouselSlide){
-        appliquerImageCarousel(VOYAGES_DATA[voyKey].carouselSlide,VOYAGES_DATA[voyKey].nom,VOYAGES_DATA[voyKey].destination,e.target.result);
-      }
+      if(typeof renderCarouselDynamique==='function') renderCarouselDynamique();
     }
     document.getElementById('mpv-image-preview').innerHTML='<img src="'+e.target.result+'" style="width:100%;height:120px;object-fit:cover;border-radius:12px">';
     showToast('Image chargée et appliquée au carousel');
