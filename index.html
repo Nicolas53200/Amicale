@@ -9504,7 +9504,12 @@ function ouvrirFicheEvenement(evKey){
   var benHtml='';
   if(typeof BENEVOLES_DATA!=='undefined'&&BENEVOLES_DATA[evKey]){
     var ben=BENEVOLES_DATA[evKey];
-    benHtml='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:8px"><i class="ti ti-heart-handshake" style="font-size:13px"></i> Bénévoles ('+ben.liste.length+'/'+ben.max+')</div>';
+    var placesLibres=ben.max-ben.liste.length;
+    benHtml+='<div onclick="var c=this.nextElementSibling;var ic=this.querySelector(\'.mfe-chev\');if(c.style.display===\'none\'){c.style.display=\'block\';ic.style.transform=\'rotate(0)\'}else{c.style.display=\'none\';ic.style.transform=\'rotate(-90deg)\'}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0">';
+    benHtml+='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary)"><i class="ti ti-heart-handshake" style="font-size:13px"></i> Bénévoles ('+ben.liste.length+'/'+ben.max+')</div>';
+    benHtml+='<i class="ti ti-chevron-down mfe-chev" style="font-size:14px;color:var(--color-text-secondary);transition:transform .2s"></i>';
+    benHtml+='</div>';
+    benHtml+='<div>';
     if(ben.liste.length){
       benHtml+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
       ben.liste.forEach(function(b){
@@ -9514,14 +9519,23 @@ function ouvrirFicheEvenement(evKey){
       });
       benHtml+='</div>';
     }
-    if(ben.liste.length<ben.max){
-      benHtml+='<div style="margin-top:8px;text-align:center;padding:8px;font-size:11px;color:var(--amb);background:var(--aml);border-radius:8px;font-weight:600">'+(ben.max-ben.liste.length)+' poste(s) encore disponible(s)</div>';
+    if(placesLibres>0){
+      var evNomEsc=ev.titre.replace(/'/g,"\\'");
+      benHtml+='<div onclick="event.stopPropagation();document.getElementById(\'modal-fiche-evenement\').classList.remove(\'open\');ouvrirBenevoleAmical(\''+evKey+'\',\''+evNomEsc+'\')" style="margin-top:8px;text-align:center;padding:10px;font-size:12px;color:white;background:var(--amb);border-radius:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ti ti-hand-stop" style="font-size:14px"></i>'+placesLibres+' poste'+(placesLibres>1?'s':'')+' disponible'+(placesLibres>1?'s':'')+' — Je me porte volontaire</div>';
+    } else {
+      benHtml+='<div style="margin-top:8px;text-align:center;padding:8px;font-size:11px;color:var(--grn);background:var(--grl);border-radius:8px;font-weight:600"><i class="ti ti-check"></i> Tous les postes sont pourvus</div>';
     }
+    benHtml+='</div>';
   }
   document.getElementById('mfe-benevoles-zone').innerHTML=benHtml;
 
   var inscrits=INSCRIPTIONS_EVENEMENTS.filter(function(i){return i.evenement===evKey&&i.statut!=='refusee';});
-  var insHtml='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:8px"><i class="ti ti-users" style="font-size:13px"></i> Inscrits ('+inscrits.length+')</div>';
+  var insHtml='';
+  insHtml+='<div onclick="var c=this.nextElementSibling;var ic=this.querySelector(\'.mfe-chev\');if(c.style.display===\'none\'){c.style.display=\'block\';ic.style.transform=\'rotate(0)\'}else{c.style.display=\'none\';ic.style.transform=\'rotate(-90deg)\'}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0">';
+  insHtml+='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary)"><i class="ti ti-users" style="font-size:13px"></i> Inscrits ('+inscrits.length+')</div>';
+  insHtml+='<i class="ti ti-chevron-down mfe-chev" style="font-size:14px;color:var(--color-text-secondary);transition:transform .2s"></i>';
+  insHtml+='</div>';
+  insHtml+='<div>';
   if(!inscrits.length){
     insHtml+='<div style="text-align:center;padding:14px;font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:12px">Aucun inscrit pour le moment</div>';
   } else {
@@ -9534,6 +9548,7 @@ function ouvrirFicheEvenement(evKey){
     });
     insHtml+='</div>';
   }
+  insHtml+='</div>';
   document.getElementById('mfe-inscrits-zone').innerHTML=insHtml;
 
   var actHtml='<button style="padding:12px;border-radius:12px;background:'+(ev.color||'var(--r)')+';color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-evenement\').classList.remove(\'open\');inscrireEvenement(\''+evKey+'\')"><i class="ti ti-send"></i>S\'inscrire</button>';
