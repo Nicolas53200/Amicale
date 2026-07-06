@@ -3180,6 +3180,22 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div class="sc" id="bh-solde-card"><div class="slbl" id="bh-solde-label">Solde amicale</div><div class="sval" style="color:var(--grn)" id="bh-solde-val">3 840 €</div><div class="ssub" id="bh-solde-sub">mis à jour 3 juin</div></div>
       </div>
 
+      <div style="padding:0 14px;margin-bottom:10px"><div class="sec">Prochaines réunions</div></div>
+      <div style="padding:0 14px;margin-bottom:20px">
+        <div class="reun-card next">
+          <div class="rc-date"><div class="rc-day">15</div><div class="rc-month">Jun</div></div>
+          <div class="rc-div"></div>
+          <div class="rc-info"><div class="rc-title">Réunion bureau mensuelle</div><div class="rc-meta">19h00 · Caserne · Salle 2</div></div>
+          <span class="badge badge-ref" style="background:var(--r2);color:var(--rd);flex-shrink:0">J-7</span>
+        </div>
+        <div class="reun-card">
+          <div class="rc-date" style="opacity:.6"><div class="rc-day">3</div><div class="rc-month">Jul</div></div>
+          <div class="rc-div"></div>
+          <div class="rc-info"><div class="rc-title">Commission voyages</div><div class="rc-meta">18h30 · Caserne · Salle 1</div></div>
+          <span class="badge badge-neu">À venir</span>
+        </div>
+      </div>
+
       <div class="sec-toggle" onclick="toggleBureauSection('outils')">
         <div class="sec">Outils du bureau</div>
         <i class="ti ti-chevron-down" aria-hidden="true"></i>
@@ -3271,21 +3287,6 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <div class="comm-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
         </div>
         <div id="commissions-custom"></div>
-      </div>
-      <div style="padding:0 14px;margin-bottom:10px"><div class="sec">Prochaines réunions</div></div>
-      <div style="padding:0 14px;margin-bottom:20px">
-        <div class="reun-card next">
-          <div class="rc-date"><div class="rc-day">15</div><div class="rc-month">Jun</div></div>
-          <div class="rc-div"></div>
-          <div class="rc-info"><div class="rc-title">Réunion bureau mensuelle</div><div class="rc-meta">19h00 · Caserne · Salle 2</div></div>
-          <span class="badge badge-ref" style="background:var(--r2);color:var(--rd);flex-shrink:0">J-7</span>
-        </div>
-        <div class="reun-card">
-          <div class="rc-date" style="opacity:.6"><div class="rc-day">3</div><div class="rc-month">Jul</div></div>
-          <div class="rc-div"></div>
-          <div class="rc-info"><div class="rc-title">Commission voyages</div><div class="rc-meta">18h30 · Caserne · Salle 1</div></div>
-          <span class="badge badge-neu">À venir</span>
-        </div>
       </div>
       </div>
 
@@ -6324,6 +6325,8 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
   .v58-trip-summary b{display:block;font-size:16px;color:var(--color-text-primary)}
   .v58-trip-summary span{font-size:10px;color:var(--color-text-secondary);font-weight:800;text-transform:uppercase;letter-spacing:.03em}
   .v58-inscrits-link{border:none;background:transparent;color:var(--pur);font-weight:900;font-size:12px;cursor:pointer;font-family:var(--font-sans);padding:8px 0;display:inline-flex;gap:5px;align-items:center}
+  .v58-benevole-btn{border:none;background:linear-gradient(135deg,#FF6B35,#E8553A);color:white;font-weight:700;font-size:12px;cursor:pointer;font-family:var(--font-sans);padding:10px 14px;border-radius:10px;display:flex;gap:6px;align-items:center;justify-content:center;margin-top:6px;width:100%;transition:opacity .2s}
+  .v58-benevole-btn:hover{opacity:.85}
   .v58-inline-note{font-size:11px;line-height:1.35;color:var(--color-text-secondary);margin-top:6px}
   .v58-form-row{display:grid;grid-template-columns:1fr 92px;gap:8px;align-items:center;margin-bottom:8px}
   .v58-form-row label{font-size:12px;font-weight:800;color:var(--color-text-primary)}
@@ -6526,6 +6529,20 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
         <div class="mac" style="margin-top:0">
           <button class="mc-c" onclick="document.getElementById('modal-inscription-event').classList.remove('open')">Annuler</button>
           <button class="mc-ok" id="mie-confirm-btn" onclick="confirmerInscriptionEvent()">Confirmer l'inscription</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL BÉNÉVOLE AMICALISTE — s'inscrire comme bénévole -->
+    <div class="mow" id="modal-benevole-amical" onclick="if(event.target===this)this.classList.remove('open')">
+      <div class="mbox" style="max-height:90vh;overflow-y:auto">
+        <div class="mh2"></div>
+        <div class="mtt" id="mba-titre">Devenir bénévole</div>
+        <div id="mba-info" style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px"></div>
+        <div id="mba-postes-list" style="margin-bottom:14px"></div>
+        <div class="mac" style="margin-top:0">
+          <button class="mc-c" onclick="document.getElementById('modal-benevole-amical').classList.remove('open')">Annuler</button>
+          <button class="mc-ok" id="mba-confirm-btn" onclick="confirmerBenevoleAmical()">Je me porte volontaire</button>
         </div>
       </div>
     </div>
@@ -7079,7 +7096,7 @@ function goPage(id){
   updateBottomNav(id);
   // Le bouton flottant "Mode PC" n'est utile que sur l'écran d'accueil
   // (les autres pages ont déjà le bouton PC dans la bottom-nav)
-  document.body.classList.toggle('show-fab', id==='pg-accueil');
+  document.body.classList.toggle('show-fab', id==='pg-accueil'||id==='pg-home-amical'||id==='pg-home-bureau'||id==='pg-voyages-amical'||id==='pg-evenements-amical');
   // Gestion de la visibilité des boutons de la topbar PC selon la zone courante
   (function(){
     var btnAmical=document.getElementById('pcnav-amical');
@@ -9606,6 +9623,73 @@ function confirmerAjoutBenevole(){
   document.getElementById('modal-ajout-benevole').classList.remove('open');
   renderBenevoles(evId);
   showToast('Poste ajouté : '+poste+' — '+nom);
+}
+
+// ═══════════════════════════════════════════
+// BÉNÉVOLES AMICALISTE — inscription comme volontaire
+// ═══════════════════════════════════════════
+var BENEVOLE_AMICAL_CONTEXT=null;
+
+function ouvrirBenevoleAmical(evId,evNom){
+  const data=BENEVOLES_DATA[evId];
+  if(!data)return;
+  BENEVOLE_AMICAL_CONTEXT={evId:evId,evNom:evNom};
+  const placesLibres=data.max-data.liste.length;
+  document.getElementById('mba-titre').textContent='Devenir bénévole — '+evNom;
+  document.getElementById('mba-info').innerHTML='<i class="ti ti-heart-handshake" style="color:var(--r)"></i> '+placesLibres+' poste'+(placesLibres>1?'s':'')+' bénévole'+(placesLibres>1?'s':'')+' à pourvoir sur '+data.max+' au total.';
+  const postesOccupes=data.liste.map(function(b){return b.poste;});
+  const nom=typeof CURRENT_AMICALISTE==='string'?CURRENT_AMICALISTE:'';
+  const dejaInscrit=data.liste.some(function(b){return b.nom===nom;});
+  if(dejaInscrit){
+    showToast('Vous êtes déjà inscrit(e) comme bénévole pour cet événement');
+    return;
+  }
+  var html='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:8px">Postes disponibles</div>';
+  var postesDispos=[];
+  var allPostes=['Accueil','Service table','Buvette','Cuisine','Sécurité','Logistique','Arbitrage','Animation'];
+  allPostes.forEach(function(p){
+    if(postesOccupes.indexOf(p)===-1) postesDispos.push(p);
+  });
+  if(postesDispos.length===0) postesDispos.push('Bénévole');
+  postesDispos.forEach(function(p,i){
+    html+='<label style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--color-background-secondary);border-radius:10px;margin-bottom:6px;cursor:pointer">'
+      +'<input type="radio" name="mba-poste" value="'+p+'" style="width:18px;height:18px;accent-color:var(--r)"'+(i===0?' checked':'')+'>'
+      +'<span style="font-size:13px;font-weight:600">'+p+'</span></label>';
+  });
+  html+='<div style="margin-top:8px"><label class="ml">Autre poste (optionnel)</label><input class="mi" type="text" id="mba-autre-poste" placeholder="Précisez si nécessaire..."></div>';
+  document.getElementById('mba-postes-list').innerHTML=html;
+  document.getElementById('modal-benevole-amical').classList.add('open');
+}
+
+function confirmerBenevoleAmical(){
+  if(!BENEVOLE_AMICAL_CONTEXT) return;
+  var evId=BENEVOLE_AMICAL_CONTEXT.evId;
+  var evNom=BENEVOLE_AMICAL_CONTEXT.evNom;
+  var data=BENEVOLES_DATA[evId];
+  if(!data){showToast('Événement introuvable');return;}
+  if(data.liste.length>=data.max){showToast('Tous les postes sont déjà pourvus');return;}
+  var nom=typeof CURRENT_AMICALISTE==='string'?CURRENT_AMICALISTE:'Amicaliste';
+  var autrePoste=document.getElementById('mba-autre-poste');
+  var poste='';
+  if(autrePoste&&autrePoste.value.trim()) poste=autrePoste.value.trim();
+  else {
+    var checked=document.querySelector('input[name="mba-poste"]:checked');
+    poste=checked?checked.value:'Bénévole';
+  }
+  data.liste.push({nom:nom,poste:poste});
+  document.getElementById('modal-benevole-amical').classList.remove('open');
+  showToast('Merci ! Vous êtes inscrit(e) comme bénévole — '+poste);
+  if(typeof window.ajouterConfirmationAmicaliste==='function') window.ajouterConfirmationAmicaliste(
+    'Bénévole — '+evNom,
+    'Votre inscription comme bénévole pour '+evNom+' (poste : '+poste+') a bien été enregistrée. Elle est en attente de validation par la commission. Merci pour votre engagement !'
+  );
+  if(typeof renderEvenementsAmicalisteV58==='function') renderEvenementsAmicalisteV58();
+  BENEVOLE_AMICAL_CONTEXT=null;
+}
+
+function hasBenevoleSlots(evId){
+  var data=BENEVOLES_DATA[evId];
+  return data&&data.liste.length<data.max;
 }
 
 // Postes bénévoles définis lors de la création d'un nouvel événement (avant publication)
@@ -15465,7 +15549,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');s.setAttribute('aria-hidden','true');});
     pg.classList.add('on'); pg.removeAttribute('aria-hidden');
     try{ if(typeof window.updateBottomNav==='function') window.updateBottomNav(page); }catch(e){}
-    try{ document.body.classList.toggle('show-fab', page==='pg-accueil'); }catch(e){}
+    try{ document.body.classList.toggle('show-fab', page==='pg-accueil'||page==='pg-home-amical'||page==='pg-home-bureau'||page==='pg-voyages-amical'||page==='pg-evenements-amical'); }catch(e){}
     try{ pg.scrollTop=0; window.scrollTo({top:0,behavior:'auto'}); }catch(e){}
     if(page==='pg-amical-fdf' && typeof window.initPageAmicalFDF==='function') setTimeout(window.initPageAmicalFDF,40);
     if(page==='pg-amical-noel' && typeof window.initPageAmicalNoel==='function') setTimeout(window.initPageAmicalNoel,40);
@@ -15749,6 +15833,10 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     let msg='Inscription envoyée à la commission Voyages — en attente de validation';
     if(accompagnateur) msg+=' (dont vous comme accompagnateur)';
     if(typeof showToast==='function') showToast(msg);
+    if(typeof window.ajouterConfirmationAmicaliste==='function') window.ajouterConfirmationAmicaliste(
+      'Inscription voyage — '+v.nom,
+      'Votre demande d’inscription au voyage '+v.nom+' ('+total+' personne'+(total>1?'s':'')+') a bien été enregistrée. Elle est en attente de validation par la commission Voyages. Vous serez informé(e) dès qu’une réponse sera apportée.'
+    );
     renderVoyagesAmicalisteV58();
     if(typeof renderInscriptionsVoyages==='function') renderInscriptionsVoyages();
   };
@@ -15810,6 +15898,12 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
         btn.onclick=function(){ inscrireEvenement(key); };
       }
       if(card && !card.querySelector('.v58-inscrits-link')) card.insertAdjacentHTML('beforeend',`<button class="v58-inscrits-link" onclick="voirInscritsEvenement('${key}')"><i class="ti ti-users"></i>Voir les inscrits</button>`);
+      if(card && !card.querySelector('.v58-benevole-btn') && typeof hasBenevoleSlots==='function' && hasBenevoleSlots(key)){
+        const evNom=window.EVENTS_DATA&&window.EVENTS_DATA[key]?window.EVENTS_DATA[key].titre:key;
+        const benData=window.BENEVOLES_DATA[key];
+        const placesLibres=benData.max-benData.liste.length;
+        card.insertAdjacentHTML('beforeend',`<button class="v58-benevole-btn" onclick="event.stopPropagation();ouvrirBenevoleAmical('${key}','${evNom.replace(/'/g,"\\'")}')"><i class="ti ti-heart-handshake"></i>Besoin d'aide · ${placesLibres} poste${placesLibres>1?'s':''}</button>`);
+      }
     });
   };
 
@@ -15969,7 +16063,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});
     pg.classList.add('on');
     safe(function(){ if(typeof updateBottomNav==='function') updateBottomNav(id); });
-    safe(function(){ document.body.classList.toggle('show-fab', id==='pg-accueil'); });
+    safe(function(){ document.body.classList.toggle('show-fab', id==='pg-accueil'||id==='pg-home-amical'||id==='pg-home-bureau'||id==='pg-voyages-amical'||id==='pg-evenements-amical'); });
     safe(function(){ if(id==='pg-comm-noel'&&typeof recalculerNoel==='function') setTimeout(recalculerNoel,50); });
     safe(function(){ if(id==='pg-comm-fdf'&&typeof recalculerFDF==='function') setTimeout(recalculerFDF,50); });
     safe(function(){ if(id==='pg-amical-noel'&&typeof initPageAmicalNoel==='function') setTimeout(initPageAmicalNoel,50); });
@@ -16836,6 +16930,11 @@ function confirmerInscriptionEvent(){
   var msg='Inscription envoyée — '+totalPersonnes+' personne'+(totalPersonnes>1?'s':'');
   if(accCoche)msg+=' (dont vous comme accompagnateur)';
   showToast(msg);
+  var commLabel=MIE_CONTEXT.type==='voyage'?'la commission Voyages':'la commission';
+  if(typeof window.ajouterConfirmationAmicaliste==='function') window.ajouterConfirmationAmicaliste(
+    'Inscription — '+MIE_CONTEXT.nom,
+    'Votre demande d\'inscription pour '+MIE_CONTEXT.nom+' ('+totalPersonnes+' personne'+(totalPersonnes>1?'s':'')+') a bien été enregistrée. Elle est en attente de validation par '+commLabel+'. Vous serez informé(e) dès qu\'une réponse sera apportée.'
+  );
   document.getElementById('modal-inscription-event').classList.remove('open');
   MIE_BOUTON_COURANT=null;
 }
@@ -17111,6 +17210,7 @@ function renderVoyagesAmicaliste(){
       +'<div class="voy-footer">'
       +'<button class="voy-voir-btn" onclick="event.stopPropagation();ouvrirFicheVoyage(\''+key+'\')"><i class="ti ti-eye" aria-hidden="true"></i>Voir la fiche</button>'
       +'<button class="voy-voir-btn" style="background:var(--grn)" onclick="event.stopPropagation();inscrireVoyage(\''+key+'\')"><i class="ti ti-send" aria-hidden="true"></i>S\'inscrire</button>'
+      +(typeof hasBenevoleSlots==='function'&&hasBenevoleSlots(key)?'<button class="voy-voir-btn" style="background:var(--accent-gradient,var(--r))" onclick="event.stopPropagation();ouvrirBenevoleAmical(\''+key+'\',\''+v.nom.replace(/'/g,"\\'")+'\')" title="Postes bénévoles disponibles"><i class="ti ti-heart-handshake" aria-hidden="true"></i>Aide</button>':'')
       +'<button class="voy-nb-btn" onclick="event.stopPropagation();ouvrirFicheVoyage(\''+key+'\')"><i class="ti ti-users" aria-hidden="true"></i>'+nbInscrits+'</button>'
       +'</div></div></div>';
   });
@@ -19827,6 +19927,22 @@ function ouvrirFicheVoyage(voyKey){
   var msgFiltre='tous';
 
   function saveMsgAmical(){ try{ localStorage.setItem('MSG_AMICAL',JSON.stringify(MSG_AMICAL)); }catch(e){} }
+
+  window.ajouterConfirmationAmicaliste=function(objet,corps){
+    var now=new Date();
+    var dateStr=('0'+now.getDate()).slice(-2)+'/'+('0'+(now.getMonth()+1)).slice(-2)+'/'+now.getFullYear();
+    MSG_AMICAL.unshift({
+      id:'conf'+Date.now(),
+      de:'Amicale',
+      dest:currentName(),
+      objet:objet,
+      corps:corps,
+      date:dateStr,
+      lu:false
+    });
+    saveMsgAmical();
+    updateMsgBadge();
+  };
 
   function currentName(){
     try{ var m=typeof getCurrentMember==='function'&&getCurrentMember(); if(m) return (m.p+' '+m.n).trim(); }catch(e){}
