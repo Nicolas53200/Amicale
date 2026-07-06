@@ -2372,7 +2372,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
             <div id="carousel-inner" style="display:flex;transition:transform .35s ease;will-change:transform;cursor:grab;user-select:none">
 
               <!-- SLIDE 1 : Weekend Saint-Malo (photo) -->
-              <div style="flex:0 0 100%;cursor:pointer" onclick="goPage('pg-voyages-amical')">
+              <div style="flex:0 0 100%;cursor:pointer" onclick="if(typeof ouvrirFicheVoyage==='function') ouvrirFicheVoyage('saintmalo'); else goPage('pg-voyages-amical')">
                 <div id="carousel-slide1-bg" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 50%),linear-gradient(to bottom,rgba(232,85,58,0.85) 0%,rgba(217,64,102,0.6) 25%,transparent 50%),url('https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80') center/cover no-repeat;height:clamp(200px,50vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;position:relative">
                   <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:10px;font-weight:700;padding:6px 14px;border-radius:20px;width:fit-content;text-transform:uppercase;letter-spacing:0.8px">
                     Prochain événement
@@ -9658,7 +9658,9 @@ function ouvrirBenevoleAmical(evId,evNom){
   });
   html+='<div style="margin-top:8px"><label class="ml">Autre poste (optionnel)</label><input class="mi" type="text" id="mba-autre-poste" placeholder="Précisez si nécessaire..."></div>';
   document.getElementById('mba-postes-list').innerHTML=html;
-  document.getElementById('modal-benevole-amical').classList.add('open');
+  var mba=document.getElementById('modal-benevole-amical');
+  if(typeof window.AMICALE_openPopup==='function') window.AMICALE_openPopup(mba);
+  else mba.classList.add('open');
 }
 
 function confirmerBenevoleAmical(){
@@ -15809,7 +15811,11 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
       if(infoAcc) infoAcc.textContent=v.accompagnateursRecherches+' accompagnateur(trice)s recherché(e)s pour ce séjour.';
     } else if(rowAcc) rowAcc.style.display='none';
     majTotalVoyageV58();
-    const modal=document.getElementById('modal-v58-inscription-voyage'); if(modal) modal.classList.add('open');
+    const modal=document.getElementById('modal-v58-inscription-voyage');
+    if(modal){
+      if(typeof window.AMICALE_openPopup==='function') window.AMICALE_openPopup(modal);
+      else modal.classList.add('open');
+    }
   };
 
   window.confirmerInscriptionVoyageV58=function(){
@@ -15898,11 +15904,11 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
         btn.onclick=function(){ inscrireEvenement(key); };
       }
       if(card && !card.querySelector('.v58-inscrits-link')) card.insertAdjacentHTML('beforeend',`<button class="v58-inscrits-link" onclick="voirInscritsEvenement('${key}')"><i class="ti ti-users"></i>Voir les inscrits</button>`);
-      if(card && !card.querySelector('.v58-benevole-btn') && typeof hasBenevoleSlots==='function' && hasBenevoleSlots(key)){
+      if(!btn.parentElement.querySelector('.v58-benevole-btn') && typeof hasBenevoleSlots==='function' && hasBenevoleSlots(key)){
         const evNom=window.EVENTS_DATA&&window.EVENTS_DATA[key]?window.EVENTS_DATA[key].titre:key;
         const benData=window.BENEVOLES_DATA[key];
         const placesLibres=benData.max-benData.liste.length;
-        card.insertAdjacentHTML('beforeend',`<button class="v58-benevole-btn" onclick="event.stopPropagation();ouvrirBenevoleAmical('${key}','${evNom.replace(/'/g,"\\'")}')"><i class="ti ti-heart-handshake"></i>Besoin d'aide · ${placesLibres} poste${placesLibres>1?'s':''}</button>`);
+        btn.parentElement.insertAdjacentHTML('beforeend',`<button class="v58-benevole-btn" onclick="event.stopPropagation();ouvrirBenevoleAmical('${key}','${evNom.replace(/'/g,"\\'")}')"><i class="ti ti-heart-handshake"></i>Besoin d'aide · ${placesLibres} poste${placesLibres>1?'s':''}</button>`);
       }
     });
   };
@@ -16870,7 +16876,9 @@ function ouvrirModalInscriptionEvent(type,key,nom,enfantsAutorises,ageLimiteEnfa
   }
 
   mieRecalculerRecap();
-  document.getElementById('modal-inscription-event').classList.add('open');
+  var mie=document.getElementById('modal-inscription-event');
+  if(typeof window.AMICALE_openPopup==='function') window.AMICALE_openPopup(mie);
+  else mie.classList.add('open');
 }
 
 function mieAjusterAdultes(delta){
@@ -19942,6 +19950,9 @@ function ouvrirFicheVoyage(voyKey){
     });
     saveMsgAmical();
     updateMsgBadge();
+    setTimeout(function(){
+      if(typeof showToast==='function') showToast('Un message de confirmation a été ajouté dans votre messagerie');
+    }, 1500);
   };
 
   function currentName(){
