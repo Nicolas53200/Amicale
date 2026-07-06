@@ -7310,13 +7310,16 @@ function publierCreer(){
   const isProg=document.getElementById('tgl-pub-creer').classList.contains('off');
   const dateP=document.getElementById('creer-pub-dt').value;
 
+  var newEvId='ev'+Date.now();
+  var heure=document.getElementById('creer-heure')?document.getElementById('creer-heure').value:'';
+  var desc=document.getElementById('creer-desc')?document.getElementById('creer-desc').value.trim():'';
+  EVENTS_DATA[newEvId]={titre:titre,date:date,heure:heure,lieu:lieu,desc:desc,icon:currentEvIcon2.creer||'ti-confetti',color:currentEvColor2.creer||'#c0392b',publie:!isProg,image:currentAfficheURL['creer']||null};
+
   if(isProg&&dateP){
     showToast('Événement programmé — publication le '+new Date(dateP).toLocaleDateString('fr-FR'));
   } else {
     showToast('Événement "'+titre+'" publié dans le carousel !');
-    // Synchroniser avec le carousel bureau (aperçu)
     syncCarouselAmical('creer',titre,lieu);
-    // Synchroniser avec le carousel amicaliste — slide 2 par défaut pour nouveau événement
     appliquerImageCarousel(2,titre,lieu,currentAfficheURL['creer']);
   }
   goPage('pg-comm-evenements');
@@ -7491,6 +7494,7 @@ function sauvegarderModif(){
     EVENTS_DATA[id].desc=document.getElementById('mod-desc-inp').value;
     EVENTS_DATA[id].color=currentEvColor2.mod;
     EVENTS_DATA[id].icon=currentEvIcon2.mod;
+    if(currentAfficheURL.mod) EVENTS_DATA[id].image=currentAfficheURL.mod;
   }
 
   // Mettre à jour la carte dans la liste
@@ -15895,6 +15899,10 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     map.forEach(([key,sel])=>{
       const btn=page.querySelector(sel); if(!btn) return;
       const my=getMyEvent(key); const card=btn.closest('.card')||btn.parentElement;
+      if(card && window.EVENTS_DATA && window.EVENTS_DATA[key] && window.EVENTS_DATA[key].image){
+        const hdr=card.querySelector('div:first-child');
+        if(hdr && !hdr.dataset.imgApplied){ hdr.style.backgroundImage='url('+window.EVENTS_DATA[key].image+')'; hdr.style.backgroundSize='cover'; hdr.style.backgroundPosition='center'; hdr.dataset.imgApplied='1'; }
+      }
       if(my){
         btn.innerHTML=my.statut==='acceptee'?'<i class="ti ti-circle-check"></i>Inscription validée':'<i class="ti ti-clock"></i>En attente de validation';
         btn.style.background=my.statut==='acceptee'?'var(--grn)':'var(--amb)';
