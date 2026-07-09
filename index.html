@@ -4318,9 +4318,21 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div class="sec" style="margin:0" id="mod-ben-titre">Bénévoles (4/6)</div>
-            <button style="background:var(--rl);border:none;border-radius:var(--border-radius-md);padding:5px 10px;font-size:11px;color:var(--r);cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;gap:4px" onclick="ouvrirModalAjoutBenevole()"><i class="ti ti-plus" aria-hidden="true"></i>Poste</button>
+            <div style="display:flex;gap:4px">
+              <button style="background:var(--bll);border:none;border-radius:var(--border-radius-md);padding:5px 10px;font-size:11px;color:var(--blu);cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;gap:4px" onclick="BenevoleService.ouvrirMessageGroupe((document.getElementById('pg-modifier-evenement').dataset.editingId)||'repas')"><i class="ti ti-send" aria-hidden="true"></i>Message groupé</button>
+              <button style="background:var(--rl);border:none;border-radius:var(--border-radius-md);padding:5px 10px;font-size:11px;color:var(--r);cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;gap:4px" onclick="ouvrirModalAjoutBenevole()"><i class="ti ti-plus" aria-hidden="true"></i>Poste</button>
+            </div>
           </div>
           <div id="mod-ben-list"></div>
+
+          <!-- CANDIDATURES EN ATTENTE DE VALIDATION -->
+          <div style="margin-top:12px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              <i class="ti ti-clock" style="font-size:14px;color:var(--amb)"></i>
+              <div class="sec" style="margin:0;color:var(--amb)">Candidatures en attente</div>
+            </div>
+            <div id="mod-ben-attente"></div>
+          </div>
         </div>
 
         <!-- MODAL AJOUT BÉNÉVOLE -->
@@ -6440,6 +6452,34 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
         <div class="mac" style="margin-top:0">
           <button class="mc-c" onclick="document.getElementById('modal-benevole-amical').classList.remove('open')">Annuler</button>
           <button class="mc-ok" id="mba-confirm-btn" onclick="confirmerBenevoleAmical()">Je me porte volontaire</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL MESSAGE GROUPÉ BÉNÉVOLES — envoi par la commission -->
+    <div class="mow" id="modal-msg-benevoles" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
+      <div class="mbox" style="max-height:90vh;overflow-y:auto">
+        <div class="mh2"></div>
+        <div class="mtt" id="mmb-titre">Message aux bénévoles</div>
+        <input type="hidden" id="mmb-evid">
+
+        <div style="background:var(--grl);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start">
+          <i class="ti ti-users-group" style="font-size:16px;color:var(--grn);flex-shrink:0;margin-top:1px"></i>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--grn);margin-bottom:2px">Destinataires</div>
+            <div style="font-size:12px;color:var(--color-text-primary)" id="mmb-destinataires"></div>
+          </div>
+        </div>
+
+        <label class="ml" for="mmb-objet">Objet</label>
+        <input class="mi" id="mmb-objet" placeholder="Objet du message">
+
+        <label class="ml" for="mmb-corps">Message</label>
+        <textarea class="mi" id="mmb-corps" rows="5" style="resize:vertical" placeholder="Ex : Bonjour à tous, rendez-vous samedi à 8h00 au centre de secours pour la mise en place. Pensez à apporter..."></textarea>
+
+        <div class="mac" style="margin-top:10px">
+          <button class="mc-c" onclick="document.getElementById('modal-msg-benevoles').classList.remove('open')">Annuler</button>
+          <button class="mc-ok" onclick="BenevoleService.envoyerMessageGroupe()"><i class="ti ti-send" style="margin-right:4px"></i>Envoyer à tous</button>
         </div>
       </div>
     </div>
@@ -9721,6 +9761,7 @@ function renderBenevoles(evId){
     </div>`;
   }
   list.innerHTML=html;
+  if(typeof BenevoleService!=='undefined') BenevoleService.renderAttente(evId,'mod-ben-attente');
 }
 
 function retirerBenevole(evId,idx){
@@ -9804,13 +9845,15 @@ function confirmerBenevoleAmical(){
     var checked=document.querySelector('input[name="mba-poste"]:checked');
     poste=checked?checked.value:'Bénévole';
   }
-  data.liste.push({nom:nom,poste:poste});
+  if(!data.attente) data.attente=[];
+  data.attente.push({nom:nom,poste:poste,date:new Date().toLocaleDateString('fr-FR'),statut:'attente'});
   document.getElementById('modal-benevole-amical').classList.remove('open');
-  showToast('Merci ! Vous êtes inscrit(e) comme bénévole — '+poste);
+  showToast('Votre candidature comme bénévole a été envoyée à la commission');
   if(typeof window.ajouterConfirmationAmicaliste==='function') window.ajouterConfirmationAmicaliste(
-    'Bénévole — '+evNom,
-    'Votre inscription comme bénévole pour '+evNom+' (poste : '+poste+') a bien été enregistrée. Elle est en attente de validation par la commission. Merci pour votre engagement !'
+    'Candidature bénévole — '+evNom,
+    'Votre candidature comme bénévole pour « '+evNom+' » (poste : '+poste+') a bien été envoyée à la commission. Vous recevrez un message dès qu\'elle sera validée. Merci pour votre engagement !'
   );
+  BenevoleService.notifierCommission(evId,evNom,nom,poste);
   if(typeof renderEvenementsAmicalisteV58==='function') renderEvenementsAmicalisteV58();
   BENEVOLE_AMICAL_CONTEXT=null;
 }
@@ -9819,6 +9862,155 @@ function hasBenevoleSlots(evId){
   var data=BENEVOLES_DATA[evId];
   return data&&data.liste.length<data.max;
 }
+
+/*
+ * ══════════════════════════════════════════════════════════════════
+ * BenevoleService — Workflow complet de gestion des bénévoles
+ * ══════════════════════════════════════════════════════════════════
+ *
+ * Flux :
+ *   1. Amicaliste se porte bénévole → statut "attente" + notification commission
+ *   2. Commission valide ou refuse → message de confirmation à l'amicaliste
+ *   3. Commission peut envoyer un message groupé à tous les bénévoles confirmés
+ *
+ * Point d'extension backend :
+ *   POST /api/v1/tenants/:id/events/:evId/volunteers
+ *   PUT  /api/v1/tenants/:id/events/:evId/volunteers/:volId/validate
+ *   POST /api/v1/tenants/:id/events/:evId/volunteers/broadcast
+ */
+var BenevoleService = (function(){
+  'use strict';
+
+  function getEventName(evId){
+    if(typeof EVENTS_DATA!=='undefined' && EVENTS_DATA[evId]) return EVENTS_DATA[evId].titre;
+    return evId;
+  }
+
+  function getCommissionForEvent(evId){
+    if(typeof EVENTS_DATA!=='undefined' && EVENTS_DATA[evId] && EVENTS_DATA[evId].commission) return EVENTS_DATA[evId].commission;
+    if(evId==='repas'||evId==='bal') return 'Événements';
+    if(evId==='tournoi') return 'Sportive';
+    return 'Événements';
+  }
+
+  function notifierCommission(evId,evNom,nom,poste){
+    if(typeof MSG_BUREAU==='undefined') return;
+    var now=new Date();
+    var dateStr=('0'+now.getDate()).slice(-2)+'/'+('0'+(now.getMonth()+1)).slice(-2)+'/'+now.getFullYear();
+    MSG_BUREAU.unshift({
+      id:'ben'+Date.now(),
+      type:'benevole',
+      de:'amicaliste',
+      dest:'tous',
+      objet:'Candidature bénévole — '+evNom,
+      corps:nom+' souhaite devenir bénévole pour « '+evNom+' » au poste : '+poste+'.\n\nMerci de valider ou refuser cette candidature depuis l\'onglet Bénévoles de l\'événement.',
+      date:dateStr,
+      lu:false,
+      envoye:false,
+      benevole:{evId:evId,nom:nom,poste:poste,statut:'attente'}
+    });
+    if(typeof updateNotifBadges==='function') updateNotifBadges();
+    if(typeof renderMessagesBureau==='function') renderMessagesBureau();
+  }
+
+  function validerBenevole(evId,index){
+    var data=BENEVOLES_DATA[evId];
+    if(!data||!data.attente||!data.attente[index]) return;
+    var candidat=data.attente[index];
+    candidat.statut='valide';
+    data.liste.push({nom:candidat.nom,poste:candidat.poste});
+    data.attente.splice(index,1);
+    var evNom=getEventName(evId);
+    if(typeof window.ajouterConfirmationAmicaliste==='function'){
+      window.ajouterConfirmationAmicaliste(
+        'Bénévole confirmé — '+evNom,
+        'Votre candidature comme bénévole pour « '+evNom+' » (poste : '+candidat.poste+') a été validée par la commission. Vous serez contacté(e) prochainement pour les détails d\'organisation. Merci !'
+      );
+    }
+    if(typeof renderBenevoles==='function') renderBenevoles(evId);
+    showToast(candidat.nom+' validé(e) comme bénévole — '+candidat.poste);
+  }
+
+  function refuserBenevole(evId,index){
+    var data=BENEVOLES_DATA[evId];
+    if(!data||!data.attente||!data.attente[index]) return;
+    var candidat=data.attente[index];
+    candidat.statut='refuse';
+    var evNom=getEventName(evId);
+    if(typeof window.ajouterConfirmationAmicaliste==='function'){
+      window.ajouterConfirmationAmicaliste(
+        'Candidature bénévole — '+evNom,
+        'Nous vous remercions pour votre candidature comme bénévole pour « '+evNom+' ». Malheureusement, tous les postes sont déjà pourvus. N\'hésitez pas à vous proposer pour de prochains événements !'
+      );
+    }
+    data.attente.splice(index,1);
+    showToast('Candidature de '+candidat.nom+' refusée');
+  }
+
+  function renderAttente(evId,containerId){
+    var data=BENEVOLES_DATA[evId];
+    var container=document.getElementById(containerId);
+    if(!container) return;
+    if(!data||!data.attente||data.attente.length===0){
+      container.innerHTML='<div style="text-align:center;padding:12px;font-size:12px;color:var(--color-text-secondary)">Aucune candidature en attente</div>';
+      return;
+    }
+    var html='';
+    data.attente.forEach(function(c,i){
+      html+='<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;border-color:var(--amb)">';
+      html+='<div style="width:36px;height:36px;border-radius:50%;background:var(--aml);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-user-heart" style="font-size:16px;color:var(--amb)"></i></div>';
+      html+='<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">'+c.nom+'</div>';
+      html+='<div style="font-size:11px;color:var(--color-text-secondary)">Poste : '+c.poste+' · Candidature du '+c.date+'</div></div>';
+      html+='<div style="display:flex;gap:4px">';
+      html+='<button onclick="BenevoleService.validerBenevole(\''+evId+'\','+i+')" style="width:32px;height:32px;border-radius:10px;background:var(--grl);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Valider"><i class="ti ti-check" style="font-size:16px;color:var(--grn)"></i></button>';
+      html+='<button onclick="BenevoleService.refuserBenevole(\''+evId+'\','+i+')" style="width:32px;height:32px;border-radius:10px;background:var(--r2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Refuser"><i class="ti ti-x" style="font-size:16px;color:var(--r)"></i></button>';
+      html+='</div></div>';
+    });
+    container.innerHTML=html;
+  }
+
+  function ouvrirMessageGroupe(evId){
+    var data=BENEVOLES_DATA[evId];
+    if(!data||!data.liste||data.liste.length===0){showToast('Aucun bénévole confirmé pour cet événement');return;}
+    var evNom=getEventName(evId);
+    var noms=data.liste.map(function(b){return b.nom;});
+    var modal=document.getElementById('modal-msg-benevoles');
+    if(!modal) return;
+    document.getElementById('mmb-titre').textContent='Message aux bénévoles — '+evNom;
+    document.getElementById('mmb-destinataires').textContent=noms.join(', ')+' ('+noms.length+' bénévole'+(noms.length>1?'s':'')+')';
+    document.getElementById('mmb-objet').value='Information bénévoles — '+evNom;
+    document.getElementById('mmb-corps').value='';
+    document.getElementById('mmb-evid').value=evId;
+    if(typeof window.AMICALE_openPopup==='function') window.AMICALE_openPopup(modal);
+    else modal.classList.add('open');
+  }
+
+  function envoyerMessageGroupe(){
+    var evId=document.getElementById('mmb-evid').value;
+    var objet=document.getElementById('mmb-objet').value.trim();
+    var corps=document.getElementById('mmb-corps').value.trim();
+    if(!corps){showToast('Veuillez rédiger un message');return;}
+    var data=BENEVOLES_DATA[evId];
+    if(!data||!data.liste) return;
+    data.liste.forEach(function(b){
+      if(typeof window.ajouterConfirmationAmicaliste==='function'){
+        window.ajouterConfirmationAmicaliste(objet, corps);
+      }
+    });
+    document.getElementById('modal-msg-benevoles').classList.remove('open');
+    showToast('Message envoyé à '+data.liste.length+' bénévole'+(data.liste.length>1?'s':''));
+  }
+
+  return {
+    notifierCommission: notifierCommission,
+    validerBenevole: validerBenevole,
+    refuserBenevole: refuserBenevole,
+    renderAttente: renderAttente,
+    ouvrirMessageGroupe: ouvrirMessageGroupe,
+    envoyerMessageGroupe: envoyerMessageGroupe,
+    getCommissionForEvent: getCommissionForEvent
+  };
+})();
 
 // Postes bénévoles définis lors de la création d'un nouvel événement (avant publication)
 let POSTES_CREATION=[];
@@ -17112,9 +17304,11 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
       if(!c.modele){
         c.modele=c.features.indexOf('locations')>-1?'location':c.features.indexOf('voyages')>-1?'voyage':c.features.indexOf('bons_cadeaux')>-1?'bons':(c.features.indexOf('evenements')>-1||c.features.indexOf('carousel')>-1?'evenement':'simple');
       }
-      c.pageBureau='pg-commission-dynamique-bureau';
-      c.page='pg-commission-dynamique-bureau';
-      c.pageAmical='pg-commission-dynamique-amical';
+      if(!c.fixe){
+        c.pageBureau='pg-commission-dynamique-bureau';
+        c.page='pg-commission-dynamique-bureau';
+        c.pageAmical='pg-commission-dynamique-amical';
+      }
       if(!c.ico) c.ico=MODEL_ICONS[c.modele]||'ti-users-group';
       if(!c.col) c.col='var(--r)';
       try{ if(typeof COMM_LABELS_SOLDE!=='undefined') COMM_LABELS_SOLDE[c.id]=c.nom; }catch(e){}
@@ -18115,10 +18309,11 @@ function ouvrirFicheVoyage(voyKey){
     activeCommissionId=id;
     var m=modeleOf(c);
     sessionStorage.setItem('amicale_commission_active_v62',id);
-    if(typeof window.showToast==='function') window.showToast('Ouverture de « '+c.nom+' » avec le modèle '+m.label);
-    if(m.pageBureau==='pg-comm-custom' && typeof window.ouvrirCommissionCustom==='function') return window.ouvrirCommissionCustom(id);
-    window.goPage(m.pageBureau);
-    setTimeout(function(){injectBanner(m.pageBureau,c,'bureau');},120);
+    var page = (c.fixe && typeof COMM_PAGES!=='undefined' && COMM_PAGES[c.id]) ? COMM_PAGES[c.id] : m.pageBureau;
+    if(typeof window.showToast==='function') window.showToast('Ouverture de « '+c.nom+' »');
+    if(page==='pg-comm-custom' && typeof window.ouvrirCommissionCustom==='function') return window.ouvrirCommissionCustom(id);
+    window.goPage(page);
+    setTimeout(function(){injectBanner(page,c,'bureau');},120);
   }
   window.ouvrirCommissionModeleV62=openBureau;
 
