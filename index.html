@@ -1064,6 +1064,9 @@ body.pc-mode .bureau-tabbar{display:none!important}
 .doc-btn i{font-size:13px;color:var(--color-text-secondary)}
 
 /* MODAL */
+.modal{background:rgba(0,0,0,0.5);display:none;align-items:flex-end;position:fixed;inset:0;z-index:9000}
+.modal.open{display:flex}
+.modal-card{background:var(--color-background-primary);border-radius:24px 24px 0 0;padding:20px 18px 34px;width:100%;max-width:440px;margin:0 auto;max-height:85dvh;overflow-y:auto;box-shadow:var(--shadow-lg)}
 .mow{min-height:400px;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;position:fixed;inset:0;z-index:6000}
 .mow.open{display:flex}
 .mbox{background:var(--color-background-primary);border-radius:24px 24px 0 0;padding:20px 18px 34px;width:100%;max-width:390px;margin:0 auto;max-height:85dvh;overflow-y:auto;box-shadow:var(--shadow-lg)}
@@ -6252,7 +6255,7 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
   }
 </style>
 
-<div class="modal" id="modal-v58-inscription-voyage">
+<div class="modal" id="modal-v58-inscription-voyage" onclick="if(event.target===this)closeModalV58('modal-v58-inscription-voyage')">
   <div class="modal-card" style="max-width:440px">
     <div class="handle"></div>
     <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
