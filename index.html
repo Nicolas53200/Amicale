@@ -3139,6 +3139,10 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <div class="tool-ico ti-grn"><i class="ti ti-template" aria-hidden="true"></i></div>
           <div><div class="tool-label">Modèles</div><div class="tool-sub">PV, budgets, affiches</div></div>
         </button>
+        <button class="tool-btn" data-tool="remboursement" onclick="RemboursementService.ouvrirDemande()">
+          <div class="tool-ico ti-blu"><i class="ti ti-arrow-back-up" aria-hidden="true"></i></div>
+          <div><div class="tool-label">Remboursement</div><div class="tool-sub">Demander un remb. de frais</div><div class="tool-badge" id="badge-remb-attente" style="display:none;background:var(--aml);color:var(--amb)"></div></div>
+        </button>
         <button class="big-btn" data-tool="gestion-comm" id="btn-gestion-comm" style="display:none" onclick="ouvrirGestionCommissions()">
           <div class="bb-ico" style="background:var(--pul)"><i class="ti ti-adjustments" style="color:var(--pur)" aria-hidden="true"></i></div>
           <div><div class="bb-label">Gérer les commissions</div><div class="bb-sub">Paramètres</div></div>
@@ -4547,58 +4551,10 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <i class="ti ti-shield-lock" style="font-size:16px;color:var(--blu);flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
           <div style="font-size:12px;color:var(--blu);line-height:1.4"><strong>Sécurité RIB :</strong> Le RIB fourni par le membre est utilisé pour le virement puis supprimé automatiquement. Il n'est jamais conservé en base.</div>
         </div>
-
-        <!-- DEMANDES EN ATTENTE -->
-        <div class="card" style="border-color:var(--blu)">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-            <div style="width:36px;height:36px;border-radius:50%;background:var(--blu);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0">SM</div>
-            <div style="flex:1">
-              <div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">Sophie Martin</div>
-              <div style="font-size:11px;color:var(--color-text-secondary)">Commission Événements · Avance propre</div>
-            </div>
-            <span class="badge" style="background:var(--aml);color:var(--amb)">En attente</span>
-          </div>
-          <div class="dr"><i class="ti ti-receipt" aria-hidden="true"></i><div class="dr-l">Objet</div><div class="dr-v">Achat nappes · Repas annuel</div></div>
-          <div class="dr"><i class="ti ti-currency-euro" aria-hidden="true"></i><div class="dr-l">Montant à rembourser</div><div class="dr-v" style="color:var(--blu);font-weight:700">45,00 €</div></div>
-          <div class="dr"><i class="ti ti-file-check" aria-hidden="true"></i><div class="dr-l">Facture jointe</div><div class="dr-v" style="color:var(--grn)">✓ Vérifiée</div></div>
-          <div class="dr" style="border:none"><i class="ti ti-calendar" aria-hidden="true"></i><div class="dr-l">Demande du</div><div class="dr-v">3 juin 2026</div></div>
-
-          <!-- ZONE RIB TEMPORAIRE -->
-          <div id="rib-zone-sm" style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;margin:8px 0">
-            <div style="font-size:11px;font-weight:600;color:var(--color-text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:5px">
-              <i class="ti ti-shield" style="font-size:14px;color:var(--blu)" aria-hidden="true"></i>
-              RIB fourni par Sophie Martin (usage unique — sera supprimé après virement)
-            </div>
-            <div class="dr" style="padding:4px 0"><i class="ti ti-building-bank" aria-hidden="true"></i><div class="dr-l">Banque</div><div class="dr-v">Crédit Agricole</div></div>
-            <div class="dr" style="padding:4px 0"><i class="ti ti-credit-card" aria-hidden="true"></i><div class="dr-l">IBAN</div><div class="dr-v" style="font-size:11px">FR76 1234 5678 9012 ••••</div></div>
-            <div class="dr" style="padding:4px 0;border:none"><i class="ti ti-user" aria-hidden="true"></i><div class="dr-l">Titulaire</div><div class="dr-v">Sophie Martin</div></div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:4px">
-            <button style="padding:10px;border-radius:var(--border-radius-md);background:var(--grl);color:var(--grn);border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:4px" onclick="validerRemboursement('sm')">
-              <i class="ti ti-check" aria-hidden="true"></i>Virement effectué
-            </button>
-            <button style="padding:10px;border-radius:var(--border-radius-md);background:var(--r2);color:var(--rd);border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:4px" onclick="showToast('Demande refusée — Sophie Martin notifiée')">
-              <i class="ti ti-x" aria-hidden="true"></i>Refuser
-            </button>
-          </div>
-        </div>
-
-        <!-- HISTORIQUE -->
+        <div id="remb-attente-zone"></div>
         <div class="sec" style="margin-top:8px">Historique des remboursements</div>
-        <div class="card" style="padding:0;overflow:hidden">
-          <div class="dr" style="padding:10px 12px">
-            <div style="width:28px;height:28px;border-radius:50%;background:var(--grl);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--grn);flex-shrink:0">JD</div>
-            <div style="flex:1;padding-left:8px"><div style="font-size:12px;font-weight:600;color:var(--color-text-primary)">Jean Dupont · 32 €</div><div style="font-size:10px;color:var(--color-text-secondary)">Achat café réunion · 15 mai 2026 · Viré ✓</div></div>
-            <span class="badge badge-ok">Viré</span>
-          </div>
-          <div class="dr" style="padding:10px 12px;border:none">
-            <div style="width:28px;height:28px;border-radius:50%;background:var(--grl);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--grn);flex-shrink:0">PL</div>
-            <div style="flex:1;padding-left:8px"><div style="font-size:12px;font-weight:600;color:var(--color-text-primary)">Pierre Leroy · 78 €</div><div style="font-size:10px;color:var(--color-text-secondary)">Fournitures bal · 2 mars 2026 · Viré ✓</div></div>
-            <span class="badge badge-ok">Viré</span>
-          </div>
-        </div>
-        <button class="add-btn" onclick="openModalCompta('remb')"><i class="ti ti-plus" aria-hidden="true"></i>Saisir un remboursement</button>
+        <div class="card" style="padding:0;overflow:hidden" id="remb-historique-zone"></div>
+        <button class="add-btn" onclick="RemboursementService.ouvrirDemande()"><i class="ti ti-plus" aria-hidden="true"></i>Nouvelle demande de remboursement</button>
       </div>
 
       <!-- ── PRÊTS AUX AMICALISTES ── -->
@@ -4793,6 +4749,44 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div class="mac" style="margin-top:10px">
           <button class="mc-c" onclick="document.getElementById('modal-compta').classList.remove('open')">Annuler</button>
           <button class="mc-ok" onclick="saveModalCompta()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DEMANDE DE REMBOURSEMENT -->
+    <div class="mow" id="modal-demande-remb" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
+      <div class="mbox">
+        <div class="mh2"></div>
+        <div class="mtt">Demande de remboursement de frais</div>
+        <div style="margin-bottom:10px">
+          <label class="ml" for="remb-objet">Libellé / objet de la dépense</label>
+          <input class="mi" type="text" id="remb-objet" placeholder="ex: Achat nappes pour le repas annuel">
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+            <div><label class="ml" for="remb-montant">Montant (€)</label><input class="mi" type="number" id="remb-montant" placeholder="0.00" step="0.01" min="0"></div>
+            <div><label class="ml" for="remb-commission">Commission</label>
+              <select class="mi" id="remb-commission">
+                <option value="">— Sélectionner —</option>
+              </select>
+            </div>
+          </div>
+          <label class="ml" for="remb-facture">Facture / justificatif</label>
+          <div id="remb-facture-zone" style="border:1.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);padding:16px;text-align:center;cursor:pointer;margin-bottom:10px;background:var(--color-background-secondary)" onclick="document.getElementById('remb-facture-input').click()">
+            <i class="ti ti-upload" style="font-size:22px;color:var(--color-text-secondary);display:block;margin-bottom:4px"></i>
+            <div style="font-size:12px;color:var(--color-text-secondary)" id="remb-facture-label">Cliquer pour joindre un fichier</div>
+            <input type="file" id="remb-facture-input" accept="image/*,.pdf" style="display:none" onchange="RemboursementService.onFactureChange(this)">
+          </div>
+          <label class="ml" for="remb-iban">IBAN (pour le virement)</label>
+          <input class="mi" type="text" id="remb-iban" placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX" style="font-family:monospace;letter-spacing:1px">
+          <label class="ml" for="remb-titulaire">Titulaire du compte</label>
+          <input class="mi" type="text" id="remb-titulaire" placeholder="Prénom Nom">
+          <div style="background:var(--bll);border-radius:var(--border-radius-md);padding:9px;font-size:11px;color:var(--blu);display:flex;gap:6px;align-items:flex-start">
+            <i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0;margin-top:1px"></i>
+            <span>Votre IBAN sera transmis au comptable pour le virement puis <strong>supprimé définitivement</strong> après traitement.</span>
+          </div>
+        </div>
+        <div class="mac">
+          <button class="mc-c" onclick="document.getElementById('modal-demande-remb').classList.remove('open')">Annuler</button>
+          <button class="mc-ok" onclick="RemboursementService.soumettreDemande()"><i class="ti ti-send" style="margin-right:4px"></i>Envoyer la demande</button>
         </div>
       </div>
     </div>
@@ -8696,7 +8690,7 @@ function confirmerRetour(){
   document.getElementById('sign-zone').children[0].style.display='block';
   document.getElementById('valid-btn-retour').className='valid-btn';
   ['ret-vendus','ret-inv','ret-mon','ret-chq','ret-aut'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  calcRetour(); populateSecteurSelect(); renderRetoursEnregistres(); updateCalStats(); renderDocsCompta('all'); renderBilanTable(); renderBudgets(); if(typeof BilanService!=='undefined'){BilanService.initScopeSelect();BilanService.renderApercu();}
+  calcRetour(); populateSecteurSelect(); renderRetoursEnregistres(); updateCalStats(); renderDocsCompta('all'); renderBilanTable(); renderBudgets(); if(typeof BilanService!=='undefined'){BilanService.initScopeSelect();BilanService.renderApercu();} if(typeof RemboursementService!=='undefined') RemboursementService.updateBadge();
 }
 
 
@@ -10749,11 +10743,18 @@ const BUDGETS_DATA=[...COMMISSIONS_COMPTA];
 let votePres=null,voteCompta=null;
 let reglementPret={max:200,delai:12,modes:'intégral ou échelonné'};
 
+var REMB_BUREAU=[
+  {id:'rb1',demandeur:'Jean Dupont',objet:'Achat café réunion',commission:'Événements',montant:32,date:'15/05/2026',facture:'ticket_cafe.jpg',iban:null,titulaire:'Jean Dupont',statut:'vire',dateVirement:'20/05/2026'},
+  {id:'rb2',demandeur:'Pierre Leroy',objet:'Fournitures bal',commission:'Événements',montant:78,date:'02/03/2026',facture:'facture_fournitures.pdf',iban:null,titulaire:'Pierre Leroy',statut:'vire',dateVirement:'08/03/2026'},
+  {id:'rb3',demandeur:'Sophie Martin',objet:'Achat nappes · Repas annuel',commission:'Événements',montant:45,date:'03/06/2026',facture:'facture_nappes.pdf',iban:'FR76 1234 5678 9012 3456 7890 123',titulaire:'Sophie Martin',statut:'attente',dateVirement:null}
+];
+
 function showComptaMainTab(id,btn){
   document.querySelectorAll('#pg-compta-bureau .tc').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('#pg-compta-bureau .tb').forEach(b=>b.classList.remove('on'));
   document.getElementById(id).classList.add('on');
   btn.classList.add('on');
+  if(id==='ct-remboursements' && typeof RemboursementService!=='undefined') RemboursementService.renderAll();
 }
 
 function renderBilanTable(){
@@ -11779,9 +11780,261 @@ function editBudget(id){
 }
 
 function validerRemboursement(who){
-  document.getElementById('rib-zone-sm').remove();
-  showToast('Virement de 45 € effectué — RIB supprimé définitivement');
+  RemboursementService.valider(who);
 }
+
+/* ══════════════════════════════════════════════════════════════════
+ * RemboursementService — Workflow complet de remboursement de frais
+ * ══════════════════════════════════════════════════════════════════
+ *
+ * Flux :
+ *   1. Membre du bureau soumet une demande (libellé, montant, facture, IBAN)
+ *   2. Le comptable voit la demande en attente avec le RIB
+ *   3. Le comptable valide → IBAN supprimé + message automatique au demandeur
+ *   4. Le comptable peut refuser → message au demandeur avec motif
+ *
+ * Point d'extension backend :
+ *   POST /api/v1/tenants/:id/remboursements
+ *   PUT  /api/v1/tenants/:id/remboursements/:rembId/valider
+ *   PUT  /api/v1/tenants/:id/remboursements/:rembId/refuser
+ */
+var RemboursementService = (function(){
+  'use strict';
+
+  var factureFile = null;
+
+  function initCommissionSelect(){
+    var sel=document.getElementById('remb-commission');
+    if(!sel||sel.options.length>1) return;
+    if(typeof COMMISSIONS_COMPTA==='undefined') return;
+    COMMISSIONS_COMPTA.forEach(function(c){
+      var opt=document.createElement('option');
+      opt.value=c.nom; opt.textContent=c.nom;
+      sel.appendChild(opt);
+    });
+  }
+
+  function ouvrirDemande(){
+    initCommissionSelect();
+    ['remb-objet','remb-montant','remb-iban','remb-titulaire'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.value='';
+    });
+    var selComm=document.getElementById('remb-commission');
+    if(selComm) selComm.selectedIndex=0;
+    factureFile=null;
+    var label=document.getElementById('remb-facture-label');
+    if(label) label.textContent='Cliquer pour joindre un fichier';
+    var zone=document.getElementById('remb-facture-zone');
+    if(zone) zone.style.borderColor='var(--color-border-secondary)';
+    var modal=document.getElementById('modal-demande-remb');
+    if(modal) modal.classList.add('open');
+  }
+
+  function onFactureChange(input){
+    if(input.files&&input.files[0]){
+      factureFile=input.files[0].name;
+      var label=document.getElementById('remb-facture-label');
+      if(label) label.innerHTML='<i class="ti ti-file-check" style="color:var(--grn);margin-right:4px"></i>'+factureFile;
+      var zone=document.getElementById('remb-facture-zone');
+      if(zone) zone.style.borderColor='var(--grn)';
+    }
+  }
+
+  function formatIBAN(raw){
+    var clean=raw.replace(/\s/g,'');
+    if(clean.length<8) return clean;
+    return clean.slice(0,4)+' '+clean.slice(4,8)+' ····  ····';
+  }
+
+  function soumettreDemande(){
+    var objet=document.getElementById('remb-objet').value.trim();
+    var montant=parseFloat(document.getElementById('remb-montant').value);
+    var commission=document.getElementById('remb-commission').value;
+    var iban=document.getElementById('remb-iban').value.trim();
+    var titulaire=document.getElementById('remb-titulaire').value.trim();
+
+    if(!objet){showToast('Veuillez saisir le libellé');return;}
+    if(!montant||montant<=0){showToast('Veuillez saisir un montant valide');return;}
+    if(!iban){showToast('Veuillez saisir votre IBAN');return;}
+    if(!titulaire){showToast('Veuillez saisir le titulaire du compte');return;}
+
+    var now=new Date();
+    var dateStr=('0'+now.getDate()).slice(-2)+'/'+('0'+(now.getMonth()+1)).slice(-2)+'/'+now.getFullYear();
+    var demandeur=titulaire;
+
+    var remb={
+      id:'rb'+Date.now(),
+      demandeur:demandeur,
+      objet:objet,
+      commission:commission||'Non précisée',
+      montant:montant,
+      date:dateStr,
+      facture:factureFile,
+      iban:iban,
+      titulaire:titulaire,
+      statut:'attente',
+      dateVirement:null
+    };
+    REMB_BUREAU.push(remb);
+
+    if(typeof MSG_BUREAU!=='undefined'){
+      MSG_BUREAU.unshift({
+        id:'remb'+Date.now(),
+        type:'remboursement',
+        de:demandeur,
+        dest:'comptable',
+        objet:'Demande de remboursement — '+objet,
+        corps:demandeur+' demande le remboursement de '+montant.toFixed(2)+' € pour : '+objet+'.\nCommission : '+(commission||'Non précisée')+'.\nFacture : '+(factureFile?'jointe':'non jointe')+'.\n\nMerci de traiter cette demande depuis l\'onglet Remboursements de la comptabilité.',
+        date:dateStr,
+        lu:false,
+        envoye:false
+      });
+      if(typeof updateNotifBadges==='function') updateNotifBadges();
+      if(typeof renderMessagesBureau==='function') renderMessagesBureau();
+    }
+
+    document.getElementById('modal-demande-remb').classList.remove('open');
+    renderAll();
+    showToast('Demande de remboursement envoyée au comptable');
+  }
+
+  function valider(rembId){
+    var remb=null;
+    for(var i=0;i<REMB_BUREAU.length;i++){
+      if(REMB_BUREAU[i].id===rembId){remb=REMB_BUREAU[i];break;}
+    }
+    if(!remb) return;
+    var now=new Date();
+    remb.statut='vire';
+    remb.dateVirement=('0'+now.getDate()).slice(-2)+'/'+('0'+(now.getMonth()+1)).slice(-2)+'/'+now.getFullYear();
+    remb.iban=null;
+
+    if(typeof window.ajouterConfirmationAmicaliste==='function'){
+      window.ajouterConfirmationAmicaliste(
+        'Remboursement effectué — '+remb.objet,
+        'Votre demande de remboursement de '+remb.montant.toFixed(2)+' € pour « '+remb.objet+' » a été traitée.\n\nLe virement a été effectué le '+remb.dateVirement+' sur le compte de '+remb.titulaire+'.\n\nVotre IBAN a été supprimé de nos systèmes conformément à notre politique de sécurité.'
+      );
+    }
+    renderAll();
+    showToast('Virement de '+remb.montant.toFixed(2)+' € effectué — IBAN supprimé définitivement');
+  }
+
+  function refuser(rembId){
+    var remb=null;
+    for(var i=0;i<REMB_BUREAU.length;i++){
+      if(REMB_BUREAU[i].id===rembId){remb=REMB_BUREAU[i];break;}
+    }
+    if(!remb) return;
+    remb.statut='refuse';
+    remb.iban=null;
+
+    if(typeof window.ajouterConfirmationAmicaliste==='function'){
+      window.ajouterConfirmationAmicaliste(
+        'Remboursement refusé — '+remb.objet,
+        'Votre demande de remboursement de '+remb.montant.toFixed(2)+' € pour « '+remb.objet+' » n\'a pas pu être validée.\n\nVeuillez contacter le comptable pour plus d\'informations.\n\nVotre IBAN a été supprimé de nos systèmes.'
+      );
+    }
+    renderAll();
+    showToast('Demande de '+remb.demandeur+' refusée — notification envoyée');
+  }
+
+  function renderAll(){
+    renderAttente();
+    renderHistorique();
+    updateBadge();
+  }
+
+  function updateBadge(){
+    var count=0;
+    for(var i=0;i<REMB_BUREAU.length;i++){
+      if(REMB_BUREAU[i].statut==='attente') count++;
+    }
+    var badge=document.getElementById('badge-remb-attente');
+    if(badge){
+      if(count>0){
+        badge.style.display='inline-block';
+        badge.textContent=count+' en attente';
+      } else {
+        badge.style.display='none';
+      }
+    }
+  }
+
+  function ini(n){return(n||'?').split(' ').filter(Boolean).slice(0,2).map(function(x){return x[0];}).join('').toUpperCase()||'?';}
+
+  function renderAttente(){
+    var zone=document.getElementById('remb-attente-zone');
+    if(!zone) return;
+    var attente=REMB_BUREAU.filter(function(r){return r.statut==='attente';});
+    if(!attente.length){
+      zone.innerHTML='<div style="text-align:center;padding:16px;font-size:12px;color:var(--color-text-secondary)"><i class="ti ti-circle-check" style="font-size:20px;display:block;margin-bottom:4px;color:var(--grn)"></i>Aucune demande en attente</div>';
+      return;
+    }
+    var html='';
+    attente.forEach(function(r){
+      html+='<div class="card" style="border-color:var(--blu);margin-bottom:10px">';
+      html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
+      html+='<div style="width:36px;height:36px;border-radius:50%;background:var(--blu);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0">'+ini(r.demandeur)+'</div>';
+      html+='<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">'+r.demandeur+'</div>';
+      html+='<div style="font-size:11px;color:var(--color-text-secondary)">'+r.commission+' · Avance propre</div></div>';
+      html+='<span class="badge" style="background:var(--aml);color:var(--amb)">En attente</span></div>';
+      html+='<div class="dr"><i class="ti ti-receipt" aria-hidden="true"></i><div class="dr-l">Objet</div><div class="dr-v">'+r.objet+'</div></div>';
+      html+='<div class="dr"><i class="ti ti-currency-euro" aria-hidden="true"></i><div class="dr-l">Montant</div><div class="dr-v" style="color:var(--blu);font-weight:700">'+r.montant.toFixed(2)+' €</div></div>';
+      html+='<div class="dr"><i class="ti ti-file-check" aria-hidden="true"></i><div class="dr-l">Facture</div><div class="dr-v" style="color:'+(r.facture?'var(--grn)':'var(--color-text-secondary)')+'">'+
+        (r.facture?'<span style="cursor:pointer" onclick="showToast(\'Téléchargement de '+r.facture+'\')"><i class="ti ti-download" style="margin-right:3px"></i>'+r.facture+'</span>':'Non jointe')+'</div></div>';
+      html+='<div class="dr" style="border:none"><i class="ti ti-calendar" aria-hidden="true"></i><div class="dr-l">Demande du</div><div class="dr-v">'+r.date+'</div></div>';
+
+      if(r.iban){
+        html+='<div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;margin:8px 0">';
+        html+='<div style="font-size:11px;font-weight:600;color:var(--color-text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:5px">';
+        html+='<i class="ti ti-shield" style="font-size:14px;color:var(--blu)"></i>';
+        html+='RIB fourni par '+r.demandeur+' (usage unique — sera supprimé après virement)</div>';
+        html+='<div class="dr" style="padding:4px 0"><i class="ti ti-credit-card" aria-hidden="true"></i><div class="dr-l">IBAN</div><div class="dr-v" style="font-size:11px;font-family:monospace">'+formatIBAN(r.iban)+'</div></div>';
+        html+='<div class="dr" style="padding:4px 0;border:none"><i class="ti ti-user" aria-hidden="true"></i><div class="dr-l">Titulaire</div><div class="dr-v">'+r.titulaire+'</div></div></div>';
+      }
+
+      html+='<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:4px">';
+      html+='<button style="padding:10px;border-radius:var(--border-radius-md);background:var(--grl);color:var(--grn);border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:4px" onclick="RemboursementService.valider(\''+r.id+'\')">';
+      html+='<i class="ti ti-check"></i>Virement effectué</button>';
+      html+='<button style="padding:10px;border-radius:var(--border-radius-md);background:var(--r2);color:var(--rd);border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:4px" onclick="RemboursementService.refuser(\''+r.id+'\')">';
+      html+='<i class="ti ti-x"></i>Refuser</button></div></div>';
+    });
+    zone.innerHTML=html;
+  }
+
+  function renderHistorique(){
+    var zone=document.getElementById('remb-historique-zone');
+    if(!zone) return;
+    var historique=REMB_BUREAU.filter(function(r){return r.statut!=='attente';});
+    if(!historique.length){
+      zone.innerHTML='<div style="padding:12px;text-align:center;font-size:12px;color:var(--color-text-secondary)">Aucun remboursement traité</div>';
+      return;
+    }
+    var html='';
+    historique.forEach(function(r,idx){
+      var isLast=idx===historique.length-1;
+      var badgeClass=r.statut==='vire'?'badge-ok':'';
+      var badgeStyle=r.statut==='refuse'?'background:var(--r2);color:var(--rd)':'';
+      var badgeText=r.statut==='vire'?'Viré':'Refusé';
+      html+='<div class="dr" style="padding:10px 12px'+(isLast?';border:none':'')+'">';
+      html+='<div style="width:28px;height:28px;border-radius:50%;background:'+(r.statut==='vire'?'var(--grl)':'var(--r2)')+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+(r.statut==='vire'?'var(--grn)':'var(--rd)')+';flex-shrink:0">'+ini(r.demandeur)+'</div>';
+      html+='<div style="flex:1;padding-left:8px"><div style="font-size:12px;font-weight:600;color:var(--color-text-primary)">'+r.demandeur+' · '+r.montant.toFixed(0)+' €</div>';
+      html+='<div style="font-size:10px;color:var(--color-text-secondary)">'+r.objet+' · '+r.date+(r.dateVirement?' · Viré le '+r.dateVirement:'')+'</div></div>';
+      html+='<span class="badge '+badgeClass+'" style="'+badgeStyle+'">'+badgeText+'</span></div>';
+    });
+    zone.innerHTML=html;
+  }
+
+  return {
+    ouvrirDemande: ouvrirDemande,
+    onFactureChange: onFactureChange,
+    soumettreDemande: soumettreDemande,
+    valider: valider,
+    refuser: refuser,
+    renderAll: renderAll,
+    updateBadge: updateBadge
+  };
+})();
 
 function voter(role,val){
   if(role==='pres')votePres=val;
