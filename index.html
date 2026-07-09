@@ -815,6 +815,7 @@ body.pc-mode .back{
   transition:all .2s;
 }
 body.show-fab .toggle-pc-btn{display:flex}
+@media(max-width:500px){body.show-fab .toggle-pc-btn{display:none}}
 body.pc-mode .toggle-pc-btn{display:none !important}
 .toggle-pc-btn i{font-size:16px}
 .toggle-pc-btn.mode-mobile{background:var(--blu);color:white}
@@ -17405,7 +17406,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     if(r==='communication') return ['pg-home-bureau','pg-messagerie-bureau','pg-reunions','pg-journal-bureau','pg-retour-images','pg-biblio-modeles','pg-comm-evenements'].indexOf(id)>=0;
     if(r==='comm'||r==='commembre'){
       if(['pg-home-bureau','pg-messagerie-bureau','pg-reunions','pg-biblio-modeles','pg-comm-custom','pg-comm-saintebarbe','pg-comm-solidarite','pg-commission-dynamique-bureau','pg-commission-dyn-bureau','pg-commission-dyn-amical'].indexOf(id)>=0) return true;
-      var ck=pageToComm(id); if(ck) return comms().indexOf(ck)>=0;
+      var userComms=comms(); var matches=registry().filter(function(c){return c.pageBureau===id||c.page===id;}); if(matches.length) return matches.some(function(c){return userComms.indexOf(c.id)>=0;});
       return false;
     }
     if(['pg-comm-custom','pg-comm-saintebarbe','pg-comm-solidarite','pg-commission-dynamique-bureau','pg-commission-dyn-bureau','pg-commission-dyn-amical'].indexOf(id)>=0) return true;
