@@ -4318,9 +4318,21 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div class="sec" style="margin:0" id="mod-ben-titre">Bénévoles (4/6)</div>
-            <button style="background:var(--rl);border:none;border-radius:var(--border-radius-md);padding:5px 10px;font-size:11px;color:var(--r);cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;gap:4px" onclick="ouvrirModalAjoutBenevole()"><i class="ti ti-plus" aria-hidden="true"></i>Poste</button>
+            <div style="display:flex;gap:4px">
+              <button style="background:var(--bll);border:none;border-radius:var(--border-radius-md);padding:5px 10px;font-size:11px;color:var(--blu);cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;gap:4px" onclick="BenevoleService.ouvrirMessageGroupe((document.getElementById('pg-modifier-evenement').dataset.editingId)||'repas')"><i class="ti ti-send" aria-hidden="true"></i>Message groupé</button>
+              <button style="background:var(--rl);border:none;border-radius:var(--border-radius-md);padding:5px 10px;font-size:11px;color:var(--r);cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;gap:4px" onclick="ouvrirModalAjoutBenevole()"><i class="ti ti-plus" aria-hidden="true"></i>Poste</button>
+            </div>
           </div>
           <div id="mod-ben-list"></div>
+
+          <!-- CANDIDATURES EN ATTENTE DE VALIDATION -->
+          <div style="margin-top:12px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              <i class="ti ti-clock" style="font-size:14px;color:var(--amb)"></i>
+              <div class="sec" style="margin:0;color:var(--amb)">Candidatures en attente</div>
+            </div>
+            <div id="mod-ben-attente"></div>
+          </div>
         </div>
 
         <!-- MODAL AJOUT BÉNÉVOLE -->
@@ -4709,60 +4721,53 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div class="sec">Générer le bilan financier</div>
 
         <div class="card">
+          <label class="ml" for="bilan-scope">Périmètre</label>
+          <select class="ri" id="bilan-scope" onchange="BilanService.renderApercu()" style="margin-bottom:8px">
+            <option value="all">Toutes les commissions (bilan général)</option>
+          </select>
           <div class="mg">
-            <div><label class="ml" for="exp-de">Période du</label><input class="ri" type="date" id="exp-de"></div>
-            <div><label class="ml" for="exp-au">Au</label><input class="ri" type="date" id="exp-au"></div>
+            <div><label class="ml" for="exp-de">Période du</label><input class="ri" type="date" id="exp-de" onchange="BilanService.renderApercu()"></div>
+            <div><label class="ml" for="exp-au">Au</label><input class="ri" type="date" id="exp-au" onchange="BilanService.renderApercu()"></div>
           </div>
           <label class="ml" style="margin-bottom:6px">Contenu du bilan</label>
           <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-primary);cursor:pointer">
-              <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--r)">Recettes et dépenses par commission
+              <input type="checkbox" checked id="bilan-opt-commissions" style="width:16px;height:16px;accent-color:var(--r)" onchange="BilanService.renderApercu()">Recettes et dépenses par commission
             </label>
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-primary);cursor:pointer">
-              <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--r)">Budgets alloués vs réalisés
+              <input type="checkbox" checked id="bilan-opt-budgets" style="width:16px;height:16px;accent-color:var(--r)" onchange="BilanService.renderApercu()">Budgets alloués vs réalisés
             </label>
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-primary);cursor:pointer">
-              <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--r)">Remboursements membres
+              <input type="checkbox" checked id="bilan-opt-documents" style="width:16px;height:16px;accent-color:var(--r)" onchange="BilanService.renderApercu()">Détail des écritures (factures, recettes)
             </label>
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-primary);cursor:pointer">
-              <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--r)">Prêts aux amicalistes
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-primary);cursor:pointer">
-              <input type="checkbox" style="width:16px;height:16px;accent-color:var(--r)">Détail de toutes les écritures
+              <input type="checkbox" checked id="bilan-opt-horscomm" style="width:16px;height:16px;accent-color:var(--r)" onchange="BilanService.renderApercu()">Dépenses hors commission
             </label>
           </div>
         </div>
 
-        <!-- APERÇU BILAN -->
-        <div class="sec">Aperçu du bilan 2026</div>
-        <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:10px">
-          <div style="padding:10px 14px;background:var(--r);display:flex;justify-content:space-between;align-items:center">
-            <div style="font-size:13px;font-weight:700;color:white">Bilan Amicale SP Laval · 2026</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.8)">Exercice en cours</div>
-          </div>
-          <div style="padding:12px">
-            <div class="rapport-row" style="padding:8px 0;font-weight:600"><div class="rr-lbl">RECETTES TOTALES</div><div class="rr-val" style="color:var(--grn)">14 320 €</div></div>
-            <div style="font-size:11px;color:var(--color-text-secondary);padding:0 0 8px 12px;display:flex;flex-direction:column;gap:3px;border-bottom:0.5px solid var(--color-border-tertiary)">
-              <div style="display:flex;justify-content:space-between"><span>Calendriers</span><span>9 219 €</span></div>
-              <div style="display:flex;justify-content:space-between"><span>Locations</span><span>2 400 €</span></div>
-              <div style="display:flex;justify-content:space-between"><span>Événements</span><span>1 850 €</span></div>
-              <div style="display:flex;justify-content:space-between"><span>Cotisations</span><span>851 €</span></div>
-            </div>
-            <div class="rapport-row" style="padding:8px 0;font-weight:600"><div class="rr-lbl">DÉPENSES TOTALES</div><div class="rr-val" style="color:var(--r)">10 480 €</div></div>
-            <div style="font-size:11px;color:var(--color-text-secondary);padding:0 0 8px 12px;display:flex;flex-direction:column;gap:3px;border-bottom:0.5px solid var(--color-border-tertiary)">
-              <div style="display:flex;justify-content:space-between"><span>Calendriers (impression+conception)</span><span>5 008 €</span></div>
-              <div style="display:flex;justify-content:space-between"><span>Événements (traiteur, sono...)</span><span>3 200 €</span></div>
-              <div style="display:flex;justify-content:space-between"><span>Locations (entretien...)</span><span>820 €</span></div>
-              <div style="display:flex;justify-content:space-between"><span>Fonctionnement bureau</span><span>452 €</span></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0">
-              <div style="font-size:14px;font-weight:700;color:var(--color-text-primary)">RÉSULTAT NET</div>
-              <div style="font-size:18px;font-weight:700;color:var(--grn)">+ 3 840 €</div>
-            </div>
-          </div>
+        <!-- APERÇU BILAN DYNAMIQUE -->
+        <div class="sec">Aperçu du bilan <span id="bilan-apercu-annee">2026</span></div>
+        <div id="bilan-apercu-container"></div>
+
+        <!-- ACTIONS EXPORT -->
+        <div class="sec" style="margin-top:14px">Exporter le bilan</div>
+        <div style="background:var(--bll);border:0.5px solid #a3b8e8;border-radius:var(--border-radius-lg);padding:10px 12px;display:flex;gap:7px;align-items:flex-start;margin-bottom:12px">
+          <i class="ti ti-info-circle" style="font-size:16px;color:var(--blu);flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+          <div style="font-size:12px;color:var(--blu);line-height:1.4">Les fichiers sont téléchargés sur votre appareil. Pour sauvegarder sur un disque dur externe ou une clé USB, choisissez le dossier de destination dans la fenêtre de téléchargement de votre navigateur.</div>
         </div>
 
-        <div class="sec">Dossier comptable annuel</div>
+        <button class="export-btn" style="background:var(--grn)" onclick="BilanService.exportCSV()">
+          <i class="ti ti-file-spreadsheet" aria-hidden="true"></i>Télécharger le bilan en CSV (Excel)
+        </button>
+        <button class="export-btn" style="background:var(--r)" onclick="BilanService.exportPDF()">
+          <i class="ti ti-file-type-pdf" aria-hidden="true"></i>Imprimer / Enregistrer en PDF
+        </button>
+        <button class="export-btn" style="background:var(--blu)" onclick="showToast('Bilan envoyé au président')">
+          <i class="ti ti-send" aria-hidden="true"></i>Envoyer au président
+        </button>
+
+        <div class="sec" style="margin-top:14px">Dossier comptable annuel</div>
         <div class="card" style="border-color:var(--blu)">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
             <div style="width:42px;height:42px;border-radius:13px;background:var(--bll);display:flex;align-items:center;justify-content:center"><i class="ti ti-archive" style="font-size:21px;color:var(--blu)" aria-hidden="true"></i></div>
@@ -4776,16 +4781,6 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           </div>
           <button class="btn-blu btn-r" onclick="genererDossierComptableAnnuel()"><i class="ti ti-package-export" aria-hidden="true"></i>Générer le dossier annuel</button>
         </div>
-
-        <button class="export-btn" style="background:var(--grn)" onclick="showToast('Export Excel — bilan_amicale_2026.xlsx')">
-          <i class="ti ti-file-spreadsheet" aria-hidden="true"></i>Exporter en Excel (.xlsx)
-        </button>
-        <button class="export-btn" style="background:var(--r)" onclick="showToast('Export PDF — bilan_amicale_2026.pdf')">
-          <i class="ti ti-file-type-pdf" aria-hidden="true"></i>Exporter en PDF
-        </button>
-        <button class="export-btn" style="background:var(--blu)" onclick="showToast('Bilan envoyé au président')">
-          <i class="ti ti-send" aria-hidden="true"></i>Envoyer au président
-        </button>
       </div>
     </div>
 
@@ -6457,6 +6452,34 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
         <div class="mac" style="margin-top:0">
           <button class="mc-c" onclick="document.getElementById('modal-benevole-amical').classList.remove('open')">Annuler</button>
           <button class="mc-ok" id="mba-confirm-btn" onclick="confirmerBenevoleAmical()">Je me porte volontaire</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL MESSAGE GROUPÉ BÉNÉVOLES — envoi par la commission -->
+    <div class="mow" id="modal-msg-benevoles" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
+      <div class="mbox" style="max-height:90vh;overflow-y:auto">
+        <div class="mh2"></div>
+        <div class="mtt" id="mmb-titre">Message aux bénévoles</div>
+        <input type="hidden" id="mmb-evid">
+
+        <div style="background:var(--grl);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start">
+          <i class="ti ti-users-group" style="font-size:16px;color:var(--grn);flex-shrink:0;margin-top:1px"></i>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--grn);margin-bottom:2px">Destinataires</div>
+            <div style="font-size:12px;color:var(--color-text-primary)" id="mmb-destinataires"></div>
+          </div>
+        </div>
+
+        <label class="ml" for="mmb-objet">Objet</label>
+        <input class="mi" id="mmb-objet" placeholder="Objet du message">
+
+        <label class="ml" for="mmb-corps">Message</label>
+        <textarea class="mi" id="mmb-corps" rows="5" style="resize:vertical" placeholder="Ex : Bonjour à tous, rendez-vous samedi à 8h00 au centre de secours pour la mise en place. Pensez à apporter..."></textarea>
+
+        <div class="mac" style="margin-top:10px">
+          <button class="mc-c" onclick="document.getElementById('modal-msg-benevoles').classList.remove('open')">Annuler</button>
+          <button class="mc-ok" onclick="BenevoleService.envoyerMessageGroupe()"><i class="ti ti-send" style="margin-right:4px"></i>Envoyer à tous</button>
         </div>
       </div>
     </div>
@@ -8673,7 +8696,7 @@ function confirmerRetour(){
   document.getElementById('sign-zone').children[0].style.display='block';
   document.getElementById('valid-btn-retour').className='valid-btn';
   ['ret-vendus','ret-inv','ret-mon','ret-chq','ret-aut'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  calcRetour(); populateSecteurSelect(); renderRetoursEnregistres(); updateCalStats(); renderDocsCompta('all'); renderBilanTable(); renderBudgets();
+  calcRetour(); populateSecteurSelect(); renderRetoursEnregistres(); updateCalStats(); renderDocsCompta('all'); renderBilanTable(); renderBudgets(); if(typeof BilanService!=='undefined'){BilanService.initScopeSelect();BilanService.renderApercu();}
 }
 
 
@@ -9738,6 +9761,7 @@ function renderBenevoles(evId){
     </div>`;
   }
   list.innerHTML=html;
+  if(typeof BenevoleService!=='undefined') BenevoleService.renderAttente(evId,'mod-ben-attente');
 }
 
 function retirerBenevole(evId,idx){
@@ -9821,13 +9845,15 @@ function confirmerBenevoleAmical(){
     var checked=document.querySelector('input[name="mba-poste"]:checked');
     poste=checked?checked.value:'Bénévole';
   }
-  data.liste.push({nom:nom,poste:poste});
+  if(!data.attente) data.attente=[];
+  data.attente.push({nom:nom,poste:poste,date:new Date().toLocaleDateString('fr-FR'),statut:'attente'});
   document.getElementById('modal-benevole-amical').classList.remove('open');
-  showToast('Merci ! Vous êtes inscrit(e) comme bénévole — '+poste);
+  showToast('Votre candidature comme bénévole a été envoyée à la commission');
   if(typeof window.ajouterConfirmationAmicaliste==='function') window.ajouterConfirmationAmicaliste(
-    'Bénévole — '+evNom,
-    'Votre inscription comme bénévole pour '+evNom+' (poste : '+poste+') a bien été enregistrée. Elle est en attente de validation par la commission. Merci pour votre engagement !'
+    'Candidature bénévole — '+evNom,
+    'Votre candidature comme bénévole pour « '+evNom+' » (poste : '+poste+') a bien été envoyée à la commission. Vous recevrez un message dès qu\'elle sera validée. Merci pour votre engagement !'
   );
+  BenevoleService.notifierCommission(evId,evNom,nom,poste);
   if(typeof renderEvenementsAmicalisteV58==='function') renderEvenementsAmicalisteV58();
   BENEVOLE_AMICAL_CONTEXT=null;
 }
@@ -9836,6 +9862,155 @@ function hasBenevoleSlots(evId){
   var data=BENEVOLES_DATA[evId];
   return data&&data.liste.length<data.max;
 }
+
+/*
+ * ══════════════════════════════════════════════════════════════════
+ * BenevoleService — Workflow complet de gestion des bénévoles
+ * ══════════════════════════════════════════════════════════════════
+ *
+ * Flux :
+ *   1. Amicaliste se porte bénévole → statut "attente" + notification commission
+ *   2. Commission valide ou refuse → message de confirmation à l'amicaliste
+ *   3. Commission peut envoyer un message groupé à tous les bénévoles confirmés
+ *
+ * Point d'extension backend :
+ *   POST /api/v1/tenants/:id/events/:evId/volunteers
+ *   PUT  /api/v1/tenants/:id/events/:evId/volunteers/:volId/validate
+ *   POST /api/v1/tenants/:id/events/:evId/volunteers/broadcast
+ */
+var BenevoleService = (function(){
+  'use strict';
+
+  function getEventName(evId){
+    if(typeof EVENTS_DATA!=='undefined' && EVENTS_DATA[evId]) return EVENTS_DATA[evId].titre;
+    return evId;
+  }
+
+  function getCommissionForEvent(evId){
+    if(typeof EVENTS_DATA!=='undefined' && EVENTS_DATA[evId] && EVENTS_DATA[evId].commission) return EVENTS_DATA[evId].commission;
+    if(evId==='repas'||evId==='bal') return 'Événements';
+    if(evId==='tournoi') return 'Sportive';
+    return 'Événements';
+  }
+
+  function notifierCommission(evId,evNom,nom,poste){
+    if(typeof MSG_BUREAU==='undefined') return;
+    var now=new Date();
+    var dateStr=('0'+now.getDate()).slice(-2)+'/'+('0'+(now.getMonth()+1)).slice(-2)+'/'+now.getFullYear();
+    MSG_BUREAU.unshift({
+      id:'ben'+Date.now(),
+      type:'benevole',
+      de:'amicaliste',
+      dest:'tous',
+      objet:'Candidature bénévole — '+evNom,
+      corps:nom+' souhaite devenir bénévole pour « '+evNom+' » au poste : '+poste+'.\n\nMerci de valider ou refuser cette candidature depuis l\'onglet Bénévoles de l\'événement.',
+      date:dateStr,
+      lu:false,
+      envoye:false,
+      benevole:{evId:evId,nom:nom,poste:poste,statut:'attente'}
+    });
+    if(typeof updateNotifBadges==='function') updateNotifBadges();
+    if(typeof renderMessagesBureau==='function') renderMessagesBureau();
+  }
+
+  function validerBenevole(evId,index){
+    var data=BENEVOLES_DATA[evId];
+    if(!data||!data.attente||!data.attente[index]) return;
+    var candidat=data.attente[index];
+    candidat.statut='valide';
+    data.liste.push({nom:candidat.nom,poste:candidat.poste});
+    data.attente.splice(index,1);
+    var evNom=getEventName(evId);
+    if(typeof window.ajouterConfirmationAmicaliste==='function'){
+      window.ajouterConfirmationAmicaliste(
+        'Bénévole confirmé — '+evNom,
+        'Votre candidature comme bénévole pour « '+evNom+' » (poste : '+candidat.poste+') a été validée par la commission. Vous serez contacté(e) prochainement pour les détails d\'organisation. Merci !'
+      );
+    }
+    if(typeof renderBenevoles==='function') renderBenevoles(evId);
+    showToast(candidat.nom+' validé(e) comme bénévole — '+candidat.poste);
+  }
+
+  function refuserBenevole(evId,index){
+    var data=BENEVOLES_DATA[evId];
+    if(!data||!data.attente||!data.attente[index]) return;
+    var candidat=data.attente[index];
+    candidat.statut='refuse';
+    var evNom=getEventName(evId);
+    if(typeof window.ajouterConfirmationAmicaliste==='function'){
+      window.ajouterConfirmationAmicaliste(
+        'Candidature bénévole — '+evNom,
+        'Nous vous remercions pour votre candidature comme bénévole pour « '+evNom+' ». Malheureusement, tous les postes sont déjà pourvus. N\'hésitez pas à vous proposer pour de prochains événements !'
+      );
+    }
+    data.attente.splice(index,1);
+    showToast('Candidature de '+candidat.nom+' refusée');
+  }
+
+  function renderAttente(evId,containerId){
+    var data=BENEVOLES_DATA[evId];
+    var container=document.getElementById(containerId);
+    if(!container) return;
+    if(!data||!data.attente||data.attente.length===0){
+      container.innerHTML='<div style="text-align:center;padding:12px;font-size:12px;color:var(--color-text-secondary)">Aucune candidature en attente</div>';
+      return;
+    }
+    var html='';
+    data.attente.forEach(function(c,i){
+      html+='<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;border-color:var(--amb)">';
+      html+='<div style="width:36px;height:36px;border-radius:50%;background:var(--aml);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-user-heart" style="font-size:16px;color:var(--amb)"></i></div>';
+      html+='<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--color-text-primary)">'+c.nom+'</div>';
+      html+='<div style="font-size:11px;color:var(--color-text-secondary)">Poste : '+c.poste+' · Candidature du '+c.date+'</div></div>';
+      html+='<div style="display:flex;gap:4px">';
+      html+='<button onclick="BenevoleService.validerBenevole(\''+evId+'\','+i+')" style="width:32px;height:32px;border-radius:10px;background:var(--grl);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Valider"><i class="ti ti-check" style="font-size:16px;color:var(--grn)"></i></button>';
+      html+='<button onclick="BenevoleService.refuserBenevole(\''+evId+'\','+i+')" style="width:32px;height:32px;border-radius:10px;background:var(--r2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Refuser"><i class="ti ti-x" style="font-size:16px;color:var(--r)"></i></button>';
+      html+='</div></div>';
+    });
+    container.innerHTML=html;
+  }
+
+  function ouvrirMessageGroupe(evId){
+    var data=BENEVOLES_DATA[evId];
+    if(!data||!data.liste||data.liste.length===0){showToast('Aucun bénévole confirmé pour cet événement');return;}
+    var evNom=getEventName(evId);
+    var noms=data.liste.map(function(b){return b.nom;});
+    var modal=document.getElementById('modal-msg-benevoles');
+    if(!modal) return;
+    document.getElementById('mmb-titre').textContent='Message aux bénévoles — '+evNom;
+    document.getElementById('mmb-destinataires').textContent=noms.join(', ')+' ('+noms.length+' bénévole'+(noms.length>1?'s':'')+')';
+    document.getElementById('mmb-objet').value='Information bénévoles — '+evNom;
+    document.getElementById('mmb-corps').value='';
+    document.getElementById('mmb-evid').value=evId;
+    if(typeof window.AMICALE_openPopup==='function') window.AMICALE_openPopup(modal);
+    else modal.classList.add('open');
+  }
+
+  function envoyerMessageGroupe(){
+    var evId=document.getElementById('mmb-evid').value;
+    var objet=document.getElementById('mmb-objet').value.trim();
+    var corps=document.getElementById('mmb-corps').value.trim();
+    if(!corps){showToast('Veuillez rédiger un message');return;}
+    var data=BENEVOLES_DATA[evId];
+    if(!data||!data.liste) return;
+    data.liste.forEach(function(b){
+      if(typeof window.ajouterConfirmationAmicaliste==='function'){
+        window.ajouterConfirmationAmicaliste(objet, corps);
+      }
+    });
+    document.getElementById('modal-msg-benevoles').classList.remove('open');
+    showToast('Message envoyé à '+data.liste.length+' bénévole'+(data.liste.length>1?'s':''));
+  }
+
+  return {
+    notifierCommission: notifierCommission,
+    validerBenevole: validerBenevole,
+    refuserBenevole: refuserBenevole,
+    renderAttente: renderAttente,
+    ouvrirMessageGroupe: ouvrirMessageGroupe,
+    envoyerMessageGroupe: envoyerMessageGroupe,
+    getCommissionForEvent: getCommissionForEvent
+  };
+})();
 
 // Postes bénévoles définis lors de la création d'un nouvel événement (avant publication)
 let POSTES_CREATION=[];
@@ -10616,6 +10791,7 @@ function renderBilanTable(){
     <div style="font-size:12px;font-weight:700;color:var(--r);text-align:right">${totalD.toLocaleString('fr-FR')} €</div>
     <div style="font-size:13px;font-weight:700;color:${totalS>=0?'var(--grn)':'var(--r)'};text-align:right">${totalS>=0?'+':''}${totalS.toLocaleString('fr-FR')} €</div>`;
   rows.appendChild(tot);
+  if(typeof BilanService!=='undefined') try{BilanService.initScopeSelect();BilanService.renderApercu();}catch(e){}
 }
 
 function renderDocsCompta(filter='all'){
@@ -13796,6 +13972,326 @@ function genererDossierComptableAnnuel(){
 function comptaDemanderPrecision(){ showToast('Demande de précision envoyée à la commission'); }
 function comptaMarquerPaye(){ showToast('Facture marquée payée et justificatif archivé'); }
 
+/*
+ * ══════════════════════════════════════════════════════════════════
+ * BilanService — Logique métier pure pour la génération de bilans
+ * ══════════════════════════════════════════════════════════════════
+ *
+ * Architecture : service isolé, sans dépendance DOM dans la couche données.
+ * Contrat d'interface stable — quand le backend existera, seul
+ * BilanService.getData() sera remplacé par un appel API.
+ *
+ * Points d'extension prévus :
+ *   - tenantId (multi-tenant) : chaque amicale = un tenant
+ *   - exerciceId : gestion multi-exercice
+ *   - API signature : GET /api/v1/tenants/:id/bilans?scope=&from=&to=
+ */
+var BilanService = (function(){
+  'use strict';
+
+  var DEPENSES_HORS_COMMISSION = [
+    {lib:'Adhésion Union Départementale 2026', cat:'UD', mt:180, mode:'Virement'},
+    {lib:'Pot de convivialité — Accueil nouvelles recrues', cat:'Pot de convivialité', mt:95, mode:'Carte'},
+    {lib:'Cérémonie des médailles 2026', cat:'Cérémonie', mt:320, mode:'Chèque'},
+    {lib:'Frais AG 2026 — Location salle + buffet', cat:'AG', mt:450, mode:'Virement'},
+    {lib:'Assurance annuelle', cat:'Assurance', mt:420, mode:'Virement'},
+    {lib:'Frais bancaires', cat:'Banque', mt:32, mode:'Prélèvement'}
+  ];
+
+  function fmt(n){ return n.toLocaleString('fr-FR')+' €'; }
+
+  function getOptions(){
+    return {
+      scope: (document.getElementById('bilan-scope')||{}).value || 'all',
+      dateFrom: (document.getElementById('exp-de')||{}).value || '',
+      dateTo: (document.getElementById('exp-au')||{}).value || '',
+      includeCommissions: !!(document.getElementById('bilan-opt-commissions')||{}).checked,
+      includeBudgets: !!(document.getElementById('bilan-opt-budgets')||{}).checked,
+      includeDocuments: !!(document.getElementById('bilan-opt-documents')||{}).checked,
+      includeHorsCommission: !!(document.getElementById('bilan-opt-horscomm')||{}).checked
+    };
+  }
+
+  function getData(opts){
+    if(!opts) opts = getOptions();
+    var commissions = (typeof COMMISSIONS_COMPTA!=='undefined') ? COMMISSIONS_COMPTA : [];
+    var docs = (typeof DOCS_COMPTA!=='undefined') ? DOCS_COMPTA : [];
+
+    var filtered = (opts.scope==='all')
+      ? commissions.slice()
+      : commissions.filter(function(c){ return c.id===opts.scope; });
+
+    var totalRecettes = 0, totalDepenses = 0;
+    filtered.forEach(function(c){ totalRecettes+=c.recettes; totalDepenses+=c.depenses; });
+
+    var horsComm = DEPENSES_HORS_COMMISSION.slice();
+    var totalHorsComm = horsComm.reduce(function(a,d){ return a+d.mt; }, 0);
+
+    var filteredDocs = docs.filter(function(d){
+      if(opts.scope!=='all'){
+        var comm = filtered[0];
+        if(comm && d.comm!==comm.nom) return false;
+      }
+      return true;
+    });
+
+    return {
+      commissions: filtered,
+      documents: filteredDocs,
+      horsCommission: horsComm,
+      totalRecettes: totalRecettes,
+      totalDepenses: totalDepenses,
+      totalHorsComm: totalHorsComm,
+      solde: totalRecettes - totalDepenses - (opts.includeHorsCommission && opts.scope==='all' ? totalHorsComm : 0),
+      exercice: new Date().getFullYear(),
+      genereLe: new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+      scope: opts.scope,
+      scopeLabel: opts.scope==='all' ? 'Toutes les commissions' : (filtered[0]||{}).nom||opts.scope
+    };
+  }
+
+  function initScopeSelect(){
+    var sel = document.getElementById('bilan-scope');
+    if(!sel) return;
+    var comms = (typeof COMMISSIONS_COMPTA!=='undefined') ? COMMISSIONS_COMPTA : [];
+    var existing = sel.querySelectorAll('option[data-comm]');
+    existing.forEach(function(o){ o.remove(); });
+    comms.forEach(function(c){
+      var opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.nom;
+      opt.setAttribute('data-comm','1');
+      sel.appendChild(opt);
+    });
+  }
+
+  function renderApercu(){
+    var opts = getOptions();
+    var data = getData(opts);
+    var container = document.getElementById('bilan-apercu-container');
+    if(!container) return;
+
+    var html = '';
+    html += '<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:10px">';
+    html += '<div style="padding:10px 14px;background:var(--r);display:flex;justify-content:space-between;align-items:center">';
+    html += '<div style="font-size:13px;font-weight:700;color:white">Bilan '+data.scopeLabel+' · '+data.exercice+'</div>';
+    html += '<div style="font-size:11px;color:rgba(255,255,255,0.8)">Généré le '+data.genereLe+'</div>';
+    html += '</div>';
+    html += '<div style="padding:12px">';
+
+    if(opts.includeCommissions){
+      html += '<div class="rapport-row" style="padding:8px 0;font-weight:600"><div class="rr-lbl">RECETTES</div><div class="rr-val" style="color:var(--grn)">'+fmt(data.totalRecettes)+'</div></div>';
+      html += '<div style="font-size:11px;color:var(--color-text-secondary);padding:0 0 8px 12px;display:flex;flex-direction:column;gap:3px;border-bottom:0.5px solid var(--color-border-tertiary)">';
+      data.commissions.forEach(function(c){
+        if(c.recettes>0) html += '<div style="display:flex;justify-content:space-between"><span>'+c.nom+'</span><span>'+fmt(c.recettes)+'</span></div>';
+      });
+      html += '</div>';
+
+      html += '<div class="rapport-row" style="padding:8px 0;font-weight:600"><div class="rr-lbl">DÉPENSES COMMISSIONS</div><div class="rr-val" style="color:var(--r)">'+fmt(data.totalDepenses)+'</div></div>';
+      html += '<div style="font-size:11px;color:var(--color-text-secondary);padding:0 0 8px 12px;display:flex;flex-direction:column;gap:3px;border-bottom:0.5px solid var(--color-border-tertiary)">';
+      data.commissions.forEach(function(c){
+        if(c.depenses>0) html += '<div style="display:flex;justify-content:space-between"><span>'+c.nom+'</span><span>'+fmt(c.depenses)+'</span></div>';
+      });
+      html += '</div>';
+    }
+
+    if(opts.includeHorsCommission && opts.scope==='all'){
+      html += '<div class="rapport-row" style="padding:8px 0;font-weight:600"><div class="rr-lbl">DÉPENSES HORS COMMISSION</div><div class="rr-val" style="color:var(--r)">'+fmt(data.totalHorsComm)+'</div></div>';
+      html += '<div style="font-size:11px;color:var(--color-text-secondary);padding:0 0 8px 12px;display:flex;flex-direction:column;gap:3px;border-bottom:0.5px solid var(--color-border-tertiary)">';
+      data.horsCommission.forEach(function(d){
+        html += '<div style="display:flex;justify-content:space-between"><span>'+d.lib+'</span><span>'+fmt(d.mt)+'</span></div>';
+      });
+      html += '</div>';
+    }
+
+    if(opts.includeBudgets){
+      html += '<div class="rapport-row" style="padding:8px 0;font-weight:600"><div class="rr-lbl">BUDGET ALLOUÉ vs RÉALISÉ</div><div class="rr-val"></div></div>';
+      html += '<div style="font-size:11px;color:var(--color-text-secondary);padding:0 0 8px 12px;display:flex;flex-direction:column;gap:5px;border-bottom:0.5px solid var(--color-border-tertiary)">';
+      data.commissions.forEach(function(c){
+        var pct = c.budget>0 ? Math.round(c.depenses/c.budget*100) : 0;
+        var couleur = pct>100 ? 'var(--r)' : pct>80 ? 'var(--amb)' : 'var(--grn)';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center"><span>'+c.nom+'</span><span style="display:flex;align-items:center;gap:6px"><span>'+fmt(c.depenses)+' / '+fmt(c.budget)+'</span><span style="font-weight:700;color:'+couleur+'">'+pct+'%</span></span></div>';
+      });
+      html += '</div>';
+    }
+
+    if(opts.includeDocuments && data.documents.length>0){
+      html += '<div class="rapport-row" style="padding:8px 0;font-weight:600"><div class="rr-lbl">ÉCRITURES ('+data.documents.length+')</div><div class="rr-val"></div></div>';
+      html += '<div style="font-size:11px;color:var(--color-text-secondary);padding:0 0 8px 12px;display:flex;flex-direction:column;gap:3px;border-bottom:0.5px solid var(--color-border-tertiary);max-height:150px;overflow-y:auto">';
+      data.documents.forEach(function(d){
+        var couleur = d.st==='recette' ? 'var(--grn)' : 'var(--color-text-primary)';
+        var signe = d.st==='recette' ? '+' : '-';
+        html += '<div style="display:flex;justify-content:space-between;gap:8px"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+d.lib+'</span><span style="color:'+couleur+';white-space:nowrap;font-weight:600">'+signe+' '+fmt(d.mt)+'</span></div>';
+      });
+      html += '</div>';
+    }
+
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0">';
+    html += '<div style="font-size:14px;font-weight:700;color:var(--color-text-primary)">RÉSULTAT NET</div>';
+    html += '<div style="font-size:18px;font-weight:700;color:'+(data.solde>=0?'var(--grn)':'var(--r)')+'">'+( data.solde>=0?'+ ':'')+fmt(data.solde)+'</div>';
+    html += '</div>';
+    html += '</div></div>';
+
+    container.innerHTML = html;
+  }
+
+  function exportCSV(){
+    var opts = getOptions();
+    var data = getData(opts);
+
+    var BOM = '﻿';
+    var SEP = ';';
+    var lines = [];
+
+    lines.push(['BILAN COMPTABLE — '+data.scopeLabel, '', '', 'Exercice '+data.exercice].join(SEP));
+    lines.push(['Généré le', data.genereLe, '', ''].join(SEP));
+    lines.push('');
+
+    if(opts.includeCommissions){
+      lines.push(['COMMISSION','RECETTES','DÉPENSES','SOLDE','BUDGET','CONSO. BUDGET'].join(SEP));
+      data.commissions.forEach(function(c){
+        var solde = c.recettes - c.depenses;
+        var pct = c.budget>0 ? Math.round(c.depenses/c.budget*100)+'%' : 'N/A';
+        lines.push([c.nom, c.recettes, c.depenses, solde, c.budget, pct].join(SEP));
+      });
+      if(data.commissions.length>1){
+        lines.push(['TOTAL', data.totalRecettes, data.totalDepenses, data.totalRecettes-data.totalDepenses, data.commissions.reduce(function(a,c){return a+c.budget;},0), ''].join(SEP));
+      }
+      lines.push('');
+    }
+
+    if(opts.includeHorsCommission && opts.scope==='all'){
+      lines.push(['DÉPENSES HORS COMMISSION','MONTANT','CATÉGORIE','MODE DE PAIEMENT'].join(SEP));
+      data.horsCommission.forEach(function(d){
+        lines.push([d.lib, d.mt, d.cat, d.mode].join(SEP));
+      });
+      lines.push(['TOTAL HORS COMMISSION', data.totalHorsComm, '', ''].join(SEP));
+      lines.push('');
+    }
+
+    if(opts.includeDocuments && data.documents.length>0){
+      lines.push(['ÉCRITURES DÉTAILLÉES','','','',''].join(SEP));
+      lines.push(['LIBELLÉ','COMMISSION','TYPE','MONTANT','STATUT'].join(SEP));
+      data.documents.forEach(function(d){
+        lines.push([d.lib, d.comm, d.type, d.mt, d.st==='recette'?'Recette':d.st==='paye'?'Payé':'En attente'].join(SEP));
+      });
+      lines.push('');
+    }
+
+    lines.push(['RÉSULTAT NET', data.solde, '', ''].join(SEP));
+
+    var blob = new Blob([BOM + lines.join('\r\n')], {type:'text/csv;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var scopeSlug = opts.scope==='all' ? 'general' : opts.scope;
+    a.href = url;
+    a.download = 'bilan_'+scopeSlug+'_'+data.exercice+'.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Bilan téléchargé : bilan_'+scopeSlug+'_'+data.exercice+'.csv');
+  }
+
+  function exportPDF(){
+    var opts = getOptions();
+    var data = getData(opts);
+
+    var w = window.open('','_blank','width=800,height=1000');
+    if(!w){ showToast('Autorisez les popups pour imprimer le bilan'); return; }
+
+    var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Bilan '+data.scopeLabel+' '+data.exercice+'</title>';
+    html += '<style>';
+    html += 'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;padding:32px;color:#1a1a2e;font-size:13px;line-height:1.5}';
+    html += '.header{background:#E8530E;color:white;padding:20px 24px;border-radius:12px;margin-bottom:24px}';
+    html += '.header h1{margin:0;font-size:20px;font-weight:800}';
+    html += '.header .sub{font-size:12px;opacity:.8;margin-top:4px}';
+    html += 'h2{font-size:14px;font-weight:800;color:#E8530E;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #E8530E;padding-bottom:6px;margin:24px 0 12px}';
+    html += 'table{width:100%;border-collapse:collapse;margin-bottom:16px}';
+    html += 'th{background:#f8f8fa;text-align:left;padding:8px 10px;font-size:11px;font-weight:700;text-transform:uppercase;color:#666;border-bottom:2px solid #e5e5e5}';
+    html += 'td{padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px}';
+    html += 'tr:last-child td{border-bottom:none}';
+    html += '.total-row td{font-weight:800;background:#f8f8fa;border-top:2px solid #e5e5e5}';
+    html += '.positive{color:#16a34a}';
+    html += '.negative{color:#dc2626}';
+    html += '.result{background:#1a1a2e;color:white;padding:16px 20px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;margin-top:24px}';
+    html += '.result .label{font-size:16px;font-weight:800}';
+    html += '.result .value{font-size:24px;font-weight:900}';
+    html += '.footer{margin-top:32px;padding-top:12px;border-top:1px solid #e5e5e5;font-size:10px;color:#999;display:flex;justify-content:space-between}';
+    html += '@media print{body{padding:16px}@page{margin:12mm}}';
+    html += '</style></head><body>';
+
+    html += '<div class="header"><h1>Bilan comptable — '+data.scopeLabel+'</h1>';
+    html += '<div class="sub">Exercice '+data.exercice+' · Généré le '+data.genereLe+'</div></div>';
+
+    if(opts.includeCommissions){
+      html += '<h2>Recettes et dépenses par commission</h2>';
+      html += '<table><thead><tr><th>Commission</th><th style="text-align:right">Recettes</th><th style="text-align:right">Dépenses</th><th style="text-align:right">Solde</th></tr></thead><tbody>';
+      data.commissions.forEach(function(c){
+        var s = c.recettes-c.depenses;
+        html += '<tr><td>'+c.nom+'</td><td style="text-align:right" class="positive">'+fmt(c.recettes)+'</td><td style="text-align:right" class="negative">'+fmt(c.depenses)+'</td><td style="text-align:right;font-weight:700" class="'+(s>=0?'positive':'negative')+'">'+( s>=0?'+':'')+fmt(s)+'</td></tr>';
+      });
+      if(data.commissions.length>1){
+        var ts = data.totalRecettes-data.totalDepenses;
+        html += '<tr class="total-row"><td>TOTAL</td><td style="text-align:right" class="positive">'+fmt(data.totalRecettes)+'</td><td style="text-align:right" class="negative">'+fmt(data.totalDepenses)+'</td><td style="text-align:right;font-weight:700" class="'+(ts>=0?'positive':'negative')+'">'+( ts>=0?'+':'')+fmt(ts)+'</td></tr>';
+      }
+      html += '</tbody></table>';
+    }
+
+    if(opts.includeBudgets){
+      html += '<h2>Budgets alloués vs réalisés</h2>';
+      html += '<table><thead><tr><th>Commission</th><th style="text-align:right">Budget</th><th style="text-align:right">Réalisé</th><th style="text-align:right">Restant</th><th style="text-align:right">Conso.</th></tr></thead><tbody>';
+      data.commissions.forEach(function(c){
+        var pct = c.budget>0 ? Math.round(c.depenses/c.budget*100) : 0;
+        var rest = c.budget - c.depenses;
+        var cls = pct>100 ? 'negative' : pct>80 ? '' : 'positive';
+        html += '<tr><td>'+c.nom+'</td><td style="text-align:right">'+fmt(c.budget)+'</td><td style="text-align:right">'+fmt(c.depenses)+'</td><td style="text-align:right" class="'+(rest>=0?'positive':'negative')+'">'+fmt(rest)+'</td><td style="text-align:right;font-weight:700" class="'+cls+'">'+pct+' %</td></tr>';
+      });
+      html += '</tbody></table>';
+    }
+
+    if(opts.includeHorsCommission && opts.scope==='all'){
+      html += '<h2>Dépenses hors commission</h2>';
+      html += '<table><thead><tr><th>Libellé</th><th>Catégorie</th><th style="text-align:right">Montant</th></tr></thead><tbody>';
+      data.horsCommission.forEach(function(d){
+        html += '<tr><td>'+d.lib+'</td><td>'+d.cat+'</td><td style="text-align:right" class="negative">'+fmt(d.mt)+'</td></tr>';
+      });
+      html += '<tr class="total-row"><td colspan="2">TOTAL</td><td style="text-align:right" class="negative">'+fmt(data.totalHorsComm)+'</td></tr>';
+      html += '</tbody></table>';
+    }
+
+    if(opts.includeDocuments && data.documents.length>0){
+      html += '<h2>Écritures détaillées ('+data.documents.length+')</h2>';
+      html += '<table><thead><tr><th>Libellé</th><th>Commission</th><th>Type</th><th style="text-align:right">Montant</th><th>Statut</th></tr></thead><tbody>';
+      data.documents.forEach(function(d){
+        var stLabel = d.st==='recette'?'Recette':d.st==='paye'?'Payé':'En attente';
+        var cls = d.st==='recette'?'positive':'';
+        html += '<tr><td>'+d.lib+'</td><td>'+d.comm+'</td><td>'+d.type+'</td><td style="text-align:right" class="'+cls+'">'+fmt(d.mt)+'</td><td>'+stLabel+'</td></tr>';
+      });
+      html += '</tbody></table>';
+    }
+
+    html += '<div class="result"><div class="label">RÉSULTAT NET</div><div class="value" style="color:'+(data.solde>=0?'#4ade80':'#f87171')+'">'+( data.solde>=0?'+ ':'')+fmt(data.solde)+'</div></div>';
+
+    html += '<div class="footer"><span>Document généré automatiquement — Amicale SP</span><span>'+data.genereLe+'</span></div>';
+    html += '</body></html>';
+
+    w.document.write(html);
+    w.document.close();
+    setTimeout(function(){ w.print(); }, 400);
+    showToast('Fenêtre d’impression ouverte — choisissez « Enregistrer en PDF » ou votre imprimante');
+  }
+
+  return {
+    getData: getData,
+    getOptions: getOptions,
+    renderApercu: renderApercu,
+    exportCSV: exportCSV,
+    exportPDF: exportPDF,
+    initScopeSelect: initScopeSelect,
+    DEPENSES_HORS_COMMISSION: DEPENSES_HORS_COMMISSION
+  };
+})();
 
 // Prototype carte interactive — Commission Calendriers
 const CALENDAR_SECTORS={
@@ -16808,9 +17304,11 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
       if(!c.modele){
         c.modele=c.features.indexOf('locations')>-1?'location':c.features.indexOf('voyages')>-1?'voyage':c.features.indexOf('bons_cadeaux')>-1?'bons':(c.features.indexOf('evenements')>-1||c.features.indexOf('carousel')>-1?'evenement':'simple');
       }
-      c.pageBureau='pg-commission-dynamique-bureau';
-      c.page='pg-commission-dynamique-bureau';
-      c.pageAmical='pg-commission-dynamique-amical';
+      if(!c.fixe){
+        c.pageBureau='pg-commission-dynamique-bureau';
+        c.page='pg-commission-dynamique-bureau';
+        c.pageAmical='pg-commission-dynamique-amical';
+      }
       if(!c.ico) c.ico=MODEL_ICONS[c.modele]||'ti-users-group';
       if(!c.col) c.col='var(--r)';
       try{ if(typeof COMM_LABELS_SOLDE!=='undefined') COMM_LABELS_SOLDE[c.id]=c.nom; }catch(e){}
@@ -17811,10 +18309,11 @@ function ouvrirFicheVoyage(voyKey){
     activeCommissionId=id;
     var m=modeleOf(c);
     sessionStorage.setItem('amicale_commission_active_v62',id);
-    if(typeof window.showToast==='function') window.showToast('Ouverture de « '+c.nom+' » avec le modèle '+m.label);
-    if(m.pageBureau==='pg-comm-custom' && typeof window.ouvrirCommissionCustom==='function') return window.ouvrirCommissionCustom(id);
-    window.goPage(m.pageBureau);
-    setTimeout(function(){injectBanner(m.pageBureau,c,'bureau');},120);
+    var page = (c.fixe && typeof COMM_PAGES!=='undefined' && COMM_PAGES[c.id]) ? COMM_PAGES[c.id] : m.pageBureau;
+    if(typeof window.showToast==='function') window.showToast('Ouverture de « '+c.nom+' »');
+    if(page==='pg-comm-custom' && typeof window.ouvrirCommissionCustom==='function') return window.ouvrirCommissionCustom(id);
+    window.goPage(page);
+    setTimeout(function(){injectBanner(page,c,'bureau');},120);
   }
   window.ouvrirCommissionModeleV62=openBureau;
 
