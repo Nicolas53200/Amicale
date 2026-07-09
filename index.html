@@ -3094,21 +3094,11 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div class="sc" id="bh-solde-card"><div class="slbl" id="bh-solde-label">Solde amicale</div><div class="sval" style="color:var(--grn)" id="bh-solde-val">3 840 €</div><div class="ssub" id="bh-solde-sub">mis à jour 3 juin</div></div>
       </div>
 
-      <div style="padding:0 14px;margin-bottom:10px"><div class="sec">Prochaines réunions</div></div>
-      <div style="padding:0 14px;margin-bottom:20px">
-        <div class="reun-card next">
-          <div class="rc-date"><div class="rc-day">15</div><div class="rc-month">Jun</div></div>
-          <div class="rc-div"></div>
-          <div class="rc-info"><div class="rc-title">Réunion bureau mensuelle</div><div class="rc-meta">19h00 · Caserne · Salle 2</div></div>
-          <span class="badge badge-ref" style="background:var(--r2);color:var(--rd);flex-shrink:0">J-7</span>
-        </div>
-        <div class="reun-card">
-          <div class="rc-date" style="opacity:.6"><div class="rc-day">3</div><div class="rc-month">Jul</div></div>
-          <div class="rc-div"></div>
-          <div class="rc-info"><div class="rc-title">Commission voyages</div><div class="rc-meta">18h30 · Caserne · Salle 1</div></div>
-          <span class="badge badge-neu">À venir</span>
-        </div>
+      <div style="padding:0 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+        <div class="sec" style="margin:0">Prochaines réunions</div>
+        <button style="background:none;border:none;cursor:pointer;color:var(--r);font-size:12px;font-weight:600;font-family:var(--font-sans);display:flex;align-items:center;gap:3px" onclick="ReunionService.ouvrirCreation()"><i class="ti ti-plus" style="font-size:14px"></i>Planifier</button>
       </div>
+      <div style="padding:0 14px;margin-bottom:20px" id="home-reunions-zone"></div>
 
       <div class="sec-toggle" onclick="toggleBureauSection('outils')">
         <div class="sec">Outils du bureau</div>
@@ -5341,11 +5331,11 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <i class="ti ti-info-circle" style="font-size:20px;color:var(--amb);flex-shrink:0" aria-hidden="true"></i>
           <div style="font-size:12px;color:var(--color-text-primary);line-height:1.4">Retrouvez ici tous les comptes rendus des réunions du bureau, classés par date.</div>
         </div>
-        <div class="sec">Prochaine réunion</div>
-        <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-          <div style="width:44px;height:44px;border-radius:12px;background:var(--pul);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0"><div style="font-size:15px;font-weight:700;color:var(--pur);line-height:1">15</div><div style="font-size:9px;color:var(--pur);text-transform:uppercase">Juin</div></div>
-          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">Réunion de bureau</div><div style="font-size:11px;color:var(--color-text-secondary)">Dim. 15 juin 2026 · 18h00 · Local de l'amicale</div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="sec" style="margin:0">Prochaines réunions</div>
+          <button style="background:none;border:none;cursor:pointer;color:var(--r);font-size:12px;font-weight:600;font-family:var(--font-sans);display:flex;align-items:center;gap:3px" onclick="ReunionService.ouvrirCreation()"><i class="ti ti-plus" style="font-size:14px"></i>Planifier</button>
         </div>
+        <div id="pg-reunions-prochaines-zone" style="margin-bottom:14px"></div>
         <div class="sec">Comptes rendus archivés</div>
         <div id="cr-list"></div>
         <button class="add-btn" style="margin-top:4px" onclick="ouvrirModalDoc('cr')"><i class="ti ti-plus" aria-hidden="true"></i>Ajouter un compte rendu</button>
@@ -5397,6 +5387,43 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           <div class="mac" style="margin-top:4px">
             <button class="mc-c" onclick="document.getElementById('modal-doc-structurant').classList.remove('open')">Annuler</button>
             <button class="mc-ok" onclick="confirmerDocStructurant()">Enregistrer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL PLANIFIER UNE RÉUNION -->
+      <div class="mow" id="modal-creer-reunion" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
+        <div class="mbox" style="max-height:90vh;overflow-y:auto">
+          <div class="mh2"></div>
+          <div class="mtt">Planifier une réunion</div>
+          <label class="ml" for="reu-titre">Titre</label>
+          <input class="mi" type="text" id="reu-titre" placeholder="ex: Réunion de bureau mensuelle">
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+            <div><label class="ml" for="reu-date">Date</label><input class="mi" type="date" id="reu-date"></div>
+            <div><label class="ml" for="reu-heure">Heure</label><input class="mi" type="time" id="reu-heure" value="19:00"></div>
+          </div>
+          <label class="ml" for="reu-lieu">Lieu</label>
+          <input class="mi" type="text" id="reu-lieu" placeholder="ex: Centre de secours · Salle 2">
+          <label class="ml" for="reu-ordre">Ordre du jour (optionnel)</label>
+          <textarea class="mi" id="reu-ordre" rows="3" style="resize:none" placeholder="ex: 1. Bilan financier T2&#10;2. Organisation repas annuel&#10;3. Questions diverses"></textarea>
+          <label class="ml">Inviter</label>
+          <div id="reu-invites-zone" style="margin-bottom:10px"></div>
+          <div class="mac" style="margin-top:6px">
+            <button class="mc-c" onclick="document.getElementById('modal-creer-reunion').classList.remove('open')">Annuler</button>
+            <button class="mc-ok" onclick="ReunionService.creerReunion()"><i class="ti ti-calendar-plus" style="margin-right:4px"></i>Planifier</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL DÉTAIL RÉUNION -->
+      <div class="mow" id="modal-detail-reunion" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
+        <div class="mbox" style="max-height:90vh;overflow-y:auto">
+          <div class="mh2"></div>
+          <div class="mtt" id="mdr-titre">Réunion</div>
+          <div id="mdr-body"></div>
+          <div class="mac" style="margin-top:10px">
+            <button class="mc-c" onclick="document.getElementById('modal-detail-reunion').classList.remove('open')">Fermer</button>
+            <button class="mc-ok" id="mdr-btn-annuler" style="background:var(--r2);color:var(--rd)" onclick="ReunionService.annulerReunion()"><i class="ti ti-calendar-off" style="margin-right:4px"></i>Annuler la réunion</button>
           </div>
         </div>
       </div>
@@ -7074,7 +7101,7 @@ function goPage(id){
   if(id==='pg-amical-noel'){setTimeout(initPageAmicalNoel,50);}
   if(id==='pg-amical-fdf'){setTimeout(initPageAmicalFDF,50);}
   if(id==='pg-aide'){renderFAQ();}
-  if(id==='pg-reunions'){renderDocsReunion();}
+  if(id==='pg-reunions'){renderDocsReunion();if(typeof ReunionService!=='undefined')ReunionService.renderAll();}
   if(id==='pg-evenements-amical'){setTimeout(function(){if(typeof _restaurerEtatsBoutonsInscription==='function')_restaurerEtatsBoutonsInscription();},50);}
   if(isPCMode){
     window.scrollTo({top:0,behavior:'auto'});
@@ -8690,7 +8717,7 @@ function confirmerRetour(){
   document.getElementById('sign-zone').children[0].style.display='block';
   document.getElementById('valid-btn-retour').className='valid-btn';
   ['ret-vendus','ret-inv','ret-mon','ret-chq','ret-aut'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  calcRetour(); populateSecteurSelect(); renderRetoursEnregistres(); updateCalStats(); renderDocsCompta('all'); renderBilanTable(); renderBudgets(); if(typeof BilanService!=='undefined'){BilanService.initScopeSelect();BilanService.renderApercu();} if(typeof RemboursementService!=='undefined') RemboursementService.updateBadge();
+  calcRetour(); populateSecteurSelect(); renderRetoursEnregistres(); updateCalStats(); renderDocsCompta('all'); renderBilanTable(); renderBudgets(); if(typeof BilanService!=='undefined'){BilanService.initScopeSelect();BilanService.renderApercu();} if(typeof RemboursementService!=='undefined') RemboursementService.updateBadge(); if(typeof ReunionService!=='undefined') ReunionService.renderAll();
 }
 
 
@@ -11691,6 +11718,12 @@ function ouvrirCommissionCustom(id){ouvrirCommissionDynamiqueBureau(id);}
 // ═══════════════════════════════════════════
 // RÉUNIONS — comptes rendus & procès-verbaux
 // ═══════════════════════════════════════════
+var REUNIONS_DATA=[
+  {id:'reu1',titre:'Réunion de bureau mensuelle',date:'2026-07-15',heure:'19:00',lieu:'Centre de secours · Salle 2',ordre:'1. Bilan financier T2\n2. Organisation repas annuel\n3. Questions diverses',invites:['bm1','bm2','bm3','bm4','bm5'],reponses:{bm1:'present',bm2:'present',bm3:null,bm4:null,bm5:'present'},statut:'planifiee'},
+  {id:'reu2',titre:'Commission voyages',date:'2026-08-03',heure:'18:30',lieu:'Centre de secours · Salle 1',ordre:'1. Retour voyage Saint-Malo\n2. Planification 2027',invites:['bm1','bm3','bm4'],reponses:{bm1:null,bm3:null,bm4:null},statut:'planifiee'},
+  {id:'reu3',titre:'Réunion de bureau',date:'2026-06-15',heure:'19:00',lieu:'Centre de secours · Salle 2',ordre:'',invites:['bm1','bm2','bm3','bm4','bm5'],reponses:{bm1:'present',bm2:'present',bm3:'present',bm4:'absent',bm5:'present'},statut:'passee'}
+];
+
 const DOCS_CR=[
   {titre:'Réunion de bureau',date:'2026-05-12',fichier:'CR_reunion_2026-05-12.pdf'},
   {titre:'Réunion de bureau',date:'2026-03-18',fichier:'CR_reunion_2026-03-18.pdf'},
@@ -11734,11 +11767,298 @@ function renderDocsReunion(){
 }
 
 function consulterDocReunion(prefix,sortedIndex){
-  // Retrouver le doc dans la liste triée
   const arr=(prefix==='cr'?DOCS_CR:DOCS_PV).slice().sort((a,b)=>b.date.localeCompare(a.date));
   const doc=arr[sortedIndex];
   if(doc)showToast('Ouverture de '+doc.fichier);
 }
+
+/* ══════════════════════════════════════════════════════════════════
+ * ReunionService — Planification et gestion des réunions
+ * ══════════════════════════════════════════════════════════════════
+ *
+ * Flux :
+ *   1. Membre du bureau planifie une réunion (titre, date, heure, lieu, ordre du jour, invités)
+ *   2. Les invités reçoivent un message avec les détails
+ *   3. Les réunions s'affichent dans "Prochaines réunions" (accueil + page réunions)
+ *   4. On peut consulter le détail et annuler une réunion
+ *
+ * Point d'extension backend :
+ *   POST   /api/v1/tenants/:id/reunions
+ *   GET    /api/v1/tenants/:id/reunions?status=planifiee
+ *   PUT    /api/v1/tenants/:id/reunions/:reuId/cancel
+ *   POST   /api/v1/tenants/:id/reunions/:reuId/rsvp
+ */
+var ReunionService = (function(){
+  'use strict';
+
+  var MOIS_COURT=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  var JOURS=['Dim.','Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.'];
+  var detailReuId=null;
+
+  function parseDate(iso){
+    var p=iso.split('-').map(Number);
+    return new Date(p[0],p[1]-1,p[2]);
+  }
+
+  function joursRestants(iso){
+    var d=parseDate(iso);
+    var now=new Date(); now.setHours(0,0,0,0);
+    return Math.ceil((d-now)/(1000*60*60*24));
+  }
+
+  function formatDateCourte(iso){
+    var p=iso.split('-').map(Number);
+    var d=new Date(p[0],p[1]-1,p[2]);
+    return JOURS[d.getDay()]+' '+p[2]+' '+MOIS_COURT[p[1]-1]+' '+p[0];
+  }
+
+  function getNomMembre(id){
+    if(typeof BUREAU_MEMBRES==='undefined') return id;
+    var m=BUREAU_MEMBRES.find(function(b){return b.id===id;});
+    return m?m.nom:id;
+  }
+
+  function ini(n){return(n||'?').split(' ').filter(Boolean).slice(0,2).map(function(x){return x[0];}).join('').toUpperCase()||'?';}
+
+  function prochaines(){
+    return REUNIONS_DATA
+      .filter(function(r){return r.statut==='planifiee';})
+      .sort(function(a,b){return a.date.localeCompare(b.date);});
+  }
+
+  function renderCard(r,isFirst){
+    var j=joursRestants(r.date);
+    var p=r.date.split('-').map(Number);
+    var badgeHtml='';
+    var cardClass=isFirst?'reun-card next':'reun-card';
+    var opacity=isFirst?'':'style="opacity:.6"';
+
+    if(j<0) badgeHtml='<span class="badge badge-ok">Passée</span>';
+    else if(j===0) badgeHtml='<span class="badge" style="background:var(--r2);color:var(--rd);flex-shrink:0">Aujourd\'hui</span>';
+    else if(j===1) badgeHtml='<span class="badge" style="background:var(--r2);color:var(--rd);flex-shrink:0">Demain</span>';
+    else if(j<=7) badgeHtml='<span class="badge" style="background:var(--r2);color:var(--rd);flex-shrink:0">J-'+j+'</span>';
+    else badgeHtml='<span class="badge badge-neu">À venir</span>';
+
+    var nbRep=0; var nbInv=r.invites?r.invites.length:0;
+    if(r.reponses){for(var k in r.reponses){if(r.reponses[k]==='present')nbRep++;}}
+
+    return '<div class="'+cardClass+'" style="cursor:pointer" onclick="ReunionService.ouvrirDetail(\''+r.id+'\')">'
+      +'<div class="rc-date" '+opacity+'><div class="rc-day">'+p[2]+'</div><div class="rc-month">'+MOIS_COURT[p[1]-1]+'</div></div>'
+      +'<div class="rc-div"></div>'
+      +'<div class="rc-info"><div class="rc-title">'+r.titre+'</div><div class="rc-meta">'+r.heure+' · '+r.lieu+'</div>'
+      +(nbInv>0?'<div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">'+nbRep+'/'+nbInv+' confirmé'+(nbRep>1?'s':'')+'</div>':'')
+      +'</div>'
+      +badgeHtml+'</div>';
+  }
+
+  function renderProchaines(containerId){
+    var zone=document.getElementById(containerId);
+    if(!zone) return;
+    var list=prochaines();
+    if(!list.length){
+      zone.innerHTML='<div style="text-align:center;padding:16px;font-size:12px;color:var(--color-text-secondary)"><i class="ti ti-calendar-off" style="font-size:20px;display:block;margin-bottom:4px;opacity:.4"></i>Aucune réunion planifiée</div>';
+      return;
+    }
+    var html='';
+    list.forEach(function(r,i){html+=renderCard(r,i===0);});
+    zone.innerHTML=html;
+  }
+
+  function renderAll(){
+    renderProchaines('home-reunions-zone');
+    renderProchaines('pg-reunions-prochaines-zone');
+  }
+
+  function ouvrirCreation(){
+    document.getElementById('reu-titre').value='';
+    document.getElementById('reu-date').value='';
+    document.getElementById('reu-heure').value='19:00';
+    document.getElementById('reu-lieu').value='';
+    document.getElementById('reu-ordre').value='';
+    renderInvitesCheckboxes();
+    document.getElementById('modal-creer-reunion').classList.add('open');
+  }
+
+  function renderInvitesCheckboxes(){
+    var zone=document.getElementById('reu-invites-zone');
+    if(!zone||typeof BUREAU_MEMBRES==='undefined') return;
+    var html='';
+    BUREAU_MEMBRES.forEach(function(m){
+      html+='<label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer">';
+      html+='<input type="checkbox" class="reu-invite-cb" value="'+m.id+'" checked style="width:18px;height:18px;accent-color:var(--r)">';
+      html+='<div style="width:30px;height:30px;border-radius:50%;background:var(--r);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">'+ini(m.nom)+'</div>';
+      html+='<div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--color-text-primary)">'+m.nom+'</div>';
+      html+='<div style="font-size:10px;color:var(--color-text-secondary)">'+m.label+'</div></div></label>';
+    });
+    zone.innerHTML=html;
+  }
+
+  function creerReunion(){
+    var titre=document.getElementById('reu-titre').value.trim();
+    var date=document.getElementById('reu-date').value;
+    var heure=document.getElementById('reu-heure').value;
+    var lieu=document.getElementById('reu-lieu').value.trim();
+    var ordre=document.getElementById('reu-ordre').value.trim();
+
+    if(!titre){showToast('Veuillez saisir un titre');return;}
+    if(!date){showToast('Veuillez saisir une date');return;}
+    if(!lieu){showToast('Veuillez saisir un lieu');return;}
+
+    var invites=[];
+    var reponses={};
+    document.querySelectorAll('.reu-invite-cb:checked').forEach(function(cb){
+      invites.push(cb.value);
+      reponses[cb.value]=null;
+    });
+    if(!invites.length){showToast('Veuillez inviter au moins une personne');return;}
+
+    var reu={
+      id:'reu'+Date.now(),
+      titre:titre,
+      date:date,
+      heure:heure,
+      lieu:lieu,
+      ordre:ordre,
+      invites:invites,
+      reponses:reponses,
+      statut:'planifiee'
+    };
+    REUNIONS_DATA.push(reu);
+
+    var dateFR=formatDateCourte(date);
+    invites.forEach(function(membreId){
+      if(typeof MSG_BUREAU!=='undefined'){
+        var now=new Date();
+        var dateStr=('0'+now.getDate()).slice(-2)+'/'+('0'+(now.getMonth()+1)).slice(-2)+'/'+now.getFullYear();
+        MSG_BUREAU.unshift({
+          id:'reu-notif-'+Date.now()+'-'+membreId,
+          type:'reunion',
+          de:'bm1',
+          dest:membreId,
+          objet:'Convocation : '+titre+' — '+dateFR,
+          corps:'Vous êtes invité(e) à la réunion :\n\n'+titre+'\n'+dateFR+' à '+heure+'\nLieu : '+lieu
+            +(ordre?'\n\nOrdre du jour :\n'+ordre:'')
+            +'\n\nMerci de confirmer votre présence.',
+          date:dateStr,
+          lu:false,
+          envoye:true,
+          reunion:{date:date,heure:heure,lieu:lieu},
+          presences:null
+        });
+      }
+    });
+
+    if(typeof window.ajouterConfirmationAmicaliste==='function'){
+      window.ajouterConfirmationAmicaliste(
+        'Convocation : '+titre,
+        'Vous êtes convoqué(e) à la réunion « '+titre+' ».\n\nDate : '+dateFR+' à '+heure+'\nLieu : '+lieu
+        +(ordre?'\n\nOrdre du jour :\n'+ordre:'')
+        +'\n\nMerci de confirmer votre présence.'
+      );
+    }
+
+    if(typeof updateNotifBadges==='function') updateNotifBadges();
+    if(typeof renderMessagesBureau==='function') renderMessagesBureau();
+
+    document.getElementById('modal-creer-reunion').classList.remove('open');
+    renderAll();
+    showToast('Réunion planifiée — '+invites.length+' invitation'+(invites.length>1?'s':'')+' envoyée'+(invites.length>1?'s':''));
+  }
+
+  function ouvrirDetail(reuId){
+    var reu=REUNIONS_DATA.find(function(r){return r.id===reuId;});
+    if(!reu) return;
+    detailReuId=reuId;
+    document.getElementById('mdr-titre').textContent=reu.titre;
+    var body=document.getElementById('mdr-body');
+    var dateFR=formatDateCourte(reu.date);
+    var j=joursRestants(reu.date);
+
+    var html='<div class="card" style="margin-bottom:10px">';
+    html+='<div class="dr"><i class="ti ti-calendar" aria-hidden="true"></i><div class="dr-l">Date</div><div class="dr-v">'+dateFR+'</div></div>';
+    html+='<div class="dr"><i class="ti ti-clock" aria-hidden="true"></i><div class="dr-l">Heure</div><div class="dr-v">'+reu.heure+'</div></div>';
+    html+='<div class="dr" style="border:none"><i class="ti ti-map-pin" aria-hidden="true"></i><div class="dr-l">Lieu</div><div class="dr-v">'+reu.lieu+'</div></div>';
+    html+='</div>';
+
+    if(reu.ordre){
+      html+='<div class="sec" style="margin-bottom:6px">Ordre du jour</div>';
+      html+='<div class="card" style="margin-bottom:10px"><div style="font-size:12px;color:var(--color-text-primary);line-height:1.5;white-space:pre-line">'+reu.ordre+'</div></div>';
+    }
+
+    html+='<div class="sec" style="margin-bottom:6px">Invités ('+reu.invites.length+')</div>';
+    html+='<div class="card" style="padding:0;overflow:hidden">';
+    reu.invites.forEach(function(memId,idx){
+      var nom=getNomMembre(memId);
+      var rep=reu.reponses?reu.reponses[memId]:null;
+      var repHtml='<span class="badge badge-neu">En attente</span>';
+      if(rep==='present') repHtml='<span class="badge badge-ok">Présent</span>';
+      else if(rep==='absent') repHtml='<span class="badge" style="background:var(--r2);color:var(--rd)">Absent</span>';
+      var isLast=idx===reu.invites.length-1;
+      html+='<div class="dr" style="padding:8px 12px'+(isLast?';border:none':'')+'">';
+      html+='<div style="width:28px;height:28px;border-radius:50%;background:var(--r);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">'+ini(nom)+'</div>';
+      html+='<div style="flex:1;padding-left:8px;font-size:12px;font-weight:600;color:var(--color-text-primary)">'+nom+'</div>';
+      html+=repHtml+'</div>';
+    });
+    html+='</div>';
+
+    body.innerHTML=html;
+
+    var btnAnnuler=document.getElementById('mdr-btn-annuler');
+    if(btnAnnuler) btnAnnuler.style.display=(reu.statut==='planifiee'&&j>=0)?'inline-flex':'none';
+
+    document.getElementById('modal-detail-reunion').classList.add('open');
+  }
+
+  function annulerReunion(){
+    if(!detailReuId) return;
+    var reu=REUNIONS_DATA.find(function(r){return r.id===detailReuId;});
+    if(!reu) return;
+    reu.statut='annulee';
+
+    var dateFR=formatDateCourte(reu.date);
+    if(reu.invites){
+      reu.invites.forEach(function(memId){
+        if(typeof MSG_BUREAU!=='undefined'){
+          var now=new Date();
+          var dateStr=('0'+now.getDate()).slice(-2)+'/'+('0'+(now.getMonth()+1)).slice(-2)+'/'+now.getFullYear();
+          MSG_BUREAU.unshift({
+            id:'reu-cancel-'+Date.now()+'-'+memId,
+            type:'urgence',
+            de:'bm1',
+            dest:memId,
+            objet:'Annulation : '+reu.titre+' — '+dateFR,
+            corps:'La réunion « '+reu.titre+' » prévue le '+dateFR+' à '+reu.heure+' est annulée.\n\nVous serez informé(e) d\'une éventuelle nouvelle date.',
+            date:dateStr,
+            lu:false,
+            envoye:true
+          });
+        }
+      });
+    }
+
+    if(typeof window.ajouterConfirmationAmicaliste==='function'){
+      window.ajouterConfirmationAmicaliste(
+        'Annulation : '+reu.titre,
+        'La réunion « '+reu.titre+' » prévue le '+dateFR+' à '+reu.heure+' a été annulée.'
+      );
+    }
+
+    if(typeof updateNotifBadges==='function') updateNotifBadges();
+    if(typeof renderMessagesBureau==='function') renderMessagesBureau();
+
+    document.getElementById('modal-detail-reunion').classList.remove('open');
+    renderAll();
+    showToast('Réunion annulée — invités notifiés');
+  }
+
+  return {
+    ouvrirCreation: ouvrirCreation,
+    creerReunion: creerReunion,
+    ouvrirDetail: ouvrirDetail,
+    annulerReunion: annulerReunion,
+    renderAll: renderAll
+  };
+})();
 
 function ouvrirModalDoc(type){
   docReunionType=type;
