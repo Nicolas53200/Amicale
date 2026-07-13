@@ -3794,6 +3794,14 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           </div>
         </div>
 
+        <!-- MODAL FICHE DE SUIVI LOCATION -->
+        <div class="mow" id="modal-suivi-location" style="z-index:8500">
+          <div class="mbox">
+            <div class="mh2"></div>
+            <div id="suivi-location-content"></div>
+          </div>
+        </div>
+
         <!-- MODAL AJOUT BIEN -->
         <div class="mow" id="modal-ajout-bien">
           <div class="mbox">
@@ -4391,6 +4399,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
       <!-- ONGLETS -->
       <div class="nav-tabs" style="overflow-x:auto">
         <button class="tb on" onclick="showComptaMainTab('ct-tableau',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Tableau</button>
+        <button class="tb" onclick="showComptaMainTab('ct-journal',this)"><i class="ti ti-table" aria-hidden="true"></i>Journal</button>
         <button class="tb" onclick="showComptaMainTab('ct-documents',this)"><i class="ti ti-inbox" aria-hidden="true"></i>Documents</button>
         <button class="tb" onclick="showComptaMainTab('ct-depenses-generales',this)"><i class="ti ti-receipt-euro" aria-hidden="true"></i>Hors commission</button>
         <button class="tb" onclick="showComptaMainTab('ct-budgets',this)"><i class="ti ti-target" aria-hidden="true"></i>Budgets</button>
@@ -4406,15 +4415,15 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:12px">
           <div class="sc" style="text-align:center">
             <div class="slbl">Recettes</div>
-            <div class="sval" style="color:var(--grn);font-size:16px">14 320 €</div>
+            <div class="sval" style="color:var(--grn);font-size:16px" id="compta-stat-recettes">—</div>
           </div>
           <div class="sc" style="text-align:center">
             <div class="slbl">Dépenses</div>
-            <div class="sval" style="color:var(--r);font-size:16px">10 480 €</div>
+            <div class="sval" style="color:var(--r);font-size:16px" id="compta-stat-depenses">—</div>
           </div>
           <div class="sc" style="text-align:center">
             <div class="slbl">Solde</div>
-            <div class="sval" style="color:var(--blu);font-size:16px">3 840 €</div>
+            <div class="sval" style="color:var(--blu);font-size:16px" id="compta-stat-solde">—</div>
           </div>
         </div>
 
@@ -4448,27 +4457,73 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 
         <!-- ALERTES -->
         <div class="sec">Alertes</div>
-        <div style="background:var(--aml);border:0.5px solid #e6c87a;border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center;margin-bottom:7px">
-          <i class="ti ti-clock" style="font-size:18px;color:var(--amb);flex-shrink:0" aria-hidden="true"></i>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--amb)">3 documents en attente de validation</div>
-            <div style="font-size:11px;color:var(--amb);margin-top:1px">Factures commissions Événements et Calendriers</div>
+        <div id="compta-alertes-zone"></div>
+      </div>
+
+      <!-- ── JOURNAL COMPTABLE ── -->
+      <div class="tc" id="ct-journal" style="padding:12px">
+        <div class="sec">Journal comptable — Exercice 2026</div>
+        <div style="background:var(--bll);border:0.5px solid #a3b8e8;border-radius:var(--border-radius-lg);padding:10px 12px;display:flex;gap:7px;align-items:flex-start;margin-bottom:12px">
+          <i class="ti ti-info-circle" style="font-size:16px;color:var(--blu);flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+          <div style="font-size:12px;color:var(--blu);line-height:1.4">Vue unifiée de toutes les opérations financières : recettes, dépenses, devis, factures, remboursements, cautions. Chaque écriture peut être modifiée ou supprimée.</div>
+        </div>
+
+        <!-- FILTRES DATE -->
+        <div class="card" style="padding:10px 12px;margin-bottom:10px">
+          <div class="mg">
+            <div><label class="ml" for="jrn-date-de">Du</label><input class="ri" type="date" id="jrn-date-de" onchange="renderJournalCompta()"></div>
+            <div><label class="ml" for="jrn-date-au">Au</label><input class="ri" type="date" id="jrn-date-au" onchange="renderJournalCompta()"></div>
+          </div>
+          <div style="margin-top:8px">
+            <label class="ml" for="jrn-search">Recherche</label>
+            <input class="ri" id="jrn-search" placeholder="Libellé, prestataire, commission..." oninput="renderJournalCompta()">
           </div>
         </div>
-        <div style="background:var(--bll);border:0.5px solid var(--blu);border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center;margin-bottom:7px">
-          <i class="ti ti-arrow-back-up" style="font-size:18px;color:var(--blu);flex-shrink:0" aria-hidden="true"></i>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--blu)">1 remboursement en attente</div>
-            <div style="font-size:11px;color:var(--blu);margin-top:1px">Sophie Martin · 45 € avancés</div>
+
+        <!-- FILTRES TYPE -->
+        <div style="display:flex;gap:5px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none;flex-wrap:wrap">
+          <button class="fp on" onclick="filtrerJournalType(this,'all')">Tous</button>
+          <button class="fp" onclick="filtrerJournalType(this,'recette')">Recettes</button>
+          <button class="fp" onclick="filtrerJournalType(this,'depense')">Dépenses</button>
+          <button class="fp" onclick="filtrerJournalType(this,'facture')">Factures</button>
+          <button class="fp" onclick="filtrerJournalType(this,'devis')">Devis</button>
+          <button class="fp" onclick="filtrerJournalType(this,'remboursement')">Remb.</button>
+          <button class="fp" onclick="filtrerJournalType(this,'caution')">Cautions</button>
+        </div>
+
+        <!-- FILTRES COMMISSION -->
+        <div style="margin-bottom:10px">
+          <select class="ri" id="jrn-comm-filter" onchange="renderJournalCompta()" style="font-size:12px">
+            <option value="all">Toutes les commissions</option>
+          </select>
+        </div>
+
+        <!-- RÉSUMÉ -->
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:10px">
+          <div class="sc" style="text-align:center;padding:8px 6px">
+            <div class="slbl" style="font-size:9px">Recettes</div>
+            <div id="jrn-total-recettes" style="font-size:14px;font-weight:700;color:var(--grn)">0 €</div>
+          </div>
+          <div class="sc" style="text-align:center;padding:8px 6px">
+            <div class="slbl" style="font-size:9px">Dépenses</div>
+            <div id="jrn-total-depenses" style="font-size:14px;font-weight:700;color:var(--r)">0 €</div>
+          </div>
+          <div class="sc" style="text-align:center;padding:8px 6px">
+            <div class="slbl" style="font-size:9px">Solde</div>
+            <div id="jrn-total-solde" style="font-size:14px;font-weight:700;color:var(--blu)">0 €</div>
           </div>
         </div>
-        <div style="background:var(--pul);border:0.5px solid var(--pur);border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center">
-          <i class="ti ti-transfer" style="font-size:18px;color:var(--pur);flex-shrink:0" aria-hidden="true"></i>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--pur)">1 demande de prêt en attente</div>
-            <div style="font-size:11px;color:var(--pur);margin-top:1px">Pierre Leroy · 150 € · en commission</div>
-          </div>
+
+        <!-- NOMBRE D'ÉCRITURES + TRI -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div id="jrn-count" style="font-size:11px;color:var(--color-text-secondary);font-weight:600">0 écritures</div>
+          <button onclick="toggleJournalSort()" style="padding:4px 10px;border-radius:20px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);font-size:11px;font-weight:600;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;gap:4px" id="jrn-sort-btn"><i class="ti ti-sort-descending" aria-hidden="true"></i>Plus récent</button>
         </div>
+
+        <!-- LISTE DES ÉCRITURES -->
+        <div id="journal-compta-list"></div>
+
+        <button class="add-btn" onclick="ouvrirModalJournal()"><i class="ti ti-plus" aria-hidden="true"></i>Ajouter une écriture</button>
       </div>
 
       <!-- ── DOCUMENTS COMMISSIONS ── -->
@@ -4740,6 +4795,52 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div class="mac" style="margin-top:10px">
           <button class="mc-c" onclick="document.getElementById('modal-compta').classList.remove('open')">Annuler</button>
           <button class="mc-ok" onclick="saveModalCompta()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL JOURNAL COMPTABLE -->
+    <div class="mow" id="modal-journal-entry" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
+      <div class="mbox" style="max-height:85vh;overflow-y:auto">
+        <div class="mh2"></div>
+        <div class="mtt" id="modal-journal-title">Nouvelle écriture</div>
+        <div style="padding:0 2px">
+          <label class="ml" for="jrn-e-type">Type d'opération</label>
+          <select class="ri" id="jrn-e-type" style="margin-bottom:8px" onchange="onJournalTypeChange()">
+            <option value="depense">Dépense</option>
+            <option value="recette">Recette</option>
+            <option value="facture">Facture</option>
+            <option value="devis">Devis</option>
+            <option value="remboursement">Remboursement</option>
+            <option value="caution">Caution</option>
+          </select>
+          <label class="ml" for="jrn-e-libelle">Libellé</label>
+          <input class="ri" id="jrn-e-libelle" placeholder="Description de l'opération" style="margin-bottom:8px">
+          <div class="mg">
+            <div><label class="ml" for="jrn-e-montant">Montant (€)</label><input class="ri" id="jrn-e-montant" type="number" step="0.01" placeholder="0,00"></div>
+            <div><label class="ml" for="jrn-e-date">Date</label><input class="ri" id="jrn-e-date" type="date"></div>
+          </div>
+          <label class="ml" for="jrn-e-commission">Commission</label>
+          <select class="ri" id="jrn-e-commission" style="margin-bottom:8px">
+            <option value="">Hors commission</option>
+          </select>
+          <div class="mg">
+            <div><label class="ml" for="jrn-e-prestataire">Prestataire / Tiers</label><input class="ri" id="jrn-e-prestataire" placeholder="Nom du prestataire"></div>
+            <div><label class="ml" for="jrn-e-mode">Mode de paiement</label><select class="ri" id="jrn-e-mode"><option value="">—</option><option>Virement</option><option>Chèque</option><option>Carte</option><option>Espèces</option><option>Prélèvement</option><option>CHORUS PRO</option></select></div>
+          </div>
+          <label class="ml" for="jrn-e-statut">Statut</label>
+          <select class="ri" id="jrn-e-statut" style="margin-bottom:8px">
+            <option value="attente">En attente</option>
+            <option value="paye">Payé / Encaissé</option>
+            <option value="refuse">Refusé / Annulé</option>
+          </select>
+          <label class="ml" for="jrn-e-notes">Notes / Observations</label>
+          <textarea class="ri" id="jrn-e-notes" rows="2" placeholder="Informations complémentaires..." style="margin-bottom:4px"></textarea>
+        </div>
+        <input type="hidden" id="jrn-e-id" value="">
+        <div class="mac" style="margin-top:10px">
+          <button class="mc-c" onclick="document.getElementById('modal-journal-entry').classList.remove('open')">Annuler</button>
+          <button class="mc-ok" onclick="sauverEntreeJournal()">Enregistrer</button>
         </div>
       </div>
     </div>
@@ -5574,10 +5675,10 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div id="liste-modeles-bureau">
           <div class="doc-card" data-modele="reunion" onclick="ouvrirModeleDetail('pv')" style="cursor:pointer"><div class="doc-ico" style="background:var(--bll)"><i class="ti ti-file-text" style="color:var(--blu)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:700">PV de réunion de bureau</div><div style="font-size:11px;color:var(--color-text-secondary)">Ordre du jour, présents, décisions, signatures</div></div><div class="doc-actions"><button class="doc-btn" onclick="event.stopPropagation();ouvrirModeleDetail('pv')"><i class="ti ti-eye"></i></button><button class="doc-btn" onclick="event.stopPropagation();utiliserModele('PV de réunion de bureau')"><i class="ti ti-copy"></i></button></div></div>
           <div class="doc-card" data-modele="reunion" onclick="ouvrirModeleDetail('convocation')" style="cursor:pointer"><div class="doc-ico" style="background:var(--rl)"><i class="ti ti-mail-forward" style="color:var(--r)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:700">Convocation réunion</div><div style="font-size:11px;color:var(--color-text-secondary)">Bureau, commission ou AG</div></div><div class="doc-actions"><button class="doc-btn" onclick="event.stopPropagation();ouvrirModeleDetail('convocation')"><i class="ti ti-eye"></i></button><button class="doc-btn" onclick="event.stopPropagation();utiliserModele('Convocation réunion')"><i class="ti ti-copy"></i></button></div></div>
-          <div class="doc-card" data-modele="budget" onclick="ouvrirModeleDetail('budget')" style="cursor:pointer"><div class="doc-ico" style="background:var(--grl)"><i class="ti ti-calculator" style="color:var(--grn)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:700">Budget commission</div><div style="font-size:11px;color:var(--color-text-secondary)">Prévisionnel recettes / dépenses</div></div><div class="doc-actions"><button class="doc-btn" onclick="event.stopPropagation();ouvrirModeleDetail('budget')"><i class="ti ti-eye"></i></button><button class="doc-btn" onclick="event.stopPropagation();utiliserModele('Budget commission')"><i class="ti ti-copy"></i></button></div></div>
+          <div class="doc-card" data-modele="budget" onclick="ouvrirModeleDetail('budget')" style="cursor:pointer"><div class="doc-ico" style="background:var(--grl)"><i class="ti ti-calculator" style="color:var(--grn)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:700">Budget commission</div><div style="font-size:11px;color:var(--color-text-secondary)">Prévisionnel recettes / dépenses</div></div><div class="doc-actions"><button class="doc-btn" onclick="event.stopPropagation();ouvrirModeleDetail('budget')"><i class="ti ti-eye"></i></button><button class="doc-btn" onclick="event.stopPropagation();utiliserModele('Budget prévisionnel')"><i class="ti ti-copy"></i></button></div></div>
           <div class="doc-card" data-modele="bilan" onclick="ouvrirModeleDetail('bilan')" style="cursor:pointer"><div class="doc-ico" style="background:var(--aml)"><i class="ti ti-chart-bar" style="color:var(--amb)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:700">Bilan d'activité</div><div style="font-size:11px;color:var(--color-text-secondary)">Bilan événement, commission ou annuel</div></div><div class="doc-actions"><button class="doc-btn" onclick="event.stopPropagation();ouvrirModeleDetail('bilan')"><i class="ti ti-eye"></i></button><button class="doc-btn" onclick="event.stopPropagation();utiliserModele('Bilan d’activité')"><i class="ti ti-copy"></i></button></div></div>
           <div class="doc-card" data-modele="affiche" onclick="ouvrirModeleDetail('affiche')" style="cursor:pointer"><div class="doc-ico" style="background:var(--pul)"><i class="ti ti-photo-edit" style="color:var(--pur)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:700">Affiche événement</div><div style="font-size:11px;color:var(--color-text-secondary)">Bal, repas, loto, voyage</div></div><div class="doc-actions"><button class="doc-btn" onclick="event.stopPropagation();ouvrirModeleDetail('affiche')"><i class="ti ti-eye"></i></button><button class="doc-btn" onclick="event.stopPropagation();utiliserModele('Affiche événement')"><i class="ti ti-copy"></i></button></div></div>
-          <div class="doc-card" data-modele="reunion" onclick="ouvrirModeleDetail('cr')" style="cursor:pointer"><div class="doc-ico" style="background:var(--color-background-secondary)"><i class="ti ti-clipboard-text" style="color:var(--color-text-secondary)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:700">Compte rendu commission</div><div style="font-size:11px;color:var(--color-text-secondary)">Actions, responsables, échéances</div></div><div class="doc-actions"><button class="doc-btn" onclick="event.stopPropagation();ouvrirModeleDetail('cr')"><i class="ti ti-eye"></i></button><button class="doc-btn" onclick="event.stopPropagation();utiliserModele('Compte rendu commission')"><i class="ti ti-copy"></i></button></div></div>
+          <div class="doc-card" data-modele="reunion" onclick="ouvrirModeleDetail('cr')" style="cursor:pointer"><div class="doc-ico" style="background:var(--color-background-secondary)"><i class="ti ti-clipboard-text" style="color:var(--color-text-secondary)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:700">Compte rendu commission</div><div style="font-size:11px;color:var(--color-text-secondary)">Actions, responsables, échéances</div></div><div class="doc-actions"><button class="doc-btn" onclick="event.stopPropagation();ouvrirModeleDetail('cr')"><i class="ti ti-eye"></i></button><button class="doc-btn" onclick="event.stopPropagation();utiliserModele('Compte rendu de commission')"><i class="ti ti-copy"></i></button></div></div>
         </div>
       </div>
     </div>
@@ -5608,7 +5709,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
     </div>
 
     <!-- MODALE ÉDITEUR DE MODÈLE -->
-    <div class="mow" id="modal-modele-editeur" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:8600">
+    <div class="mow" id="modal-modele-editeur" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
       <div class="mbox" style="max-height:90vh;overflow-y:auto">
         <div class="mh2"></div>
         <div class="mtt" id="modele-edit-titre">Modifier le modèle</div>
@@ -6615,6 +6716,14 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
 
           <div id="mfv-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- MODAL SUIVI VOYAGE — communication groupée -->
+    <div class="mow" id="modal-suivi-voyage" style="z-index:8500">
+      <div class="mbox" style="max-height:95vh;overflow-y:auto">
+        <div class="mh2"></div>
+        <div id="suivi-voyage-content"></div>
       </div>
     </div>
 
@@ -8169,6 +8278,7 @@ function resoudreProfilBureau(){
 }
 
 function connecterBureau(){
+  try{ sessionStorage.removeItem('missionsFermees'); }catch(e){}
   const profil=resoudreProfilBureau();
   bureauRole=profil.role;
   bureauCommissions=profil.commissions||[];
@@ -8718,7 +8828,7 @@ function confirmerRetour(){
   document.getElementById('sign-zone').children[0].style.display='block';
   document.getElementById('valid-btn-retour').className='valid-btn';
   ['ret-vendus','ret-inv','ret-mon','ret-chq','ret-aut'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  calcRetour(); populateSecteurSelect(); renderRetoursEnregistres(); updateCalStats(); renderDocsCompta('all'); renderBilanTable(); renderBudgets(); if(typeof BilanService!=='undefined'){BilanService.initScopeSelect();BilanService.renderApercu();} if(typeof RemboursementService!=='undefined') RemboursementService.updateBadge(); if(typeof ReunionService!=='undefined') ReunionService.renderAll();
+  calcRetour(); populateSecteurSelect(); renderRetoursEnregistres(); updateCalStats(); renderDocsCompta('all'); renderBilanTable(); renderBudgets(); if(typeof renderDepensesGeneralesList==='function') renderDepensesGeneralesList(); if(typeof BilanService!=='undefined'){BilanService.initScopeSelect();BilanService.renderApercu();} if(typeof RemboursementService!=='undefined') RemboursementService.updateBadge(); if(typeof ReunionService!=='undefined') ReunionService.renderAll();
 }
 
 
@@ -8850,9 +8960,11 @@ const DEMANDES_LOCATION=[
   {id:'dl2',demandeur:'Marie Garnier',bien:'barnum',bienNom:'Barnum',dates:'28 juin 2026',montant:'Gratuit',statut:'attente',
    dateDemande:'5 juin 2026',dateTraitement:null,traitePar:null,historique:'1ère demande de location',motifRefus:null,motifValidation:null,caution:'200 €',etatRetour:'À venir',observations:'Demande pour fête familiale. Vérifier disponibilité équipe montage.'},
   {id:'dl3',demandeur:'Jean Dupont',bien:'appart',bienNom:'Appartement',dates:'1–5 août 2025',montant:'200 €',statut:'acceptee',motifRefus:null,
-   dateDemande:'12 mai 2025',dateTraitement:'14 mai 2025',traitePar:'Pierre Leroy',motifValidation:'Disponibilité confirmée, règlement intérieur accepté.',caution:'300 €',etatRetour:'Retour OK · état des lieux conforme',observations:'Location honorée. Aucun incident signalé.'},
+   dateDemande:'12 mai 2025',dateTraitement:'14 mai 2025',traitePar:'Pierre Leroy',motifValidation:'Disponibilité confirmée, règlement intérieur accepté.',caution:'300 €',etatRetour:'Retour OK · suivi complet',observations:'Location honorée. Aucun incident signalé.',
+   suivi:{cautionRecue:{fait:true,date:'15 mai 2025',par:'Pierre Leroy',montant:'300 €',modePaiement:'cheque',observations:'Chèque n°4521'},etatLieuxEntree:{fait:true,date:'1 août 2025',par:'Pierre Leroy',observations:'RAS'},remiseCles:{fait:true,date:'1 août 2025',par:'Pierre Leroy',observations:'2 clés remises'},etatLieuxSortie:{fait:true,date:'5 août 2025',par:'Pierre Leroy',observations:'Appartement en bon état'},retourCles:{fait:true,date:'5 août 2025',par:'Jean Dupont',observations:'2 clés rendues'},cautionRestituee:{fait:true,date:'10 août 2025',par:'Pierre Leroy',montantRetenu:'0 €',motifRetenue:'',observations:'Caution restituée intégralement'}}},
   {id:'dl4',demandeur:'Pierre Leroy',bien:'barnum',bienNom:'Barnum',dates:'14 juin 2025',montant:'Gratuit',statut:'acceptee',motifRefus:null,
-   dateDemande:'1 juin 2025',dateTraitement:'3 juin 2025',traitePar:'Michel Durand',motifValidation:'Barnum disponible, montage validé avec la commission.',caution:'200 €',etatRetour:'Retour OK · matériel complet',observations:'Prévoir contrôle des sardines avant prochaine sortie.'},
+   dateDemande:'1 juin 2025',dateTraitement:'3 juin 2025',traitePar:'Michel Durand',motifValidation:'Barnum disponible, montage validé avec la commission.',caution:'200 €',etatRetour:'Retour OK · suivi complet',observations:'Prévoir contrôle des sardines avant prochaine sortie.',
+   suivi:{cautionRecue:{fait:true,date:'4 juin 2025',par:'Michel Durand',montant:'200 €',modePaiement:'cheque',observations:''},etatLieuxEntree:{fait:true,date:'14 juin 2025',par:'Michel Durand',observations:'Montage vérifié'},remiseCles:{fait:true,date:'14 juin 2025',par:'Michel Durand',observations:'N/A — matériel sans clés'},etatLieuxSortie:{fait:true,date:'14 juin 2025',par:'Michel Durand',observations:'Matériel complet, toile propre'},retourCles:{fait:true,date:'14 juin 2025',par:'Pierre Leroy',observations:'N/A'},cautionRestituee:{fait:true,date:'20 juin 2025',par:'Michel Durand',montantRetenu:'0 €',motifRetenue:'',observations:'Caution restituée'}}},
   {id:'dl5',demandeur:'Claude Bernard',bien:'remor',bienNom:'Remorque',dates:'2–3 mai 2025',montant:'Gratuit',statut:'refusee',motifRefus:'Remorque déjà réservée pour entretien sur cette période',
    dateDemande:'20 avril 2025',dateTraitement:'21 avril 2025',traitePar:'Pierre Leroy',motifValidation:null,caution:'150 €',etatRetour:'Non concerné',observations:'Proposition faite de décaler la demande au week-end suivant.'},
 ];
@@ -8885,9 +8997,9 @@ function syncIdentite(nomComplet){
 // INSCRIPTIONS VOYAGES — amicaliste → commission Voyages
 // ═══════════════════════════════════════════
 const VOYAGES_DATA={
-  saintmalo:{nom:'Weekend à Saint-Malo',destination:'Saint-Malo, Bretagne',duree:'2 jours / 1 nuit',dates:'5–6 sept. 2026',tarif:'85 €',places:42,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:4,transport:'Car privatisé',hebergement:'Hôtel 3\u2605 \u00b7 Demi-pension',programme:'Visite intra-muros, plage, dîner fruits de mer',ico:'ti-sailboat',color:'#1a5276',image:null,carouselSlide:1,inclus:['Transport A/R en car','1 nuit hôtel 3\u2605','Petit-déjeuner + dîner','Visite guidée intra-muros'],nonInclus:['Déjeuner du samedi','Dépenses personnelles']},
-  strasbourg:{nom:'Marché de Noël — Strasbourg',destination:'Strasbourg, Alsace',duree:'3 jours / 2 nuits',dates:'5–7 déc. 2026',tarif:'145 €',places:38,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:2,transport:'TGV',hebergement:'Hôtel 3\u2605 \u00b7 Petit-déj inclus',programme:'Marchés de Noël, cathédrale, Petite France, croisière',ico:'ti-building-arch',color:'#1a6b3a',image:null,inclus:['TGV A/R 2nde classe','2 nuits hôtel centre-ville','Petits-déjeuners','Croisière sur l\u2019Ill'],nonInclus:['Repas midi et soir','Entrées musées','Dépenses personnelles']},
-  colo_ete:{nom:'Colonie d\u2019été des enfants',destination:'Centre de vacances, Vendée',duree:'8 jours / 7 nuits',dates:'10–17 juil. 2026',tarif:'120 €',places:30,placesMin:15,enfantsAutorises:true,ageLimiteEnfants:14,tarifEnfant:'90 €',accompagnateursRecherches:4,maxAdultesParFoyer:2,transport:'Car privatisé',hebergement:'Centre de vacances \u00b7 Pension complète',programme:'Activités nautiques, randonnées, veillées',ico:'ti-tent',color:'#1a7a1a',image:null,inclus:['Transport A/R','Pension complète 7 nuits','Activités encadrées','Assurance'],nonInclus:['Argent de poche','Équipement personnel']},
+  saintmalo:{nom:'Weekend à Saint-Malo',destination:'Saint-Malo, Bretagne',duree:'2 jours / 1 nuit',dates:'5–6 sept. 2026',tarif:'85 €',places:42,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:4,transport:'Car privatisé',hebergement:'Hôtel 3\u2605 \u00b7 Demi-pension',programme:'Visite intra-muros, plage, dîner fruits de mer',ico:'ti-sailboat',color:'#1a5276',image:null,carouselSlide:1,dateLimiteInscription:'2026-08-01',inclus:['Transport A/R en car','1 nuit hôtel 3\u2605','Petit-déjeuner + dîner','Visite guidée intra-muros'],nonInclus:['Déjeuner du samedi','Dépenses personnelles']},
+  strasbourg:{nom:'Marché de Noël — Strasbourg',destination:'Strasbourg, Alsace',duree:'3 jours / 2 nuits',dates:'5–7 déc. 2026',tarif:'145 €',places:38,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:2,transport:'TGV',hebergement:'Hôtel 3\u2605 \u00b7 Petit-déj inclus',programme:'Marchés de Noël, cathédrale, Petite France, croisière',ico:'ti-building-arch',color:'#1a6b3a',image:null,dateLimiteInscription:'2026-11-01',inclus:['TGV A/R 2nde classe','2 nuits hôtel centre-ville','Petits-déjeuners','Croisière sur l\u2019Ill'],nonInclus:['Repas midi et soir','Entrées musées','Dépenses personnelles']},
+  colo_ete:{nom:'Colonie d\u2019été des enfants',destination:'Centre de vacances, Vendée',duree:'8 jours / 7 nuits',dates:'10–17 juil. 2026',tarif:'120 €',places:30,placesMin:15,enfantsAutorises:true,ageLimiteEnfants:14,tarifEnfant:'90 €',accompagnateursRecherches:4,maxAdultesParFoyer:2,transport:'Car privatisé',hebergement:'Centre de vacances \u00b7 Pension complète',programme:'Activités nautiques, randonnées, veillées',ico:'ti-tent',color:'#1a7a1a',image:null,dateLimiteInscription:'2026-06-15',inclus:['Transport A/R','Pension complète 7 nuits','Activités encadrées','Assurance'],nonInclus:['Argent de poche','Équipement personnel']},
 };
 
 window.VOYAGES_DATA=VOYAGES_DATA;
@@ -8905,12 +9017,18 @@ var SUIVI_COMPTA_VOYAGES=[
 ];
 
 const INSCRIPTIONS_VOYAGES=[
-  {id:'iv1',demandeur:'Sophie Martin',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'attente',dateInsc:'10 juin 2026'},
-  {id:'iv2',demandeur:'Marc Petit',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'attente',dateInsc:'11 juin 2026'},
-  {id:'iv3',demandeur:'Jean Dupont',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'acceptee',dateInsc:'2 mai 2026'},
-  {id:'iv4',demandeur:'Pierre Leroy',voyage:'strasbourg',voyageNom:'Marché de Noël — Strasbourg',statut:'acceptee',dateInsc:'15 mai 2026'},
+  {id:'iv1',demandeur:'Sophie Martin',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'attente',dateInsc:'10 juin 2026',heureInsc:'09h15'},
+  {id:'iv2',demandeur:'Marc Petit',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'attente',dateInsc:'11 juin 2026',heureInsc:'14h32'},
+  {id:'iv3',demandeur:'Jean Dupont',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'acceptee',dateInsc:'2 mai 2026',heureInsc:'10h05'},
+  {id:'iv4',demandeur:'Pierre Leroy',voyage:'strasbourg',voyageNom:'Marché de Noël — Strasbourg',statut:'acceptee',dateInsc:'15 mai 2026',heureInsc:'16h48'},
 ];
 window.INSCRIPTIONS_VOYAGES=INSCRIPTIONS_VOYAGES;
+
+var COMM_VOYAGES=[
+  {id:'cv1',voyage:'saintmalo',de:'Commission Voyages',message:'Bienvenue ! Ce fil de discussion est réservé aux inscrits du Weekend à Saint-Malo. Toutes les informations pratiques seront communiquées ici.',date:'3 mai 2026',heure:'10h00',type:'info'},
+  {id:'cv2',voyage:'saintmalo',de:'Commission Voyages',message:'Rappel : le départ est prévu le 5 sept. à 7h00 depuis le parking de la caserne. Merci de prévoir un bagage léger.',date:'20 août 2026',heure:'15h30',type:'info'},
+];
+window.COMM_VOYAGES=COMM_VOYAGES;
 
 // ═══════════════════════════════════════════
 // INSCRIPTIONS ÉVÉNEMENTS — amicaliste → commission Événements
@@ -9146,9 +9264,11 @@ function renderMesLocations(){
     const motif=d.statut==='refusee'&&d.motifRefus
       ? `<div style="font-size:11px;color:var(--rd);background:var(--r2);border-radius:var(--border-radius-md);padding:6px 9px;margin-top:4px"><strong>Motif :</strong> ${d.motifRefus}</div>`
       : '';
+    const prog=d.statut==='acceptee'?getSuiviProgress(d):null;
+    const progTxt=prog?`<div style="font-size:10px;color:${prog.pct===100?'var(--grn)':'var(--amb)'};margin-top:2px">${prog.pct===100?'Suivi complet':'Suivi : '+prog.done+'/'+prog.total+' étapes'}</div>`:'<div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">Cliquer pour voir le détail</div>';
     return `<div class="dr" ${isLast&&!motif?'style="border:none"':''} onclick="ouvrirHistoriqueLocation('${d.id}')" style="cursor:pointer">
       <i class="ti ${BIENS_AMICAL[d.bien]?BIENS_AMICAL[d.bien].icon:'ti-home'}" aria-hidden="true"></i>
-      <div class="dr-l"><strong>${d.bienNom}</strong> · ${d.dates}<div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">Cliquer pour voir le détail</div></div>
+      <div class="dr-l"><strong>${d.bienNom}</strong> · ${d.dates}${progTxt}</div>
       <div class="dr-v">${badgeMap[d.statut]||''}</div>
     </div>${motif}`;
   }).join('');
@@ -9335,11 +9455,16 @@ function renderLocDemandes(){
     const badgeMap={acceptee:'<span class="badge badge-ok">Acceptée</span>',refusee:'<span class="badge badge-ref">Refusée</span>'};
     list.innerHTML+=`<div class="sec" style="margin-top:4px">Historique traité</div>
       <div class="card" style="padding:0;overflow:hidden">
-        ${traitees.map((d,i)=>`<div class="dr" ${i===traitees.length-1?'style="border:none;cursor:pointer"':'style="cursor:pointer"'} onclick="ouvrirHistoriqueLocation('${d.id}')">
-          <i class="ti ${BIENS_AMICAL[d.bien]?BIENS_AMICAL[d.bien].icon:'ti-home'}" aria-hidden="true"></i>
-          <div class="dr-l"><strong>${d.demandeur}</strong> — ${d.bienNom}<div style="font-size:10px;color:var(--color-text-secondary)">${d.dates}${d.statut==='refusee'&&d.motifRefus?' · Motif disponible':''}</div></div>
-          <div class="dr-v">${badgeMap[d.statut]||''}</div>
-        </div>`).join('')}
+        ${traitees.map((d,i)=>{
+          const suiviBtn=d.statut==='acceptee'?'<button style="padding:3px 7px;border-radius:var(--border-radius-md);background:var(--blu);color:white;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font-sans);margin-left:6px;white-space:nowrap" onclick="event.stopPropagation();ouvrirSuiviLocation(\''+d.id+'\')"><i class="ti ti-list-check" style="margin-right:2px" aria-hidden="true"></i>Suivi</button>':'';
+          const prog=d.statut==='acceptee'?getSuiviProgress(d):null;
+          const progInfo=prog?'<div style="font-size:9px;color:'+(prog.pct===100?'var(--grn)':'var(--amb)')+'">'+prog.done+'/'+prog.total+' étapes</div>':'';
+          return '<div class="dr" '+(i===traitees.length-1?'style="border:none;cursor:pointer"':'style="cursor:pointer"')+' onclick="ouvrirHistoriqueLocation(\''+d.id+'\')">'+
+            '<i class="ti '+(BIENS_AMICAL[d.bien]?BIENS_AMICAL[d.bien].icon:'ti-home')+'" aria-hidden="true"></i>'+
+            '<div class="dr-l"><strong>'+d.demandeur+'</strong> — '+d.bienNom+'<div style="font-size:10px;color:var(--color-text-secondary)">'+d.dates+(d.statut==='refusee'&&d.motifRefus?' · Motif disponible':'')+'</div>'+progInfo+'</div>'+
+            '<div class="dr-v" style="display:flex;align-items:center">'+(badgeMap[d.statut]||'')+suiviBtn+'</div>'+
+          '</div>';
+        }).join('')}
       </div>`;
   }
 }
@@ -9362,10 +9487,15 @@ function renderLocSuiviHistorique(){
     const badgeMap={attente:'<span class="badge badge-att">En attente</span>',acceptee:'<span class="badge badge-ok">Acceptée</span>',refusee:'<span class="badge badge-ref">Refusée</span>'};
     hist.innerHTML=`<div class="rapport-card">
       <div class="rapport-hd">Historique des demandes de location</div>
-      ${DEMANDES_LOCATION.map((d,i)=>`<div class="rapport-row" ${i===DEMANDES_LOCATION.length-1?'style="border:none;cursor:pointer"':'style="cursor:pointer"'} onclick="ouvrirHistoriqueLocation('${d.id}')">
-        <div class="rr-lbl"><strong>${d.demandeur}</strong> — ${d.bienNom}<br><span style="font-size:10px;color:var(--color-text-secondary)">${d.dates} · ${d.montant}</span></div>
-        <div class="rr-val">${badgeMap[d.statut]||''}</div>
-      </div>`).join('')}
+      ${DEMANDES_LOCATION.map((d,i)=>{
+        const prog=d.statut==='acceptee'?getSuiviProgress(d):null;
+        const progBar=prog?'<div style="display:flex;align-items:center;gap:6px;margin-top:4px"><div style="flex:1;height:4px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+prog.pct+'%;background:var(--grn);border-radius:2px"></div></div><span style="font-size:9px;color:var(--color-text-secondary)">'+prog.done+'/'+prog.total+'</span></div>':'';
+        const suiviBtn=d.statut==='acceptee'?'<button style="padding:4px 8px;border-radius:var(--border-radius-md);background:var(--blu);color:white;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font-sans);margin-left:8px;white-space:nowrap" onclick="event.stopPropagation();ouvrirSuiviLocation(\''+d.id+'\')"><i class="ti ti-list-check" style="margin-right:2px" aria-hidden="true"></i>Suivi</button>':'';
+        return '<div class="rapport-row" '+(i===DEMANDES_LOCATION.length-1?'style="border:none;cursor:pointer"':'style="cursor:pointer"')+' onclick="ouvrirHistoriqueLocation(\''+d.id+'\')">'+
+          '<div class="rr-lbl"><strong>'+d.demandeur+'</strong> — '+d.bienNom+'<br><span style="font-size:10px;color:var(--color-text-secondary)">'+d.dates+' · '+d.montant+'</span>'+progBar+'</div>'+
+          '<div class="rr-val" style="display:flex;align-items:center">'+(badgeMap[d.statut]||'')+suiviBtn+'</div>'+
+        '</div>';
+      }).join('')}
     </div>`;
   }
 }
@@ -9412,6 +9542,7 @@ function ouvrirHistoriqueLocation(id){
     </div>
     <div class="sec">Observations</div>
     <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;font-size:12px;color:var(--color-text-secondary);line-height:1.45;margin-bottom:10px">${d.observations||'Aucune observation.'}</div>
+    ${d.statut==='acceptee'?'<div style="margin-bottom:10px"><button style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--blu);color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-detail-location\').classList.remove(\'open\');ouvrirSuiviLocation(\''+d.id+'\')"><i class="ti ti-list-check" aria-hidden="true"></i>Ouvrir la fiche de suivi</button></div>':''}
     <div class="mac">
       <button class="mc-c" onclick="document.getElementById('modal-detail-location').classList.remove('open')">Fermer</button>
       <button class="mc-ok" onclick="showToast('Fiche location exportée / prête à imprimer')">Exporter la fiche</button>
@@ -9430,6 +9561,7 @@ function validerDemande(id){
   d.dateTraitement=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
   d.traitePar='Commission Locations';
   d.etatRetour='À venir';
+  initSuiviLocation(d);
   // Ajouter au calendrier du bien si des dates précises ont été fournies
   if(d.debut&&d.fin&&RESA[d.bien]){
     const couleurs=['loc-a','loc-b','loc-c','loc-d'];
@@ -9466,11 +9598,164 @@ function confirmerRefusDemande(){
 }
 
 // ═══════════════════════════════════════════
+// FICHE DE SUIVI — location acceptée
+// ═══════════════════════════════════════════
+function initSuiviLocation(d){
+  d.suivi={
+    cautionRecue:{fait:false,date:null,par:null,montant:d.caution||null,modePaiement:'cheque',observations:''},
+    etatLieuxEntree:{fait:false,date:null,par:null,observations:''},
+    remiseCles:{fait:false,date:null,par:null,observations:''},
+    etatLieuxSortie:{fait:false,date:null,par:null,observations:''},
+    retourCles:{fait:false,date:null,par:null,observations:''},
+    cautionRestituee:{fait:false,date:null,par:null,montantRetenu:'0 €',motifRetenue:'',observations:''}
+  };
+}
+window.initSuiviLocation=initSuiviLocation;
+
+function ouvrirSuiviLocation(id){
+  const d=DEMANDES_LOCATION.find(x=>x.id===id);
+  const box=document.getElementById('suivi-location-content');
+  const modal=document.getElementById('modal-suivi-location');
+  if(!d||!box||!modal||d.statut!=='acceptee')return;
+  if(!d.suivi) initSuiviLocation(d);
+  const s=d.suivi;
+  const etapes=[
+    {key:'cautionRecue',icon:'ti-receipt',label:'Chèque de caution',desc:'Réception du chèque de caution de '+(d.caution||'—')},
+    {key:'etatLieuxEntree',icon:'ti-clipboard-check',label:'État des lieux d\'entrée',desc:'Vérification de l\'état du bien avant remise'},
+    {key:'remiseCles',icon:'ti-key',label:'Remise des clés',desc:'Remise des clés au locataire'},
+    {key:'etatLieuxSortie',icon:'ti-clipboard-list',label:'État des lieux de sortie',desc:'Vérification de l\'état du bien au retour'},
+    {key:'retourCles',icon:'ti-lock',label:'Retour des clés',desc:'Récupération des clés'},
+    {key:'cautionRestituee',icon:'ti-arrow-back-up',label:'Restitution de la caution',desc:'Restitution du chèque de caution'}
+  ];
+  const done=etapes.filter(e=>s[e.key].fait).length;
+  const total=etapes.length;
+  const pct=Math.round(done/total*100);
+  box.innerHTML=`
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px">
+      <div>
+        <div class="mtt" style="margin-bottom:3px">Fiche de suivi</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)">${d.demandeur} · ${d.bienNom} · ${d.dates}</div>
+      </div>
+      <button class="doc-btn" onclick="document.getElementById('modal-suivi-location').classList.remove('open')"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:600;color:var(--color-text-primary)">${done} / ${total} étapes complétées</span>
+        <span style="font-size:11px;color:var(--color-text-secondary)">${pct}%</span>
+      </div>
+      <div style="height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:var(--grn);border-radius:3px;transition:width .3s"></div>
+      </div>
+    </div>
+    ${etapes.map((e,idx)=>{
+      const step=s[e.key];
+      let extraFields='';
+      if(e.key==='cautionRecue'&&step.fait){
+        extraFields='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">'+
+          '<div><label style="font-size:10px;color:var(--color-text-secondary);display:block;margin-bottom:2px">Montant</label><input class="mi" style="font-size:12px;padding:6px 8px" value="'+(step.montant||d.caution||'')+'" onchange="saveSuiviField(\''+d.id+'\',\''+e.key+'\',\'montant\',this.value)"></div>'+
+          '<div><label style="font-size:10px;color:var(--color-text-secondary);display:block;margin-bottom:2px">Mode</label><select class="mi" style="font-size:12px;padding:6px 8px" onchange="saveSuiviField(\''+d.id+'\',\''+e.key+'\',\'modePaiement\',this.value)"><option value="cheque"'+(step.modePaiement==='cheque'?' selected':'')+'>Chèque</option><option value="especes"'+(step.modePaiement==='especes'?' selected':'')+'>Espèces</option><option value="virement"'+(step.modePaiement==='virement'?' selected':'')+'>Virement</option></select></div>'+
+          '</div>';
+      }
+      if(e.key==='cautionRestituee'&&step.fait){
+        extraFields='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">'+
+          '<div><label style="font-size:10px;color:var(--color-text-secondary);display:block;margin-bottom:2px">Montant retenu</label><input class="mi" style="font-size:12px;padding:6px 8px" value="'+(step.montantRetenu||'0 €')+'" onchange="saveSuiviField(\''+d.id+'\',\''+e.key+'\',\'montantRetenu\',this.value)" placeholder="0 €"></div>'+
+          '<div><label style="font-size:10px;color:var(--color-text-secondary);display:block;margin-bottom:2px">Motif retenue</label><input class="mi" style="font-size:12px;padding:6px 8px" value="'+(step.motifRetenue||'')+'" onchange="saveSuiviField(\''+d.id+'\',\''+e.key+'\',\'motifRetenue\',this.value)" placeholder="Aucune retenue"></div>'+
+          '</div>';
+      }
+      const obsField=step.fait?'<div style="margin-top:8px"><label style="font-size:10px;color:var(--color-text-secondary);display:block;margin-bottom:2px">Observations</label><textarea class="mi" style="font-size:12px;padding:6px 8px;resize:none" rows="1" onchange="saveSuiviField(\''+d.id+'\',\''+e.key+'\',\'observations\',this.value)" placeholder="Notes...">'+(step.observations||'')+'</textarea></div>':'';
+      return '<div class="card" style="margin-bottom:8px;padding:10px;border-left:3px solid '+(step.fait?'var(--grn)':'var(--color-border)')+'">'+
+        '<div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="toggleSuiviEtape(\''+d.id+'\',\''+e.key+'\')">'+
+          '<div style="width:28px;height:28px;border-radius:50%;background:'+(step.fait?'var(--grl)':'var(--color-background-secondary)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+            '<i class="ti '+(step.fait?'ti-check':e.icon)+'" style="font-size:14px;color:'+(step.fait?'var(--grn)':'var(--color-text-secondary)')+'" aria-hidden="true"></i>'+
+          '</div>'+
+          '<div style="flex:1">'+
+            '<div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">'+e.label+'</div>'+
+            '<div style="font-size:11px;color:var(--color-text-secondary)">'+(step.fait?'Fait le '+step.date+' par '+step.par:e.desc)+'</div>'+
+          '</div>'+
+          '<div style="width:20px;height:20px;border-radius:4px;border:2px solid '+(step.fait?'var(--grn)':'var(--color-border)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;background:'+(step.fait?'var(--grn)':'transparent')+'">'+
+            (step.fait?'<i class="ti ti-check" style="font-size:12px;color:white" aria-hidden="true"></i>':'')+
+          '</div>'+
+        '</div>'+
+        extraFields+obsField+
+      '</div>';
+    }).join('')}
+    <div class="mac">
+      <button class="mc-c" onclick="document.getElementById('modal-suivi-location').classList.remove('open')">Fermer</button>
+      <button class="mc-ok" onclick="showToast('Fiche de suivi exportée')"><i class="ti ti-file-type-pdf" style="margin-right:4px" aria-hidden="true"></i>Exporter</button>
+    </div>`;
+  modal.classList.add('open');
+}
+window.ouvrirSuiviLocation=ouvrirSuiviLocation;
+
+function toggleSuiviEtape(id,etape){
+  const d=DEMANDES_LOCATION.find(x=>x.id===id);
+  if(!d||!d.suivi)return;
+  const step=d.suivi[etape];
+  if(!step)return;
+  step.fait=!step.fait;
+  if(step.fait){
+    step.date=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+    step.par='Commission Locations';
+  } else {
+    step.date=null;
+    step.par=null;
+  }
+  updateSuiviProgress(d);
+  ouvrirSuiviLocation(id);
+}
+window.toggleSuiviEtape=toggleSuiviEtape;
+
+function saveSuiviField(id,etape,field,value){
+  const d=DEMANDES_LOCATION.find(x=>x.id===id);
+  if(!d||!d.suivi||!d.suivi[etape])return;
+  d.suivi[etape][field]=value;
+}
+window.saveSuiviField=saveSuiviField;
+
+function updateSuiviProgress(d){
+  if(!d||!d.suivi)return;
+  const keys=['cautionRecue','etatLieuxEntree','remiseCles','etatLieuxSortie','retourCles','cautionRestituee'];
+  const done=keys.filter(k=>d.suivi[k].fait).length;
+  if(done===keys.length){
+    d.etatRetour='Retour OK · suivi complet';
+  } else if(done>0){
+    d.etatRetour='En cours · '+done+'/'+keys.length+' étapes';
+  } else {
+    d.etatRetour='À venir';
+  }
+  renderLocSuiviHistorique();
+}
+
+function getSuiviProgress(d){
+  if(!d||!d.suivi)return null;
+  const keys=['cautionRecue','etatLieuxEntree','remiseCles','etatLieuxSortie','retourCles','cautionRestituee'];
+  const done=keys.filter(k=>d.suivi[k].fait).length;
+  return {done:done,total:keys.length,pct:Math.round(done/keys.length*100)};
+}
+
+// ═══════════════════════════════════════════
 // INSCRIPTIONS VOYAGES — amicaliste → commission Voyages
 // ═══════════════════════════════════════════
 function inscrireVoyage(voyKey){
   const v=VOYAGES_DATA[voyKey];
   if(!v)return;
+  if(v.dateLimiteInscription&&new Date()>new Date(v.dateLimiteInscription)){
+    showToast('Les inscriptions sont clôturées depuis le '+new Date(v.dateLimiteInscription).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}));
+    return;
+  }
+  const inscrits=getInscritsVoyage(voyKey);
+  const nbInscrits=inscrits.length;
+  const restantes=v.places-nbInscrits;
+  if(restantes<=0){
+    const accRecherches=v.accompagnateursRecherches||0;
+    const accInscrits=inscrits.filter(function(i){return i.accompagnateur;}).length;
+    if(accRecherches>0&&accInscrits<accRecherches){
+      showToast('Plus de places standard — inscription possible comme accompagnateur(trice)');
+    } else {
+      showToast('Désolé, il n\'y a plus de places disponibles pour '+v.nom);
+      return;
+    }
+  }
   const dejaInscrit=INSCRIPTIONS_VOYAGES.find(i=>i.demandeur===CURRENT_AMICALISTE&&i.voyage===voyKey&&i.statut!=='refusee');
   if(dejaInscrit){
     showToast('Vous êtes déjà inscrit(e) pour '+v.nom);
@@ -9494,7 +9779,7 @@ function renderInscriptionsVoyages(){
       <div class="card">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <div style="width:36px;height:36px;border-radius:50%;background:var(--pur);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0">${initials(i.demandeur)}</div>
-          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">${i.demandeur}</div><div style="font-size:11px;color:var(--color-text-secondary)">${i.voyageNom} · inscrit le ${i.dateInsc}</div></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">${i.demandeur}</div><div style="font-size:11px;color:var(--color-text-secondary)">${i.voyageNom} · inscrit le ${i.dateInsc}${i.heureInsc?' à '+i.heureInsc:''}</div></div>
           <span class="badge badge-att">En attente</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px">
@@ -9511,7 +9796,7 @@ function renderInscriptionsVoyages(){
       <div class="card" style="padding:0;overflow:hidden">
         ${traitees.map((i,idx)=>`<div class="dr" ${idx===traitees.length-1?'style="border:none"':''}>
           <i class="ti ti-plane" aria-hidden="true"></i>
-          <div class="dr-l">${i.demandeur} — ${i.voyageNom}</div>
+          <div class="dr-l">${i.demandeur} — ${i.voyageNom}<div style="font-size:10px;color:var(--color-text-secondary)">${i.dateInsc}${i.heureInsc?' à '+i.heureInsc:''}</div></div>
           <div class="dr-v">${badgeMap[i.statut]||''}</div>
         </div>`).join('')}
       </div>`;
@@ -9522,7 +9807,18 @@ function validerInscription(id){
   const i=INSCRIPTIONS_VOYAGES.find(x=>x.id===id);
   if(!i)return;
   i.statut='acceptee';
-  showToast('Inscription validée — '+i.demandeur+' notifié(e) automatiquement');
+  var v=VOYAGES_DATA[i.voyage];
+  var nbPers=i.totalPersonnes||1;
+  if(typeof window.ajouterConfirmationAmicaliste==='function'){
+    window.ajouterConfirmationAmicaliste(
+      'Confirmation inscription — '+(i.voyageNom||'Voyage'),
+      'Bonjour '+i.demandeur+',\n\nVotre inscription pour '+(i.voyageNom||'le voyage')+' a été confirmée.\n\n'
+      +'Nombre de personnes : '+nbPers+'\n'
+      +(v?'Dates : '+v.dates+'\nDestination : '+v.destination+'\nTarif : '+v.tarif+' par personne\nTransport : '+v.transport:'')
+      +'\n\nUn fil de communication groupée est disponible dans le suivi du voyage pour recevoir les informations pratiques.\n\nBonne préparation !\nLa commission Voyages'
+    );
+  }
+  showToast('Inscription validée — '+i.demandeur+' notifié(e) par mail');
   renderInscriptionsVoyages();
 }
 
@@ -10610,8 +10906,8 @@ function enregistrerProfilAmicaliste(){
   if(epDateAdh){m.dateAdhesionAmicale=dateISOversFR(epDateAdh);if(!m.dateAdhesionConfirmee)m.dateAdhesionConfirmee=false;}
   m.avatar=profilAvatarChoisi;
 
-  // Mettre à jour CURRENT_AMICALISTE si le nom a changé
   CURRENT_AMICALISTE=prenom+' '+nom;
+  window.CURRENT_AMICALISTE=CURRENT_AMICALISTE;
 
   // Synchroniser l'affichage
   document.getElementById('header-avatar-emoji').textContent=m.avatar;
@@ -10783,6 +11079,7 @@ function showComptaMainTab(id,btn){
   document.getElementById(id).classList.add('on');
   btn.classList.add('on');
   if(id==='ct-remboursements' && typeof RemboursementService!=='undefined') RemboursementService.renderAll();
+  if(id==='ct-journal') renderJournalCompta();
 }
 
 function renderBilanTable(){
@@ -10821,7 +11118,45 @@ function renderBilanTable(){
     <div style="font-size:13px;font-weight:700;color:${totalS>=0?'var(--grn)':'var(--r)'};text-align:right">${totalS>=0?'+':''}${totalS.toLocaleString('fr-FR')} €</div>`;
   rows.appendChild(tot);
   if(typeof BilanService!=='undefined') try{BilanService.initScopeSelect();BilanService.renderApercu();}catch(e){}
+  updateComptaStats();
 }
+
+function updateComptaStats(){
+  var totalR=COMMISSIONS_COMPTA.reduce(function(a,c){return a+c.recettes;},0);
+  var totalD=COMMISSIONS_COMPTA.reduce(function(a,c){return a+c.depenses;},0);
+  var horsComm=(typeof DEPENSES_GENERALES!=='undefined')?DEPENSES_GENERALES.reduce(function(a,d){return a+d.mt;},0):0;
+  totalD+=horsComm;
+  var solde=totalR-totalD;
+  var elR=document.getElementById('compta-stat-recettes');
+  var elD=document.getElementById('compta-stat-depenses');
+  var elS=document.getElementById('compta-stat-solde');
+  if(elR) elR.textContent=totalR.toLocaleString('fr-FR')+' €';
+  if(elD) elD.textContent=totalD.toLocaleString('fr-FR')+' €';
+  if(elS){ elS.textContent=(solde>=0?'+':'')+solde.toLocaleString('fr-FR')+' €'; elS.style.color=solde>=0?'var(--grn)':'var(--r)'; }
+  var elSG=document.getElementById('compta-solde-general');
+  if(elSG) elSG.textContent=solde.toLocaleString('fr-FR')+' €';
+  var az=document.getElementById('compta-alertes-zone');
+  if(!az) return;
+  var html='';
+  var docsAtt=DOCS_COMPTA.filter(function(d){return d.st==='attente';});
+  if(docsAtt.length>0){
+    var comms=[]; docsAtt.forEach(function(d){if(d.comm&&comms.indexOf(d.comm)===-1)comms.push(d.comm);});
+    html+='<div style="background:var(--aml);border:0.5px solid #e6c87a;border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center;margin-bottom:7px"><i class="ti ti-clock" style="font-size:18px;color:var(--amb);flex-shrink:0" aria-hidden="true"></i><div><div style="font-size:13px;font-weight:600;color:var(--amb)">'+docsAtt.length+' document'+(docsAtt.length>1?'s':'')+' en attente de validation</div><div style="font-size:11px;color:var(--amb);margin-top:1px">'+comms.join(', ')+'</div></div></div>';
+  }
+  var rembAtt=REMB_BUREAU.filter(function(r){return r.statut==='attente';});
+  if(rembAtt.length>0){
+    var rDesc=rembAtt.map(function(r){return r.demandeur+' · '+r.montant+' €';}).join(' / ');
+    html+='<div style="background:var(--bll);border:0.5px solid var(--blu);border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center;margin-bottom:7px"><i class="ti ti-arrow-back-up" style="font-size:18px;color:var(--blu);flex-shrink:0" aria-hidden="true"></i><div><div style="font-size:13px;font-weight:600;color:var(--blu)">'+rembAtt.length+' remboursement'+(rembAtt.length>1?'s':'')+' en attente</div><div style="font-size:11px;color:var(--blu);margin-top:1px">'+rDesc+'</div></div></div>';
+  }
+  var overBudget=COMMISSIONS_COMPTA.filter(function(c){return c.budget>0&&c.depenses>c.budget;});
+  if(overBudget.length>0){
+    var bDesc=overBudget.map(function(c){return c.nom;}).join(', ');
+    html+='<div style="background:var(--r2);border:0.5px solid var(--r);border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center;margin-bottom:7px"><i class="ti ti-alert-triangle" style="font-size:18px;color:var(--rd);flex-shrink:0" aria-hidden="true"></i><div><div style="font-size:13px;font-weight:600;color:var(--rd)">'+overBudget.length+' dépassement'+(overBudget.length>1?'s':'')+' de budget</div><div style="font-size:11px;color:var(--rd);margin-top:1px">'+bDesc+'</div></div></div>';
+  }
+  if(!html) html='<div style="background:var(--grl);border:0.5px solid var(--grn);border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center"><i class="ti ti-circle-check" style="font-size:18px;color:var(--grn);flex-shrink:0" aria-hidden="true"></i><div style="font-size:13px;font-weight:600;color:var(--grn)">Aucune alerte en cours</div></div>';
+  az.innerHTML=html;
+}
+window.updateComptaStats=updateComptaStats;
 
 function renderDocsCompta(filter='all'){
   const list=document.getElementById('docs-compta-list');
@@ -14300,6 +14635,7 @@ var ACCES_BUREAU = [
 
 var ROLE_BUREAU = {
   president:{label:'Président', badge:'badge-ref', droits:['Accès complet','Validation bureau','Gestion des rôles','Tous les modules']},
+  'vice-president':{label:'Vice-Président', badge:'badge-ref', droits:['Accès complet','Suppléance du président','Validation bureau','Tous les modules']},
   secretaire:{label:'Secrétaire', badge:'badge-pur', droits:['Membres','Réunions et PV','Documents','Invitations bureau']},
   tresorier:{label:'Trésorier / Comptable', badge:'badge-ok', droits:['Comptabilité','Budgets','Justificatifs','Exports financiers']},
   responsable_communication:{label:'Responsable communication', badge:'badge-pur', droits:['Actualités','Carousel / affiches','Retours en images','Journal de l\u2019Amicale','Modèles d\u2019affiches']},
@@ -14526,25 +14862,415 @@ function desactiverAccesBureau(i){
 
 // === AJOUTS COMPTABILITÉ — ASSISTANT, HORS COMMISSION, EXPORT ANNUEL ===
 function ajouterDepenseGenerale(){
-  const lib=document.getElementById('dg-libelle')?.value || 'Dépense générale';
+  const lib=document.getElementById('dg-libelle')?.value?.trim();
+  if(!lib){ showToast('Veuillez saisir un libellé'); return; }
   const cat=document.getElementById('dg-categorie')?.value || 'Autre';
-  const montant=document.getElementById('dg-montant')?.value || '0';
-  const list=document.getElementById('depenses-generales-list');
-  if(list){
-    const row=document.createElement('div');
-    row.className='doc-card';
-    row.innerHTML=`<div class="doc-ico" style="background:var(--grl)"><i class="ti ti-receipt-euro" style="color:var(--grn)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${lib}</div><div style="font-size:11px;color:var(--color-text-secondary)">${cat} · ${montant} € · Justificatif joint · Coffre 2026</div></div><span class="badge badge-ok">Comptabilisé</span>`;
-    list.prepend(row);
-  }
-  showToast('Dépense générale enregistrée et archivée');
+  const montant=parseFloat(document.getElementById('dg-montant')?.value)||0;
+  if(montant<=0){ showToast('Le montant doit être supérieur à 0'); return; }
+  const dateVal=document.getElementById('dg-date')?.value||new Date().toISOString().slice(0,10);
+  const mode=document.getElementById('dg-mode')?.value||'Carte';
+  const newId='dg'+(DEPENSES_GENERALES.length+1)+'_'+Date.now();
+  DEPENSES_GENERALES.push({id:newId,lib:lib,cat:cat,mt:montant,mode:mode,date:dateVal,statut:'paye'});
+  renderDepensesGeneralesList();
+  showToast('Dépense générale enregistrée');
   ['dg-libelle','dg-montant'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  renderBilanTable();
 }
+function renderDepensesGeneralesList(){
+  var list=document.getElementById('depenses-generales-list');
+  if(!list) return;
+  var icoMap={'UD':'ti-users-group','Cérémonie':'ti-certificate','Pot de convivialité':'ti-glass','AG':'ti-clipboard-list','Assurance':'ti-shield-check','Banque':'ti-building-bank'};
+  var colMap={'UD':['var(--pul)','var(--pur)'],'Cérémonie':['var(--grl)','var(--grn)'],'Pot de convivialité':['var(--aml)','var(--amb)'],'AG':['var(--bll)','var(--blu)'],'Assurance':['var(--r2)','var(--r)'],'Banque':['var(--bll)','var(--blu)']};
+  var html='';
+  DEPENSES_GENERALES.slice().reverse().forEach(function(d){
+    var ico=icoMap[d.cat]||'ti-receipt-euro';
+    var cols=colMap[d.cat]||['var(--grl)','var(--grn)'];
+    html+='<div class="doc-card"><div class="doc-ico" style="background:'+cols[0]+'"><i class="ti '+ico+'" style="color:'+cols[1]+'"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+d.lib+'</div><div style="font-size:11px;color:var(--color-text-secondary)">'+d.cat+' · '+d.mt.toLocaleString('fr-FR')+' € · '+d.mode+'</div></div><span class="badge badge-ok">Comptabilisé</span></div>';
+  });
+  list.innerHTML=html;
+}
+window.renderDepensesGeneralesList=renderDepensesGeneralesList;
 function genererDossierComptableAnnuel(){
   showToast('Dossier annuel généré : compta_2026.zip');
   setTimeout(()=>showToast('Justificatifs archivés dans Coffre > 2026 > Comptabilité'),900);
 }
 function comptaDemanderPrecision(){ showToast('Demande de précision envoyée à la commission'); }
 function comptaMarquerPaye(){ showToast('Facture marquée payée et justificatif archivé'); }
+
+// ═══════════════════════════════════════════
+// DÉPENSES GÉNÉRALES (hors commission) — données
+// ═══════════════════════════════════════════
+var DEPENSES_GENERALES=[
+  {id:'dg1',lib:'Adhésion Union Départementale 2026',cat:'UD',mt:180,mode:'Virement',date:'2026-01-15',statut:'paye'},
+  {id:'dg2',lib:'Pot de convivialité — Accueil nouvelles recrues',cat:'Pot de convivialité',mt:95,mode:'Carte',date:'2026-02-10',statut:'paye'},
+  {id:'dg3',lib:'Cérémonie des médailles 2026',cat:'Cérémonie',mt:320,mode:'Chèque',date:'2026-03-20',statut:'paye'},
+  {id:'dg4',lib:'Frais AG 2026 — Location salle + buffet',cat:'AG',mt:450,mode:'Virement',date:'2026-04-05',statut:'paye'},
+  {id:'dg5',lib:'Assurance annuelle',cat:'Assurance',mt:420,mode:'Virement',date:'2026-01-02',statut:'paye'},
+  {id:'dg6',lib:'Frais bancaires',cat:'Banque',mt:32,mode:'Prélèvement',date:'2026-06-01',statut:'paye'},
+];
+window.DEPENSES_GENERALES=DEPENSES_GENERALES;
+
+// ═══════════════════════════════════════════
+// JOURNAL COMPTABLE — vue unifiée
+// ═══════════════════════════════════════════
+var journalTypeFilter='all';
+var journalSortAsc=false;
+var journalNextId=1;
+
+function parseComptaDate(str){
+  if(!str) return null;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(str)){
+    var p=str.split('/'); return p[2]+'-'+p[1]+'-'+p[0];
+  }
+  var moisMap={'janv':'01','jan':'01','fév':'02','fev':'02','mars':'03','mar':'03','avr':'04','avril':'04','mai':'05','juin':'06','juil':'07','juillet':'07','août':'08','aout':'08','sept':'09','sep':'09','oct':'10','nov':'11','déc':'12','dec':'12'};
+  var m=str.match(/(\d{1,2})(?:er)?\s+([\wéû]+)\.?\s+(\d{4})/i);
+  if(m){
+    var jour=m[1].padStart(2,'0');
+    var moisKey=m[2].toLowerCase().replace(/\./g,'');
+    var mois=moisMap[moisKey]||'01';
+    return m[3]+'-'+mois+'-'+jour;
+  }
+  return '2026-01-01';
+}
+
+function buildJournalCompta(){
+  var entries=[];
+  DOCS_COMPTA.forEach(function(d){
+    var sens=(d.type==='Recette')?'recette':'depense';
+    var typeJ=d.type.toLowerCase();
+    if(typeJ==='recette') typeJ='recette';
+    entries.push({
+      id:'jdoc_'+d.id, source:'doc', sourceId:d.id,
+      date:parseComptaDate(d.date), type:typeJ, libelle:d.lib,
+      commission:d.comm, montant:d.mt, sens:sens,
+      statut:d.st==='paye'?'paye':(d.st==='recette'?'paye':'attente'),
+      modePaiement:d.payMode||'', prestataire:d.prestataire||'',
+      notes:d.fichier||''
+    });
+  });
+  REMB_BUREAU.forEach(function(r){
+    entries.push({
+      id:'jremb_'+r.id, source:'remb', sourceId:r.id,
+      date:parseComptaDate(r.date), type:'remboursement', libelle:r.objet,
+      commission:r.commission, montant:r.montant, sens:'depense',
+      statut:r.statut==='vire'?'paye':(r.statut==='refuse'?'refuse':'attente'),
+      modePaiement:'Virement', prestataire:r.demandeur,
+      notes:'Remb. '+r.demandeur
+    });
+  });
+  DEPENSES_GENERALES.forEach(function(d){
+    entries.push({
+      id:'jdg_'+d.id, source:'dg', sourceId:d.id,
+      date:d.date, type:'depense', libelle:d.lib,
+      commission:'Hors commission', montant:d.mt, sens:'depense',
+      statut:d.statut||'paye', modePaiement:d.mode||'',
+      prestataire:'', notes:d.cat
+    });
+  });
+  if(typeof SUIVI_COMPTA_VOYAGES!=='undefined'){
+    SUIVI_COMPTA_VOYAGES.forEach(function(s){
+      var tp=s.type.toLowerCase();
+      entries.push({
+        id:'jscv_'+s.id, source:'scv', sourceId:s.id,
+        date:parseComptaDate(s.date), type:tp==='facture'?'facture':(tp==='devis'?'devis':'depense'),
+        libelle:s.presta+' — '+s.type, commission:'Voyages',
+        montant:parseFloat(String(s.montant).replace(/[^\d,.-]/g,'').replace(',','.'))||0,
+        sens:'depense', statut:s.statut==='paye'?'paye':(s.statut==='valide'?'attente':'attente'),
+        modePaiement:'', prestataire:s.presta, notes:'Voyage'
+      });
+    });
+  }
+  if(typeof JOURNAL_MANUAL!=='undefined'){
+    JOURNAL_MANUAL.forEach(function(e){ entries.push(e); });
+  }
+  return entries;
+}
+
+var JOURNAL_MANUAL=[];
+window.JOURNAL_MANUAL=JOURNAL_MANUAL;
+
+function formatDateJournal(iso){
+  if(!iso) return '—';
+  var p=iso.split('-');
+  if(p.length!==3) return iso;
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+
+function getJournalTypeInfo(type){
+  var map={
+    'recette':{ico:'ti-arrow-down-left',col:'var(--grn)',bg:'var(--grl)',label:'Recette'},
+    'depense':{ico:'ti-arrow-up-right',col:'var(--r)',bg:'var(--r2)',label:'Dépense'},
+    'facture':{ico:'ti-file-invoice',col:'var(--blu)',bg:'var(--bll)',label:'Facture'},
+    'devis':{ico:'ti-file-description',col:'var(--pur)',bg:'var(--pul)',label:'Devis'},
+    'remboursement':{ico:'ti-arrow-back-up',col:'var(--amb)',bg:'var(--aml)',label:'Remboursement'},
+    'caution':{ico:'ti-shield-check',col:'var(--tea)',bg:'var(--tel)',label:'Caution'},
+  };
+  return map[type]||map['depense'];
+}
+
+function getJournalStatutBadge(statut){
+  if(statut==='paye') return '<span class="badge badge-ok">Payé</span>';
+  if(statut==='refuse') return '<span class="badge" style="background:var(--r2);color:var(--rd)">Refusé</span>';
+  return '<span class="badge badge-att">En attente</span>';
+}
+
+function initJournalFilters(){
+  var sel=document.getElementById('jrn-comm-filter');
+  if(!sel) return;
+  var html='<option value="all">Toutes les commissions</option>';
+  html+='<option value="Hors commission">Hors commission</option>';
+  COMMISSIONS_COMPTA.forEach(function(c){ html+='<option value="'+c.nom+'">'+c.nom+'</option>'; });
+  sel.innerHTML=html;
+  var selE=document.getElementById('jrn-e-commission');
+  if(selE){
+    var hE='<option value="">Hors commission</option>';
+    COMMISSIONS_COMPTA.forEach(function(c){ hE+='<option value="'+c.nom+'">'+c.nom+'</option>'; });
+    selE.innerHTML=hE;
+  }
+  var deDt=document.getElementById('jrn-date-de');
+  if(deDt && !deDt.value && !deDt.dataset.init){ deDt.value='2025-01-01'; deDt.dataset.init='1'; }
+}
+
+function renderJournalCompta(){
+  var list=document.getElementById('journal-compta-list');
+  if(!list) return;
+  initJournalFilters();
+  var entries=buildJournalCompta();
+  var dateDe=document.getElementById('jrn-date-de')?.value||'';
+  var dateAu=document.getElementById('jrn-date-au')?.value||'';
+  var search=(document.getElementById('jrn-search')?.value||'').toLowerCase();
+  var commF=document.getElementById('jrn-comm-filter')?.value||'all';
+  entries=entries.filter(function(e){
+    if(dateDe && e.date<dateDe) return false;
+    if(dateAu && e.date>dateAu) return false;
+    if(journalTypeFilter!=='all'){
+      if(journalTypeFilter==='depense' && (e.type!=='depense')) return false;
+      if(journalTypeFilter==='recette' && (e.type!=='recette')) return false;
+      if(journalTypeFilter!=='depense' && journalTypeFilter!=='recette' && e.type!==journalTypeFilter) return false;
+    }
+    if(commF!=='all' && e.commission!==commF) return false;
+    if(search){
+      var hay=(e.libelle+' '+e.commission+' '+e.prestataire+' '+e.notes).toLowerCase();
+      if(hay.indexOf(search)===-1) return false;
+    }
+    return true;
+  });
+  entries.sort(function(a,b){
+    var cmp=(a.date||'').localeCompare(b.date||'');
+    return journalSortAsc?cmp:-cmp;
+  });
+  var totalR=0,totalD=0;
+  entries.forEach(function(e){ if(e.sens==='recette') totalR+=e.montant; else totalD+=e.montant; });
+  var solde=totalR-totalD;
+  document.getElementById('jrn-total-recettes').textContent=totalR.toLocaleString('fr-FR')+' €';
+  document.getElementById('jrn-total-depenses').textContent=totalD.toLocaleString('fr-FR')+' €';
+  var soldeEl=document.getElementById('jrn-total-solde');
+  soldeEl.textContent=(solde>=0?'+':'')+solde.toLocaleString('fr-FR')+' €';
+  soldeEl.style.color=solde>=0?'var(--grn)':'var(--r)';
+  document.getElementById('jrn-count').textContent=entries.length+' écriture'+(entries.length>1?'s':'');
+  if(entries.length===0){
+    list.innerHTML='<div style="text-align:center;padding:30px 12px;color:var(--color-text-secondary)"><i class="ti ti-receipt-off" style="font-size:32px;display:block;margin-bottom:8px" aria-hidden="true"></i><div style="font-size:13px;font-weight:600">Aucune écriture trouvée</div><div style="font-size:11px;margin-top:4px">Modifiez les filtres ou ajoutez une nouvelle écriture</div></div>';
+    return;
+  }
+  var html='';
+  entries.forEach(function(e){
+    var ti=getJournalTypeInfo(e.type);
+    var montantCol=e.sens==='recette'?'var(--grn)':'var(--r)';
+    var montantPrefix=e.sens==='recette'?'+':'−';
+    var canEdit=e.source==='doc'||e.source==='dg'||!e.source;
+    var canDelete=e.source==='doc'||e.source==='dg'||!e.source;
+    var eid=e.id.replace(/'/g,"\\'");
+    html+='<div class="doc-card" style="margin-bottom:6px;align-items:flex-start">';
+    html+='<div class="doc-ico" style="background:'+ti.bg+'"><i class="ti '+ti.ico+'" style="color:'+ti.col+'" aria-hidden="true"></i></div>';
+    html+='<div style="flex:1;min-width:0">';
+    html+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
+    html+='<span style="font-size:13px;font-weight:600;color:var(--color-text-primary);word-break:break-word">'+e.libelle+'</span>';
+    html+='<span class="badge" style="background:'+ti.bg+';color:'+ti.col+';font-size:9px;padding:1px 6px">'+ti.label+'</span>';
+    html+='</div>';
+    html+='<div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">'+formatDateJournal(e.date);
+    if(e.commission) html+=' · '+e.commission;
+    if(e.prestataire) html+=' · '+e.prestataire;
+    if(e.modePaiement) html+=' · '+e.modePaiement;
+    html+='</div>';
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-top:4px">';
+    html+=getJournalStatutBadge(e.statut);
+    html+='<span style="font-size:14px;font-weight:700;color:'+montantCol+'">'+montantPrefix+' '+e.montant.toLocaleString('fr-FR')+' €</span>';
+    html+='</div>';
+    html+='</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">';
+    if(canEdit) html+='<button onclick="event.stopPropagation();ouvrirModalJournal(\''+eid+'\')" style="padding:4px 8px;border-radius:8px;background:var(--bll);border:none;cursor:pointer;font-family:var(--font-sans)" title="Modifier"><i class="ti ti-edit" style="font-size:13px;color:var(--blu)" aria-hidden="true"></i></button>';
+    if(canDelete) html+='<button onclick="event.stopPropagation();supprimerEntreeJournal(\''+eid+'\')" style="padding:4px 8px;border-radius:8px;background:var(--r2);border:none;cursor:pointer;font-family:var(--font-sans)" title="Supprimer"><i class="ti ti-trash" style="font-size:13px;color:var(--rd)" aria-hidden="true"></i></button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  list.innerHTML=html;
+}
+
+function filtrerJournalType(btn,type){
+  journalTypeFilter=type;
+  document.querySelectorAll('#ct-journal .fp').forEach(function(b){b.classList.remove('on');});
+  if(btn) btn.classList.add('on');
+  renderJournalCompta();
+}
+
+function toggleJournalSort(){
+  journalSortAsc=!journalSortAsc;
+  var btn=document.getElementById('jrn-sort-btn');
+  if(btn) btn.innerHTML=journalSortAsc?'<i class="ti ti-sort-ascending" aria-hidden="true"></i>Plus ancien':'<i class="ti ti-sort-descending" aria-hidden="true"></i>Plus récent';
+  renderJournalCompta();
+}
+
+function onJournalTypeChange(){
+  var type=document.getElementById('jrn-e-type')?.value||'depense';
+  var statutSel=document.getElementById('jrn-e-statut');
+  if(statutSel){
+    if(type==='recette') statutSel.value='paye';
+    else if(type==='devis') statutSel.value='attente';
+  }
+}
+
+function ouvrirModalJournal(editId){
+  var modal=document.getElementById('modal-journal-entry');
+  if(!modal) return;
+  var selE=document.getElementById('jrn-e-commission');
+  if(selE){
+    var hE='<option value="">Hors commission</option>';
+    COMMISSIONS_COMPTA.forEach(function(c){ hE+='<option value="'+c.nom+'">'+c.nom+'</option>'; });
+    selE.innerHTML=hE;
+  }
+  document.getElementById('jrn-e-id').value='';
+  document.getElementById('jrn-e-type').value='depense';
+  document.getElementById('jrn-e-libelle').value='';
+  document.getElementById('jrn-e-montant').value='';
+  document.getElementById('jrn-e-date').value=new Date().toISOString().slice(0,10);
+  if(selE) selE.value='';
+  document.getElementById('jrn-e-prestataire').value='';
+  document.getElementById('jrn-e-mode').value='';
+  document.getElementById('jrn-e-statut').value='attente';
+  document.getElementById('jrn-e-notes').value='';
+  document.getElementById('modal-journal-title').textContent='Nouvelle écriture';
+  if(editId){
+    var all=buildJournalCompta();
+    var entry=all.find(function(e){ return e.id===editId; });
+    if(entry){
+      document.getElementById('jrn-e-id').value=editId;
+      document.getElementById('jrn-e-type').value=entry.type||'depense';
+      document.getElementById('jrn-e-libelle').value=entry.libelle||'';
+      document.getElementById('jrn-e-montant').value=entry.montant||'';
+      document.getElementById('jrn-e-date').value=entry.date||'';
+      if(selE) selE.value=entry.commission==='Hors commission'?'':entry.commission;
+      document.getElementById('jrn-e-prestataire').value=entry.prestataire||'';
+      document.getElementById('jrn-e-mode').value=entry.modePaiement||'';
+      document.getElementById('jrn-e-statut').value=entry.statut||'attente';
+      document.getElementById('jrn-e-notes').value=entry.notes||'';
+      document.getElementById('modal-journal-title').textContent='Modifier l’écriture';
+    }
+  }
+  if(typeof AMICALE_openPopup==='function') AMICALE_openPopup(modal);
+  else modal.classList.add('open');
+}
+
+function sauverEntreeJournal(){
+  var libelle=document.getElementById('jrn-e-libelle')?.value?.trim();
+  if(!libelle){ showToast('Veuillez saisir un libellé'); return; }
+  var montant=parseFloat(document.getElementById('jrn-e-montant')?.value)||0;
+  if(montant<=0){ showToast('Le montant doit être supérieur à 0'); return; }
+  var type=document.getElementById('jrn-e-type')?.value||'depense';
+  var date=document.getElementById('jrn-e-date')?.value||new Date().toISOString().slice(0,10);
+  var commVal=document.getElementById('jrn-e-commission')?.value||'';
+  var commission=commVal||'Hors commission';
+  var prestataire=document.getElementById('jrn-e-prestataire')?.value?.trim()||'';
+  var mode=document.getElementById('jrn-e-mode')?.value||'';
+  var statut=document.getElementById('jrn-e-statut')?.value||'attente';
+  var notes=document.getElementById('jrn-e-notes')?.value?.trim()||'';
+  var editId=document.getElementById('jrn-e-id')?.value||'';
+  var sens=(type==='recette'||type==='caution')?'recette':'depense';
+  if(editId){
+    if(editId.indexOf('jdoc_')===0){
+      var docId=editId.replace('jdoc_','');
+      var doc=DOCS_COMPTA.find(function(d){return d.id===docId;});
+      if(doc){
+        doc.lib=libelle; doc.mt=montant; doc.date=formatDateJournal(date);
+        doc.comm=commission==='Hors commission'?'':commission;
+        doc.prestataire=prestataire; doc.payMode=mode;
+        doc.st=statut==='paye'?'paye':(type==='recette'?'recette':'attente');
+        doc.type=type==='recette'?'Recette':(type==='facture'?'Facture':(type==='devis'?'Devis':'Facture'));
+      }
+    } else if(editId.indexOf('jdg_')===0){
+      var dgId=editId.replace('jdg_','');
+      var dg=DEPENSES_GENERALES.find(function(d){return d.id===dgId;});
+      if(dg){
+        dg.lib=libelle; dg.mt=montant; dg.date=date;
+        dg.cat=notes||dg.cat; dg.mode=mode; dg.statut=statut;
+      }
+    } else {
+      var manual=JOURNAL_MANUAL.find(function(e){return e.id===editId;});
+      if(manual){
+        manual.libelle=libelle; manual.montant=montant; manual.date=date;
+        manual.type=type; manual.sens=sens; manual.commission=commission;
+        manual.prestataire=prestataire; manual.modePaiement=mode;
+        manual.statut=statut; manual.notes=notes;
+      }
+    }
+    showToast('Écriture modifiée');
+  } else {
+    var newId='jm_'+(++journalNextId)+'_'+Date.now();
+    JOURNAL_MANUAL.push({
+      id:newId, source:null, sourceId:null,
+      date:date, type:type, libelle:libelle,
+      commission:commission, montant:montant, sens:sens,
+      statut:statut, modePaiement:mode, prestataire:prestataire,
+      notes:notes
+    });
+    if(commission!=='Hors commission'){
+      var comm=COMMISSIONS_COMPTA.find(function(c){return c.nom===commission;});
+      if(comm){
+        if(sens==='recette') comm.recettes+=montant; else comm.depenses+=montant;
+      }
+    }
+    showToast('Écriture ajoutée au journal');
+  }
+  document.getElementById('modal-journal-entry').classList.remove('open');
+  renderJournalCompta();
+  renderBilanTable();
+  if(typeof majSoldeBureau==='function') majSoldeBureau();
+}
+
+function supprimerEntreeJournal(entryId){
+  if(!confirm('Supprimer cette écriture du journal ?')) return;
+  if(entryId.indexOf('jdoc_')===0){
+    var docId=entryId.replace('jdoc_','');
+    var idx=DOCS_COMPTA.findIndex(function(d){return d.id===docId;});
+    if(idx>-1) DOCS_COMPTA.splice(idx,1);
+  } else if(entryId.indexOf('jdg_')===0){
+    var dgId=entryId.replace('jdg_','');
+    var idxD=DEPENSES_GENERALES.findIndex(function(d){return d.id===dgId;});
+    if(idxD>-1) DEPENSES_GENERALES.splice(idxD,1);
+  } else if(entryId.indexOf('jremb_')===0){
+    var rId=entryId.replace('jremb_','');
+    var idxR=REMB_BUREAU.findIndex(function(r){return r.id===rId;});
+    if(idxR>-1) REMB_BUREAU.splice(idxR,1);
+  } else {
+    var idxM=JOURNAL_MANUAL.findIndex(function(e){return e.id===entryId;});
+    if(idxM>-1) JOURNAL_MANUAL.splice(idxM,1);
+  }
+  showToast('Écriture supprimée');
+  renderJournalCompta();
+  renderDocsCompta('all');
+  renderBilanTable();
+  if(typeof majSoldeBureau==='function') majSoldeBureau();
+}
+
+window.buildJournalCompta=buildJournalCompta;
+window.renderJournalCompta=renderJournalCompta;
+window.filtrerJournalType=filtrerJournalType;
+window.toggleJournalSort=toggleJournalSort;
+window.onJournalTypeChange=onJournalTypeChange;
+window.ouvrirModalJournal=ouvrirModalJournal;
+window.sauverEntreeJournal=sauverEntreeJournal;
+window.supprimerEntreeJournal=supprimerEntreeJournal;
+window.initJournalFilters=initJournalFilters;
 
 /*
  * ══════════════════════════════════════════════════════════════════
@@ -14563,14 +15289,9 @@ function comptaMarquerPaye(){ showToast('Facture marquée payée et justificatif
 var BilanService = (function(){
   'use strict';
 
-  var DEPENSES_HORS_COMMISSION = [
-    {lib:'Adhésion Union Départementale 2026', cat:'UD', mt:180, mode:'Virement'},
-    {lib:'Pot de convivialité — Accueil nouvelles recrues', cat:'Pot de convivialité', mt:95, mode:'Carte'},
-    {lib:'Cérémonie des médailles 2026', cat:'Cérémonie', mt:320, mode:'Chèque'},
-    {lib:'Frais AG 2026 — Location salle + buffet', cat:'AG', mt:450, mode:'Virement'},
-    {lib:'Assurance annuelle', cat:'Assurance', mt:420, mode:'Virement'},
-    {lib:'Frais bancaires', cat:'Banque', mt:32, mode:'Prélèvement'}
-  ];
+  function getDepensesHorsCommission(){
+    return (typeof DEPENSES_GENERALES!=='undefined') ? DEPENSES_GENERALES : [];
+  }
 
   function fmt(n){ return n.toLocaleString('fr-FR')+' €'; }
 
@@ -14598,7 +15319,7 @@ var BilanService = (function(){
     var totalRecettes = 0, totalDepenses = 0;
     filtered.forEach(function(c){ totalRecettes+=c.recettes; totalDepenses+=c.depenses; });
 
-    var horsComm = DEPENSES_HORS_COMMISSION.slice();
+    var horsComm = getDepensesHorsCommission().slice();
     var totalHorsComm = horsComm.reduce(function(a,d){ return a+d.mt; }, 0);
 
     var filteredDocs = docs.filter(function(d){
@@ -14616,7 +15337,7 @@ var BilanService = (function(){
       totalRecettes: totalRecettes,
       totalDepenses: totalDepenses,
       totalHorsComm: totalHorsComm,
-      solde: totalRecettes - totalDepenses - (opts.includeHorsCommission && opts.scope==='all' ? totalHorsComm : 0),
+      solde: totalRecettes - totalDepenses - (opts.scope==='all' ? totalHorsComm : 0),
       exercice: new Date().getFullYear(),
       genereLe: new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}),
       scope: opts.scope,
@@ -14863,7 +15584,7 @@ var BilanService = (function(){
     exportCSV: exportCSV,
     exportPDF: exportPDF,
     initScopeSelect: initScopeSelect,
-    DEPENSES_HORS_COMMISSION: DEPENSES_HORS_COMMISSION
+    DEPENSES_HORS_COMMISSION: getDepensesHorsCommission()
   };
 })();
 
@@ -15430,6 +16151,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
   };
 
   window.connecterBureau=function(){
+    try{ sessionStorage.removeItem('missionsFermees'); }catch(e){}
     const profil=window.resoudreProfilBureau();
     setGlobal('bureauRole', profil.role);
     setGlobal('bureauCommissions', uniq(profil.commissions||[]));
@@ -17111,7 +17833,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     enrichVoyagesData();
     const page=document.getElementById('pg-voyages-amical'); if(!page||!window.VOYAGES_DATA) return;
     const cards=page.querySelectorAll('.voy-card');
-    const keys=['saintmalo','strasbourg'];
+    const keys=Object.keys(window.VOYAGES_DATA||{});
     cards.forEach((card,idx)=>{
       const key=keys[idx]; const v=VOYAGES_DATA[key]; if(!v) return;
       const my=getMyTrip(key); const total=tripCount(key); const accepted=tripCount(key,['acceptee']);
@@ -18189,7 +18911,8 @@ function confirmerInscriptionEvent(){
     enfantsIdx:nbEnfantsCoches,
     accompagnateur:!!accCoche,
     totalPersonnes:totalPersonnes,
-    dateInsc:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+    dateInsc:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}),
+    heureInsc:('0'+new Date().getHours()).slice(-2)+'h'+('0'+new Date().getMinutes()).slice(-2)
   };
 
   if(MIE_CONTEXT.type==='voyage'){
@@ -18292,6 +19015,7 @@ function renderVoyagesCards(){
   Object.keys(VOYAGES_DATA).forEach(function(key){
     var v=VOYAGES_DATA[key];
     var inscrits=INSCRIPTIONS_VOYAGES.filter(function(i){return i.voyage===key&&i.statut==='acceptee';}).length;
+    var restantes=v.places-inscrits;
     var pct=Math.round((inscrits/v.places)*100);
     var couleur=pct>=60?'var(--pur)':pct>=40?'var(--amb)':'var(--r)';
     var minAtteint=inscrits>=(v.placesMin||0);
@@ -18314,10 +19038,13 @@ function renderVoyagesCards(){
       +'<div style="margin-top:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>Inscriptions</span><span><strong>'+inscrits+'</strong> / '+v.places+' (min. '+(v.placesMin||'?')+')</span></div>'
       +'<div class="jauge-track"><div class="jauge-fill" style="width:'+pct+'%;background:'+couleur+'"></div></div></div>'
       +'</div>'
-      +'<div style="padding:8px 12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">'
+      +(restantes<=10&&restantes>0?'<div style="padding:4px 12px 0;font-size:11px;font-weight:600;color:var(--r);display:flex;align-items:center;gap:4px"><i class="ti ti-alert-triangle" style="font-size:12px"></i>Plus que '+restantes+' place'+(restantes>1?'s':'')+'!</div>':'')
+      +(restantes<=0?'<div style="padding:4px 12px 0;font-size:11px;font-weight:700;color:var(--rd);display:flex;align-items:center;gap:4px"><i class="ti ti-lock" style="font-size:12px"></i>Complet'+(v.accompagnateursRecherches>0?' — accompagnateurs recherchés':'')+'</div>':'')
+      +'<div style="padding:8px 12px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">'
       +'<button class="btn-r" style="margin:0;font-size:11px;padding:7px" onclick="ouvrirModalParametresVoyage(\''+key+'\')"><i class="ti ti-edit" aria-hidden="true"></i>Modifier</button>'
       +'<button class="btn-r" style="margin:0;font-size:11px;padding:7px;background:var(--grn)" onclick="voirInscritsVoyage(\''+key+'\')"><i class="ti ti-users" aria-hidden="true"></i>Inscrits</button>'
       +'<button class="btn-r" style="margin:0;font-size:11px;padding:7px;background:var(--blu)" onclick="notifierInscrits(\''+key+'\')"><i class="ti ti-bell" aria-hidden="true"></i>Notifier</button>'
+      +'<button class="btn-r" style="margin:0;font-size:11px;padding:7px;background:var(--pur)" onclick="ouvrirSuiviVoyage(\''+key+'\')"><i class="ti ti-list-check" aria-hidden="true"></i>Suivi</button>'
       +'</div></div>';
   });
   html+='<button class="add-btn" onclick="showToast(\'Créer un voyage...\')"><i class="ti ti-plus" aria-hidden="true"></i>Ajouter un voyage</button>';
@@ -18449,6 +19176,133 @@ function getInscritsVoyage(voyKey){
   return INSCRIPTIONS_VOYAGES.filter(function(i){return i.voyage===voyKey&&i.statut!=='refusee';});
 }
 
+function voyageInscriptionsCloturees(voyKey){
+  var v=VOYAGES_DATA[voyKey];
+  if(!v)return false;
+  if(v.dateLimiteInscription&&new Date()>new Date(v.dateLimiteInscription))return true;
+  return false;
+}
+window.voyageInscriptionsCloturees=voyageInscriptionsCloturees;
+
+function ouvrirSuiviVoyage(voyKey){
+  var v=VOYAGES_DATA[voyKey];
+  var box=document.getElementById('suivi-voyage-content');
+  var modal=document.getElementById('modal-suivi-voyage');
+  if(!v||!box||!modal)return;
+  var inscrits=getInscritsVoyage(voyKey);
+  var confirmes=inscrits.filter(function(i){return i.statut==='acceptee';});
+  var attente=inscrits.filter(function(i){return i.statut==='attente';});
+  var nbInscrits=inscrits.length;
+  var restantes=v.places-nbInscrits;
+  var cloture=voyageInscriptionsCloturees(voyKey);
+  var accRecherches=v.accompagnateursRecherches||0;
+  var accInscrits=inscrits.filter(function(i){return i.accompagnateur;}).length;
+  var totalPersonnes=0;
+  confirmes.forEach(function(i){totalPersonnes+=(i.totalPersonnes||1);});
+  var comms=(typeof COMM_VOYAGES!=='undefined')?COMM_VOYAGES.filter(function(c){return c.voyage===voyKey;}):[];
+
+  var statusColor=cloture?'var(--color-text-secondary)':(restantes<=0?'var(--rd)':(restantes<=10?'var(--amb)':'var(--grn)'));
+  var statusText=cloture?'Inscriptions clôturées':(restantes<=0?(accRecherches>accInscrits?'Complet — accompagnateurs recherchés':'Complet'):(restantes<=10?'Plus que '+restantes+' place'+(restantes>1?'s':'')+'!':'Inscriptions ouvertes'));
+
+  box.innerHTML=
+    '<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px">'+
+      '<div><div class="mtt" style="margin-bottom:3px">Suivi — '+v.nom+'</div>'+
+      '<div style="font-size:12px;color:var(--color-text-secondary)">'+v.dates+' · '+v.destination+'</div></div>'+
+      '<button class="doc-btn" onclick="document.getElementById(\'modal-suivi-voyage\').classList.remove(\'open\')"><i class="ti ti-x" aria-hidden="true"></i></button>'+
+    '</div>'+
+
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">'+
+      '<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--pur)">'+confirmes.length+'</div><div class="ssub">Confirmés</div></div>'+
+      '<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--amb)">'+attente.length+'</div><div class="ssub">Attente</div></div>'+
+      '<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--blu)">'+totalPersonnes+'</div><div class="ssub">Personnes</div></div>'+
+      '<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:'+statusColor+'">'+restantes+'</div><div class="ssub">Restantes</div></div>'+
+    '</div>'+
+
+    '<div style="padding:8px 10px;border-radius:var(--border-radius-md);background:'+(cloture||restantes<=0?'var(--r2)':'var(--grl)')+';font-size:12px;color:'+statusColor+';margin-bottom:12px;display:flex;align-items:center;gap:6px"><i class="ti '+(cloture||restantes<=0?'ti-alert-circle':'ti-circle-check')+'" style="font-size:14px"></i>'+statusText+
+    (accRecherches>0?' · Accompagnateurs : '+accInscrits+'/'+accRecherches:'')+
+    (v.dateLimiteInscription?' · Limite : '+new Date(v.dateLimiteInscription).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'')+
+    '</div>'+
+
+    '<div class="sec">Inscrits confirmés ('+confirmes.length+')</div>'+
+    '<div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">'+
+    (confirmes.length?confirmes.map(function(i,idx){
+      return '<div class="dr" '+(idx===confirmes.length-1?'style="border:none"':'')+'>'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:var(--pur);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0">'+initials(i.demandeur)+'</div>'+
+        '<div class="dr-l"><strong>'+i.demandeur+'</strong>'+(i.accompagnateur?' <span style="font-size:10px;color:var(--r)">(accompagnateur)</span>':'')+'<div style="font-size:10px;color:var(--color-text-secondary)">'+(i.totalPersonnes||1)+' pers. · inscrit le '+i.dateInsc+(i.heureInsc?' à '+i.heureInsc:'')+'</div></div>'+
+        '<div class="dr-v"><span class="badge badge-ok">Confirmé</span></div>'+
+      '</div>';
+    }).join(''):'<div style="text-align:center;padding:12px;font-size:12px;color:var(--color-text-secondary)">Aucun inscrit confirmé</div>')+
+    '</div>'+
+
+    '<div class="sec">Communication groupée</div>'+
+    '<div class="card" style="margin-bottom:8px;max-height:200px;overflow-y:auto">'+
+    (comms.length?comms.map(function(c){
+      return '<div style="padding:8px 0;border-bottom:1px solid var(--color-border);'+(c===comms[comms.length-1]?'border:none':'')+'">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+          '<span style="font-size:11px;font-weight:700;color:'+(c.type==='info'?'var(--blu)':'var(--pur)')+'"><i class="ti '+(c.type==='info'?'ti-info-circle':'ti-message')+'" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>'+c.de+'</span>'+
+          '<span style="font-size:10px;color:var(--color-text-secondary)">'+c.date+(c.heure?' '+c.heure:'')+'</span>'+
+        '</div>'+
+        '<div style="font-size:12px;color:var(--color-text-primary);line-height:1.4">'+c.message+'</div>'+
+      '</div>';
+    }).join(''):'<div style="text-align:center;padding:12px;font-size:12px;color:var(--color-text-secondary)">Aucune communication pour le moment</div>')+
+    '</div>'+
+
+    '<div style="margin-bottom:12px">'+
+      '<textarea class="mi" id="sv-nouveau-msg" rows="2" style="resize:none;margin-bottom:6px" placeholder="Écrire un message à tous les inscrits..."></textarea>'+
+      '<button style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--blu);color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="envoyerCommVoyage(\''+voyKey+'\')"><i class="ti ti-send" aria-hidden="true"></i>Envoyer à tous les inscrits</button>'+
+    '</div>'+
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">'+
+      '<button style="padding:10px;border-radius:var(--border-radius-md);background:var(--grl);color:var(--grn);border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:4px" onclick="envoyerConfirmationsVoyage(\''+voyKey+'\')"><i class="ti ti-mail" aria-hidden="true"></i>Envoyer confirmations</button>'+
+      '<button style="padding:10px;border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:4px" onclick="showToast(\'Export PDF du suivi voyage...\')"><i class="ti ti-file-type-pdf" aria-hidden="true"></i>Exporter</button>'+
+    '</div>'+
+
+    '<div class="mac">'+
+      '<button class="mc-c" onclick="document.getElementById(\'modal-suivi-voyage\').classList.remove(\'open\')">Fermer</button>'+
+    '</div>';
+  modal.classList.add('open');
+}
+window.ouvrirSuiviVoyage=ouvrirSuiviVoyage;
+
+function envoyerCommVoyage(voyKey){
+  var txt=document.getElementById('sv-nouveau-msg');
+  if(!txt||!txt.value.trim()){showToast('Veuillez écrire un message');return;}
+  var now=new Date();
+  COMM_VOYAGES.unshift({
+    id:'cv'+Date.now(),
+    voyage:voyKey,
+    de:CURRENT_AMICALISTE||'Commission Voyages',
+    message:txt.value.trim(),
+    date:now.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}),
+    heure:('0'+now.getHours()).slice(-2)+'h'+('0'+now.getMinutes()).slice(-2),
+    type:'message'
+  });
+  var inscrits=getInscritsVoyage(voyKey).filter(function(i){return i.statut==='acceptee';});
+  showToast('Message envoyé à '+inscrits.length+' inscrit'+(inscrits.length>1?'s':''));
+  ouvrirSuiviVoyage(voyKey);
+}
+window.envoyerCommVoyage=envoyerCommVoyage;
+
+function envoyerConfirmationsVoyage(voyKey){
+  var v=VOYAGES_DATA[voyKey];
+  if(!v)return;
+  var confirmes=INSCRIPTIONS_VOYAGES.filter(function(i){return i.voyage===voyKey&&i.statut==='acceptee';});
+  if(!confirmes.length){showToast('Aucun inscrit confirmé');return;}
+  confirmes.forEach(function(i){
+    if(typeof window.ajouterConfirmationAmicaliste==='function'){
+      window.ajouterConfirmationAmicaliste(
+        'Confirmation inscription — '+v.nom,
+        'Bonjour '+i.demandeur+',\n\nVotre inscription pour '+v.nom+' est confirmée.\n\n'
+        +'Nombre de personnes : '+(i.totalPersonnes||1)+'\n'
+        +'Dates : '+v.dates+'\nDestination : '+v.destination+'\nTransport : '+v.transport
+        +'\n\nConsultez le suivi du voyage pour les informations pratiques.\n\nLa commission Voyages'
+      );
+    }
+  });
+  showToast(confirmes.length+' mail'+(confirmes.length>1?'s':'')+' de confirmation envoyé'+(confirmes.length>1?'s':''));
+}
+window.envoyerConfirmationsVoyage=envoyerConfirmationsVoyage;
+
 function renderVoyagesAmicaliste(){
   var container=document.getElementById('voyages-amical-list');
   if(!container)return;
@@ -18466,7 +19320,7 @@ function renderVoyagesAmicaliste(){
       +'<div class="voy-visuel" style="'+bgStyle+'">'
       +'<div class="vov-overlay"></div>'
       +'<i class="ti '+(v.ico||'ti-plane')+' vov-bigico" aria-hidden="true"></i>'
-      +'<span class="vov-statut vos-ouvert">'+(restantes>0?'Inscriptions ouvertes':'Complet')+'</span>'
+      +'<span class="vov-statut vos-ouvert">'+(voyageInscriptionsCloturees(key)?'Clôturé':restantes>0?(restantes<=10?'Plus que '+restantes+' place'+(restantes>1?'s':'')+'!':'Inscriptions ouvertes'):'Complet')+'</span>'
       +'<span class="vov-tarif">'+v.tarif+'</span>'
       +'<div class="vov-content">'
       +'<div class="vov-dest"><i class="ti ti-map-pin" aria-hidden="true"></i> '+(v.destination||'')+'</div>'
@@ -18475,7 +19329,7 @@ function renderVoyagesAmicaliste(){
       +'</div></div>'
       +'<div class="voy-body">'
       +'<div style="margin-bottom:10px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:5px"><div style="font-size:12px;font-weight:600;color:var(--color-text-primary)">Inscriptions</div><div style="font-size:12px;color:var(--color-text-secondary)"><strong>'+nbInscrits+'</strong> / '+v.places+' places'+(restantes>0?' · <span style="color:var(--grn);font-weight:600">'+restantes+' restante'+(restantes>1?'s':'')+'</span>':'')+'</div></div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:5px"><div style="font-size:12px;font-weight:600;color:var(--color-text-primary)">Inscriptions</div><div style="font-size:12px;color:var(--color-text-secondary)"><strong>'+nbInscrits+'</strong> / '+v.places+' places'+(restantes>0?' · <span style="color:'+(restantes<=10?'var(--r);font-weight:700':'var(--grn);font-weight:600')+'">'+restantes+' restante'+(restantes>1?'s':'')+(restantes<=10?' !':'')+'</span>':'')+'</div></div>'
       +'<div class="jauge-track"><div class="jauge-fill" style="width:'+pct+'%;background:'+(pct>=60?'var(--pur)':pct>=30?'var(--amb)':'var(--r)')+'"></div>'+(v.placesMin?'<div class="jauge-min-mark" style="left:'+minPct+'%" data-lbl="min. '+v.placesMin+'"></div>':'')+'</div>'
       +'</div>'
       +'<div class="voy-tags">'
@@ -18506,7 +19360,16 @@ function ouvrirFicheVoyage(voyKey){
   if(v.image)header.style.cssText='height:220px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background-image:url('+v.image+');background-size:cover;background-position:center';
   else header.style.cssText='height:220px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background:'+v.color;
 
-  document.getElementById('mfv-badge').innerHTML=restantes>0?'<span class="badge badge-ok">Inscriptions ouvertes</span>':'<span class="badge" style="background:var(--rl);color:var(--r)">Complet</span>';
+  var cloture=voyageInscriptionsCloturees(voyKey);
+  var accRecherches=v.accompagnateursRecherches||0;
+  var accInscrits=inscrits.filter(function(i){return i.accompagnateur;}).length;
+  var badgeHtml;
+  if(cloture) badgeHtml='<span class="badge" style="background:var(--color-background-secondary);color:var(--color-text-secondary)">Inscriptions clôturées</span>';
+  else if(restantes<=0&&accRecherches>accInscrits) badgeHtml='<span class="badge" style="background:var(--aml);color:var(--amb)">Complet — accompagnateurs recherchés</span>';
+  else if(restantes<=0) badgeHtml='<span class="badge" style="background:var(--rl);color:var(--r)">Complet</span>';
+  else if(restantes<=10) badgeHtml='<span class="badge" style="background:var(--aml);color:var(--amb)">Plus que '+restantes+' place'+(restantes>1?'s':'')+'!</span>';
+  else badgeHtml='<span class="badge badge-ok">Inscriptions ouvertes</span>';
+  document.getElementById('mfv-badge').innerHTML=badgeHtml;
   document.getElementById('mfv-tarif-badge').textContent=v.tarif;
   document.getElementById('mfv-dest').innerHTML='<i class="ti ti-map-pin" style="font-size:11px"></i> '+v.destination;
   document.getElementById('mfv-titre').textContent=v.nom;
@@ -18520,7 +19383,8 @@ function ouvrirFicheVoyage(voyKey){
   var jaugeColor=pct>=60?'var(--pur)':pct>=30?'var(--amb)':'var(--r)';
   document.getElementById('mfv-jauge-zone').innerHTML='<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="font-weight:600">Inscriptions</span><span><strong>'+nbInscrits+'</strong> / '+v.places+' (min. '+(v.placesMin||'?')+')</span></div>'
     +'<div class="jauge-track" style="height:12px"><div class="jauge-fill" style="width:'+pct+'%;background:'+jaugeColor+'"></div>'+(v.placesMin?'<div class="jauge-min-mark" style="left:'+minPct+'%"></div>':'')+'</div>'
-    +'<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:2px"><span style="color:var(--amb);font-weight:600">Min. '+(v.placesMin||'?')+' requis</span><span style="color:var(--grn);font-weight:600">'+restantes+' place'+(restantes>1?'s':'')+' restante'+(restantes>1?'s':'')+'</span></div>';
+    +'<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:2px"><span style="color:var(--amb);font-weight:600">Min. '+(v.placesMin||'?')+' requis</span><span style="color:'+(restantes<=10&&restantes>0?'var(--r);font-weight:700':'var(--grn);font-weight:600')+'">'+restantes+' place'+(restantes>1?'s':'')+' restante'+(restantes>1?'s':'')+(restantes<=10&&restantes>0?' !':'')+'</span></div>'
+    +(v.dateLimiteInscription?'<div style="margin-top:6px;padding:6px 10px;border-radius:var(--border-radius-md);background:'+(cloture?'var(--r2)':'var(--color-background-secondary)')+';font-size:11px;color:'+(cloture?'var(--rd)':'var(--color-text-secondary)')+';display:flex;align-items:center;gap:4px"><i class="ti ti-calendar-due" style="font-size:12px"></i>Date limite d\'inscription : '+new Date(v.dateLimiteInscription).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})+(cloture?' — clôturé':'')+'</div>':'');
 
   var progHtml='';
   if(v.programme){progHtml='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:6px"><i class="ti ti-route" style="font-size:13px"></i> Programme</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.5">'+v.programme+'</div>';}
@@ -18557,7 +19421,17 @@ function ouvrirFicheVoyage(voyKey){
   document.getElementById('mfv-inscrits-zone').innerHTML=insHtml;
 
   var isBureau=Array.isArray(window.ACCES_BUREAU)&&window.ACCES_BUREAU.some(function(a){return typeof CURRENT_AMICALISTE==='string'&&a.nom===CURRENT_AMICALISTE;});
-  var actHtml='<button style="padding:12px;border-radius:12px;background:var(--grn);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-voyage\').classList.remove(\'open\');inscrireVoyage(\''+voyKey+'\')"><i class="ti ti-send"></i>S\'inscrire</button>';
+  var canInscribe=!cloture&&(restantes>0||(accRecherches>0&&accInscrits<accRecherches));
+  var monInscription=INSCRIPTIONS_VOYAGES.find(function(i){return i.demandeur===CURRENT_AMICALISTE&&i.voyage===voyKey&&i.statut==='acceptee';});
+  var actHtml='';
+  if(canInscribe){
+    actHtml+='<button style="padding:12px;border-radius:12px;background:var(--grn);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-voyage\').classList.remove(\'open\');inscrireVoyage(\''+voyKey+'\')"><i class="ti ti-send"></i>S\'inscrire</button>';
+  } else {
+    actHtml+='<button style="padding:12px;border-radius:12px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:none;font-size:13px;font-weight:700;cursor:not-allowed;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px;opacity:.6" disabled><i class="ti ti-lock"></i>'+(cloture?'Inscriptions clôturées':'Complet')+'</button>';
+  }
+  if(monInscription||isBureau){
+    actHtml+='<button style="padding:12px;border-radius:12px;background:var(--blu);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-voyage\').classList.remove(\'open\');ouvrirSuiviVoyage(\''+voyKey+'\')"><i class="ti ti-list-check"></i>Suivi & communication</button>';
+  }
   actHtml+='<button style="padding:12px;border-radius:12px;background:var(--color-background-secondary);color:var(--color-text-primary);border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-voyage\').classList.remove(\'open\')"><i class="ti ti-x"></i>Fermer</button>';
   document.getElementById('mfv-actions').innerHTML=actHtml;
 
@@ -19217,7 +20091,7 @@ function ouvrirFicheVoyage(voyKey){
   function sorted(){ ensureAll(); return getComms().filter(function(c){return c&&!c.supprimee;}).sort(function(a,b){ var va=isVisible(a)?0:1, vb=isVisible(b)?0:1; if(va!==vb) return va-vb; return String(a.nom||'').localeCompare(String(b.nom||''),'fr'); }); }
   function modelLabel(c){ var m=c&&c.modele; if(!m) return 'commission'; try{ if(typeof MODELES_COMMISSIONS!=='undefined' && MODELES_COMMISSIONS[m]) return MODELES_COMMISSIONS[m].label||m; }catch(e){} return m; }
   function respLabel(c){ return c&&c.resps&&c.resps.length?c.resps.join(', '):'Aucun responsable'; }
-  function titleFix(){ document.querySelectorAll('.sec,.shd-t,.mtt,button,.tool-title,.comm-name').forEach(function(n){ if((n.textContent||'').trim()==='Créer une commission') n.textContent='Gestion des commissions'; }); }
+  function titleFix(){ }
 
   window.renderGestionComm=function(){
     ensureAll(); titleFix();
@@ -19234,7 +20108,7 @@ function ouvrirFicheVoyage(voyKey){
       card.querySelector('[data-act="edit"]').onclick=function(e){e.stopPropagation(); if(typeof ouvrirModalCommission==='function') ouvrirModalCommission(c.id);};
       list.appendChild(card);
     });
-    var add=list.nextElementSibling; if(add && add.tagName==='BUTTON'){ add.innerHTML='<i class="ti ti-settings" aria-hidden="true"></i>Gestion des commissions'; add.onclick=function(){toast('Les commissions sont maintenant fixes : utilisez ouvrir, afficher/masquer et modifier.');}; }
+    var add=list.nextElementSibling; if(add && add.tagName==='BUTTON'){ add.innerHTML='<i class="ti ti-plus" aria-hidden="true"></i> Créer une nouvelle commission'; add.onclick=function(){ if(typeof window.ouvrirModalCommission==='function') window.ouvrirModalCommission(); else toast('Fonction indisponible'); }; }
     var info=list.parentElement&&list.parentElement.querySelector('.card div');
   };
 
@@ -19391,7 +20265,7 @@ function ouvrirFicheVoyage(voyKey){
       card.querySelector('[data-act="edit"]').onclick=function(e){ e.stopPropagation(); if(typeof window.ouvrirModalCommission==='function') window.ouvrirModalCommission(c.id); };
       list.appendChild(card);
     });
-    var add=list.nextElementSibling; if(add && add.tagName==='BUTTON'){ add.innerHTML='<i class="ti ti-settings" aria-hidden="true"></i> Gestion des commissions'; add.onclick=function(){toast('Les commissions sont fixes : utilisez ouvrir, afficher/masquer et modifier.');}; }
+    var add=list.nextElementSibling; if(add && add.tagName==='BUTTON'){ add.innerHTML='<i class="ti ti-plus" aria-hidden="true"></i> Créer une nouvelle commission'; add.onclick=function(){ if(typeof window.ouvrirModalCommission==='function') window.ouvrirModalCommission(); else toast('Fonction indisponible'); }; }
   };
 
   window.toggleVisibiliteCommFixeV56=function(id){
@@ -19414,7 +20288,7 @@ function ouvrirFicheVoyage(voyKey){
     refreshV56(); toast(c.nom+' : '+(next?'visible pour les amicalistes':'masquée pour les amicalistes'));
   };
 
-  function titleFix(){ document.querySelectorAll('.sec,.shd-t,.mtt,button,.tool-title,.comm-name,.bb-label').forEach(function(n){ if((n.textContent||'').trim()==='Créer une commission') n.textContent='Gestion des commissions'; }); }
+  function titleFix(){ }
   function refreshV56(){ ensureFixed(); titleFix(); try{window.renderBureauCommissionsV56();}catch(e){} try{window.renderGestionComm();}catch(e){} try{window.renderAmicalisteCommissions();}catch(e){} }
   window.refreshCommissionsV56=refreshV56;
 
