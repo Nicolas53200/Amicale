@@ -4399,6 +4399,7 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
       <!-- ONGLETS -->
       <div class="nav-tabs" style="overflow-x:auto">
         <button class="tb on" onclick="showComptaMainTab('ct-tableau',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Tableau</button>
+        <button class="tb" onclick="showComptaMainTab('ct-journal',this)"><i class="ti ti-table" aria-hidden="true"></i>Journal</button>
         <button class="tb" onclick="showComptaMainTab('ct-documents',this)"><i class="ti ti-inbox" aria-hidden="true"></i>Documents</button>
         <button class="tb" onclick="showComptaMainTab('ct-depenses-generales',this)"><i class="ti ti-receipt-euro" aria-hidden="true"></i>Hors commission</button>
         <button class="tb" onclick="showComptaMainTab('ct-budgets',this)"><i class="ti ti-target" aria-hidden="true"></i>Budgets</button>
@@ -4414,15 +4415,15 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:12px">
           <div class="sc" style="text-align:center">
             <div class="slbl">Recettes</div>
-            <div class="sval" style="color:var(--grn);font-size:16px">14 320 €</div>
+            <div class="sval" style="color:var(--grn);font-size:16px" id="compta-stat-recettes">—</div>
           </div>
           <div class="sc" style="text-align:center">
             <div class="slbl">Dépenses</div>
-            <div class="sval" style="color:var(--r);font-size:16px">10 480 €</div>
+            <div class="sval" style="color:var(--r);font-size:16px" id="compta-stat-depenses">—</div>
           </div>
           <div class="sc" style="text-align:center">
             <div class="slbl">Solde</div>
-            <div class="sval" style="color:var(--blu);font-size:16px">3 840 €</div>
+            <div class="sval" style="color:var(--blu);font-size:16px" id="compta-stat-solde">—</div>
           </div>
         </div>
 
@@ -4456,27 +4457,73 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
 
         <!-- ALERTES -->
         <div class="sec">Alertes</div>
-        <div style="background:var(--aml);border:0.5px solid #e6c87a;border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center;margin-bottom:7px">
-          <i class="ti ti-clock" style="font-size:18px;color:var(--amb);flex-shrink:0" aria-hidden="true"></i>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--amb)">3 documents en attente de validation</div>
-            <div style="font-size:11px;color:var(--amb);margin-top:1px">Factures commissions Événements et Calendriers</div>
+        <div id="compta-alertes-zone"></div>
+      </div>
+
+      <!-- ── JOURNAL COMPTABLE ── -->
+      <div class="tc" id="ct-journal" style="padding:12px">
+        <div class="sec">Journal comptable — Exercice 2026</div>
+        <div style="background:var(--bll);border:0.5px solid #a3b8e8;border-radius:var(--border-radius-lg);padding:10px 12px;display:flex;gap:7px;align-items:flex-start;margin-bottom:12px">
+          <i class="ti ti-info-circle" style="font-size:16px;color:var(--blu);flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+          <div style="font-size:12px;color:var(--blu);line-height:1.4">Vue unifiée de toutes les opérations financières : recettes, dépenses, devis, factures, remboursements, cautions. Chaque écriture peut être modifiée ou supprimée.</div>
+        </div>
+
+        <!-- FILTRES DATE -->
+        <div class="card" style="padding:10px 12px;margin-bottom:10px">
+          <div class="mg">
+            <div><label class="ml" for="jrn-date-de">Du</label><input class="ri" type="date" id="jrn-date-de" onchange="renderJournalCompta()"></div>
+            <div><label class="ml" for="jrn-date-au">Au</label><input class="ri" type="date" id="jrn-date-au" onchange="renderJournalCompta()"></div>
+          </div>
+          <div style="margin-top:8px">
+            <label class="ml" for="jrn-search">Recherche</label>
+            <input class="ri" id="jrn-search" placeholder="Libellé, prestataire, commission..." oninput="renderJournalCompta()">
           </div>
         </div>
-        <div style="background:var(--bll);border:0.5px solid var(--blu);border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center;margin-bottom:7px">
-          <i class="ti ti-arrow-back-up" style="font-size:18px;color:var(--blu);flex-shrink:0" aria-hidden="true"></i>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--blu)">1 remboursement en attente</div>
-            <div style="font-size:11px;color:var(--blu);margin-top:1px">Sophie Martin · 45 € avancés</div>
+
+        <!-- FILTRES TYPE -->
+        <div style="display:flex;gap:5px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none;flex-wrap:wrap">
+          <button class="fp on" onclick="filtrerJournalType(this,'all')">Tous</button>
+          <button class="fp" onclick="filtrerJournalType(this,'recette')">Recettes</button>
+          <button class="fp" onclick="filtrerJournalType(this,'depense')">Dépenses</button>
+          <button class="fp" onclick="filtrerJournalType(this,'facture')">Factures</button>
+          <button class="fp" onclick="filtrerJournalType(this,'devis')">Devis</button>
+          <button class="fp" onclick="filtrerJournalType(this,'remboursement')">Remb.</button>
+          <button class="fp" onclick="filtrerJournalType(this,'caution')">Cautions</button>
+        </div>
+
+        <!-- FILTRES COMMISSION -->
+        <div style="margin-bottom:10px">
+          <select class="ri" id="jrn-comm-filter" onchange="renderJournalCompta()" style="font-size:12px">
+            <option value="all">Toutes les commissions</option>
+          </select>
+        </div>
+
+        <!-- RÉSUMÉ -->
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:10px">
+          <div class="sc" style="text-align:center;padding:8px 6px">
+            <div class="slbl" style="font-size:9px">Recettes</div>
+            <div id="jrn-total-recettes" style="font-size:14px;font-weight:700;color:var(--grn)">0 €</div>
+          </div>
+          <div class="sc" style="text-align:center;padding:8px 6px">
+            <div class="slbl" style="font-size:9px">Dépenses</div>
+            <div id="jrn-total-depenses" style="font-size:14px;font-weight:700;color:var(--r)">0 €</div>
+          </div>
+          <div class="sc" style="text-align:center;padding:8px 6px">
+            <div class="slbl" style="font-size:9px">Solde</div>
+            <div id="jrn-total-solde" style="font-size:14px;font-weight:700;color:var(--blu)">0 €</div>
           </div>
         </div>
-        <div style="background:var(--pul);border:0.5px solid var(--pur);border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center">
-          <i class="ti ti-transfer" style="font-size:18px;color:var(--pur);flex-shrink:0" aria-hidden="true"></i>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--pur)">1 demande de prêt en attente</div>
-            <div style="font-size:11px;color:var(--pur);margin-top:1px">Pierre Leroy · 150 € · en commission</div>
-          </div>
+
+        <!-- NOMBRE D'ÉCRITURES + TRI -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div id="jrn-count" style="font-size:11px;color:var(--color-text-secondary);font-weight:600">0 écritures</div>
+          <button onclick="toggleJournalSort()" style="padding:4px 10px;border-radius:20px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);font-size:11px;font-weight:600;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;gap:4px" id="jrn-sort-btn"><i class="ti ti-sort-descending" aria-hidden="true"></i>Plus récent</button>
         </div>
+
+        <!-- LISTE DES ÉCRITURES -->
+        <div id="journal-compta-list"></div>
+
+        <button class="add-btn" onclick="ouvrirModalJournal()"><i class="ti ti-plus" aria-hidden="true"></i>Ajouter une écriture</button>
       </div>
 
       <!-- ── DOCUMENTS COMMISSIONS ── -->
@@ -4748,6 +4795,52 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
         <div class="mac" style="margin-top:10px">
           <button class="mc-c" onclick="document.getElementById('modal-compta').classList.remove('open')">Annuler</button>
           <button class="mc-ok" onclick="saveModalCompta()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL JOURNAL COMPTABLE -->
+    <div class="mow" id="modal-journal-entry" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9000">
+      <div class="mbox" style="max-height:85vh;overflow-y:auto">
+        <div class="mh2"></div>
+        <div class="mtt" id="modal-journal-title">Nouvelle écriture</div>
+        <div style="padding:0 2px">
+          <label class="ml" for="jrn-e-type">Type d'opération</label>
+          <select class="ri" id="jrn-e-type" style="margin-bottom:8px" onchange="onJournalTypeChange()">
+            <option value="depense">Dépense</option>
+            <option value="recette">Recette</option>
+            <option value="facture">Facture</option>
+            <option value="devis">Devis</option>
+            <option value="remboursement">Remboursement</option>
+            <option value="caution">Caution</option>
+          </select>
+          <label class="ml" for="jrn-e-libelle">Libellé</label>
+          <input class="ri" id="jrn-e-libelle" placeholder="Description de l'opération" style="margin-bottom:8px">
+          <div class="mg">
+            <div><label class="ml" for="jrn-e-montant">Montant (€)</label><input class="ri" id="jrn-e-montant" type="number" step="0.01" placeholder="0,00"></div>
+            <div><label class="ml" for="jrn-e-date">Date</label><input class="ri" id="jrn-e-date" type="date"></div>
+          </div>
+          <label class="ml" for="jrn-e-commission">Commission</label>
+          <select class="ri" id="jrn-e-commission" style="margin-bottom:8px">
+            <option value="">Hors commission</option>
+          </select>
+          <div class="mg">
+            <div><label class="ml" for="jrn-e-prestataire">Prestataire / Tiers</label><input class="ri" id="jrn-e-prestataire" placeholder="Nom du prestataire"></div>
+            <div><label class="ml" for="jrn-e-mode">Mode de paiement</label><select class="ri" id="jrn-e-mode"><option value="">—</option><option>Virement</option><option>Chèque</option><option>Carte</option><option>Espèces</option><option>Prélèvement</option><option>CHORUS PRO</option></select></div>
+          </div>
+          <label class="ml" for="jrn-e-statut">Statut</label>
+          <select class="ri" id="jrn-e-statut" style="margin-bottom:8px">
+            <option value="attente">En attente</option>
+            <option value="paye">Payé / Encaissé</option>
+            <option value="refuse">Refusé / Annulé</option>
+          </select>
+          <label class="ml" for="jrn-e-notes">Notes / Observations</label>
+          <textarea class="ri" id="jrn-e-notes" rows="2" placeholder="Informations complémentaires..." style="margin-bottom:4px"></textarea>
+        </div>
+        <input type="hidden" id="jrn-e-id" value="">
+        <div class="mac" style="margin-top:10px">
+          <button class="mc-c" onclick="document.getElementById('modal-journal-entry').classList.remove('open')">Annuler</button>
+          <button class="mc-ok" onclick="sauverEntreeJournal()">Enregistrer</button>
         </div>
       </div>
     </div>
@@ -8734,7 +8827,7 @@ function confirmerRetour(){
   document.getElementById('sign-zone').children[0].style.display='block';
   document.getElementById('valid-btn-retour').className='valid-btn';
   ['ret-vendus','ret-inv','ret-mon','ret-chq','ret-aut'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  calcRetour(); populateSecteurSelect(); renderRetoursEnregistres(); updateCalStats(); renderDocsCompta('all'); renderBilanTable(); renderBudgets(); if(typeof BilanService!=='undefined'){BilanService.initScopeSelect();BilanService.renderApercu();} if(typeof RemboursementService!=='undefined') RemboursementService.updateBadge(); if(typeof ReunionService!=='undefined') ReunionService.renderAll();
+  calcRetour(); populateSecteurSelect(); renderRetoursEnregistres(); updateCalStats(); renderDocsCompta('all'); renderBilanTable(); renderBudgets(); if(typeof renderDepensesGeneralesList==='function') renderDepensesGeneralesList(); if(typeof BilanService!=='undefined'){BilanService.initScopeSelect();BilanService.renderApercu();} if(typeof RemboursementService!=='undefined') RemboursementService.updateBadge(); if(typeof ReunionService!=='undefined') ReunionService.renderAll();
 }
 
 
@@ -10985,6 +11078,7 @@ function showComptaMainTab(id,btn){
   document.getElementById(id).classList.add('on');
   btn.classList.add('on');
   if(id==='ct-remboursements' && typeof RemboursementService!=='undefined') RemboursementService.renderAll();
+  if(id==='ct-journal') renderJournalCompta();
 }
 
 function renderBilanTable(){
@@ -11023,7 +11117,45 @@ function renderBilanTable(){
     <div style="font-size:13px;font-weight:700;color:${totalS>=0?'var(--grn)':'var(--r)'};text-align:right">${totalS>=0?'+':''}${totalS.toLocaleString('fr-FR')} €</div>`;
   rows.appendChild(tot);
   if(typeof BilanService!=='undefined') try{BilanService.initScopeSelect();BilanService.renderApercu();}catch(e){}
+  updateComptaStats();
 }
+
+function updateComptaStats(){
+  var totalR=COMMISSIONS_COMPTA.reduce(function(a,c){return a+c.recettes;},0);
+  var totalD=COMMISSIONS_COMPTA.reduce(function(a,c){return a+c.depenses;},0);
+  var horsComm=(typeof DEPENSES_GENERALES!=='undefined')?DEPENSES_GENERALES.reduce(function(a,d){return a+d.mt;},0):0;
+  totalD+=horsComm;
+  var solde=totalR-totalD;
+  var elR=document.getElementById('compta-stat-recettes');
+  var elD=document.getElementById('compta-stat-depenses');
+  var elS=document.getElementById('compta-stat-solde');
+  if(elR) elR.textContent=totalR.toLocaleString('fr-FR')+' €';
+  if(elD) elD.textContent=totalD.toLocaleString('fr-FR')+' €';
+  if(elS){ elS.textContent=(solde>=0?'+':'')+solde.toLocaleString('fr-FR')+' €'; elS.style.color=solde>=0?'var(--grn)':'var(--r)'; }
+  var elSG=document.getElementById('compta-solde-general');
+  if(elSG) elSG.textContent=solde.toLocaleString('fr-FR')+' €';
+  var az=document.getElementById('compta-alertes-zone');
+  if(!az) return;
+  var html='';
+  var docsAtt=DOCS_COMPTA.filter(function(d){return d.st==='attente';});
+  if(docsAtt.length>0){
+    var comms=[]; docsAtt.forEach(function(d){if(d.comm&&comms.indexOf(d.comm)===-1)comms.push(d.comm);});
+    html+='<div style="background:var(--aml);border:0.5px solid #e6c87a;border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center;margin-bottom:7px"><i class="ti ti-clock" style="font-size:18px;color:var(--amb);flex-shrink:0" aria-hidden="true"></i><div><div style="font-size:13px;font-weight:600;color:var(--amb)">'+docsAtt.length+' document'+(docsAtt.length>1?'s':'')+' en attente de validation</div><div style="font-size:11px;color:var(--amb);margin-top:1px">'+comms.join(', ')+'</div></div></div>';
+  }
+  var rembAtt=REMB_BUREAU.filter(function(r){return r.statut==='attente';});
+  if(rembAtt.length>0){
+    var rDesc=rembAtt.map(function(r){return r.demandeur+' · '+r.montant+' €';}).join(' / ');
+    html+='<div style="background:var(--bll);border:0.5px solid var(--blu);border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center;margin-bottom:7px"><i class="ti ti-arrow-back-up" style="font-size:18px;color:var(--blu);flex-shrink:0" aria-hidden="true"></i><div><div style="font-size:13px;font-weight:600;color:var(--blu)">'+rembAtt.length+' remboursement'+(rembAtt.length>1?'s':'')+' en attente</div><div style="font-size:11px;color:var(--blu);margin-top:1px">'+rDesc+'</div></div></div>';
+  }
+  var overBudget=COMMISSIONS_COMPTA.filter(function(c){return c.budget>0&&c.depenses>c.budget;});
+  if(overBudget.length>0){
+    var bDesc=overBudget.map(function(c){return c.nom;}).join(', ');
+    html+='<div style="background:var(--r2);border:0.5px solid var(--r);border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center;margin-bottom:7px"><i class="ti ti-alert-triangle" style="font-size:18px;color:var(--rd);flex-shrink:0" aria-hidden="true"></i><div><div style="font-size:13px;font-weight:600;color:var(--rd)">'+overBudget.length+' dépassement'+(overBudget.length>1?'s':'')+' de budget</div><div style="font-size:11px;color:var(--rd);margin-top:1px">'+bDesc+'</div></div></div>';
+  }
+  if(!html) html='<div style="background:var(--grl);border:0.5px solid var(--grn);border-radius:var(--border-radius-lg);padding:11px 12px;display:flex;gap:8px;align-items:center"><i class="ti ti-circle-check" style="font-size:18px;color:var(--grn);flex-shrink:0" aria-hidden="true"></i><div style="font-size:13px;font-weight:600;color:var(--grn)">Aucune alerte en cours</div></div>';
+  az.innerHTML=html;
+}
+window.updateComptaStats=updateComptaStats;
 
 function renderDocsCompta(filter='all'){
   const list=document.getElementById('docs-compta-list');
@@ -14728,25 +14860,415 @@ function desactiverAccesBureau(i){
 
 // === AJOUTS COMPTABILITÉ — ASSISTANT, HORS COMMISSION, EXPORT ANNUEL ===
 function ajouterDepenseGenerale(){
-  const lib=document.getElementById('dg-libelle')?.value || 'Dépense générale';
+  const lib=document.getElementById('dg-libelle')?.value?.trim();
+  if(!lib){ showToast('Veuillez saisir un libellé'); return; }
   const cat=document.getElementById('dg-categorie')?.value || 'Autre';
-  const montant=document.getElementById('dg-montant')?.value || '0';
-  const list=document.getElementById('depenses-generales-list');
-  if(list){
-    const row=document.createElement('div');
-    row.className='doc-card';
-    row.innerHTML=`<div class="doc-ico" style="background:var(--grl)"><i class="ti ti-receipt-euro" style="color:var(--grn)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${lib}</div><div style="font-size:11px;color:var(--color-text-secondary)">${cat} · ${montant} € · Justificatif joint · Coffre 2026</div></div><span class="badge badge-ok">Comptabilisé</span>`;
-    list.prepend(row);
-  }
-  showToast('Dépense générale enregistrée et archivée');
+  const montant=parseFloat(document.getElementById('dg-montant')?.value)||0;
+  if(montant<=0){ showToast('Le montant doit être supérieur à 0'); return; }
+  const dateVal=document.getElementById('dg-date')?.value||new Date().toISOString().slice(0,10);
+  const mode=document.getElementById('dg-mode')?.value||'Carte';
+  const newId='dg'+(DEPENSES_GENERALES.length+1)+'_'+Date.now();
+  DEPENSES_GENERALES.push({id:newId,lib:lib,cat:cat,mt:montant,mode:mode,date:dateVal,statut:'paye'});
+  renderDepensesGeneralesList();
+  showToast('Dépense générale enregistrée');
   ['dg-libelle','dg-montant'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  renderBilanTable();
 }
+function renderDepensesGeneralesList(){
+  var list=document.getElementById('depenses-generales-list');
+  if(!list) return;
+  var icoMap={'UD':'ti-users-group','Cérémonie':'ti-certificate','Pot de convivialité':'ti-glass','AG':'ti-clipboard-list','Assurance':'ti-shield-check','Banque':'ti-building-bank'};
+  var colMap={'UD':['var(--pul)','var(--pur)'],'Cérémonie':['var(--grl)','var(--grn)'],'Pot de convivialité':['var(--aml)','var(--amb)'],'AG':['var(--bll)','var(--blu)'],'Assurance':['var(--r2)','var(--r)'],'Banque':['var(--bll)','var(--blu)']};
+  var html='';
+  DEPENSES_GENERALES.slice().reverse().forEach(function(d){
+    var ico=icoMap[d.cat]||'ti-receipt-euro';
+    var cols=colMap[d.cat]||['var(--grl)','var(--grn)'];
+    html+='<div class="doc-card"><div class="doc-ico" style="background:'+cols[0]+'"><i class="ti '+ico+'" style="color:'+cols[1]+'"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+d.lib+'</div><div style="font-size:11px;color:var(--color-text-secondary)">'+d.cat+' · '+d.mt.toLocaleString('fr-FR')+' € · '+d.mode+'</div></div><span class="badge badge-ok">Comptabilisé</span></div>';
+  });
+  list.innerHTML=html;
+}
+window.renderDepensesGeneralesList=renderDepensesGeneralesList;
 function genererDossierComptableAnnuel(){
   showToast('Dossier annuel généré : compta_2026.zip');
   setTimeout(()=>showToast('Justificatifs archivés dans Coffre > 2026 > Comptabilité'),900);
 }
 function comptaDemanderPrecision(){ showToast('Demande de précision envoyée à la commission'); }
 function comptaMarquerPaye(){ showToast('Facture marquée payée et justificatif archivé'); }
+
+// ═══════════════════════════════════════════
+// DÉPENSES GÉNÉRALES (hors commission) — données
+// ═══════════════════════════════════════════
+var DEPENSES_GENERALES=[
+  {id:'dg1',lib:'Adhésion Union Départementale 2026',cat:'UD',mt:180,mode:'Virement',date:'2026-01-15',statut:'paye'},
+  {id:'dg2',lib:'Pot de convivialité — Accueil nouvelles recrues',cat:'Pot de convivialité',mt:95,mode:'Carte',date:'2026-02-10',statut:'paye'},
+  {id:'dg3',lib:'Cérémonie des médailles 2026',cat:'Cérémonie',mt:320,mode:'Chèque',date:'2026-03-20',statut:'paye'},
+  {id:'dg4',lib:'Frais AG 2026 — Location salle + buffet',cat:'AG',mt:450,mode:'Virement',date:'2026-04-05',statut:'paye'},
+  {id:'dg5',lib:'Assurance annuelle',cat:'Assurance',mt:420,mode:'Virement',date:'2026-01-02',statut:'paye'},
+  {id:'dg6',lib:'Frais bancaires',cat:'Banque',mt:32,mode:'Prélèvement',date:'2026-06-01',statut:'paye'},
+];
+window.DEPENSES_GENERALES=DEPENSES_GENERALES;
+
+// ═══════════════════════════════════════════
+// JOURNAL COMPTABLE — vue unifiée
+// ═══════════════════════════════════════════
+var journalTypeFilter='all';
+var journalSortAsc=false;
+var journalNextId=1;
+
+function parseComptaDate(str){
+  if(!str) return null;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(str)){
+    var p=str.split('/'); return p[2]+'-'+p[1]+'-'+p[0];
+  }
+  var moisMap={'janv':'01','jan':'01','fév':'02','fev':'02','mars':'03','mar':'03','avr':'04','avril':'04','mai':'05','juin':'06','juil':'07','juillet':'07','août':'08','aout':'08','sept':'09','sep':'09','oct':'10','nov':'11','déc':'12','dec':'12'};
+  var m=str.match(/(\d{1,2})(?:er)?\s+([\wéû]+)\.?\s+(\d{4})/i);
+  if(m){
+    var jour=m[1].padStart(2,'0');
+    var moisKey=m[2].toLowerCase().replace(/\./g,'');
+    var mois=moisMap[moisKey]||'01';
+    return m[3]+'-'+mois+'-'+jour;
+  }
+  return '2026-01-01';
+}
+
+function buildJournalCompta(){
+  var entries=[];
+  DOCS_COMPTA.forEach(function(d){
+    var sens=(d.type==='Recette')?'recette':'depense';
+    var typeJ=d.type.toLowerCase();
+    if(typeJ==='recette') typeJ='recette';
+    entries.push({
+      id:'jdoc_'+d.id, source:'doc', sourceId:d.id,
+      date:parseComptaDate(d.date), type:typeJ, libelle:d.lib,
+      commission:d.comm, montant:d.mt, sens:sens,
+      statut:d.st==='paye'?'paye':(d.st==='recette'?'paye':'attente'),
+      modePaiement:d.payMode||'', prestataire:d.prestataire||'',
+      notes:d.fichier||''
+    });
+  });
+  REMB_BUREAU.forEach(function(r){
+    entries.push({
+      id:'jremb_'+r.id, source:'remb', sourceId:r.id,
+      date:parseComptaDate(r.date), type:'remboursement', libelle:r.objet,
+      commission:r.commission, montant:r.montant, sens:'depense',
+      statut:r.statut==='vire'?'paye':(r.statut==='refuse'?'refuse':'attente'),
+      modePaiement:'Virement', prestataire:r.demandeur,
+      notes:'Remb. '+r.demandeur
+    });
+  });
+  DEPENSES_GENERALES.forEach(function(d){
+    entries.push({
+      id:'jdg_'+d.id, source:'dg', sourceId:d.id,
+      date:d.date, type:'depense', libelle:d.lib,
+      commission:'Hors commission', montant:d.mt, sens:'depense',
+      statut:d.statut||'paye', modePaiement:d.mode||'',
+      prestataire:'', notes:d.cat
+    });
+  });
+  if(typeof SUIVI_COMPTA_VOYAGES!=='undefined'){
+    SUIVI_COMPTA_VOYAGES.forEach(function(s){
+      var tp=s.type.toLowerCase();
+      entries.push({
+        id:'jscv_'+s.id, source:'scv', sourceId:s.id,
+        date:parseComptaDate(s.date), type:tp==='facture'?'facture':(tp==='devis'?'devis':'depense'),
+        libelle:s.presta+' — '+s.type, commission:'Voyages',
+        montant:parseFloat(String(s.montant).replace(/[^\d,.-]/g,'').replace(',','.'))||0,
+        sens:'depense', statut:s.statut==='paye'?'paye':(s.statut==='valide'?'attente':'attente'),
+        modePaiement:'', prestataire:s.presta, notes:'Voyage'
+      });
+    });
+  }
+  if(typeof JOURNAL_MANUAL!=='undefined'){
+    JOURNAL_MANUAL.forEach(function(e){ entries.push(e); });
+  }
+  return entries;
+}
+
+var JOURNAL_MANUAL=[];
+window.JOURNAL_MANUAL=JOURNAL_MANUAL;
+
+function formatDateJournal(iso){
+  if(!iso) return '—';
+  var p=iso.split('-');
+  if(p.length!==3) return iso;
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+
+function getJournalTypeInfo(type){
+  var map={
+    'recette':{ico:'ti-arrow-down-left',col:'var(--grn)',bg:'var(--grl)',label:'Recette'},
+    'depense':{ico:'ti-arrow-up-right',col:'var(--r)',bg:'var(--r2)',label:'Dépense'},
+    'facture':{ico:'ti-file-invoice',col:'var(--blu)',bg:'var(--bll)',label:'Facture'},
+    'devis':{ico:'ti-file-description',col:'var(--pur)',bg:'var(--pul)',label:'Devis'},
+    'remboursement':{ico:'ti-arrow-back-up',col:'var(--amb)',bg:'var(--aml)',label:'Remboursement'},
+    'caution':{ico:'ti-shield-check',col:'var(--tea)',bg:'var(--tel)',label:'Caution'},
+  };
+  return map[type]||map['depense'];
+}
+
+function getJournalStatutBadge(statut){
+  if(statut==='paye') return '<span class="badge badge-ok">Payé</span>';
+  if(statut==='refuse') return '<span class="badge" style="background:var(--r2);color:var(--rd)">Refusé</span>';
+  return '<span class="badge badge-att">En attente</span>';
+}
+
+function initJournalFilters(){
+  var sel=document.getElementById('jrn-comm-filter');
+  if(!sel) return;
+  var html='<option value="all">Toutes les commissions</option>';
+  html+='<option value="Hors commission">Hors commission</option>';
+  COMMISSIONS_COMPTA.forEach(function(c){ html+='<option value="'+c.nom+'">'+c.nom+'</option>'; });
+  sel.innerHTML=html;
+  var selE=document.getElementById('jrn-e-commission');
+  if(selE){
+    var hE='<option value="">Hors commission</option>';
+    COMMISSIONS_COMPTA.forEach(function(c){ hE+='<option value="'+c.nom+'">'+c.nom+'</option>'; });
+    selE.innerHTML=hE;
+  }
+  var deDt=document.getElementById('jrn-date-de');
+  if(deDt && !deDt.value && !deDt.dataset.init){ deDt.value='2025-01-01'; deDt.dataset.init='1'; }
+}
+
+function renderJournalCompta(){
+  var list=document.getElementById('journal-compta-list');
+  if(!list) return;
+  initJournalFilters();
+  var entries=buildJournalCompta();
+  var dateDe=document.getElementById('jrn-date-de')?.value||'';
+  var dateAu=document.getElementById('jrn-date-au')?.value||'';
+  var search=(document.getElementById('jrn-search')?.value||'').toLowerCase();
+  var commF=document.getElementById('jrn-comm-filter')?.value||'all';
+  entries=entries.filter(function(e){
+    if(dateDe && e.date<dateDe) return false;
+    if(dateAu && e.date>dateAu) return false;
+    if(journalTypeFilter!=='all'){
+      if(journalTypeFilter==='depense' && e.sens!=='depense') return false;
+      if(journalTypeFilter==='recette' && e.sens!=='recette') return false;
+      if(journalTypeFilter!=='depense' && journalTypeFilter!=='recette' && e.type!==journalTypeFilter) return false;
+    }
+    if(commF!=='all' && e.commission!==commF) return false;
+    if(search){
+      var hay=(e.libelle+' '+e.commission+' '+e.prestataire+' '+e.notes).toLowerCase();
+      if(hay.indexOf(search)===-1) return false;
+    }
+    return true;
+  });
+  entries.sort(function(a,b){
+    var cmp=(a.date||'').localeCompare(b.date||'');
+    return journalSortAsc?cmp:-cmp;
+  });
+  var totalR=0,totalD=0;
+  entries.forEach(function(e){ if(e.sens==='recette') totalR+=e.montant; else totalD+=e.montant; });
+  var solde=totalR-totalD;
+  document.getElementById('jrn-total-recettes').textContent=totalR.toLocaleString('fr-FR')+' €';
+  document.getElementById('jrn-total-depenses').textContent=totalD.toLocaleString('fr-FR')+' €';
+  var soldeEl=document.getElementById('jrn-total-solde');
+  soldeEl.textContent=(solde>=0?'+':'')+solde.toLocaleString('fr-FR')+' €';
+  soldeEl.style.color=solde>=0?'var(--grn)':'var(--r)';
+  document.getElementById('jrn-count').textContent=entries.length+' écriture'+(entries.length>1?'s':'');
+  if(entries.length===0){
+    list.innerHTML='<div style="text-align:center;padding:30px 12px;color:var(--color-text-secondary)"><i class="ti ti-receipt-off" style="font-size:32px;display:block;margin-bottom:8px" aria-hidden="true"></i><div style="font-size:13px;font-weight:600">Aucune écriture trouvée</div><div style="font-size:11px;margin-top:4px">Modifiez les filtres ou ajoutez une nouvelle écriture</div></div>';
+    return;
+  }
+  var html='';
+  entries.forEach(function(e){
+    var ti=getJournalTypeInfo(e.type);
+    var montantCol=e.sens==='recette'?'var(--grn)':'var(--r)';
+    var montantPrefix=e.sens==='recette'?'+':'−';
+    var canEdit=e.source==='doc'||e.source==='dg'||!e.source;
+    var canDelete=e.source==='doc'||e.source==='dg'||!e.source;
+    var eid=e.id.replace(/'/g,"\\'");
+    html+='<div class="doc-card" style="margin-bottom:6px;align-items:flex-start">';
+    html+='<div class="doc-ico" style="background:'+ti.bg+'"><i class="ti '+ti.ico+'" style="color:'+ti.col+'" aria-hidden="true"></i></div>';
+    html+='<div style="flex:1;min-width:0">';
+    html+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
+    html+='<span style="font-size:13px;font-weight:600;color:var(--color-text-primary);word-break:break-word">'+e.libelle+'</span>';
+    html+='<span class="badge" style="background:'+ti.bg+';color:'+ti.col+';font-size:9px;padding:1px 6px">'+ti.label+'</span>';
+    html+='</div>';
+    html+='<div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">'+formatDateJournal(e.date);
+    if(e.commission) html+=' · '+e.commission;
+    if(e.prestataire) html+=' · '+e.prestataire;
+    if(e.modePaiement) html+=' · '+e.modePaiement;
+    html+='</div>';
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-top:4px">';
+    html+=getJournalStatutBadge(e.statut);
+    html+='<span style="font-size:14px;font-weight:700;color:'+montantCol+'">'+montantPrefix+' '+e.montant.toLocaleString('fr-FR')+' €</span>';
+    html+='</div>';
+    html+='</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">';
+    if(canEdit) html+='<button onclick="event.stopPropagation();ouvrirModalJournal(\''+eid+'\')" style="padding:4px 8px;border-radius:8px;background:var(--bll);border:none;cursor:pointer;font-family:var(--font-sans)" title="Modifier"><i class="ti ti-edit" style="font-size:13px;color:var(--blu)" aria-hidden="true"></i></button>';
+    if(canDelete) html+='<button onclick="event.stopPropagation();supprimerEntreeJournal(\''+eid+'\')" style="padding:4px 8px;border-radius:8px;background:var(--r2);border:none;cursor:pointer;font-family:var(--font-sans)" title="Supprimer"><i class="ti ti-trash" style="font-size:13px;color:var(--rd)" aria-hidden="true"></i></button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  list.innerHTML=html;
+}
+
+function filtrerJournalType(btn,type){
+  journalTypeFilter=type;
+  document.querySelectorAll('#ct-journal .fp').forEach(function(b){b.classList.remove('on');});
+  if(btn) btn.classList.add('on');
+  renderJournalCompta();
+}
+
+function toggleJournalSort(){
+  journalSortAsc=!journalSortAsc;
+  var btn=document.getElementById('jrn-sort-btn');
+  if(btn) btn.innerHTML=journalSortAsc?'<i class="ti ti-sort-ascending" aria-hidden="true"></i>Plus ancien':'<i class="ti ti-sort-descending" aria-hidden="true"></i>Plus récent';
+  renderJournalCompta();
+}
+
+function onJournalTypeChange(){
+  var type=document.getElementById('jrn-e-type')?.value||'depense';
+  var statutSel=document.getElementById('jrn-e-statut');
+  if(statutSel){
+    if(type==='recette') statutSel.value='paye';
+    else if(type==='devis') statutSel.value='attente';
+  }
+}
+
+function ouvrirModalJournal(editId){
+  var modal=document.getElementById('modal-journal-entry');
+  if(!modal) return;
+  var selE=document.getElementById('jrn-e-commission');
+  if(selE){
+    var hE='<option value="">Hors commission</option>';
+    COMMISSIONS_COMPTA.forEach(function(c){ hE+='<option value="'+c.nom+'">'+c.nom+'</option>'; });
+    selE.innerHTML=hE;
+  }
+  document.getElementById('jrn-e-id').value='';
+  document.getElementById('jrn-e-type').value='depense';
+  document.getElementById('jrn-e-libelle').value='';
+  document.getElementById('jrn-e-montant').value='';
+  document.getElementById('jrn-e-date').value=new Date().toISOString().slice(0,10);
+  if(selE) selE.value='';
+  document.getElementById('jrn-e-prestataire').value='';
+  document.getElementById('jrn-e-mode').value='';
+  document.getElementById('jrn-e-statut').value='attente';
+  document.getElementById('jrn-e-notes').value='';
+  document.getElementById('modal-journal-title').textContent='Nouvelle écriture';
+  if(editId){
+    var all=buildJournalCompta();
+    var entry=all.find(function(e){ return e.id===editId; });
+    if(entry){
+      document.getElementById('jrn-e-id').value=editId;
+      document.getElementById('jrn-e-type').value=entry.type||'depense';
+      document.getElementById('jrn-e-libelle').value=entry.libelle||'';
+      document.getElementById('jrn-e-montant').value=entry.montant||'';
+      document.getElementById('jrn-e-date').value=entry.date||'';
+      if(selE) selE.value=entry.commission==='Hors commission'?'':entry.commission;
+      document.getElementById('jrn-e-prestataire').value=entry.prestataire||'';
+      document.getElementById('jrn-e-mode').value=entry.modePaiement||'';
+      document.getElementById('jrn-e-statut').value=entry.statut||'attente';
+      document.getElementById('jrn-e-notes').value=entry.notes||'';
+      document.getElementById('modal-journal-title').textContent='Modifier l’écriture';
+    }
+  }
+  if(typeof AMICALE_openPopup==='function') AMICALE_openPopup(modal);
+  else modal.classList.add('open');
+}
+
+function sauverEntreeJournal(){
+  var libelle=document.getElementById('jrn-e-libelle')?.value?.trim();
+  if(!libelle){ showToast('Veuillez saisir un libellé'); return; }
+  var montant=parseFloat(document.getElementById('jrn-e-montant')?.value)||0;
+  if(montant<=0){ showToast('Le montant doit être supérieur à 0'); return; }
+  var type=document.getElementById('jrn-e-type')?.value||'depense';
+  var date=document.getElementById('jrn-e-date')?.value||new Date().toISOString().slice(0,10);
+  var commVal=document.getElementById('jrn-e-commission')?.value||'';
+  var commission=commVal||'Hors commission';
+  var prestataire=document.getElementById('jrn-e-prestataire')?.value?.trim()||'';
+  var mode=document.getElementById('jrn-e-mode')?.value||'';
+  var statut=document.getElementById('jrn-e-statut')?.value||'attente';
+  var notes=document.getElementById('jrn-e-notes')?.value?.trim()||'';
+  var editId=document.getElementById('jrn-e-id')?.value||'';
+  var sens=(type==='recette'||type==='caution')?'recette':'depense';
+  if(editId){
+    if(editId.indexOf('jdoc_')===0){
+      var docId=editId.replace('jdoc_','');
+      var doc=DOCS_COMPTA.find(function(d){return d.id===docId;});
+      if(doc){
+        doc.lib=libelle; doc.mt=montant; doc.date=formatDateJournal(date);
+        doc.comm=commission==='Hors commission'?'':commission;
+        doc.prestataire=prestataire; doc.payMode=mode;
+        doc.st=statut==='paye'?'paye':(type==='recette'?'recette':'attente');
+        doc.type=type==='recette'?'Recette':(type==='facture'?'Facture':(type==='devis'?'Devis':'Facture'));
+      }
+    } else if(editId.indexOf('jdg_')===0){
+      var dgId=editId.replace('jdg_','');
+      var dg=DEPENSES_GENERALES.find(function(d){return d.id===dgId;});
+      if(dg){
+        dg.lib=libelle; dg.mt=montant; dg.date=date;
+        dg.cat=notes||dg.cat; dg.mode=mode; dg.statut=statut;
+      }
+    } else {
+      var manual=JOURNAL_MANUAL.find(function(e){return e.id===editId;});
+      if(manual){
+        manual.libelle=libelle; manual.montant=montant; manual.date=date;
+        manual.type=type; manual.sens=sens; manual.commission=commission;
+        manual.prestataire=prestataire; manual.modePaiement=mode;
+        manual.statut=statut; manual.notes=notes;
+      }
+    }
+    showToast('Écriture modifiée');
+  } else {
+    var newId='jm_'+(++journalNextId)+'_'+Date.now();
+    JOURNAL_MANUAL.push({
+      id:newId, source:null, sourceId:null,
+      date:date, type:type, libelle:libelle,
+      commission:commission, montant:montant, sens:sens,
+      statut:statut, modePaiement:mode, prestataire:prestataire,
+      notes:notes
+    });
+    if(commission!=='Hors commission'){
+      var comm=COMMISSIONS_COMPTA.find(function(c){return c.nom===commission;});
+      if(comm){
+        if(sens==='recette') comm.recettes+=montant; else comm.depenses+=montant;
+      }
+    }
+    showToast('Écriture ajoutée au journal');
+  }
+  document.getElementById('modal-journal-entry').classList.remove('open');
+  renderJournalCompta();
+  renderBilanTable();
+  if(typeof majSoldeBureau==='function') majSoldeBureau();
+}
+
+function supprimerEntreeJournal(entryId){
+  if(!confirm('Supprimer cette écriture du journal ?')) return;
+  if(entryId.indexOf('jdoc_')===0){
+    var docId=entryId.replace('jdoc_','');
+    var idx=DOCS_COMPTA.findIndex(function(d){return d.id===docId;});
+    if(idx>-1) DOCS_COMPTA.splice(idx,1);
+  } else if(entryId.indexOf('jdg_')===0){
+    var dgId=entryId.replace('jdg_','');
+    var idxD=DEPENSES_GENERALES.findIndex(function(d){return d.id===dgId;});
+    if(idxD>-1) DEPENSES_GENERALES.splice(idxD,1);
+  } else if(entryId.indexOf('jremb_')===0){
+    var rId=entryId.replace('jremb_','');
+    var idxR=REMB_BUREAU.findIndex(function(r){return r.id===rId;});
+    if(idxR>-1) REMB_BUREAU.splice(idxR,1);
+  } else {
+    var idxM=JOURNAL_MANUAL.findIndex(function(e){return e.id===entryId;});
+    if(idxM>-1) JOURNAL_MANUAL.splice(idxM,1);
+  }
+  showToast('Écriture supprimée');
+  renderJournalCompta();
+  renderDocsCompta('all');
+  renderBilanTable();
+  if(typeof majSoldeBureau==='function') majSoldeBureau();
+}
+
+window.buildJournalCompta=buildJournalCompta;
+window.renderJournalCompta=renderJournalCompta;
+window.filtrerJournalType=filtrerJournalType;
+window.toggleJournalSort=toggleJournalSort;
+window.onJournalTypeChange=onJournalTypeChange;
+window.ouvrirModalJournal=ouvrirModalJournal;
+window.sauverEntreeJournal=sauverEntreeJournal;
+window.supprimerEntreeJournal=supprimerEntreeJournal;
+window.initJournalFilters=initJournalFilters;
 
 /*
  * ══════════════════════════════════════════════════════════════════
@@ -14765,14 +15287,9 @@ function comptaMarquerPaye(){ showToast('Facture marquée payée et justificatif
 var BilanService = (function(){
   'use strict';
 
-  var DEPENSES_HORS_COMMISSION = [
-    {lib:'Adhésion Union Départementale 2026', cat:'UD', mt:180, mode:'Virement'},
-    {lib:'Pot de convivialité — Accueil nouvelles recrues', cat:'Pot de convivialité', mt:95, mode:'Carte'},
-    {lib:'Cérémonie des médailles 2026', cat:'Cérémonie', mt:320, mode:'Chèque'},
-    {lib:'Frais AG 2026 — Location salle + buffet', cat:'AG', mt:450, mode:'Virement'},
-    {lib:'Assurance annuelle', cat:'Assurance', mt:420, mode:'Virement'},
-    {lib:'Frais bancaires', cat:'Banque', mt:32, mode:'Prélèvement'}
-  ];
+  function getDepensesHorsCommission(){
+    return (typeof DEPENSES_GENERALES!=='undefined') ? DEPENSES_GENERALES : [];
+  }
 
   function fmt(n){ return n.toLocaleString('fr-FR')+' €'; }
 
@@ -14800,7 +15317,7 @@ var BilanService = (function(){
     var totalRecettes = 0, totalDepenses = 0;
     filtered.forEach(function(c){ totalRecettes+=c.recettes; totalDepenses+=c.depenses; });
 
-    var horsComm = DEPENSES_HORS_COMMISSION.slice();
+    var horsComm = getDepensesHorsCommission().slice();
     var totalHorsComm = horsComm.reduce(function(a,d){ return a+d.mt; }, 0);
 
     var filteredDocs = docs.filter(function(d){
@@ -15065,7 +15582,7 @@ var BilanService = (function(){
     exportCSV: exportCSV,
     exportPDF: exportPDF,
     initScopeSelect: initScopeSelect,
-    DEPENSES_HORS_COMMISSION: DEPENSES_HORS_COMMISSION
+    DEPENSES_HORS_COMMISSION: getDepensesHorsCommission()
   };
 })();
 
