@@ -20087,7 +20087,7 @@ function ouvrirFicheVoyage(voyKey){
   function sorted(){ ensureAll(); return getComms().filter(function(c){return c&&!c.supprimee;}).sort(function(a,b){ var va=isVisible(a)?0:1, vb=isVisible(b)?0:1; if(va!==vb) return va-vb; return String(a.nom||'').localeCompare(String(b.nom||''),'fr'); }); }
   function modelLabel(c){ var m=c&&c.modele; if(!m) return 'commission'; try{ if(typeof MODELES_COMMISSIONS!=='undefined' && MODELES_COMMISSIONS[m]) return MODELES_COMMISSIONS[m].label||m; }catch(e){} return m; }
   function respLabel(c){ return c&&c.resps&&c.resps.length?c.resps.join(', '):'Aucun responsable'; }
-  function titleFix(){ document.querySelectorAll('.sec,.shd-t,.mtt,button,.tool-title,.comm-name').forEach(function(n){ if((n.textContent||'').trim()==='Créer une commission') n.textContent='Gestion des commissions'; }); }
+  function titleFix(){ }
 
   window.renderGestionComm=function(){
     ensureAll(); titleFix();
@@ -20104,7 +20104,7 @@ function ouvrirFicheVoyage(voyKey){
       card.querySelector('[data-act="edit"]').onclick=function(e){e.stopPropagation(); if(typeof ouvrirModalCommission==='function') ouvrirModalCommission(c.id);};
       list.appendChild(card);
     });
-    var add=list.nextElementSibling; if(add && add.tagName==='BUTTON'){ add.innerHTML='<i class="ti ti-settings" aria-hidden="true"></i>Gestion des commissions'; add.onclick=function(){toast('Les commissions sont maintenant fixes : utilisez ouvrir, afficher/masquer et modifier.');}; }
+    var add=list.nextElementSibling; if(add && add.tagName==='BUTTON'){ add.innerHTML='<i class="ti ti-plus" aria-hidden="true"></i> Créer une nouvelle commission'; add.onclick=function(){ if(typeof window.ouvrirModalCommission==='function') window.ouvrirModalCommission(); else toast('Fonction indisponible'); }; }
     var info=list.parentElement&&list.parentElement.querySelector('.card div');
   };
 
@@ -20261,7 +20261,7 @@ function ouvrirFicheVoyage(voyKey){
       card.querySelector('[data-act="edit"]').onclick=function(e){ e.stopPropagation(); if(typeof window.ouvrirModalCommission==='function') window.ouvrirModalCommission(c.id); };
       list.appendChild(card);
     });
-    var add=list.nextElementSibling; if(add && add.tagName==='BUTTON'){ add.innerHTML='<i class="ti ti-settings" aria-hidden="true"></i> Gestion des commissions'; add.onclick=function(){toast('Les commissions sont fixes : utilisez ouvrir, afficher/masquer et modifier.');}; }
+    var add=list.nextElementSibling; if(add && add.tagName==='BUTTON'){ add.innerHTML='<i class="ti ti-plus" aria-hidden="true"></i> Créer une nouvelle commission'; add.onclick=function(){ if(typeof window.ouvrirModalCommission==='function') window.ouvrirModalCommission(); else toast('Fonction indisponible'); }; }
   };
 
   window.toggleVisibiliteCommFixeV56=function(id){
@@ -20284,7 +20284,7 @@ function ouvrirFicheVoyage(voyKey){
     refreshV56(); toast(c.nom+' : '+(next?'visible pour les amicalistes':'masquée pour les amicalistes'));
   };
 
-  function titleFix(){ document.querySelectorAll('.sec,.shd-t,.mtt,button,.tool-title,.comm-name,.bb-label').forEach(function(n){ if((n.textContent||'').trim()==='Créer une commission') n.textContent='Gestion des commissions'; }); }
+  function titleFix(){ }
   function refreshV56(){ ensureFixed(); titleFix(); try{window.renderBureauCommissionsV56();}catch(e){} try{window.renderGestionComm();}catch(e){} try{window.renderAmicalisteCommissions();}catch(e){} }
   window.refreshCommissionsV56=refreshV56;
 
