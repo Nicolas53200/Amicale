@@ -3794,6 +3794,14 @@ body.pc-mode #pg-onboarding.on > *{max-width:980px!important;margin-left:auto!im
           </div>
         </div>
 
+        <!-- MODAL FICHE DE SUIVI LOCATION -->
+        <div class="mow" id="modal-suivi-location" style="z-index:8500">
+          <div class="mbox">
+            <div class="mh2"></div>
+            <div id="suivi-location-content"></div>
+          </div>
+        </div>
+
         <!-- MODAL AJOUT BIEN -->
         <div class="mow" id="modal-ajout-bien">
           <div class="mbox">
@@ -8850,9 +8858,11 @@ const DEMANDES_LOCATION=[
   {id:'dl2',demandeur:'Marie Garnier',bien:'barnum',bienNom:'Barnum',dates:'28 juin 2026',montant:'Gratuit',statut:'attente',
    dateDemande:'5 juin 2026',dateTraitement:null,traitePar:null,historique:'1ère demande de location',motifRefus:null,motifValidation:null,caution:'200 €',etatRetour:'À venir',observations:'Demande pour fête familiale. Vérifier disponibilité équipe montage.'},
   {id:'dl3',demandeur:'Jean Dupont',bien:'appart',bienNom:'Appartement',dates:'1–5 août 2025',montant:'200 €',statut:'acceptee',motifRefus:null,
-   dateDemande:'12 mai 2025',dateTraitement:'14 mai 2025',traitePar:'Pierre Leroy',motifValidation:'Disponibilité confirmée, règlement intérieur accepté.',caution:'300 €',etatRetour:'Retour OK · état des lieux conforme',observations:'Location honorée. Aucun incident signalé.'},
+   dateDemande:'12 mai 2025',dateTraitement:'14 mai 2025',traitePar:'Pierre Leroy',motifValidation:'Disponibilité confirmée, règlement intérieur accepté.',caution:'300 €',etatRetour:'Retour OK · suivi complet',observations:'Location honorée. Aucun incident signalé.',
+   suivi:{cautionRecue:{fait:true,date:'15 mai 2025',par:'Pierre Leroy',montant:'300 €',modePaiement:'cheque',observations:'Chèque n°4521'},etatLieuxEntree:{fait:true,date:'1 août 2025',par:'Pierre Leroy',observations:'RAS'},remiseCles:{fait:true,date:'1 août 2025',par:'Pierre Leroy',observations:'2 clés remises'},etatLieuxSortie:{fait:true,date:'5 août 2025',par:'Pierre Leroy',observations:'Appartement en bon état'},retourCles:{fait:true,date:'5 août 2025',par:'Jean Dupont',observations:'2 clés rendues'},cautionRestituee:{fait:true,date:'10 août 2025',par:'Pierre Leroy',montantRetenu:'0 €',motifRetenue:'',observations:'Caution restituée intégralement'}}},
   {id:'dl4',demandeur:'Pierre Leroy',bien:'barnum',bienNom:'Barnum',dates:'14 juin 2025',montant:'Gratuit',statut:'acceptee',motifRefus:null,
-   dateDemande:'1 juin 2025',dateTraitement:'3 juin 2025',traitePar:'Michel Durand',motifValidation:'Barnum disponible, montage validé avec la commission.',caution:'200 €',etatRetour:'Retour OK · matériel complet',observations:'Prévoir contrôle des sardines avant prochaine sortie.'},
+   dateDemande:'1 juin 2025',dateTraitement:'3 juin 2025',traitePar:'Michel Durand',motifValidation:'Barnum disponible, montage validé avec la commission.',caution:'200 €',etatRetour:'Retour OK · suivi complet',observations:'Prévoir contrôle des sardines avant prochaine sortie.',
+   suivi:{cautionRecue:{fait:true,date:'4 juin 2025',par:'Michel Durand',montant:'200 €',modePaiement:'cheque',observations:''},etatLieuxEntree:{fait:true,date:'14 juin 2025',par:'Michel Durand',observations:'Montage vérifié'},remiseCles:{fait:true,date:'14 juin 2025',par:'Michel Durand',observations:'N/A — matériel sans clés'},etatLieuxSortie:{fait:true,date:'14 juin 2025',par:'Michel Durand',observations:'Matériel complet, toile propre'},retourCles:{fait:true,date:'14 juin 2025',par:'Pierre Leroy',observations:'N/A'},cautionRestituee:{fait:true,date:'20 juin 2025',par:'Michel Durand',montantRetenu:'0 €',motifRetenue:'',observations:'Caution restituée'}}},
   {id:'dl5',demandeur:'Claude Bernard',bien:'remor',bienNom:'Remorque',dates:'2–3 mai 2025',montant:'Gratuit',statut:'refusee',motifRefus:'Remorque déjà réservée pour entretien sur cette période',
    dateDemande:'20 avril 2025',dateTraitement:'21 avril 2025',traitePar:'Pierre Leroy',motifValidation:null,caution:'150 €',etatRetour:'Non concerné',observations:'Proposition faite de décaler la demande au week-end suivant.'},
 ];
@@ -9146,9 +9156,11 @@ function renderMesLocations(){
     const motif=d.statut==='refusee'&&d.motifRefus
       ? `<div style="font-size:11px;color:var(--rd);background:var(--r2);border-radius:var(--border-radius-md);padding:6px 9px;margin-top:4px"><strong>Motif :</strong> ${d.motifRefus}</div>`
       : '';
+    const prog=d.statut==='acceptee'?getSuiviProgress(d):null;
+    const progTxt=prog?`<div style="font-size:10px;color:${prog.pct===100?'var(--grn)':'var(--amb)'};margin-top:2px">${prog.pct===100?'Suivi complet':'Suivi : '+prog.done+'/'+prog.total+' étapes'}</div>`:'<div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">Cliquer pour voir le détail</div>';
     return `<div class="dr" ${isLast&&!motif?'style="border:none"':''} onclick="ouvrirHistoriqueLocation('${d.id}')" style="cursor:pointer">
       <i class="ti ${BIENS_AMICAL[d.bien]?BIENS_AMICAL[d.bien].icon:'ti-home'}" aria-hidden="true"></i>
-      <div class="dr-l"><strong>${d.bienNom}</strong> · ${d.dates}<div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">Cliquer pour voir le détail</div></div>
+      <div class="dr-l"><strong>${d.bienNom}</strong> · ${d.dates}${progTxt}</div>
       <div class="dr-v">${badgeMap[d.statut]||''}</div>
     </div>${motif}`;
   }).join('');
@@ -9335,11 +9347,16 @@ function renderLocDemandes(){
     const badgeMap={acceptee:'<span class="badge badge-ok">Acceptée</span>',refusee:'<span class="badge badge-ref">Refusée</span>'};
     list.innerHTML+=`<div class="sec" style="margin-top:4px">Historique traité</div>
       <div class="card" style="padding:0;overflow:hidden">
-        ${traitees.map((d,i)=>`<div class="dr" ${i===traitees.length-1?'style="border:none;cursor:pointer"':'style="cursor:pointer"'} onclick="ouvrirHistoriqueLocation('${d.id}')">
-          <i class="ti ${BIENS_AMICAL[d.bien]?BIENS_AMICAL[d.bien].icon:'ti-home'}" aria-hidden="true"></i>
-          <div class="dr-l"><strong>${d.demandeur}</strong> — ${d.bienNom}<div style="font-size:10px;color:var(--color-text-secondary)">${d.dates}${d.statut==='refusee'&&d.motifRefus?' · Motif disponible':''}</div></div>
-          <div class="dr-v">${badgeMap[d.statut]||''}</div>
-        </div>`).join('')}
+        ${traitees.map((d,i)=>{
+          const suiviBtn=d.statut==='acceptee'?'<button style="padding:3px 7px;border-radius:var(--border-radius-md);background:var(--blu);color:white;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font-sans);margin-left:6px;white-space:nowrap" onclick="event.stopPropagation();ouvrirSuiviLocation(\''+d.id+'\')"><i class="ti ti-list-check" style="margin-right:2px" aria-hidden="true"></i>Suivi</button>':'';
+          const prog=d.statut==='acceptee'?getSuiviProgress(d):null;
+          const progInfo=prog?'<div style="font-size:9px;color:'+(prog.pct===100?'var(--grn)':'var(--amb)')+'">'+prog.done+'/'+prog.total+' étapes</div>':'';
+          return '<div class="dr" '+(i===traitees.length-1?'style="border:none;cursor:pointer"':'style="cursor:pointer"')+' onclick="ouvrirHistoriqueLocation(\''+d.id+'\')">'+
+            '<i class="ti '+(BIENS_AMICAL[d.bien]?BIENS_AMICAL[d.bien].icon:'ti-home')+'" aria-hidden="true"></i>'+
+            '<div class="dr-l"><strong>'+d.demandeur+'</strong> — '+d.bienNom+'<div style="font-size:10px;color:var(--color-text-secondary)">'+d.dates+(d.statut==='refusee'&&d.motifRefus?' · Motif disponible':'')+'</div>'+progInfo+'</div>'+
+            '<div class="dr-v" style="display:flex;align-items:center">'+(badgeMap[d.statut]||'')+suiviBtn+'</div>'+
+          '</div>';
+        }).join('')}
       </div>`;
   }
 }
@@ -9362,10 +9379,15 @@ function renderLocSuiviHistorique(){
     const badgeMap={attente:'<span class="badge badge-att">En attente</span>',acceptee:'<span class="badge badge-ok">Acceptée</span>',refusee:'<span class="badge badge-ref">Refusée</span>'};
     hist.innerHTML=`<div class="rapport-card">
       <div class="rapport-hd">Historique des demandes de location</div>
-      ${DEMANDES_LOCATION.map((d,i)=>`<div class="rapport-row" ${i===DEMANDES_LOCATION.length-1?'style="border:none;cursor:pointer"':'style="cursor:pointer"'} onclick="ouvrirHistoriqueLocation('${d.id}')">
-        <div class="rr-lbl"><strong>${d.demandeur}</strong> — ${d.bienNom}<br><span style="font-size:10px;color:var(--color-text-secondary)">${d.dates} · ${d.montant}</span></div>
-        <div class="rr-val">${badgeMap[d.statut]||''}</div>
-      </div>`).join('')}
+      ${DEMANDES_LOCATION.map((d,i)=>{
+        const prog=d.statut==='acceptee'?getSuiviProgress(d):null;
+        const progBar=prog?'<div style="display:flex;align-items:center;gap:6px;margin-top:4px"><div style="flex:1;height:4px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+prog.pct+'%;background:var(--grn);border-radius:2px"></div></div><span style="font-size:9px;color:var(--color-text-secondary)">'+prog.done+'/'+prog.total+'</span></div>':'';
+        const suiviBtn=d.statut==='acceptee'?'<button style="padding:4px 8px;border-radius:var(--border-radius-md);background:var(--blu);color:white;border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font-sans);margin-left:8px;white-space:nowrap" onclick="event.stopPropagation();ouvrirSuiviLocation(\''+d.id+'\')"><i class="ti ti-list-check" style="margin-right:2px" aria-hidden="true"></i>Suivi</button>':'';
+        return '<div class="rapport-row" '+(i===DEMANDES_LOCATION.length-1?'style="border:none;cursor:pointer"':'style="cursor:pointer"')+' onclick="ouvrirHistoriqueLocation(\''+d.id+'\')">'+
+          '<div class="rr-lbl"><strong>'+d.demandeur+'</strong> — '+d.bienNom+'<br><span style="font-size:10px;color:var(--color-text-secondary)">'+d.dates+' · '+d.montant+'</span>'+progBar+'</div>'+
+          '<div class="rr-val" style="display:flex;align-items:center">'+(badgeMap[d.statut]||'')+suiviBtn+'</div>'+
+        '</div>';
+      }).join('')}
     </div>`;
   }
 }
@@ -9412,6 +9434,7 @@ function ouvrirHistoriqueLocation(id){
     </div>
     <div class="sec">Observations</div>
     <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;font-size:12px;color:var(--color-text-secondary);line-height:1.45;margin-bottom:10px">${d.observations||'Aucune observation.'}</div>
+    ${d.statut==='acceptee'?'<div style="margin-bottom:10px"><button style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--blu);color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-detail-location\').classList.remove(\'open\');ouvrirSuiviLocation(\''+d.id+'\')"><i class="ti ti-list-check" aria-hidden="true"></i>Ouvrir la fiche de suivi</button></div>':''}
     <div class="mac">
       <button class="mc-c" onclick="document.getElementById('modal-detail-location').classList.remove('open')">Fermer</button>
       <button class="mc-ok" onclick="showToast('Fiche location exportée / prête à imprimer')">Exporter la fiche</button>
@@ -9430,6 +9453,7 @@ function validerDemande(id){
   d.dateTraitement=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
   d.traitePar='Commission Locations';
   d.etatRetour='À venir';
+  initSuiviLocation(d);
   // Ajouter au calendrier du bien si des dates précises ont été fournies
   if(d.debut&&d.fin&&RESA[d.bien]){
     const couleurs=['loc-a','loc-b','loc-c','loc-d'];
@@ -9463,6 +9487,142 @@ function confirmerRefusDemande(){
   demandeEnCoursRefus=null;
   renderLocDemandes();
   renderMesLocations();
+}
+
+// ═══════════════════════════════════════════
+// FICHE DE SUIVI — location acceptée
+// ═══════════════════════════════════════════
+function initSuiviLocation(d){
+  d.suivi={
+    cautionRecue:{fait:false,date:null,par:null,montant:d.caution||null,modePaiement:'cheque',observations:''},
+    etatLieuxEntree:{fait:false,date:null,par:null,observations:''},
+    remiseCles:{fait:false,date:null,par:null,observations:''},
+    etatLieuxSortie:{fait:false,date:null,par:null,observations:''},
+    retourCles:{fait:false,date:null,par:null,observations:''},
+    cautionRestituee:{fait:false,date:null,par:null,montantRetenu:'0 €',motifRetenue:'',observations:''}
+  };
+}
+window.initSuiviLocation=initSuiviLocation;
+
+function ouvrirSuiviLocation(id){
+  const d=DEMANDES_LOCATION.find(x=>x.id===id);
+  const box=document.getElementById('suivi-location-content');
+  const modal=document.getElementById('modal-suivi-location');
+  if(!d||!box||!modal||d.statut!=='acceptee')return;
+  if(!d.suivi) initSuiviLocation(d);
+  const s=d.suivi;
+  const etapes=[
+    {key:'cautionRecue',icon:'ti-receipt',label:'Chèque de caution',desc:'Réception du chèque de caution de '+(d.caution||'—')},
+    {key:'etatLieuxEntree',icon:'ti-clipboard-check',label:'État des lieux d\'entrée',desc:'Vérification de l\'état du bien avant remise'},
+    {key:'remiseCles',icon:'ti-key',label:'Remise des clés',desc:'Remise des clés au locataire'},
+    {key:'etatLieuxSortie',icon:'ti-clipboard-list',label:'État des lieux de sortie',desc:'Vérification de l\'état du bien au retour'},
+    {key:'retourCles',icon:'ti-lock',label:'Retour des clés',desc:'Récupération des clés'},
+    {key:'cautionRestituee',icon:'ti-arrow-back-up',label:'Restitution de la caution',desc:'Restitution du chèque de caution'}
+  ];
+  const done=etapes.filter(e=>s[e.key].fait).length;
+  const total=etapes.length;
+  const pct=Math.round(done/total*100);
+  box.innerHTML=`
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px">
+      <div>
+        <div class="mtt" style="margin-bottom:3px">Fiche de suivi</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)">${d.demandeur} · ${d.bienNom} · ${d.dates}</div>
+      </div>
+      <button class="doc-btn" onclick="document.getElementById('modal-suivi-location').classList.remove('open')"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:600;color:var(--color-text-primary)">${done} / ${total} étapes complétées</span>
+        <span style="font-size:11px;color:var(--color-text-secondary)">${pct}%</span>
+      </div>
+      <div style="height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:var(--grn);border-radius:3px;transition:width .3s"></div>
+      </div>
+    </div>
+    ${etapes.map((e,idx)=>{
+      const step=s[e.key];
+      let extraFields='';
+      if(e.key==='cautionRecue'&&step.fait){
+        extraFields='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">'+
+          '<div><label style="font-size:10px;color:var(--color-text-secondary);display:block;margin-bottom:2px">Montant</label><input class="mi" style="font-size:12px;padding:6px 8px" value="'+(step.montant||d.caution||'')+'" onchange="saveSuiviField(\''+d.id+'\',\''+e.key+'\',\'montant\',this.value)"></div>'+
+          '<div><label style="font-size:10px;color:var(--color-text-secondary);display:block;margin-bottom:2px">Mode</label><select class="mi" style="font-size:12px;padding:6px 8px" onchange="saveSuiviField(\''+d.id+'\',\''+e.key+'\',\'modePaiement\',this.value)"><option value="cheque"'+(step.modePaiement==='cheque'?' selected':'')+'>Chèque</option><option value="especes"'+(step.modePaiement==='especes'?' selected':'')+'>Espèces</option><option value="virement"'+(step.modePaiement==='virement'?' selected':'')+'>Virement</option></select></div>'+
+          '</div>';
+      }
+      if(e.key==='cautionRestituee'&&step.fait){
+        extraFields='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">'+
+          '<div><label style="font-size:10px;color:var(--color-text-secondary);display:block;margin-bottom:2px">Montant retenu</label><input class="mi" style="font-size:12px;padding:6px 8px" value="'+(step.montantRetenu||'0 €')+'" onchange="saveSuiviField(\''+d.id+'\',\''+e.key+'\',\'montantRetenu\',this.value)" placeholder="0 €"></div>'+
+          '<div><label style="font-size:10px;color:var(--color-text-secondary);display:block;margin-bottom:2px">Motif retenue</label><input class="mi" style="font-size:12px;padding:6px 8px" value="'+(step.motifRetenue||'')+'" onchange="saveSuiviField(\''+d.id+'\',\''+e.key+'\',\'motifRetenue\',this.value)" placeholder="Aucune retenue"></div>'+
+          '</div>';
+      }
+      const obsField=step.fait?'<div style="margin-top:8px"><label style="font-size:10px;color:var(--color-text-secondary);display:block;margin-bottom:2px">Observations</label><textarea class="mi" style="font-size:12px;padding:6px 8px;resize:none" rows="1" onchange="saveSuiviField(\''+d.id+'\',\''+e.key+'\',\'observations\',this.value)" placeholder="Notes...">'+(step.observations||'')+'</textarea></div>':'';
+      return '<div class="card" style="margin-bottom:8px;padding:10px;border-left:3px solid '+(step.fait?'var(--grn)':'var(--color-border)')+'">'+
+        '<div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="toggleSuiviEtape(\''+d.id+'\',\''+e.key+'\')">'+
+          '<div style="width:28px;height:28px;border-radius:50%;background:'+(step.fait?'var(--grl)':'var(--color-background-secondary)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+            '<i class="ti '+(step.fait?'ti-check':e.icon)+'" style="font-size:14px;color:'+(step.fait?'var(--grn)':'var(--color-text-secondary)')+'" aria-hidden="true"></i>'+
+          '</div>'+
+          '<div style="flex:1">'+
+            '<div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">'+e.label+'</div>'+
+            '<div style="font-size:11px;color:var(--color-text-secondary)">'+(step.fait?'Fait le '+step.date+' par '+step.par:e.desc)+'</div>'+
+          '</div>'+
+          '<div style="width:20px;height:20px;border-radius:4px;border:2px solid '+(step.fait?'var(--grn)':'var(--color-border)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;background:'+(step.fait?'var(--grn)':'transparent')+'">'+
+            (step.fait?'<i class="ti ti-check" style="font-size:12px;color:white" aria-hidden="true"></i>':'')+
+          '</div>'+
+        '</div>'+
+        extraFields+obsField+
+      '</div>';
+    }).join('')}
+    <div class="mac">
+      <button class="mc-c" onclick="document.getElementById('modal-suivi-location').classList.remove('open')">Fermer</button>
+      <button class="mc-ok" onclick="showToast('Fiche de suivi exportée')"><i class="ti ti-file-type-pdf" style="margin-right:4px" aria-hidden="true"></i>Exporter</button>
+    </div>`;
+  modal.classList.add('open');
+}
+window.ouvrirSuiviLocation=ouvrirSuiviLocation;
+
+function toggleSuiviEtape(id,etape){
+  const d=DEMANDES_LOCATION.find(x=>x.id===id);
+  if(!d||!d.suivi)return;
+  const step=d.suivi[etape];
+  if(!step)return;
+  step.fait=!step.fait;
+  if(step.fait){
+    step.date=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+    step.par='Commission Locations';
+  } else {
+    step.date=null;
+    step.par=null;
+  }
+  updateSuiviProgress(d);
+  ouvrirSuiviLocation(id);
+}
+window.toggleSuiviEtape=toggleSuiviEtape;
+
+function saveSuiviField(id,etape,field,value){
+  const d=DEMANDES_LOCATION.find(x=>x.id===id);
+  if(!d||!d.suivi||!d.suivi[etape])return;
+  d.suivi[etape][field]=value;
+}
+window.saveSuiviField=saveSuiviField;
+
+function updateSuiviProgress(d){
+  if(!d||!d.suivi)return;
+  const keys=['cautionRecue','etatLieuxEntree','remiseCles','etatLieuxSortie','retourCles','cautionRestituee'];
+  const done=keys.filter(k=>d.suivi[k].fait).length;
+  if(done===keys.length){
+    d.etatRetour='Retour OK · suivi complet';
+  } else if(done>0){
+    d.etatRetour='En cours · '+done+'/'+keys.length+' étapes';
+  } else {
+    d.etatRetour='À venir';
+  }
+  renderLocSuiviHistorique();
+}
+
+function getSuiviProgress(d){
+  if(!d||!d.suivi)return null;
+  const keys=['cautionRecue','etatLieuxEntree','remiseCles','etatLieuxSortie','retourCles','cautionRestituee'];
+  const done=keys.filter(k=>d.suivi[k].fait).length;
+  return {done:done,total:keys.length,pct:Math.round(done/keys.length*100)};
 }
 
 // ═══════════════════════════════════════════
