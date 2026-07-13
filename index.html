@@ -6626,6 +6626,14 @@ body.pc-mode #pg-amical-fdf .sub-hd{border-radius:0!important;}
       </div>
     </div>
 
+    <!-- MODAL SUIVI VOYAGE — communication groupée -->
+    <div class="mow" id="modal-suivi-voyage" style="z-index:8500">
+      <div class="mbox" style="max-height:95vh;overflow-y:auto">
+        <div class="mh2"></div>
+        <div id="suivi-voyage-content"></div>
+      </div>
+    </div>
+
     <!-- MODAL FICHE ÉVÉNEMENT (détail amicaliste) -->
     <div class="mow" id="modal-fiche-evenement" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:8500">
       <div class="mbox" style="max-height:95vh;overflow-y:auto;padding:0;border-radius:20px">
@@ -8895,9 +8903,9 @@ function syncIdentite(nomComplet){
 // INSCRIPTIONS VOYAGES — amicaliste → commission Voyages
 // ═══════════════════════════════════════════
 const VOYAGES_DATA={
-  saintmalo:{nom:'Weekend à Saint-Malo',destination:'Saint-Malo, Bretagne',duree:'2 jours / 1 nuit',dates:'5–6 sept. 2026',tarif:'85 €',places:42,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:4,transport:'Car privatisé',hebergement:'Hôtel 3\u2605 \u00b7 Demi-pension',programme:'Visite intra-muros, plage, dîner fruits de mer',ico:'ti-sailboat',color:'#1a5276',image:null,carouselSlide:1,inclus:['Transport A/R en car','1 nuit hôtel 3\u2605','Petit-déjeuner + dîner','Visite guidée intra-muros'],nonInclus:['Déjeuner du samedi','Dépenses personnelles']},
-  strasbourg:{nom:'Marché de Noël — Strasbourg',destination:'Strasbourg, Alsace',duree:'3 jours / 2 nuits',dates:'5–7 déc. 2026',tarif:'145 €',places:38,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:2,transport:'TGV',hebergement:'Hôtel 3\u2605 \u00b7 Petit-déj inclus',programme:'Marchés de Noël, cathédrale, Petite France, croisière',ico:'ti-building-arch',color:'#1a6b3a',image:null,inclus:['TGV A/R 2nde classe','2 nuits hôtel centre-ville','Petits-déjeuners','Croisière sur l\u2019Ill'],nonInclus:['Repas midi et soir','Entrées musées','Dépenses personnelles']},
-  colo_ete:{nom:'Colonie d\u2019été des enfants',destination:'Centre de vacances, Vendée',duree:'8 jours / 7 nuits',dates:'10–17 juil. 2026',tarif:'120 €',places:30,placesMin:15,enfantsAutorises:true,ageLimiteEnfants:14,tarifEnfant:'90 €',accompagnateursRecherches:4,maxAdultesParFoyer:2,transport:'Car privatisé',hebergement:'Centre de vacances \u00b7 Pension complète',programme:'Activités nautiques, randonnées, veillées',ico:'ti-tent',color:'#1a7a1a',image:null,inclus:['Transport A/R','Pension complète 7 nuits','Activités encadrées','Assurance'],nonInclus:['Argent de poche','Équipement personnel']},
+  saintmalo:{nom:'Weekend à Saint-Malo',destination:'Saint-Malo, Bretagne',duree:'2 jours / 1 nuit',dates:'5–6 sept. 2026',tarif:'85 €',places:42,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:4,transport:'Car privatisé',hebergement:'Hôtel 3\u2605 \u00b7 Demi-pension',programme:'Visite intra-muros, plage, dîner fruits de mer',ico:'ti-sailboat',color:'#1a5276',image:null,carouselSlide:1,dateLimiteInscription:'2026-08-01',inclus:['Transport A/R en car','1 nuit hôtel 3\u2605','Petit-déjeuner + dîner','Visite guidée intra-muros'],nonInclus:['Déjeuner du samedi','Dépenses personnelles']},
+  strasbourg:{nom:'Marché de Noël — Strasbourg',destination:'Strasbourg, Alsace',duree:'3 jours / 2 nuits',dates:'5–7 déc. 2026',tarif:'145 €',places:38,placesMin:20,enfantsAutorises:false,maxAdultesParFoyer:2,transport:'TGV',hebergement:'Hôtel 3\u2605 \u00b7 Petit-déj inclus',programme:'Marchés de Noël, cathédrale, Petite France, croisière',ico:'ti-building-arch',color:'#1a6b3a',image:null,dateLimiteInscription:'2026-11-01',inclus:['TGV A/R 2nde classe','2 nuits hôtel centre-ville','Petits-déjeuners','Croisière sur l\u2019Ill'],nonInclus:['Repas midi et soir','Entrées musées','Dépenses personnelles']},
+  colo_ete:{nom:'Colonie d\u2019été des enfants',destination:'Centre de vacances, Vendée',duree:'8 jours / 7 nuits',dates:'10–17 juil. 2026',tarif:'120 €',places:30,placesMin:15,enfantsAutorises:true,ageLimiteEnfants:14,tarifEnfant:'90 €',accompagnateursRecherches:4,maxAdultesParFoyer:2,transport:'Car privatisé',hebergement:'Centre de vacances \u00b7 Pension complète',programme:'Activités nautiques, randonnées, veillées',ico:'ti-tent',color:'#1a7a1a',image:null,dateLimiteInscription:'2026-06-15',inclus:['Transport A/R','Pension complète 7 nuits','Activités encadrées','Assurance'],nonInclus:['Argent de poche','Équipement personnel']},
 };
 
 window.VOYAGES_DATA=VOYAGES_DATA;
@@ -8915,12 +8923,18 @@ var SUIVI_COMPTA_VOYAGES=[
 ];
 
 const INSCRIPTIONS_VOYAGES=[
-  {id:'iv1',demandeur:'Sophie Martin',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'attente',dateInsc:'10 juin 2026'},
-  {id:'iv2',demandeur:'Marc Petit',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'attente',dateInsc:'11 juin 2026'},
-  {id:'iv3',demandeur:'Jean Dupont',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'acceptee',dateInsc:'2 mai 2026'},
-  {id:'iv4',demandeur:'Pierre Leroy',voyage:'strasbourg',voyageNom:'Marché de Noël — Strasbourg',statut:'acceptee',dateInsc:'15 mai 2026'},
+  {id:'iv1',demandeur:'Sophie Martin',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'attente',dateInsc:'10 juin 2026',heureInsc:'09h15'},
+  {id:'iv2',demandeur:'Marc Petit',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'attente',dateInsc:'11 juin 2026',heureInsc:'14h32'},
+  {id:'iv3',demandeur:'Jean Dupont',voyage:'saintmalo',voyageNom:'Weekend à Saint-Malo',statut:'acceptee',dateInsc:'2 mai 2026',heureInsc:'10h05'},
+  {id:'iv4',demandeur:'Pierre Leroy',voyage:'strasbourg',voyageNom:'Marché de Noël — Strasbourg',statut:'acceptee',dateInsc:'15 mai 2026',heureInsc:'16h48'},
 ];
 window.INSCRIPTIONS_VOYAGES=INSCRIPTIONS_VOYAGES;
+
+var COMM_VOYAGES=[
+  {id:'cv1',voyage:'saintmalo',de:'Commission Voyages',message:'Bienvenue ! Ce fil de discussion est réservé aux inscrits du Weekend à Saint-Malo. Toutes les informations pratiques seront communiquées ici.',date:'3 mai 2026',heure:'10h00',type:'info'},
+  {id:'cv2',voyage:'saintmalo',de:'Commission Voyages',message:'Rappel : le départ est prévu le 5 sept. à 7h00 depuis le parking de la caserne. Merci de prévoir un bagage léger.',date:'20 août 2026',heure:'15h30',type:'info'},
+];
+window.COMM_VOYAGES=COMM_VOYAGES;
 
 // ═══════════════════════════════════════════
 // INSCRIPTIONS ÉVÉNEMENTS — amicaliste → commission Événements
@@ -9631,6 +9645,23 @@ function getSuiviProgress(d){
 function inscrireVoyage(voyKey){
   const v=VOYAGES_DATA[voyKey];
   if(!v)return;
+  if(v.dateLimiteInscription&&new Date()>new Date(v.dateLimiteInscription)){
+    showToast('Les inscriptions sont clôturées depuis le '+new Date(v.dateLimiteInscription).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}));
+    return;
+  }
+  const inscrits=getInscritsVoyage(voyKey);
+  const nbInscrits=inscrits.length;
+  const restantes=v.places-nbInscrits;
+  if(restantes<=0){
+    const accRecherches=v.accompagnateursRecherches||0;
+    const accInscrits=inscrits.filter(function(i){return i.accompagnateur;}).length;
+    if(accRecherches>0&&accInscrits<accRecherches){
+      showToast('Plus de places standard — inscription possible comme accompagnateur(trice)');
+    } else {
+      showToast('Désolé, il n\'y a plus de places disponibles pour '+v.nom);
+      return;
+    }
+  }
   const dejaInscrit=INSCRIPTIONS_VOYAGES.find(i=>i.demandeur===CURRENT_AMICALISTE&&i.voyage===voyKey&&i.statut!=='refusee');
   if(dejaInscrit){
     showToast('Vous êtes déjà inscrit(e) pour '+v.nom);
@@ -9654,7 +9685,7 @@ function renderInscriptionsVoyages(){
       <div class="card">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <div style="width:36px;height:36px;border-radius:50%;background:var(--pur);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0">${initials(i.demandeur)}</div>
-          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">${i.demandeur}</div><div style="font-size:11px;color:var(--color-text-secondary)">${i.voyageNom} · inscrit le ${i.dateInsc}</div></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">${i.demandeur}</div><div style="font-size:11px;color:var(--color-text-secondary)">${i.voyageNom} · inscrit le ${i.dateInsc}${i.heureInsc?' à '+i.heureInsc:''}</div></div>
           <span class="badge badge-att">En attente</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px">
@@ -9671,7 +9702,7 @@ function renderInscriptionsVoyages(){
       <div class="card" style="padding:0;overflow:hidden">
         ${traitees.map((i,idx)=>`<div class="dr" ${idx===traitees.length-1?'style="border:none"':''}>
           <i class="ti ti-plane" aria-hidden="true"></i>
-          <div class="dr-l">${i.demandeur} — ${i.voyageNom}</div>
+          <div class="dr-l">${i.demandeur} — ${i.voyageNom}<div style="font-size:10px;color:var(--color-text-secondary)">${i.dateInsc}${i.heureInsc?' à '+i.heureInsc:''}</div></div>
           <div class="dr-v">${badgeMap[i.statut]||''}</div>
         </div>`).join('')}
       </div>`;
@@ -9682,7 +9713,18 @@ function validerInscription(id){
   const i=INSCRIPTIONS_VOYAGES.find(x=>x.id===id);
   if(!i)return;
   i.statut='acceptee';
-  showToast('Inscription validée — '+i.demandeur+' notifié(e) automatiquement');
+  var v=VOYAGES_DATA[i.voyage];
+  var nbPers=i.totalPersonnes||1;
+  if(typeof window.ajouterConfirmationAmicaliste==='function'){
+    window.ajouterConfirmationAmicaliste(
+      'Confirmation inscription — '+(i.voyageNom||'Voyage'),
+      'Bonjour '+i.demandeur+',\n\nVotre inscription pour '+(i.voyageNom||'le voyage')+' a été confirmée.\n\n'
+      +'Nombre de personnes : '+nbPers+'\n'
+      +(v?'Dates : '+v.dates+'\nDestination : '+v.destination+'\nTarif : '+v.tarif+' par personne\nTransport : '+v.transport:'')
+      +'\n\nUn fil de communication groupée est disponible dans le suivi du voyage pour recevoir les informations pratiques.\n\nBonne préparation !\nLa commission Voyages'
+    );
+  }
+  showToast('Inscription validée — '+i.demandeur+' notifié(e) par mail');
   renderInscriptionsVoyages();
 }
 
@@ -18349,7 +18391,8 @@ function confirmerInscriptionEvent(){
     enfantsIdx:nbEnfantsCoches,
     accompagnateur:!!accCoche,
     totalPersonnes:totalPersonnes,
-    dateInsc:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+    dateInsc:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}),
+    heureInsc:('0'+new Date().getHours()).slice(-2)+'h'+('0'+new Date().getMinutes()).slice(-2)
   };
 
   if(MIE_CONTEXT.type==='voyage'){
@@ -18474,10 +18517,13 @@ function renderVoyagesCards(){
       +'<div style="margin-top:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>Inscriptions</span><span><strong>'+inscrits+'</strong> / '+v.places+' (min. '+(v.placesMin||'?')+')</span></div>'
       +'<div class="jauge-track"><div class="jauge-fill" style="width:'+pct+'%;background:'+couleur+'"></div></div></div>'
       +'</div>'
-      +'<div style="padding:8px 12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">'
+      +(restantes<=10&&restantes>0?'<div style="padding:4px 12px 0;font-size:11px;font-weight:600;color:var(--r);display:flex;align-items:center;gap:4px"><i class="ti ti-alert-triangle" style="font-size:12px"></i>Plus que '+restantes+' place'+(restantes>1?'s':'')+'!</div>':'')
+      +(restantes<=0?'<div style="padding:4px 12px 0;font-size:11px;font-weight:700;color:var(--rd);display:flex;align-items:center;gap:4px"><i class="ti ti-lock" style="font-size:12px"></i>Complet'+(v.accompagnateursRecherches>0?' — accompagnateurs recherchés':'')+'</div>':'')
+      +'<div style="padding:8px 12px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">'
       +'<button class="btn-r" style="margin:0;font-size:11px;padding:7px" onclick="ouvrirModalParametresVoyage(\''+key+'\')"><i class="ti ti-edit" aria-hidden="true"></i>Modifier</button>'
       +'<button class="btn-r" style="margin:0;font-size:11px;padding:7px;background:var(--grn)" onclick="voirInscritsVoyage(\''+key+'\')"><i class="ti ti-users" aria-hidden="true"></i>Inscrits</button>'
       +'<button class="btn-r" style="margin:0;font-size:11px;padding:7px;background:var(--blu)" onclick="notifierInscrits(\''+key+'\')"><i class="ti ti-bell" aria-hidden="true"></i>Notifier</button>'
+      +'<button class="btn-r" style="margin:0;font-size:11px;padding:7px;background:var(--pur)" onclick="ouvrirSuiviVoyage(\''+key+'\')"><i class="ti ti-list-check" aria-hidden="true"></i>Suivi</button>'
       +'</div></div>';
   });
   html+='<button class="add-btn" onclick="showToast(\'Créer un voyage...\')"><i class="ti ti-plus" aria-hidden="true"></i>Ajouter un voyage</button>';
@@ -18609,6 +18655,133 @@ function getInscritsVoyage(voyKey){
   return INSCRIPTIONS_VOYAGES.filter(function(i){return i.voyage===voyKey&&i.statut!=='refusee';});
 }
 
+function voyageInscriptionsCloturees(voyKey){
+  var v=VOYAGES_DATA[voyKey];
+  if(!v)return false;
+  if(v.dateLimiteInscription&&new Date()>new Date(v.dateLimiteInscription))return true;
+  return false;
+}
+window.voyageInscriptionsCloturees=voyageInscriptionsCloturees;
+
+function ouvrirSuiviVoyage(voyKey){
+  var v=VOYAGES_DATA[voyKey];
+  var box=document.getElementById('suivi-voyage-content');
+  var modal=document.getElementById('modal-suivi-voyage');
+  if(!v||!box||!modal)return;
+  var inscrits=getInscritsVoyage(voyKey);
+  var confirmes=inscrits.filter(function(i){return i.statut==='acceptee';});
+  var attente=inscrits.filter(function(i){return i.statut==='attente';});
+  var nbInscrits=inscrits.length;
+  var restantes=v.places-nbInscrits;
+  var cloture=voyageInscriptionsCloturees(voyKey);
+  var accRecherches=v.accompagnateursRecherches||0;
+  var accInscrits=inscrits.filter(function(i){return i.accompagnateur;}).length;
+  var totalPersonnes=0;
+  confirmes.forEach(function(i){totalPersonnes+=(i.totalPersonnes||1);});
+  var comms=(typeof COMM_VOYAGES!=='undefined')?COMM_VOYAGES.filter(function(c){return c.voyage===voyKey;}):[];
+
+  var statusColor=cloture?'var(--color-text-secondary)':(restantes<=0?'var(--rd)':(restantes<=10?'var(--amb)':'var(--grn)'));
+  var statusText=cloture?'Inscriptions clôturées':(restantes<=0?(accRecherches>accInscrits?'Complet — accompagnateurs recherchés':'Complet'):(restantes<=10?'Plus que '+restantes+' place'+(restantes>1?'s':'')+'!':'Inscriptions ouvertes'));
+
+  box.innerHTML=
+    '<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px">'+
+      '<div><div class="mtt" style="margin-bottom:3px">Suivi — '+v.nom+'</div>'+
+      '<div style="font-size:12px;color:var(--color-text-secondary)">'+v.dates+' · '+v.destination+'</div></div>'+
+      '<button class="doc-btn" onclick="document.getElementById(\'modal-suivi-voyage\').classList.remove(\'open\')"><i class="ti ti-x" aria-hidden="true"></i></button>'+
+    '</div>'+
+
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">'+
+      '<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--pur)">'+confirmes.length+'</div><div class="ssub">Confirmés</div></div>'+
+      '<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--amb)">'+attente.length+'</div><div class="ssub">Attente</div></div>'+
+      '<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--blu)">'+totalPersonnes+'</div><div class="ssub">Personnes</div></div>'+
+      '<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:'+statusColor+'">'+restantes+'</div><div class="ssub">Restantes</div></div>'+
+    '</div>'+
+
+    '<div style="padding:8px 10px;border-radius:var(--border-radius-md);background:'+(cloture||restantes<=0?'var(--r2)':'var(--grl)')+';font-size:12px;color:'+statusColor+';margin-bottom:12px;display:flex;align-items:center;gap:6px"><i class="ti '+(cloture||restantes<=0?'ti-alert-circle':'ti-circle-check')+'" style="font-size:14px"></i>'+statusText+
+    (accRecherches>0?' · Accompagnateurs : '+accInscrits+'/'+accRecherches:'')+
+    (v.dateLimiteInscription?' · Limite : '+new Date(v.dateLimiteInscription).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'')+
+    '</div>'+
+
+    '<div class="sec">Inscrits confirmés ('+confirmes.length+')</div>'+
+    '<div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">'+
+    (confirmes.length?confirmes.map(function(i,idx){
+      return '<div class="dr" '+(idx===confirmes.length-1?'style="border:none"':'')+'>'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:var(--pur);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0">'+initials(i.demandeur)+'</div>'+
+        '<div class="dr-l"><strong>'+i.demandeur+'</strong>'+(i.accompagnateur?' <span style="font-size:10px;color:var(--r)">(accompagnateur)</span>':'')+'<div style="font-size:10px;color:var(--color-text-secondary)">'+(i.totalPersonnes||1)+' pers. · inscrit le '+i.dateInsc+(i.heureInsc?' à '+i.heureInsc:'')+'</div></div>'+
+        '<div class="dr-v"><span class="badge badge-ok">Confirmé</span></div>'+
+      '</div>';
+    }).join(''):'<div style="text-align:center;padding:12px;font-size:12px;color:var(--color-text-secondary)">Aucun inscrit confirmé</div>')+
+    '</div>'+
+
+    '<div class="sec">Communication groupée</div>'+
+    '<div class="card" style="margin-bottom:8px;max-height:200px;overflow-y:auto">'+
+    (comms.length?comms.map(function(c){
+      return '<div style="padding:8px 0;border-bottom:1px solid var(--color-border);'+(c===comms[comms.length-1]?'border:none':'')+'">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+          '<span style="font-size:11px;font-weight:700;color:'+(c.type==='info'?'var(--blu)':'var(--pur)')+'"><i class="ti '+(c.type==='info'?'ti-info-circle':'ti-message')+'" style="font-size:11px;margin-right:3px" aria-hidden="true"></i>'+c.de+'</span>'+
+          '<span style="font-size:10px;color:var(--color-text-secondary)">'+c.date+(c.heure?' '+c.heure:'')+'</span>'+
+        '</div>'+
+        '<div style="font-size:12px;color:var(--color-text-primary);line-height:1.4">'+c.message+'</div>'+
+      '</div>';
+    }).join(''):'<div style="text-align:center;padding:12px;font-size:12px;color:var(--color-text-secondary)">Aucune communication pour le moment</div>')+
+    '</div>'+
+
+    '<div style="margin-bottom:12px">'+
+      '<textarea class="mi" id="sv-nouveau-msg" rows="2" style="resize:none;margin-bottom:6px" placeholder="Écrire un message à tous les inscrits..."></textarea>'+
+      '<button style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--blu);color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="envoyerCommVoyage(\''+voyKey+'\')"><i class="ti ti-send" aria-hidden="true"></i>Envoyer à tous les inscrits</button>'+
+    '</div>'+
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">'+
+      '<button style="padding:10px;border-radius:var(--border-radius-md);background:var(--grl);color:var(--grn);border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:4px" onclick="envoyerConfirmationsVoyage(\''+voyKey+'\')"><i class="ti ti-mail" aria-hidden="true"></i>Envoyer confirmations</button>'+
+      '<button style="padding:10px;border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:4px" onclick="showToast(\'Export PDF du suivi voyage...\')"><i class="ti ti-file-type-pdf" aria-hidden="true"></i>Exporter</button>'+
+    '</div>'+
+
+    '<div class="mac">'+
+      '<button class="mc-c" onclick="document.getElementById(\'modal-suivi-voyage\').classList.remove(\'open\')">Fermer</button>'+
+    '</div>';
+  modal.classList.add('open');
+}
+window.ouvrirSuiviVoyage=ouvrirSuiviVoyage;
+
+function envoyerCommVoyage(voyKey){
+  var txt=document.getElementById('sv-nouveau-msg');
+  if(!txt||!txt.value.trim()){showToast('Veuillez écrire un message');return;}
+  var now=new Date();
+  COMM_VOYAGES.unshift({
+    id:'cv'+Date.now(),
+    voyage:voyKey,
+    de:CURRENT_AMICALISTE||'Commission Voyages',
+    message:txt.value.trim(),
+    date:now.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}),
+    heure:('0'+now.getHours()).slice(-2)+'h'+('0'+now.getMinutes()).slice(-2),
+    type:'message'
+  });
+  var inscrits=getInscritsVoyage(voyKey).filter(function(i){return i.statut==='acceptee';});
+  showToast('Message envoyé à '+inscrits.length+' inscrit'+(inscrits.length>1?'s':''));
+  ouvrirSuiviVoyage(voyKey);
+}
+window.envoyerCommVoyage=envoyerCommVoyage;
+
+function envoyerConfirmationsVoyage(voyKey){
+  var v=VOYAGES_DATA[voyKey];
+  if(!v)return;
+  var confirmes=INSCRIPTIONS_VOYAGES.filter(function(i){return i.voyage===voyKey&&i.statut==='acceptee';});
+  if(!confirmes.length){showToast('Aucun inscrit confirmé');return;}
+  confirmes.forEach(function(i){
+    if(typeof window.ajouterConfirmationAmicaliste==='function'){
+      window.ajouterConfirmationAmicaliste(
+        'Confirmation inscription — '+v.nom,
+        'Bonjour '+i.demandeur+',\n\nVotre inscription pour '+v.nom+' est confirmée.\n\n'
+        +'Nombre de personnes : '+(i.totalPersonnes||1)+'\n'
+        +'Dates : '+v.dates+'\nDestination : '+v.destination+'\nTransport : '+v.transport
+        +'\n\nConsultez le suivi du voyage pour les informations pratiques.\n\nLa commission Voyages'
+      );
+    }
+  });
+  showToast(confirmes.length+' mail'+(confirmes.length>1?'s':'')+' de confirmation envoyé'+(confirmes.length>1?'s':''));
+}
+window.envoyerConfirmationsVoyage=envoyerConfirmationsVoyage;
+
 function renderVoyagesAmicaliste(){
   var container=document.getElementById('voyages-amical-list');
   if(!container)return;
@@ -18626,7 +18799,7 @@ function renderVoyagesAmicaliste(){
       +'<div class="voy-visuel" style="'+bgStyle+'">'
       +'<div class="vov-overlay"></div>'
       +'<i class="ti '+(v.ico||'ti-plane')+' vov-bigico" aria-hidden="true"></i>'
-      +'<span class="vov-statut vos-ouvert">'+(restantes>0?'Inscriptions ouvertes':'Complet')+'</span>'
+      +'<span class="vov-statut vos-ouvert">'+(voyageInscriptionsCloturees(key)?'Clôturé':restantes>0?(restantes<=10?'Plus que '+restantes+' place'+(restantes>1?'s':'')+'!':'Inscriptions ouvertes'):'Complet')+'</span>'
       +'<span class="vov-tarif">'+v.tarif+'</span>'
       +'<div class="vov-content">'
       +'<div class="vov-dest"><i class="ti ti-map-pin" aria-hidden="true"></i> '+(v.destination||'')+'</div>'
@@ -18635,7 +18808,7 @@ function renderVoyagesAmicaliste(){
       +'</div></div>'
       +'<div class="voy-body">'
       +'<div style="margin-bottom:10px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:5px"><div style="font-size:12px;font-weight:600;color:var(--color-text-primary)">Inscriptions</div><div style="font-size:12px;color:var(--color-text-secondary)"><strong>'+nbInscrits+'</strong> / '+v.places+' places'+(restantes>0?' · <span style="color:var(--grn);font-weight:600">'+restantes+' restante'+(restantes>1?'s':'')+'</span>':'')+'</div></div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:5px"><div style="font-size:12px;font-weight:600;color:var(--color-text-primary)">Inscriptions</div><div style="font-size:12px;color:var(--color-text-secondary)"><strong>'+nbInscrits+'</strong> / '+v.places+' places'+(restantes>0?' · <span style="color:'+(restantes<=10?'var(--r);font-weight:700':'var(--grn);font-weight:600')+'">'+restantes+' restante'+(restantes>1?'s':'')+(restantes<=10?' !':'')+'</span>':'')+'</div></div>'
       +'<div class="jauge-track"><div class="jauge-fill" style="width:'+pct+'%;background:'+(pct>=60?'var(--pur)':pct>=30?'var(--amb)':'var(--r)')+'"></div>'+(v.placesMin?'<div class="jauge-min-mark" style="left:'+minPct+'%" data-lbl="min. '+v.placesMin+'"></div>':'')+'</div>'
       +'</div>'
       +'<div class="voy-tags">'
@@ -18666,7 +18839,16 @@ function ouvrirFicheVoyage(voyKey){
   if(v.image)header.style.cssText='height:220px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background-image:url('+v.image+');background-size:cover;background-position:center';
   else header.style.cssText='height:220px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background:'+v.color;
 
-  document.getElementById('mfv-badge').innerHTML=restantes>0?'<span class="badge badge-ok">Inscriptions ouvertes</span>':'<span class="badge" style="background:var(--rl);color:var(--r)">Complet</span>';
+  var cloture=voyageInscriptionsCloturees(voyKey);
+  var accRecherches=v.accompagnateursRecherches||0;
+  var accInscrits=inscrits.filter(function(i){return i.accompagnateur;}).length;
+  var badgeHtml;
+  if(cloture) badgeHtml='<span class="badge" style="background:var(--color-background-secondary);color:var(--color-text-secondary)">Inscriptions clôturées</span>';
+  else if(restantes<=0&&accRecherches>accInscrits) badgeHtml='<span class="badge" style="background:var(--aml);color:var(--amb)">Complet — accompagnateurs recherchés</span>';
+  else if(restantes<=0) badgeHtml='<span class="badge" style="background:var(--rl);color:var(--r)">Complet</span>';
+  else if(restantes<=10) badgeHtml='<span class="badge" style="background:var(--aml);color:var(--amb)">Plus que '+restantes+' place'+(restantes>1?'s':'')+'!</span>';
+  else badgeHtml='<span class="badge badge-ok">Inscriptions ouvertes</span>';
+  document.getElementById('mfv-badge').innerHTML=badgeHtml;
   document.getElementById('mfv-tarif-badge').textContent=v.tarif;
   document.getElementById('mfv-dest').innerHTML='<i class="ti ti-map-pin" style="font-size:11px"></i> '+v.destination;
   document.getElementById('mfv-titre').textContent=v.nom;
@@ -18680,7 +18862,8 @@ function ouvrirFicheVoyage(voyKey){
   var jaugeColor=pct>=60?'var(--pur)':pct>=30?'var(--amb)':'var(--r)';
   document.getElementById('mfv-jauge-zone').innerHTML='<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="font-weight:600">Inscriptions</span><span><strong>'+nbInscrits+'</strong> / '+v.places+' (min. '+(v.placesMin||'?')+')</span></div>'
     +'<div class="jauge-track" style="height:12px"><div class="jauge-fill" style="width:'+pct+'%;background:'+jaugeColor+'"></div>'+(v.placesMin?'<div class="jauge-min-mark" style="left:'+minPct+'%"></div>':'')+'</div>'
-    +'<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:2px"><span style="color:var(--amb);font-weight:600">Min. '+(v.placesMin||'?')+' requis</span><span style="color:var(--grn);font-weight:600">'+restantes+' place'+(restantes>1?'s':'')+' restante'+(restantes>1?'s':'')+'</span></div>';
+    +'<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:2px"><span style="color:var(--amb);font-weight:600">Min. '+(v.placesMin||'?')+' requis</span><span style="color:'+(restantes<=10&&restantes>0?'var(--r);font-weight:700':'var(--grn);font-weight:600')+'">'+restantes+' place'+(restantes>1?'s':'')+' restante'+(restantes>1?'s':'')+(restantes<=10&&restantes>0?' !':'')+'</span></div>'
+    +(v.dateLimiteInscription?'<div style="margin-top:6px;padding:6px 10px;border-radius:var(--border-radius-md);background:'+(cloture?'var(--r2)':'var(--color-background-secondary)')+';font-size:11px;color:'+(cloture?'var(--rd)':'var(--color-text-secondary)')+';display:flex;align-items:center;gap:4px"><i class="ti ti-calendar-due" style="font-size:12px"></i>Date limite d\'inscription : '+new Date(v.dateLimiteInscription).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})+(cloture?' — clôturé':'')+'</div>':'');
 
   var progHtml='';
   if(v.programme){progHtml='<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-bottom:6px"><i class="ti ti-route" style="font-size:13px"></i> Programme</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.5">'+v.programme+'</div>';}
@@ -18717,7 +18900,17 @@ function ouvrirFicheVoyage(voyKey){
   document.getElementById('mfv-inscrits-zone').innerHTML=insHtml;
 
   var isBureau=Array.isArray(window.ACCES_BUREAU)&&window.ACCES_BUREAU.some(function(a){return typeof CURRENT_AMICALISTE==='string'&&a.nom===CURRENT_AMICALISTE;});
-  var actHtml='<button style="padding:12px;border-radius:12px;background:var(--grn);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-voyage\').classList.remove(\'open\');inscrireVoyage(\''+voyKey+'\')"><i class="ti ti-send"></i>S\'inscrire</button>';
+  var canInscribe=!cloture&&(restantes>0||(accRecherches>0&&accInscrits<accRecherches));
+  var monInscription=INSCRIPTIONS_VOYAGES.find(function(i){return i.demandeur===CURRENT_AMICALISTE&&i.voyage===voyKey&&i.statut==='acceptee';});
+  var actHtml='';
+  if(canInscribe){
+    actHtml+='<button style="padding:12px;border-radius:12px;background:var(--grn);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-voyage\').classList.remove(\'open\');inscrireVoyage(\''+voyKey+'\')"><i class="ti ti-send"></i>S\'inscrire</button>';
+  } else {
+    actHtml+='<button style="padding:12px;border-radius:12px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:none;font-size:13px;font-weight:700;cursor:not-allowed;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px;opacity:.6" disabled><i class="ti ti-lock"></i>'+(cloture?'Inscriptions clôturées':'Complet')+'</button>';
+  }
+  if(monInscription||isBureau){
+    actHtml+='<button style="padding:12px;border-radius:12px;background:var(--blu);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-voyage\').classList.remove(\'open\');ouvrirSuiviVoyage(\''+voyKey+'\')"><i class="ti ti-list-check"></i>Suivi & communication</button>';
+  }
   actHtml+='<button style="padding:12px;border-radius:12px;background:var(--color-background-secondary);color:var(--color-text-primary);border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById(\'modal-fiche-voyage\').classList.remove(\'open\')"><i class="ti ti-x"></i>Fermer</button>';
   document.getElementById('mfv-actions').innerHTML=actHtml;
 
