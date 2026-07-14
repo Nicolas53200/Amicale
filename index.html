@@ -20176,7 +20176,12 @@ function ouvrirFicheVoyage(voyKey){
   function isVisibleAmicaliste(c){ return isVisible(c) && c.visibleAmicaliste!==false; }
   function fixedList(){ ensureFixed(); return FIXED.map(function(def){return byId(def.id);}).filter(Boolean); }
   function sortedFixed(){ return fixedList().sort(function(a,b){ var va=isVisible(a)?0:1, vb=isVisible(b)?0:1; if(va!==vb) return va-vb; return String(a.nom||'').localeCompare(String(b.nom||''),'fr'); }); }
-  function sortedAmical(){ return ORDRE_AMICAL.map(function(id){return byId(id);}).filter(function(c){return c && isVisibleAmicaliste(c);}); }
+  function sortedAmical(){
+    var fixed=ORDRE_AMICAL.map(function(id){return byId(id);}).filter(function(c){return c && isVisibleAmicaliste(c);});
+    var fixedIds={}; ORDRE_AMICAL.forEach(function(id){fixedIds[id]=1;});
+    var custom=arrComms().filter(function(c){return c&&!c.supprimee&&!c.fixe&&!fixedIds[c.id]&&isVisibleAmicaliste(c);});
+    return fixed.concat(custom);
+  }
   function allForGestion(){
     ensureFixed();
     var ids={}; FIXED.forEach(function(f){ids[f.id]=1;});
@@ -20212,7 +20217,8 @@ function ouvrirFicheVoyage(voyKey){
   window.renderBureauCommissionsV56=function(){
     ensureFixed();
     var box=document.getElementById('tour-bureau-commissions'); if(!box) return;
-    box.innerHTML=sortedFixed().filter(isVisible).map(function(c){return cardHtml(c,'comm-card',false);}).join('');
+    box.innerHTML=sortedFixed().filter(isVisible).map(function(c){return cardHtml(c,'comm-card',false);}).join('')+'<div id="commissions-custom"></div>';
+    if(typeof window.renderCommissionsCustom==='function') window.renderCommissionsCustom();
   };
 
   window.renderAmicalisteCommissions=function(){
