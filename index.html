@@ -12039,15 +12039,247 @@ function ouvrirCommissionDynamiqueBureau(id){
 }
 
 function renderCommissionDynamiqueBureau(c){
+  if(!c._docs) c._docs=[];
+  if(!c._notifs) c._notifs=[];
+  if(!c._membresComm) c._membresComm=[];
   const compta=getBudgetCommission(c.id)||{budget:0,recettes:0,depenses:0};
   const solde=(compta.recettes||0)-(compta.depenses||0);
   const title=document.getElementById('dyn-comm-title'); if(title)title.textContent=c.nom;
   const sub=document.getElementById('dyn-comm-sub'); if(sub)sub.textContent=(MODELES_COMMISSIONS[c.modele]?.label||'Simple')+' · '+(c.visible!==false?'Visible amicalistes':'Masquée amicalistes');
   const hd=document.getElementById('dyn-comm-hd'); if(hd)hd.style.background=c.col||'var(--blu)';
   const sum=document.getElementById('dyn-comm-summary'); if(sum)sum.innerHTML=`<div class="card" style="display:flex;gap:12px;align-items:center;margin-bottom:12px"><div style="width:48px;height:48px;border-radius:14px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center"><i class="ti ${c.ico||'ti-users-group'}" style="font-size:24px;color:${c.col||'var(--blu)'}"></i></div><div style="flex:1"><div style="font-weight:700;font-size:14px">${c.nom}</div><div style="font-size:12px;color:var(--color-text-secondary)">${libelleResps(c.resps)} · ${c.membresBureau.length||0} membre(s) bureau</div></div><button class="chip" onclick="ouvrirModalCommission('${c.id}')">Modifier</button></div>`;
-  const modules=document.getElementById('dyn-comm-modules'); if(modules)modules.innerHTML=(c.features||[]).map(f=>`<div class="card" style="padding:10px"><div style="font-size:18px">${(FEATURES_DISPONIBLES.find(x=>x.id===f)||{}).ico||'•'}</div><div style="font-size:12px;font-weight:700">${getFeatureLabel(f)}</div></div>`).join('');
-  const bud=document.getElementById('dyn-comm-budget'); if(bud)bud.innerHTML=`<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between"><span>Budget alloué</span><b>${compta.budget||0} €</b></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Recettes</span><b style="color:var(--grn)">${compta.recettes||0} €</b></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Dépenses</span><b style="color:var(--r)">${compta.depenses||0} €</b></div><div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--color-border-secondary)"><span>Solde</span><b>${solde} €</b></div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">Synchronisé avec le tableau comptable : le comptable retrouve cette commission dans la comptabilité globale.</div></div>`;
-  const team=document.getElementById('dyn-comm-team'); if(team)team.innerHTML=`<div class="card"><div style="font-size:12px;font-weight:700;margin-bottom:6px">Responsables</div><div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">${(c.resps&&c.resps.length)?c.resps.join(' · '):'À désigner'}</div><div style="font-size:12px;font-weight:700;margin-bottom:6px">Membres bureau rattachés</div><div style="font-size:12px;color:var(--color-text-secondary)">${(c.membresBureau&&c.membresBureau.length)?c.membresBureau.join(' · '):'Aucun membre rattaché'}</div></div>`;
+  var modules=document.getElementById('dyn-comm-modules'); if(modules){
+    var badge=function(f){
+      if(f==='documents') return c._docs.length?' <span style="background:var(--blu);color:#fff;border-radius:50%;font-size:10px;padding:1px 5px;margin-left:4px">'+c._docs.length+'</span>':'';
+      if(f==='notifications') return c._notifs.length?' <span style="background:var(--amb);color:#fff;border-radius:50%;font-size:10px;padding:1px 5px;margin-left:4px">'+c._notifs.length+'</span>':'';
+      if(f==='membres') return c._membresComm.length?' <span style="background:var(--pur);color:#fff;border-radius:50%;font-size:10px;padding:1px 5px;margin-left:4px">'+c._membresComm.length+'</span>':'';
+      return '';
+    };
+    modules.innerHTML=(c.features||[]).map(function(f){
+      return '<div class="card" style="padding:10px;cursor:pointer;transition:transform .12s" onclick="ouvrirModuleCommission(\''+f+'\',\''+c.id+'\')" onmousedown="this.style.transform=\'scale(0.96)\'" onmouseup="this.style.transform=\'\'" onmouseleave="this.style.transform=\'\'"><div style="font-size:18px">'+(FEATURES_DISPONIBLES.find(function(x){return x.id===f;})||{}).ico+'</div><div style="font-size:12px;font-weight:700">'+getFeatureLabel(f)+badge(f)+'</div></div>';
+    }).join('');
+  }
+  var bud=document.getElementById('dyn-comm-budget'); if(bud)bud.innerHTML='<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between"><span>Budget alloué</span><b>'+(compta.budget||0)+' €</b></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Recettes</span><b style="color:var(--grn)">'+(compta.recettes||0)+' €</b></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Dépenses</span><b style="color:var(--r)">'+(compta.depenses||0)+' €</b></div><div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--color-border-secondary)"><span>Solde</span><b>'+solde+' €</b></div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">Synchronisé avec le tableau comptable.</div></div>';
+  var team=document.getElementById('dyn-comm-team'); if(team)team.innerHTML='<div class="card"><div style="font-size:12px;font-weight:700;margin-bottom:6px">Responsables</div><div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">'+((c.resps&&c.resps.length)?c.resps.join(' · '):'À désigner')+'</div><div style="font-size:12px;font-weight:700;margin-bottom:6px">Membres bureau rattachés</div><div style="font-size:12px;color:var(--color-text-secondary)">'+((c.membresBureau&&c.membresBureau.length)?c.membresBureau.join(' · '):'Aucun membre rattaché')+'</div>'+(c._membresComm.length?'<div style="font-size:12px;font-weight:700;margin-bottom:6px;margin-top:10px">Membres inscrits</div><div style="font-size:12px;color:var(--color-text-secondary)">'+c._membresComm.join(' · ')+'</div>':'')+'</div>';
+}
+
+function ouvrirModuleCommission(moduleId, commId){
+  var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId&&!x.supprimee;});
+  if(!c) return;
+  if(!c._docs) c._docs=[];
+  if(!c._notifs) c._notifs=[];
+  if(!c._membresComm) c._membresComm=[];
+  if(moduleId==='documents') ouvrirModuleDocuments(c);
+  else if(moduleId==='notifications') ouvrirModuleNotifications(c);
+  else if(moduleId==='compta') ouvrirModuleCompta(c);
+  else if(moduleId==='membres') ouvrirModuleMembres(c);
+  else showToast('Module '+getFeatureLabel(moduleId)+' — bientôt disponible');
+}
+
+function ouvrirModuleDocuments(c){
+  var modal=document.getElementById('modal-module-comm');
+  if(!modal){
+    modal=document.createElement('div'); modal.id='modal-module-comm'; modal.className='mow';
+    modal.innerHTML='<div class="mbox" style="max-width:440px;max-height:85vh;overflow-y:auto"><div class="mh2"></div><div class="mtt" id="mod-comm-title"></div><div id="mod-comm-body"></div><button class="mc-c" style="width:100%;margin-top:12px" onclick="document.getElementById(\'modal-module-comm\').classList.remove(\'open\')">Fermer</button></div>';
+    document.body.appendChild(modal);
+  }
+  document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-file-text" style="color:var(--blu);margin-right:6px"></i>Documents — '+c.nom;
+  var body=document.getElementById('mod-comm-body');
+  var docs=c._docs;
+  var html='<div style="margin-bottom:12px"><textarea id="mod-doc-texte" rows="3" placeholder="Ajouter une note ou un document..." style="width:100%;border:1px solid var(--color-border-secondary);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font-sans);resize:vertical"></textarea><button class="chip" style="margin-top:6px;background:var(--blu);color:#fff" onclick="ajouterDocCommission(\''+c.id+'\')"><i class="ti ti-plus" style="margin-right:4px"></i>Ajouter</button></div>';
+  if(docs.length){
+    html+='<div class="sec" style="margin-top:8px">Documents ajoutés ('+docs.length+')</div>';
+    docs.slice().reverse().forEach(function(d,i){
+      var idx=docs.length-1-i;
+      html+='<div class="card" style="display:flex;align-items:flex-start;gap:10px;margin-bottom:6px;padding:10px"><i class="ti ti-file-description" style="font-size:18px;color:var(--blu);margin-top:2px;flex-shrink:0"></i><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700">'+d.titre+'</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px;white-space:pre-wrap;word-break:break-word">'+d.contenu.replace(/</g,'&lt;')+'</div><div style="font-size:10px;color:var(--color-text-secondary);margin-top:4px">'+d.date+'</div></div><button style="background:none;border:none;cursor:pointer;color:var(--r);padding:2px" onclick="supprimerDocCommission(\''+c.id+'\','+idx+')"><i class="ti ti-trash" style="font-size:16px"></i></button></div>';
+    });
+  } else {
+    html+='<div style="text-align:center;padding:20px;color:var(--color-text-secondary);font-size:13px"><i class="ti ti-folder-off" style="font-size:28px;display:block;margin-bottom:6px"></i>Aucun document pour le moment</div>';
+  }
+  body.innerHTML=html;
+  modal.classList.add('open');
+}
+
+function ajouterDocCommission(commId){
+  var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId;});
+  if(!c) return;
+  var texte=(document.getElementById('mod-doc-texte')||{}).value||'';
+  if(!texte.trim()){showToast('Veuillez saisir un texte');return;}
+  if(!c._docs) c._docs=[];
+  var now=new Date();
+  var dateStr=now.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  c._docs.push({titre:'Note du '+now.toLocaleDateString('fr-FR'),contenu:texte.trim(),date:dateStr});
+  showToast('Document ajouté');
+  ouvrirModuleDocuments(c);
+  if(commissionActiveDynamique&&commissionActiveDynamique.id===commId) renderCommissionDynamiqueBureau(c);
+}
+
+function supprimerDocCommission(commId,idx){
+  var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId;});
+  if(!c||!c._docs||!c._docs[idx]) return;
+  c._docs.splice(idx,1);
+  showToast('Document supprimé');
+  ouvrirModuleDocuments(c);
+  if(commissionActiveDynamique&&commissionActiveDynamique.id===commId) renderCommissionDynamiqueBureau(c);
+}
+
+function ouvrirModuleNotifications(c){
+  var modal=document.getElementById('modal-module-comm');
+  if(!modal) return ouvrirModuleDocuments(c);
+  document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-bell" style="color:var(--amb);margin-right:6px"></i>Notifications — '+c.nom;
+  var body=document.getElementById('mod-comm-body');
+  var html='<div style="margin-bottom:12px"><input id="mod-notif-titre" placeholder="Objet de la notification" style="width:100%;border:1px solid var(--color-border-secondary);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font-sans);margin-bottom:6px"><textarea id="mod-notif-msg" rows="3" placeholder="Message à envoyer aux membres..." style="width:100%;border:1px solid var(--color-border-secondary);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font-sans);resize:vertical"></textarea><button class="chip" style="margin-top:6px;background:var(--amb);color:#fff" onclick="envoyerNotifCommission(\''+c.id+'\')"><i class="ti ti-send" style="margin-right:4px"></i>Envoyer</button></div>';
+  if(c._notifs.length){
+    html+='<div class="sec">Historique ('+c._notifs.length+')</div>';
+    c._notifs.slice().reverse().forEach(function(n){
+      html+='<div class="card" style="margin-bottom:6px;padding:10px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><i class="ti ti-bell-ringing" style="font-size:14px;color:var(--amb)"></i><span style="font-size:12px;font-weight:700">'+n.titre.replace(/</g,'&lt;')+'</span></div><div style="font-size:12px;color:var(--color-text-secondary)">'+n.message.replace(/</g,'&lt;')+'</div><div style="font-size:10px;color:var(--color-text-secondary);margin-top:4px">'+n.date+'</div></div>';
+    });
+  } else {
+    html+='<div style="text-align:center;padding:20px;color:var(--color-text-secondary);font-size:13px"><i class="ti ti-bell-off" style="font-size:28px;display:block;margin-bottom:6px"></i>Aucune notification envoyée</div>';
+  }
+  body.innerHTML=html;
+  modal.classList.add('open');
+}
+
+function envoyerNotifCommission(commId){
+  var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId;});
+  if(!c) return;
+  var titre=(document.getElementById('mod-notif-titre')||{}).value||'';
+  var msg=(document.getElementById('mod-notif-msg')||{}).value||'';
+  if(!titre.trim()&&!msg.trim()){showToast('Veuillez saisir un objet ou un message');return;}
+  if(!c._notifs) c._notifs=[];
+  var now=new Date();
+  c._notifs.push({titre:titre.trim()||'Notification',message:msg.trim(),date:now.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})});
+  showToast('Notification envoyée aux membres');
+  ouvrirModuleNotifications(c);
+  if(commissionActiveDynamique&&commissionActiveDynamique.id===commId) renderCommissionDynamiqueBureau(c);
+}
+
+function ouvrirModuleCompta(c){
+  var modal=document.getElementById('modal-module-comm');
+  if(!modal) return ouvrirModuleDocuments(c);
+  var compta=getBudgetCommission(c.id)||{budget:0,recettes:0,depenses:0};
+  document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-report-money" style="color:var(--grn);margin-right:6px"></i>Comptabilité — '+c.nom;
+  var body=document.getElementById('mod-comm-body');
+  var html='<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between"><span>Budget alloué</span><b>'+(compta.budget||0)+' €</b></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Recettes</span><b style="color:var(--grn)">'+(compta.recettes||0)+' €</b></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Dépenses</span><b style="color:var(--r)">'+(compta.depenses||0)+' €</b></div><div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--color-border-secondary)"><span>Solde</span><b>'+((compta.recettes||0)-(compta.depenses||0))+' €</b></div></div>';
+  html+='<div class="sec">Ajouter une opération</div>';
+  html+='<div style="display:flex;gap:6px;margin-bottom:8px"><button id="mod-compta-type-rec" class="chip" style="background:var(--grl);color:var(--grn);border:2px solid var(--grn)" onclick="document.getElementById(\'mod-compta-type-rec\').style.border=\'2px solid var(--grn)\';document.getElementById(\'mod-compta-type-dep\').style.border=\'2px solid transparent\'">Recette</button><button id="mod-compta-type-dep" class="chip" style="background:var(--rl);color:var(--r);border:2px solid transparent" onclick="document.getElementById(\'mod-compta-type-dep\').style.border=\'2px solid var(--r)\';document.getElementById(\'mod-compta-type-rec\').style.border=\'2px solid transparent\'">Dépense</button></div>';
+  html+='<input id="mod-compta-libelle" placeholder="Libellé (ex: Achat matériel)" style="width:100%;border:1px solid var(--color-border-secondary);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font-sans);margin-bottom:6px">';
+  html+='<input id="mod-compta-montant" type="number" placeholder="Montant en €" style="width:100%;border:1px solid var(--color-border-secondary);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font-sans);margin-bottom:6px">';
+  html+='<button class="chip" style="background:var(--grn);color:#fff" onclick="ajouterOperationCompta(\''+c.id+'\')"><i class="ti ti-plus" style="margin-right:4px"></i>Enregistrer</button>';
+  body.innerHTML=html;
+  modal.classList.add('open');
+}
+
+function ajouterOperationCompta(commId){
+  var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId;});
+  if(!c) return;
+  var compta=getBudgetCommission(c.id);
+  if(!compta){compta={id:commId,nom:c.nom,ico:c.ico||'ti-users-group',col:c.col||'var(--blu)',budget:0,recettes:0,depenses:0};COMMISSIONS_COMPTA.push(compta);}
+  var isRecette=document.getElementById('mod-compta-type-rec').style.border.indexOf('var(--grn)')>=0;
+  var libelle=(document.getElementById('mod-compta-libelle')||{}).value||'';
+  var montant=Number((document.getElementById('mod-compta-montant')||{}).value)||0;
+  if(!montant){showToast('Veuillez saisir un montant');return;}
+  if(isRecette) compta.recettes=(compta.recettes||0)+montant;
+  else compta.depenses=(compta.depenses||0)+montant;
+  showToast((isRecette?'Recette':'Dépense')+' de '+montant+' € enregistrée');
+  ouvrirModuleCompta(c);
+  if(commissionActiveDynamique&&commissionActiveDynamique.id===commId) renderCommissionDynamiqueBureau(c);
+}
+
+function ouvrirModuleMembres(c){
+  var modal=document.getElementById('modal-module-comm');
+  if(!modal) return ouvrirModuleDocuments(c);
+  document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-users" style="color:var(--pur);margin-right:6px"></i>Membres — '+c.nom;
+  var body=document.getElementById('mod-comm-body');
+  var allMembres=Array.isArray(MEMBRES_DATA)?MEMBRES_DATA:[];
+  var html='<div class="sec">Ajouter un membre</div>';
+  html+='<div style="display:flex;gap:6px;margin-bottom:12px"><select id="mod-membres-select" style="flex:1;border:1px solid var(--color-border-secondary);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font-sans)">';
+  html+='<option value="">Choisir un membre...</option>';
+  allMembres.forEach(function(m){
+    var nom=(m.p||'')+' '+(m.n||'');
+    if(c._membresComm.indexOf(nom.trim())<0) html+='<option value="'+nom.trim().replace(/"/g,'&quot;')+'">'+nom.trim()+'</option>';
+  });
+  html+='</select><button class="chip" style="background:var(--pur);color:#fff;white-space:nowrap" onclick="ajouterMembreCommission(\''+c.id+'\')"><i class="ti ti-user-plus" style="margin-right:4px"></i>Ajouter</button></div>';
+  if(c._membresComm.length){
+    html+='<div class="sec">Membres inscrits ('+c._membresComm.length+')</div>';
+    c._membresComm.forEach(function(nom,i){
+      html+='<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;padding:10px"><div style="width:36px;height:36px;border-radius:50%;background:var(--pul);display:flex;align-items:center;justify-content:center"><i class="ti ti-user" style="font-size:16px;color:var(--pur)"></i></div><div style="flex:1;font-size:13px;font-weight:600">'+nom+'</div><button style="background:none;border:none;cursor:pointer;color:var(--r);padding:2px" onclick="retirerMembreCommission(\''+c.id+'\','+i+')"><i class="ti ti-user-minus" style="font-size:16px"></i></button></div>';
+    });
+  } else {
+    html+='<div style="text-align:center;padding:20px;color:var(--color-text-secondary);font-size:13px"><i class="ti ti-users-group" style="font-size:28px;display:block;margin-bottom:6px"></i>Aucun membre inscrit</div>';
+  }
+  body.innerHTML=html;
+  modal.classList.add('open');
+}
+
+function ajouterMembreCommission(commId){
+  var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId;});
+  if(!c) return;
+  var sel=document.getElementById('mod-membres-select');
+  if(!sel||!sel.value){showToast('Veuillez sélectionner un membre');return;}
+  if(!c._membresComm) c._membresComm=[];
+  c._membresComm.push(sel.value);
+  showToast(sel.value+' ajouté(e) à la commission');
+  ouvrirModuleMembres(c);
+  if(commissionActiveDynamique&&commissionActiveDynamique.id===commId) renderCommissionDynamiqueBureau(c);
+}
+
+function retirerMembreCommission(commId,idx){
+  var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId;});
+  if(!c||!c._membresComm) return;
+  var nom=c._membresComm[idx];
+  c._membresComm.splice(idx,1);
+  showToast(nom+' retiré(e)');
+  ouvrirModuleMembres(c);
+  if(commissionActiveDynamique&&commissionActiveDynamique.id===commId) renderCommissionDynamiqueBureau(c);
+}
+
+function voirDocsAmicaliste(commId){
+  var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId&&!x.supprimee;});
+  if(!c) return;
+  if(!c._docs) c._docs=[];
+  var modal=document.getElementById('modal-module-comm');
+  if(!modal){
+    modal=document.createElement('div'); modal.id='modal-module-comm'; modal.className='mow';
+    modal.innerHTML='<div class="mbox" style="max-width:440px;max-height:85vh;overflow-y:auto"><div class="mh2"></div><div class="mtt" id="mod-comm-title"></div><div id="mod-comm-body"></div><button class="mc-c" style="width:100%;margin-top:12px" onclick="document.getElementById(\'modal-module-comm\').classList.remove(\'open\')">Fermer</button></div>';
+    document.body.appendChild(modal);
+  }
+  document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-file-text" style="color:var(--blu);margin-right:6px"></i>Documents — '+c.nom;
+  var body=document.getElementById('mod-comm-body');
+  var html='';
+  if(c._docs.length){
+    html+='<div class="sec">Documents partagés ('+c._docs.length+')</div>';
+    c._docs.slice().reverse().forEach(function(d){
+      html+='<div class="card" style="display:flex;align-items:flex-start;gap:10px;margin-bottom:6px;padding:10px"><i class="ti ti-file-description" style="font-size:18px;color:var(--blu);margin-top:2px;flex-shrink:0"></i><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700">'+d.titre+'</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px;white-space:pre-wrap;word-break:break-word">'+d.contenu.replace(/</g,'&lt;')+'</div><div style="font-size:10px;color:var(--color-text-secondary);margin-top:4px">'+d.date+'</div></div></div>';
+    });
+  } else {
+    html+='<div style="text-align:center;padding:20px;color:var(--color-text-secondary);font-size:13px"><i class="ti ti-folder-off" style="font-size:28px;display:block;margin-bottom:6px"></i>Aucun document partagé pour le moment</div>';
+  }
+  body.innerHTML=html;
+  modal.classList.add('open');
+}
+
+function voirMembresAmicaliste(commId){
+  var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId&&!x.supprimee;});
+  if(!c) return;
+  if(!c._membresComm) c._membresComm=[];
+  var modal=document.getElementById('modal-module-comm');
+  if(!modal) return voirDocsAmicaliste(commId);
+  document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-users" style="color:var(--pur);margin-right:6px"></i>Membres — '+c.nom;
+  var body=document.getElementById('mod-comm-body');
+  var html='';
+  if(c._membresComm.length){
+    html+='<div class="sec">Membres de la commission ('+c._membresComm.length+')</div>';
+    c._membresComm.forEach(function(nom){
+      html+='<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;padding:10px"><div style="width:36px;height:36px;border-radius:50%;background:var(--pul);display:flex;align-items:center;justify-content:center"><i class="ti ti-user" style="font-size:16px;color:var(--pur)"></i></div><div style="flex:1;font-size:13px;font-weight:600">'+nom+'</div></div>';
+    });
+  } else {
+    html+='<div style="text-align:center;padding:20px;color:var(--color-text-secondary);font-size:13px"><i class="ti ti-users-group" style="font-size:28px;display:block;margin-bottom:6px"></i>Aucun membre inscrit pour le moment</div>';
+  }
+  html+='<div style="margin-top:8px;font-size:12px;color:var(--color-text-secondary)">Responsable(s) : '+((c.resps&&c.resps.length)?c.resps.join(', '):'À désigner')+'</div>';
+  body.innerHTML=html;
+  modal.classList.add('open');
 }
 
 function ouvrirCommissionCustom(id){ouvrirCommissionDynamiqueBureau(id);}
@@ -19594,7 +19826,7 @@ function ouvrirFicheVoyage(voyKey){
     if(typeof window.goPage==='function')window.goPage('pg-commission-dynamique-bureau');
   };
 
-  function actionLine(icon,title,txt){return `<div class="card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><div style="width:40px;height:40px;border-radius:12px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center"><i class="ti ${icon}" style="font-size:20px;color:var(--blu)"></i></div><div><div style="font-size:13px;font-weight:800;color:var(--color-text-primary)">${title}</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">${txt}</div></div></div>`;}
+  function actionLine(icon,title,txt,onclick){return `<div class="card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;cursor:pointer;transition:transform .12s" ${onclick?'onclick="'+onclick+'"':''} onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform=''" onmouseleave="this.style.transform=''"><div style="width:40px;height:40px;border-radius:12px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center"><i class="ti ${icon}" style="font-size:20px;color:var(--blu)"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:800;color:var(--color-text-primary)">${title}</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">${txt}</div></div><i class="ti ti-chevron-right" style="font-size:16px;color:var(--color-text-secondary)"></i></div>`;}
   window.ouvrirCommissionRobusteAmical=function(id){
     load(); ensureAmicalPage();
     const c=getCommissions().find(x=>x&&x.id===id&&!x.supprimee&&x.visible!==false);
@@ -19605,12 +19837,13 @@ function ouvrirFicheVoyage(voyKey){
     const sum=document.getElementById('dyn-amical-summary'); if(sum)sum.innerHTML=`<div class="card" style="display:flex;gap:12px;align-items:center;margin-bottom:14px"><div style="width:50px;height:50px;border-radius:16px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center"><i class="ti ${esc(c.ico||'ti-users-group')}" style="font-size:25px;color:${esc(c.col||'var(--blu)')}"></i></div><div style="flex:1"><div style="font-size:15px;font-weight:800;color:var(--color-text-primary)">${esc(c.nom)}</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:3px">Responsable : ${esc(libResps(c))}</div></div></div>`;
     const actions=document.getElementById('dyn-amical-actions');
     if(actions){
-      const f=features(c); let html='';
-      if(f.includes('evenements'))html+=actionLine('ti-calendar-event','Événements','Consulter les actions et inscriptions de cette commission.');
-      if(f.includes('voyages'))html+=actionLine('ti-plane','Voyages','Voir les sorties proposées par cette commission.');
-      if(f.includes('locations'))html+=actionLine('ti-building','Locations','Accéder aux demandes et informations de location.');
+      const f=features(c); const cid=esc(c.id); let html='';
+      if(f.includes('documents'))html+=actionLine('ti-file-text','Documents','Retrouver les documents partagés.'+(c._docs&&c._docs.length?' ('+c._docs.length+')':''),"voirDocsAmicaliste('"+cid+"')");
+      if(f.includes('evenements'))html+=actionLine('ti-calendar-event','Événements','Consulter les actions et inscriptions.');
+      if(f.includes('voyages'))html+=actionLine('ti-plane','Voyages','Voir les sorties proposées.');
+      if(f.includes('locations'))html+=actionLine('ti-building','Locations','Accéder aux demandes de location.');
       if(f.includes('bons_cadeaux'))html+=actionLine('ti-gift','Bons cadeaux','Consulter les informations et modalités.');
-      if(f.includes('documents'))html+=actionLine('ti-file-text','Documents','Retrouver les documents partagés avec les amicalistes.');
+      if(f.includes('membres'))html+=actionLine('ti-users','Membres','Voir les membres de la commission.'+(c._membresComm&&c._membresComm.length?' ('+c._membresComm.length+')':''),"voirMembresAmicaliste('"+cid+"')");
       if(!html)html=actionLine('ti-info-circle','Informations','Cette commission est visible pour les amicalistes.');
       actions.innerHTML=html;
     }
