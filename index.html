@@ -16161,6 +16161,7 @@ function launchSectorCall(){const id=currentCalendarSector||'B7',d=CALENDAR_SECT
     if(typeof majSoldeBureau==='function') majSoldeBureau();
     if(typeof renderBilanTable==='function') renderBilanTable();
     if(typeof goPage==='function') goPage(BUREAU_HOME_V41);
+    setTimeout(function(){ if(typeof window.ouvrirMissionsDuJour==='function') window.ouvrirMissionsDuJour(profil.role||'pres',false); },400);
   };
 
   const previousGo=window.goPage;
@@ -19712,28 +19713,12 @@ function ouvrirFicheVoyage(voyKey){
   function syncAll(){commissions().forEach(function(c){if(c&&!c.fixe)syncCompta(c);}); if(typeof window.renderBilanTable==='function') safe(window.renderBilanTable);}
 
   function ensureModalFields(){
-    var nom=document.getElementById('comm-nom-inp'); if(!nom) return;
-    var box=nom.closest('.mbox')||nom.parentElement; if(!box) return;
-    if(!document.getElementById('comm-modele-select')){
-      var div=document.createElement('div'); div.className='v62-model-field';
-      div.innerHTML='<label>Modèle de commission</label><select id="comm-modele-select">'+
-        Object.keys(MODELES).map(function(k){return '<option value="'+k+'">'+MODELES[k].label+'</option>';}).join('')+
-        '</select><div style="font-size:10px;color:var(--color-text-secondary);margin-top:6px">La nouvelle commission réutilise une page existante. Les commissions actuelles ne sont pas modifiées.</div>';
-      nom.parentElement.insertAdjacentElement('afterend',div);
-    }
-    if(!document.getElementById('comm-bureau-membres-inp')){
-      var div2=document.createElement('div'); div2.className='v62-model-field';
-      div2.innerHTML='<label>Membres du bureau rattachés</label><input id="comm-bureau-membres-inp" placeholder="Ex : Lucas Bernard, Pierre Leroy"><div style="font-size:10px;color:var(--color-text-secondary);margin-top:6px">Sépare les noms par des virgules.</div>';
-      var budget=document.getElementById('comm-budget-inp'); (budget?budget.parentElement:nom.parentElement).insertAdjacentElement('afterend',div2);
-    }
   }
 
   function setModalFor(id){
     setTimeout(function(){
-      ensureModalFields();
       var c=id?find(id):null;
-      var sel=document.getElementById('comm-modele-select'); if(sel) sel.value=c?modeleKey(c):'simple';
-      var mb=document.getElementById('comm-bureau-membres-inp'); if(mb) mb.value=(c&&Array.isArray(c.membresBureau))?c.membresBureau.join(', '):'';
+      var sel=document.getElementById('comm-modele-inp'); if(sel) sel.value=c?modeleKey(c):'simple';
       if(c){var b=document.getElementById('comm-budget-inp'); if(b) b.value=budgetOf(c)||'';}
     },60);
   }
@@ -19820,9 +19805,8 @@ function ouvrirFicheVoyage(voyKey){
 
   var oldConfirm=window.confirmerCommission;
   if(typeof oldConfirm==='function') window.confirmerCommission=function(){
-    ensureModalFields();
-    var modelKey=(document.getElementById('comm-modele-select')||{}).value||'simple';
-    var membres=(document.getElementById('comm-bureau-membres-inp')||{}).value||'';
+    var modelKey=(document.getElementById('comm-modele-inp')||{}).value||'simple';
+    var membres='';
     var budget=Number((document.getElementById('comm-budget-inp')||{}).value||0);
     var editing=(typeof commissionEnEdition!=='undefined'&&commissionEnEdition)||null;
     var before=commissions().map(function(c){return c.id;});
@@ -20192,7 +20176,12 @@ function ouvrirFicheVoyage(voyKey){
   function isVisibleAmicaliste(c){ return isVisible(c) && c.visibleAmicaliste!==false; }
   function fixedList(){ ensureFixed(); return FIXED.map(function(def){return byId(def.id);}).filter(Boolean); }
   function sortedFixed(){ return fixedList().sort(function(a,b){ var va=isVisible(a)?0:1, vb=isVisible(b)?0:1; if(va!==vb) return va-vb; return String(a.nom||'').localeCompare(String(b.nom||''),'fr'); }); }
-  function sortedAmical(){ return ORDRE_AMICAL.map(function(id){return byId(id);}).filter(function(c){return c && isVisibleAmicaliste(c);}); }
+  function sortedAmical(){
+    var fixed=ORDRE_AMICAL.map(function(id){return byId(id);}).filter(function(c){return c && isVisibleAmicaliste(c);});
+    var fixedIds={}; ORDRE_AMICAL.forEach(function(id){fixedIds[id]=1;});
+    var custom=arrComms().filter(function(c){return c&&!c.supprimee&&!c.fixe&&!fixedIds[c.id]&&isVisibleAmicaliste(c);});
+    return fixed.concat(custom);
+  }
   function allForGestion(){
     ensureFixed();
     var ids={}; FIXED.forEach(function(f){ids[f.id]=1;});
@@ -20228,7 +20217,8 @@ function ouvrirFicheVoyage(voyKey){
   window.renderBureauCommissionsV56=function(){
     ensureFixed();
     var box=document.getElementById('tour-bureau-commissions'); if(!box) return;
-    box.innerHTML=sortedFixed().filter(isVisible).map(function(c){return cardHtml(c,'comm-card',false);}).join('');
+    box.innerHTML=sortedFixed().filter(isVisible).map(function(c){return cardHtml(c,'comm-card',false);}).join('')+'<div id="commissions-custom"></div>';
+    if(typeof window.renderCommissionsCustom==='function') window.renderCommissionsCustom();
   };
 
   window.renderAmicalisteCommissions=function(){
