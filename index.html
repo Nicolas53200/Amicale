@@ -19579,10 +19579,8 @@ function ouvrirFicheVoyage(voyKey){
     return sec;
   }
   function renderAmicalCustom(){
-    normalizeAll();
-    const sec=ensureAmicalSection(); if(!sec)return;
-    const list=getCommissions().filter(c=>c&&!c.fixe&&!c.supprimee&&c.visible!==false);
-    sec.innerHTML=list.length?'<div class="sec">Commissions ouvertes aux amicalistes</div>'+list.map(amicalCard).join(''):'';
+    const sec=document.getElementById('v61-amical-commissions');
+    if(sec) sec.innerHTML='';
   }
 
   function renderAll(){renderBureauCustom(); renderAmicalCustom();}
@@ -19783,19 +19781,8 @@ function ouvrirFicheVoyage(voyKey){
   }
 
   function renderAmical(){
-    var home=document.getElementById('pg-home-amical'); if(!home) return;
-    var list=commissions().filter(function(c){return c&&!c.fixe&&!c.supprimee&&c.visible!==false;});
     var sec=document.getElementById('v62-amical-commissions');
-    if(!list.length){ if(sec) sec.style.display='none'; return; }
-    if(!sec){
-      sec=document.createElement('div'); sec.id='v62-amical-commissions'; sec.style.cssText='padding:8px 14px 20px';
-      var nav=home.querySelector('.bottom-nav'); if(nav) home.insertBefore(sec,nav); else home.appendChild(sec);
-    }
-    sec.style.display='block';
-    sec.innerHTML='<div class="sec">Commissions</div>'+list.map(function(c){var m=modeleOf(c);return '<div class="card v62-comm-card" data-v62-amical="'+esc(c.id)+'" onclick="ouvrirCommissionAmicaleModeleV62(\''+esc(c.id)+'\')">'+
-      '<div style="width:42px;height:42px;border-radius:14px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti '+esc(c.ico||m.ico)+'" style="font-size:21px;color:'+esc(c.col||m.col)+'"></i></div>'+
-      '<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:800;color:var(--color-text-primary)">'+esc(c.nom)+'</div><div style="font-size:11px;color:var(--color-text-secondary)">Commission visible aux amicalistes · '+esc(m.label)+'</div></div>'+
-      '<i class="ti ti-chevron-right" style="color:var(--color-text-secondary)"></i></div>';}).join('');
+    if(sec) sec.style.display='none';
   }
 
   function refresh(){safe(renderCustomBureau); safe(renderAmical); safe(syncAll);}
