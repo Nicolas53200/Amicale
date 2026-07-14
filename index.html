@@ -12077,12 +12077,7 @@ function ouvrirModuleCommission(moduleId, commId){
 }
 
 function ouvrirModuleDocuments(c){
-  var modal=document.getElementById('modal-module-comm');
-  if(!modal){
-    modal=document.createElement('div'); modal.id='modal-module-comm'; modal.className='mow';
-    modal.innerHTML='<div class="mbox" style="max-width:440px;max-height:85vh;overflow-y:auto"><div class="mh2"></div><div class="mtt" id="mod-comm-title"></div><div id="mod-comm-body"></div><button class="mc-c" style="width:100%;margin-top:12px" onclick="document.getElementById(\'modal-module-comm\').classList.remove(\'open\')">Fermer</button></div>';
-    document.body.appendChild(modal);
-  }
+  var modal=ensureModuleModal();
   document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-file-text" style="color:var(--blu);margin-right:6px"></i>Documents — '+c.nom;
   var body=document.getElementById('mod-comm-body');
   var docs=c._docs;
@@ -12124,8 +12119,7 @@ function supprimerDocCommission(commId,idx){
 }
 
 function ouvrirModuleNotifications(c){
-  var modal=document.getElementById('modal-module-comm');
-  if(!modal) return ouvrirModuleDocuments(c);
+  var modal=ensureModuleModal();
   document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-bell" style="color:var(--amb);margin-right:6px"></i>Notifications — '+c.nom;
   var body=document.getElementById('mod-comm-body');
   var html='<div style="margin-bottom:12px"><input id="mod-notif-titre" placeholder="Objet de la notification" style="width:100%;border:1px solid var(--color-border-secondary);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font-sans);margin-bottom:6px"><textarea id="mod-notif-msg" rows="3" placeholder="Message à envoyer aux membres..." style="width:100%;border:1px solid var(--color-border-secondary);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font-sans);resize:vertical"></textarea><button class="chip" style="margin-top:6px;background:var(--amb);color:#fff" onclick="envoyerNotifCommission(\''+c.id+'\')"><i class="ti ti-send" style="margin-right:4px"></i>Envoyer</button></div>';
@@ -12155,20 +12149,91 @@ function envoyerNotifCommission(commId){
   if(commissionActiveDynamique&&commissionActiveDynamique.id===commId) renderCommissionDynamiqueBureau(c);
 }
 
-function ouvrirModuleCompta(c){
+function ensureModuleModal(){
   var modal=document.getElementById('modal-module-comm');
-  if(!modal) return ouvrirModuleDocuments(c);
+  if(!modal){
+    modal=document.createElement('div'); modal.id='modal-module-comm'; modal.className='mow';
+    modal.innerHTML='<div class="mbox" style="max-width:440px;max-height:85vh;overflow-y:auto"><div class="mh2"></div><div class="mtt" id="mod-comm-title"></div><div id="mod-comm-body"></div><button class="mc-c" style="width:100%;margin-top:12px" onclick="document.getElementById(\'modal-module-comm\').classList.remove(\'open\')">Fermer</button></div>';
+    document.body.appendChild(modal);
+  }
+  return modal;
+}
+
+function ouvrirModuleCompta(c){
+  var modal=ensureModuleModal();
   var compta=getBudgetCommission(c.id)||{budget:0,recettes:0,depenses:0};
+  var solde=(compta.recettes||0)-(compta.depenses||0);
+  var pctBudget=compta.budget>0?Math.min(100,Math.round(((compta.depenses||0)/compta.budget)*100)):0;
+  var barColor=pctBudget>90?'var(--r)':pctBudget>70?'var(--amb)':'var(--grn)';
   document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-report-money" style="color:var(--grn);margin-right:6px"></i>Comptabilité — '+c.nom;
   var body=document.getElementById('mod-comm-body');
-  var html='<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between"><span>Budget alloué</span><b>'+(compta.budget||0)+' €</b></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Recettes</span><b style="color:var(--grn)">'+(compta.recettes||0)+' €</b></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Dépenses</span><b style="color:var(--r)">'+(compta.depenses||0)+' €</b></div><div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--color-border-secondary)"><span>Solde</span><b>'+((compta.recettes||0)-(compta.depenses||0))+' €</b></div></div>';
-  html+='<div class="sec">Ajouter une opération</div>';
-  html+='<div style="display:flex;gap:6px;margin-bottom:8px"><button id="mod-compta-type-rec" class="chip" style="background:var(--grl);color:var(--grn);border:2px solid var(--grn)" onclick="document.getElementById(\'mod-compta-type-rec\').style.border=\'2px solid var(--grn)\';document.getElementById(\'mod-compta-type-dep\').style.border=\'2px solid transparent\'">Recette</button><button id="mod-compta-type-dep" class="chip" style="background:var(--rl);color:var(--r);border:2px solid transparent" onclick="document.getElementById(\'mod-compta-type-dep\').style.border=\'2px solid var(--r)\';document.getElementById(\'mod-compta-type-rec\').style.border=\'2px solid transparent\'">Dépense</button></div>';
-  html+='<input id="mod-compta-libelle" placeholder="Libellé (ex: Achat matériel)" style="width:100%;border:1px solid var(--color-border-secondary);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font-sans);margin-bottom:6px">';
-  html+='<input id="mod-compta-montant" type="number" placeholder="Montant en €" style="width:100%;border:1px solid var(--color-border-secondary);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font-sans);margin-bottom:6px">';
-  html+='<button class="chip" style="background:var(--grn);color:#fff" onclick="ajouterOperationCompta(\''+c.id+'\')"><i class="ti ti-plus" style="margin-right:4px"></i>Enregistrer</button>';
+  var commDocs=DOCS_COMPTA.filter(function(d){return d.comm===c.nom;});
+  var nbAtt=commDocs.filter(function(d){return d.st==='attente';}).length;
+  var nbPaye=commDocs.filter(function(d){return d.st==='paye';}).length;
+  var nbRec=commDocs.filter(function(d){return d.st==='recette';}).length;
+
+  var html='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">';
+  html+='<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--color-text-primary)">'+(compta.budget||0)+'</div><div class="ssub">Budget €</div></div>';
+  html+='<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--grn)">'+(compta.recettes||0)+'</div><div class="ssub">Recettes €</div></div>';
+  html+='<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--r)">'+(compta.depenses||0)+'</div><div class="ssub">Dépenses €</div></div>';
+  html+='<div class="sc" style="text-align:center"><div style="font-size:18px;font-weight:700;color:'+(solde>=0?'var(--grn)':'var(--r)')+'">'+solde+'</div><div class="ssub">Solde €</div></div>';
+  html+='</div>';
+
+  if(compta.budget>0){
+    html+='<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-secondary);margin-bottom:4px"><span>Consommation budget</span><span>'+pctBudget+' %</span></div><div style="height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pctBudget+'%;background:'+barColor+';border-radius:3px;transition:width .3s"></div></div></div>';
+  }
+
+  html+='<div class="sec">Envoyer au comptable</div>';
+  html+='<div class="card" style="margin-bottom:12px">';
+  html+='<div id="mc-type-toggle" style="display:flex;gap:4px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none">';
+  html+='<button class="fp on" style="font-size:11px" onclick="document.querySelectorAll(\'#mc-type-toggle .fp\').forEach(function(b){b.classList.remove(\'on\')});this.classList.add(\'on\')">Facture</button>';
+  html+='<button class="fp" style="font-size:11px" onclick="document.querySelectorAll(\'#mc-type-toggle .fp\').forEach(function(b){b.classList.remove(\'on\')});this.classList.add(\'on\')">Recette</button>';
+  html+='<button class="fp" style="font-size:11px" onclick="document.querySelectorAll(\'#mc-type-toggle .fp\').forEach(function(b){b.classList.remove(\'on\')});this.classList.add(\'on\')">Caution</button>';
+  html+='</div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">';
+  html+='<div><label style="font-size:11px;font-weight:600;color:var(--color-text-secondary);display:block;margin-bottom:3px">Libellé</label><input id="mod-compta-libelle" class="ri" placeholder="ex: Achat matériel" style="width:100%"></div>';
+  html+='<div><label style="font-size:11px;font-weight:600;color:var(--color-text-secondary);display:block;margin-bottom:3px">Montant (€)</label><input id="mod-compta-montant" class="ri" type="number" placeholder="0" style="width:100%"></div>';
+  html+='</div>';
+  html+='<div id="mc-upload-zone" class="upload-zone" style="margin-bottom:8px;cursor:pointer" onclick="document.getElementById(\'mc-file-input\').click()"><i class="ti ti-cloud-upload"></i><div class="uz-t">Joindre le document</div><div class="uz-s">PDF, scan · max 10 Mo</div></div>';
+  html+='<input type="file" id="mc-file-input" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="moduleComptaUpload(this)">';
+  html+='<button class="btn-r" style="margin-bottom:0" onclick="ajouterOperationCompta(\''+c.id+'\')"><i class="ti ti-send" style="margin-right:4px"></i>Envoyer au comptable</button>';
+  html+='</div>';
+
+  if(commDocs.length){
+    html+='<div class="sec">Historique ('+commDocs.length+')</div>';
+    html+='<div class="rapport-card">';
+    html+='<div class="rapport-hd">Opérations — '+c.nom+'</div>';
+    commDocs.forEach(function(d,i){
+      var badge=d.st==='attente'?'<span class="badge badge-att">À payer</span>':d.st==='paye'?'<span class="badge badge-ok">Payé</span>':'<span class="badge" style="background:var(--grl);color:var(--grn)">Recette</span>';
+      var borderStyle=i===commDocs.length-1?'border:none':'';
+      html+='<div class="rapport-row" style="'+borderStyle+'">';
+      html+='<div class="rr-lbl"><strong>'+d.type+'</strong> — '+(d.lib||'').replace(/</g,'&lt;')+'<br><span style="font-size:10px;color:var(--color-text-secondary)">'+d.date+(d.fichier?' · <i class="ti ti-paperclip" style="font-size:10px"></i> '+d.fichier:'')+'</span></div>';
+      html+='<div class="rr-val" style="display:flex;align-items:center;gap:6px"><b>'+(d.mt||0)+' €</b>'+badge+'</div>';
+      html+='</div>';
+    });
+    html+='</div>';
+  } else {
+    html+='<div style="text-align:center;padding:20px;color:var(--color-text-secondary);font-size:13px"><i class="ti ti-file-invoice" style="font-size:28px;display:block;margin-bottom:6px"></i>Aucune opération enregistrée<br><span style="font-size:11px">Les documents envoyés apparaîtront dans la comptabilité globale du trésorier.</span></div>';
+  }
+
+  html+='<div style="display:flex;gap:6px;margin-top:12px">';
+  html+='<button class="export-btn" style="flex:1;background:var(--blu)" onclick="showToast(\'Export PDF en cours...\')"><i class="ti ti-file-type-pdf"></i>Export PDF</button>';
+  html+='<button class="export-btn" style="flex:1;background:var(--grn)" onclick="showToast(\'Export Excel en cours...\')"><i class="ti ti-file-spreadsheet"></i>Export Excel</button>';
+  html+='</div>';
+
   body.innerHTML=html;
   modal.classList.add('open');
+}
+
+var _mcUploadedFile=null;
+function moduleComptaUpload(input){
+  var file=input.files&&input.files[0];
+  if(!file) return;
+  _mcUploadedFile=file.name;
+  var zone=document.getElementById('mc-upload-zone');
+  if(zone) zone.innerHTML='<i class="ti ti-circle-check" style="color:var(--grn)"></i><div class="uz-t" style="color:var(--grn)">'+file.name+'</div><div class="uz-s">Pièce jointe prête à être envoyée</div>';
+  input.value='';
+  showToast('Document joint : '+file.name);
 }
 
 function ajouterOperationCompta(commId){
@@ -12176,20 +12241,26 @@ function ajouterOperationCompta(commId){
   if(!c) return;
   var compta=getBudgetCommission(c.id);
   if(!compta){compta={id:commId,nom:c.nom,ico:c.ico||'ti-users-group',col:c.col||'var(--blu)',budget:0,recettes:0,depenses:0};COMMISSIONS_COMPTA.push(compta);}
-  var isRecette=document.getElementById('mod-compta-type-rec').style.border.indexOf('var(--grn)')>=0;
+  var typeBtn=document.querySelector('#mc-type-toggle .fp.on');
+  var type=typeBtn?typeBtn.textContent.trim():'Facture';
   var libelle=(document.getElementById('mod-compta-libelle')||{}).value||'';
   var montant=Number((document.getElementById('mod-compta-montant')||{}).value)||0;
-  if(!montant){showToast('Veuillez saisir un montant');return;}
+  if(!libelle.trim()){showToast('Merci de saisir un libellé');return;}
+  if(!montant||montant<=0){showToast('Merci de saisir un montant valide');return;}
+  var isRecette=(type==='Recette');
+  var docType=type==='Caution'?'Facture':type;
+  DOCS_COMPTA.unshift({id:'dc'+Date.now(),comm:c.nom,type:docType,lib:type+' — '+libelle.trim(),prestataire:isRecette?null:libelle.trim(),mt:montant,date:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}),fichier:_mcUploadedFile||null,st:isRecette?'recette':'attente',payMode:null,payDate:null});
   if(isRecette) compta.recettes=(compta.recettes||0)+montant;
   else compta.depenses=(compta.depenses||0)+montant;
-  showToast((isRecette?'Recette':'Dépense')+' de '+montant+' € enregistrée');
+  _mcUploadedFile=null;
+  showToast(type+' de '+montant+' € envoyée au comptable');
   ouvrirModuleCompta(c);
   if(commissionActiveDynamique&&commissionActiveDynamique.id===commId) renderCommissionDynamiqueBureau(c);
+  if(typeof renderDocsCompta==='function') try{renderDocsCompta('all');}catch(e){}
 }
 
 function ouvrirModuleMembres(c){
-  var modal=document.getElementById('modal-module-comm');
-  if(!modal) return ouvrirModuleDocuments(c);
+  var modal=ensureModuleModal();
   document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-users" style="color:var(--pur);margin-right:6px"></i>Membres — '+c.nom;
   var body=document.getElementById('mod-comm-body');
   var allMembres=Array.isArray(MEMBRES_DATA)?MEMBRES_DATA:[];
@@ -12239,12 +12310,7 @@ function voirDocsAmicaliste(commId){
   var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId&&!x.supprimee;});
   if(!c) return;
   if(!c._docs) c._docs=[];
-  var modal=document.getElementById('modal-module-comm');
-  if(!modal){
-    modal=document.createElement('div'); modal.id='modal-module-comm'; modal.className='mow';
-    modal.innerHTML='<div class="mbox" style="max-width:440px;max-height:85vh;overflow-y:auto"><div class="mh2"></div><div class="mtt" id="mod-comm-title"></div><div id="mod-comm-body"></div><button class="mc-c" style="width:100%;margin-top:12px" onclick="document.getElementById(\'modal-module-comm\').classList.remove(\'open\')">Fermer</button></div>';
-    document.body.appendChild(modal);
-  }
+  var modal=ensureModuleModal();
   document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-file-text" style="color:var(--blu);margin-right:6px"></i>Documents — '+c.nom;
   var body=document.getElementById('mod-comm-body');
   var html='';
@@ -12264,8 +12330,7 @@ function voirMembresAmicaliste(commId){
   var c=COMMISSIONS_GEREES.find(function(x){return x.id===commId&&!x.supprimee;});
   if(!c) return;
   if(!c._membresComm) c._membresComm=[];
-  var modal=document.getElementById('modal-module-comm');
-  if(!modal) return voirDocsAmicaliste(commId);
+  var modal=ensureModuleModal();
   document.getElementById('mod-comm-title').innerHTML='<i class="ti ti-users" style="color:var(--pur);margin-right:6px"></i>Membres — '+c.nom;
   var body=document.getElementById('mod-comm-body');
   var html='';
