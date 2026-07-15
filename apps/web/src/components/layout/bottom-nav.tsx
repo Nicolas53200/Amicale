@@ -61,7 +61,7 @@ export function BottomNav({ role }: { role: "bureau" | "amicaliste" }) {
   const items = role === "bureau" ? bureauNav : amicalisteNav;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-surface-elevated/95 backdrop-blur-md md:hidden pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface-elevated/92 backdrop-blur-xl md:hidden pb-[env(safe-area-inset-bottom)]" style={{ borderTop: '0.5px solid rgba(0,0,0,0.08)' }}>
       <div className="flex items-center justify-around">
         {items.map((item) => {
           const active = pathname.startsWith(item.href);
@@ -70,17 +70,14 @@ export function BottomNav({ role }: { role: "bureau" | "amicaliste" }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-col items-center gap-0.5 px-3 py-2 text-[10px] font-medium transition-all duration-200",
+                "relative flex flex-col items-center gap-0.5 px-3 py-2 text-[10px] font-semibold transition-all duration-200",
                 active
                   ? "text-brand-500"
                   : "text-content-muted active:scale-95"
               )}
             >
-              {active && (
-                <span className="absolute -top-px left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-brand-500" />
-              )}
               <NavIcon name={item.icon} active={active} />
-              <span className={cn(active && "font-semibold")}>{item.label}</span>
+              <span>{item.label}</span>
             </Link>
           );
         })}

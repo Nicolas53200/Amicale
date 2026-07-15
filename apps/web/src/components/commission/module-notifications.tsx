@@ -66,7 +66,7 @@ export function ModuleNotifications({
       {!isReadOnly && (
         <form
           onSubmit={handleSend}
-          className="flex flex-col gap-3 rounded-xl border border-border bg-surface-elevated p-4"
+          className="flex flex-col gap-3 rounded-lg bg-surface-elevated p-4 shadow-sm"
         >
           <p className="text-sm font-semibold text-content-primary">
             Envoyer une notification
@@ -100,7 +100,7 @@ export function ModuleNotifications({
           {notifs.map((n) => (
             <div
               key={n.id}
-              className="rounded-lg border border-border bg-surface-elevated px-4 py-3"
+              className="rounded-[14px] bg-surface-secondary px-4 py-3"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-content-primary">

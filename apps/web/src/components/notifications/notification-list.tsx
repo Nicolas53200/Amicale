@@ -120,7 +120,7 @@ export function NotificationList() {
           description="Vos notifications apparaîtront ici"
         />
       ) : (
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border bg-surface-elevated">
+        <div className="flex flex-col divide-y divide-border rounded-lg bg-surface-elevated shadow-sm">
           {notifications.map((n) => (
             <button
               key={n.id}

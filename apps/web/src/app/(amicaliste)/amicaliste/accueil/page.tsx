@@ -36,56 +36,58 @@ export default async function AccueilPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-content-primary">Bienvenue</h1>
-        <p className="text-sm text-content-secondary">
+      <div className="bg-accent-gradient -mx-4 -mt-6 px-4 pb-12 pt-4">
+        <h1 className="text-2xl font-bold text-white">Bienvenue</h1>
+        <p className="text-sm text-white/80">
           Retrouvez ici les dernières actualités de votre amicale
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Prochains événements</CardTitle>
-            <Link href="/amicaliste/evenements" className="text-xs text-brand-500 hover:underline">
-              Voir tout
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {events.length === 0 ? (
-            <EmptyState
-              title="Aucun événement à venir"
-              description="Les prochains événements apparaîtront ici"
-            />
-          ) : (
-            <div className="flex flex-col gap-2">
-              {events.map((ev) => (
-                <EventCard
-                  key={ev.id}
-                  id={ev.id}
-                  title={ev.title}
-                  date={ev.date}
-                  location={ev.location}
-                  price={String(ev.price ?? 0)}
-                  maxAttendees={ev.max_attendees}
-                  registrationCount={
-                    (ev.event_registrations as { count: number }[])?.[0]?.count ?? 0
-                  }
-                />
-              ))}
+      <div className="-mt-10">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Prochains événements</CardTitle>
+              <Link href="/amicaliste/evenements" className="text-xs font-medium text-brand-500 hover:underline">
+                Voir tout
+              </Link>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent>
+            {events.length === 0 ? (
+              <EmptyState
+                title="Aucun événement à venir"
+                description="Les prochains événements apparaîtront ici"
+              />
+            ) : (
+              <div className="flex flex-col gap-2">
+                {events.map((ev) => (
+                  <EventCard
+                    key={ev.id}
+                    id={ev.id}
+                    title={ev.title}
+                    date={ev.date}
+                    location={ev.location}
+                    price={String(ev.price ?? 0)}
+                    maxAttendees={ev.max_attendees}
+                    registrationCount={
+                      (ev.event_registrations as { count: number }[])?.[0]?.count ?? 0
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {trips.length > 0 && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-content-primary">
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
               Voyages à venir
             </h2>
-            <Link href="/amicaliste/voyages" className="text-xs text-brand-500 hover:underline">
+            <Link href="/amicaliste/voyages" className="text-xs font-medium text-brand-500 hover:underline">
               Voir tout
             </Link>
           </div>
@@ -111,10 +113,10 @@ export default async function AccueilPage() {
       {commissions.length > 0 && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-content-primary">
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
               Commissions
             </h2>
-            <Link href="/amicaliste/commissions" className="text-xs text-brand-500 hover:underline">
+            <Link href="/amicaliste/commissions" className="text-xs font-medium text-brand-500 hover:underline">
               Voir tout
             </Link>
           </div>

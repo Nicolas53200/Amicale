@@ -16,15 +16,17 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-surface-elevated p-4",
+        "rounded-lg border border-border bg-surface-elevated p-3",
         className
       )}
     >
       <div className="flex items-center justify-between">
-        <p className="text-sm text-content-muted">{label}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-content-secondary">
+          {label}
+        </p>
         {icon && <span className="text-lg">{icon}</span>}
       </div>
-      <p className="mt-1 text-2xl font-bold tabular-nums text-content-primary">
+      <p className="mt-1 text-xl font-bold tabular-nums text-content-primary">
         {value}
       </p>
       {trend && (

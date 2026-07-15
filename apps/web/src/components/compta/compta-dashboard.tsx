@@ -140,7 +140,7 @@ export function ComptaDashboard() {
           {filtered.map((entry) => (
             <div
               key={entry.id}
-              className="flex items-center gap-4 rounded-xl border border-border bg-surface-elevated px-4 py-3"
+              className="flex items-center gap-4 rounded-[14px] bg-surface-secondary px-4 py-3"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">

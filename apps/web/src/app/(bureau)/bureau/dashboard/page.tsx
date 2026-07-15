@@ -73,16 +73,16 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-content-primary">
+      <div className="bg-accent-gradient -mx-4 -mt-6 px-4 pb-12 pt-4">
+        <h1 className="text-2xl font-bold text-white">
           Tableau de bord
         </h1>
-        <p className="text-sm text-content-secondary">
+        <p className="text-sm text-white/80">
           Vue d&apos;ensemble de votre amicale
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="-mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Membres actifs"
           value={`${activeMembers}/${totalMembers}`}
@@ -103,7 +103,7 @@ export default async function DashboardPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Prochains événements</CardTitle>
-              <Link href="/bureau/evenements" className="text-xs text-brand-500 hover:underline">
+              <Link href="/bureau/evenements" className="text-xs font-medium text-brand-500 hover:underline">
                 Voir tout
               </Link>
             </div>
@@ -117,9 +117,9 @@ export default async function DashboardPage() {
                   <Link
                     key={ev.id}
                     href={`/bureau/evenements/${ev.id}`}
-                    className="flex items-center gap-3 rounded-lg border border-border px-3 py-2 transition-colors hover:bg-surface-secondary"
+                    className="flex items-center gap-3 rounded-[14px] bg-surface-secondary px-3 py-2 transition-colors hover:bg-surface-secondary/80"
                   >
-                    <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-500/20">
+                    <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-[14px] bg-brand-100 dark:bg-brand-500/20">
                       <span className="text-[10px] font-bold uppercase text-brand-600 dark:text-brand-400">
                         {new Date(ev.date).toLocaleDateString("fr-FR", { month: "short" })}
                       </span>
@@ -145,7 +145,7 @@ export default async function DashboardPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Dernières opérations</CardTitle>
-              <Link href="/bureau/comptabilite" className="text-xs text-brand-500 hover:underline">
+              <Link href="/bureau/comptabilite" className="text-xs font-medium text-brand-500 hover:underline">
                 Voir tout
               </Link>
             </div>
@@ -158,7 +158,7 @@ export default async function DashboardPage() {
                 {recentEntries.map((entry) => (
                   <div
                     key={entry.created_at}
-                    className="flex items-center justify-between rounded-lg border border-border-subtle px-3 py-2"
+                    className="flex items-center justify-between rounded-[14px] bg-surface-secondary px-3 py-2"
                   >
                     <div>
                       <p className="text-sm font-medium text-content-primary">
@@ -239,7 +239,7 @@ export default async function DashboardPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Voyages à venir</CardTitle>
-              <Link href="/bureau/voyages" className="text-xs text-brand-500 hover:underline">
+              <Link href="/bureau/voyages" className="text-xs font-medium text-brand-500 hover:underline">
                 Voir tout
               </Link>
             </div>
@@ -253,7 +253,7 @@ export default async function DashboardPage() {
                   <Link
                     key={t.id}
                     href={`/bureau/voyages/${t.id}`}
-                    className="flex items-center gap-3 rounded-lg border border-border px-3 py-2 transition-colors hover:bg-surface-secondary"
+                    className="flex items-center gap-3 rounded-[14px] bg-surface-secondary px-3 py-2 transition-colors hover:bg-surface-secondary/80"
                   >
                     <span className="text-lg">✈️</span>
                     <div className="min-w-0 flex-1">
@@ -280,7 +280,7 @@ export default async function DashboardPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Demandes de location</CardTitle>
-              <Link href="/bureau/locations" className="text-xs text-brand-500 hover:underline">
+              <Link href="/bureau/locations" className="text-xs font-medium text-brand-500 hover:underline">
                 Voir tout
               </Link>
             </div>
@@ -293,7 +293,7 @@ export default async function DashboardPage() {
                 {pendingBookings.map((b) => (
                   <div
                     key={b.id}
-                    className="flex items-center gap-3 rounded-lg border border-border px-3 py-2"
+                    className="flex items-center gap-3 rounded-[14px] bg-surface-secondary px-3 py-2"
                   >
                     <span className="text-lg">🏠</span>
                     <div className="min-w-0 flex-1">

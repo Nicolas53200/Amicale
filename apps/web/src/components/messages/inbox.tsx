@@ -126,7 +126,7 @@ export function Inbox() {
             type="button"
             onClick={() => { setTab(t); setSelected(null); }}
             className={cn(
-              "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex-1 rounded-[14px] px-3 py-1.5 text-sm font-medium transition-colors",
               tab === t
                 ? "bg-surface-elevated text-content-primary shadow-sm"
                 : "text-content-muted hover:text-content-secondary"
@@ -140,13 +140,13 @@ export function Inbox() {
       </div>
 
       {tab === "compose" ? (
-        <form onSubmit={handleSend} className="flex flex-col gap-4 rounded-xl border border-border bg-surface-elevated p-4">
+        <form onSubmit={handleSend} className="flex flex-col gap-4 rounded-lg bg-surface-elevated p-4 shadow-sm">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-content-secondary">Destinataire</label>
             <select
               name="to_id"
               required
-              className="w-full rounded-lg border border-border bg-surface-primary px-3 py-2 text-sm text-content-primary"
+              className="w-full rounded-[14px] border border-border bg-surface-primary px-3 py-2 text-[13px] text-content-primary"
             >
               <option value="">Sélectionner un membre</option>
               {members.map((m) => (
@@ -171,7 +171,7 @@ export function Inbox() {
           </div>
         </form>
       ) : selected ? (
-        <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface-elevated p-4">
+        <div className="flex flex-col gap-4 rounded-lg bg-surface-elevated p-4 shadow-sm">
           <button
             type="button"
             onClick={() => setSelected(null)}
@@ -225,7 +225,7 @@ export function Inbox() {
           }
         />
       ) : (
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border bg-surface-elevated">
+        <div className="flex flex-col divide-y divide-border rounded-lg bg-surface-elevated shadow-sm">
           {messages.map((msg) => {
             const person = tab === "inbox" ? msg.sender : msg.recipient;
             return (

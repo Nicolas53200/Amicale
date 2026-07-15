@@ -35,7 +35,7 @@ export function TripCard({
   return (
     <Link
       href={`${basePath}/${id}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface-elevated transition-shadow hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-lg bg-surface-elevated shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="flex h-32 items-center justify-center bg-gradient-to-br from-brand-100 to-brand-200 text-4xl dark:from-brand-500/20 dark:to-brand-600/20">
         ✈️

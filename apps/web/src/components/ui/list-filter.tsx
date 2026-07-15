@@ -57,16 +57,16 @@ export function ListFilter({
         />
       </div>
       {tabs && tabs.length > 0 && (
-        <div className="flex gap-1 rounded-lg bg-surface-secondary p-1">
+        <div className="flex gap-2">
           {tabs.map((tab) => (
             <button
               key={tab.value}
               onClick={() => onTabChange?.(tab.value)}
               className={cn(
-                "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
                 activeTab === tab.value
-                  ? "bg-surface-elevated text-content-primary shadow-sm"
-                  : "text-content-muted hover:text-content-secondary"
+                  ? "bg-brand-500 text-white"
+                  : "bg-surface-secondary text-content-secondary hover:text-content-primary"
               )}
             >
               {tab.label}

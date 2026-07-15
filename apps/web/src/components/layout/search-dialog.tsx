@@ -148,7 +148,7 @@ export function SearchDialog({ basePath }: { basePath: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="hidden items-center gap-2 rounded-lg border border-border bg-surface-primary px-3 py-1.5 text-sm text-content-muted transition-colors hover:bg-surface-secondary md:flex"
+        className="hidden items-center gap-2 rounded-[14px] border border-border bg-surface-primary px-3 py-1.5 text-sm text-content-muted transition-colors hover:bg-surface-secondary md:flex"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8" />
@@ -165,7 +165,7 @@ export function SearchDialog({ basePath }: { basePath: string }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
-      <div className="relative z-10 w-full max-w-lg rounded-xl border border-border bg-surface-elevated shadow-2xl">
+      <div className="relative z-10 w-full max-w-lg rounded-lg bg-surface-elevated shadow-2xl">
         <div className="flex items-center gap-3 border-b border-border px-4 py-3">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-content-muted">
             <circle cx="11" cy="11" r="8" />

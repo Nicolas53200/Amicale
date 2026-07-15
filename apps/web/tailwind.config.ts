@@ -38,7 +38,16 @@ const config: Config = {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       borderRadius: {
-        DEFAULT: "8px",
+        DEFAULT: "14px",
+        md: "14px",
+        lg: "20px",
+        xl: "24px",
+      },
+      boxShadow: {
+        sm: "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)",
+        DEFAULT: "0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
+        md: "0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
+        lg: "0 8px 28px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)",
       },
     },
   },

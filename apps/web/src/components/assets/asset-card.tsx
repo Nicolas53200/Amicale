@@ -33,9 +33,9 @@ export function AssetCard({
   return (
     <Link
       href={`${basePath}/${id}`}
-      className="group flex gap-4 rounded-xl border border-border bg-surface-elevated p-4 transition-shadow hover:shadow-md"
+      className="group flex gap-4 rounded-lg bg-surface-elevated p-4 shadow-sm transition-shadow hover:shadow-md"
     >
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-xl dark:bg-brand-500/20">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-brand-100 text-xl dark:bg-brand-500/20">
         {typeIcons[type] || "📦"}
       </div>
       <div className="min-w-0 flex-1">

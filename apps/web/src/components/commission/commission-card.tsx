@@ -38,11 +38,11 @@ export function CommissionCard({
   return (
     <Link
       href={`${basePath}/${id}`}
-      className="group flex items-start gap-4 rounded-xl border border-border bg-surface-elevated p-4 transition-shadow hover:shadow-md"
+      className="group flex items-start gap-4 rounded-lg bg-surface-elevated p-4 shadow-sm transition-shadow hover:shadow-md"
     >
       <div
         className={cn(
-          "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-lg",
+          "flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] text-lg",
           color ? "" : "bg-brand-100 dark:bg-brand-500/20"
         )}
         style={color ? { backgroundColor: `${color}20`, color } : undefined}

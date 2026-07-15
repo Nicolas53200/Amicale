@@ -59,7 +59,7 @@ export function TabsTrigger({
       type="button"
       onClick={() => setActive(value)}
       className={cn(
-        "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+        "rounded-[14px] px-3 py-1.5 text-sm font-medium transition-colors",
         active === value
           ? "bg-surface-elevated text-content-primary shadow-sm"
           : "text-content-muted hover:text-content-secondary",

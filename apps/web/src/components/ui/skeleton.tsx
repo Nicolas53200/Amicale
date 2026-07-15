@@ -13,7 +13,7 @@ export function Skeleton({ className }: { className?: string }) {
 
 export function CardSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-surface-elevated p-4">
+    <div className="rounded-lg bg-surface-elevated p-4 shadow-sm">
       <div className="flex items-start gap-3">
         <Skeleton className="h-10 w-10 rounded-lg" />
         <div className="flex-1 space-y-2">
@@ -27,7 +27,7 @@ export function CardSkeleton() {
 
 export function StatSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-surface-elevated p-4">
+    <div className="rounded-lg bg-surface-elevated p-4 shadow-sm">
       <Skeleton className="mb-2 h-3 w-20" />
       <Skeleton className="h-7 w-16" />
     </div>

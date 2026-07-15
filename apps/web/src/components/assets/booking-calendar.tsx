@@ -48,7 +48,7 @@ export function BookingCalendar({ assetId }: { assetId: string }) {
   const days = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
   return (
-    <div className="rounded-xl border border-border bg-surface-elevated p-4">
+    <div className="rounded-lg bg-surface-elevated p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <button
           type="button"

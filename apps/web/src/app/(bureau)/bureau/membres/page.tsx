@@ -20,21 +20,23 @@ export default async function MembresPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-content-primary">Membres</h1>
-          <p className="text-sm text-content-secondary">
-            Gérez les membres de votre amicale
-          </p>
+      <div className="bg-accent-gradient -mx-4 -mt-6 px-4 pb-12 pt-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Membres</h1>
+            <p className="text-sm text-white/80">
+              Gérez les membres de votre amicale
+            </p>
+          </div>
+          <ExportButton
+            label="Exporter CSV"
+            filename="membres.csv"
+            exportFn={exportMembers}
+          />
         </div>
-        <ExportButton
-          label="Exporter CSV"
-          filename="membres.csv"
-          exportFn={exportMembers}
-        />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="-mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total" value={String(total)} icon="👥" />
         <StatCard label="Actifs" value={String(actifs)} icon="✅" />
         <StatCard label="Bureau" value={String(bureau)} icon="🏛️" />
@@ -44,7 +46,7 @@ export default async function MembresPage() {
       <InviteForm />
 
       <div>
-        <h2 className="mb-3 text-lg font-semibold text-content-primary">
+        <h2 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-content-secondary">
           Liste des membres
         </h2>
         <MemberList members={list} />

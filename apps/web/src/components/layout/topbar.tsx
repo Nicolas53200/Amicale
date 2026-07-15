@@ -55,7 +55,7 @@ export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-content-secondary transition-colors hover:bg-surface-secondary hover:text-content-primary"
+              className="rounded-[14px] px-3 py-2 text-sm font-medium text-content-secondary transition-colors hover:bg-surface-secondary hover:text-content-primary"
             >
               {item.label}
             </Link>
@@ -71,7 +71,7 @@ export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
           <NotificationBell basePath={basePath} />
           <Link
             href={`${basePath}/profil`}
-            className="rounded-lg p-2 text-content-secondary transition-colors hover:bg-surface-secondary hover:text-content-primary"
+            className="rounded-[14px] p-2 text-content-secondary transition-colors hover:bg-surface-secondary hover:text-content-primary"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +91,7 @@ export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
           {role === "bureau" && (
             <Link
               href="/bureau/parametres"
-              className="hidden rounded-lg p-2 text-content-secondary transition-colors hover:bg-surface-secondary hover:text-content-primary sm:block"
+              className="hidden rounded-[14px] p-2 text-content-secondary transition-colors hover:bg-surface-secondary hover:text-content-primary sm:block"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

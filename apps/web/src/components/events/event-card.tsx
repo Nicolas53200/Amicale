@@ -32,9 +32,9 @@ export function EventCard({
   return (
     <Link
       href={`${basePath}/${id}`}
-      className="group flex gap-4 rounded-xl border border-border bg-surface-elevated p-4 transition-shadow hover:shadow-md"
+      className="group flex gap-4 rounded-lg bg-surface-elevated p-4 shadow-sm transition-shadow hover:shadow-md"
     >
-      <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg bg-brand-100 dark:bg-brand-500/20">
+      <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-[14px] bg-brand-100 dark:bg-brand-500/20">
         <span className="text-xs font-bold uppercase text-brand-600 dark:text-brand-400">
           {d.toLocaleDateString("fr-FR", { month: "short" })}
         </span>
