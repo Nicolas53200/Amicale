@@ -4,6 +4,8 @@ import { StatCard } from "@/components/ui/stat-card";
 import { MemberCard } from "@/components/members/member-card";
 import { InviteForm } from "@/components/members/invite-form";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ExportButton } from "@/components/ui/export-button";
+import { exportMembers } from "@/lib/actions/export";
 import Link from "next/link";
 
 export default async function MembresPage() {
@@ -28,6 +30,11 @@ export default async function MembresPage() {
             Gérez les membres de votre amicale
           </p>
         </div>
+        <ExportButton
+          label="Exporter CSV"
+          filename="membres.csv"
+          exportFn={exportMembers}
+        />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

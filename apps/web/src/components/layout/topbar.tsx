@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { SearchDialog } from "@/components/layout/search-dialog";
 
 export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
   const router = useRouter();
@@ -60,7 +62,10 @@ export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
           ))}
         </nav>
 
+        <SearchDialog basePath={basePath} />
+
         <div className="flex items-center gap-1">
+          <ThemeToggle />
           <NotificationBell basePath={basePath} />
           <Link
             href={`${basePath}/profil`}
