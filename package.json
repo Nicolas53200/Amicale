@@ -1,4 +1,18 @@
 {
+  "name": "amicale-saas",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "db:generate": "turbo db:generate",
+    "db:migrate": "turbo db:migrate"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0"
+  },
   "dependencies": {
     "playwright": "^1.61.1"
   }

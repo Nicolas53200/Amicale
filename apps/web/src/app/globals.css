@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-surface-primary: #ffffff;
+    --color-surface-secondary: #f8f7f4;
+    --color-surface-elevated: #ffffff;
+    --color-content-primary: #1a1d23;
+    --color-content-secondary: #4a4d55;
+    --color-content-muted: #8b8a85;
+    --color-border: #e0ddd6;
+    --color-border-subtle: #f0ede6;
+  }
+
+  [data-theme="dark"],
+  .dark {
+    --color-surface-primary: #16181d;
+    --color-surface-secondary: #1e2025;
+    --color-surface-elevated: #24272e;
+    --color-content-primary: #d4d3cf;
+    --color-content-secondary: #a0a09a;
+    --color-content-muted: #6a6960;
+    --color-border: #2e3038;
+    --color-border-subtle: #24272e;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-surface-primary: #16181d;
+      --color-surface-secondary: #1e2025;
+      --color-surface-elevated: #24272e;
+      --color-content-primary: #d4d3cf;
+      --color-content-secondary: #a0a09a;
+      --color-content-muted: #6a6960;
+      --color-border: #2e3038;
+      --color-border-subtle: #24272e;
+    }
+  }
+
+  body {
+    background-color: var(--color-surface-primary);
+    color: var(--color-content-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+}
