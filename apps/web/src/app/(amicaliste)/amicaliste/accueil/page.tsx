@@ -6,17 +6,10 @@ import { TripCard } from "@/components/trips/trip-card";
 import { CommissionCard } from "@/components/commission/commission-card";
 import { EmptyState } from "@/components/ui/empty-state";
 
-const quickActions = [
-  { href: "/amicaliste/evenements", label: "Événements", icon: "📅" },
-  { href: "/amicaliste/voyages", label: "Voyages", icon: "✈️" },
-  { href: "/amicaliste/locations", label: "Locations", icon: "🏠" },
-  { href: "/amicaliste/commissions", label: "Commissions", icon: "👥" },
-];
-
 export default async function AccueilPage() {
   const supabase = await createClient();
 
-  const [eventsRes, tripsRes, commissionsRes, memberRes] = await Promise.all([
+  const [eventsRes, tripsRes, commissionsRes] = await Promise.all([
     supabase
       .from("events")
       .select("id, title, date, location, price, max_attendees, event_registrations(count)")
@@ -35,45 +28,19 @@ export default async function AccueilPage() {
       .eq("active", true)
       .order("name")
       .limit(4),
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) return null;
-      const { data } = await supabase
-        .from("members")
-        .select("first_name")
-        .eq("user_id", user.id)
-        .single();
-      return data;
-    }),
   ]);
 
   const events = eventsRes.data ?? [];
   const trips = tripsRes.data ?? [];
   const commissions = commissionsRes.data ?? [];
-  const firstName = memberRes?.first_name ?? "Amicaliste";
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in">
-      <div className="rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 p-6 text-white">
-        <p className="text-sm font-medium text-white/80">Bonjour,</p>
-        <h1 className="text-2xl font-bold">{firstName}</h1>
-        <p className="mt-1 text-sm text-white/70">
-          Retrouvez les dernières actualités de votre amicale
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="text-2xl font-bold text-content-primary">Bienvenue</h1>
+        <p className="text-sm text-content-secondary">
+          Retrouvez ici les dernières actualités de votre amicale
         </p>
-      </div>
-
-      <div className="grid grid-cols-4 gap-2">
-        {quickActions.map((action) => (
-          <Link
-            key={action.href}
-            href={action.href}
-            className="flex flex-col items-center gap-1.5 rounded-xl bg-surface-elevated p-3 text-center transition-all hover:shadow-md active:scale-95"
-          >
-            <span className="text-2xl">{action.icon}</span>
-            <span className="text-[10px] font-medium text-content-secondary leading-tight">
-              {action.label}
-            </span>
-          </Link>
-        ))}
       </div>
 
       <Card>
@@ -93,20 +60,19 @@ export default async function AccueilPage() {
             />
           ) : (
             <div className="flex flex-col gap-2">
-              {events.map((ev, i) => (
-                <div key={ev.id} className="animate-slide-up" style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}>
-                  <EventCard
-                    id={ev.id}
-                    title={ev.title}
-                    date={ev.date}
-                    location={ev.location}
-                    price={String(ev.price ?? 0)}
-                    maxAttendees={ev.max_attendees}
-                    registrationCount={
-                      (ev.event_registrations as { count: number }[])?.[0]?.count ?? 0
-                    }
-                  />
-                </div>
+              {events.map((ev) => (
+                <EventCard
+                  key={ev.id}
+                  id={ev.id}
+                  title={ev.title}
+                  date={ev.date}
+                  location={ev.location}
+                  price={String(ev.price ?? 0)}
+                  maxAttendees={ev.max_attendees}
+                  registrationCount={
+                    (ev.event_registrations as { count: number }[])?.[0]?.count ?? 0
+                  }
+                />
               ))}
             </div>
           )}

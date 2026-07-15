@@ -19,7 +19,7 @@ export default async function MembresPage() {
   const invites = list.filter((m) => m.status === "invite").length;
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-content-primary">Membres</h1>

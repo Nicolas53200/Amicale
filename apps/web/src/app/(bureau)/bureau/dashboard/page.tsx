@@ -72,7 +72,7 @@ export default async function DashboardPage() {
     .reduce((s, e) => s + parseFloat(e.amount), 0);
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold text-content-primary">
           Tableau de bord
