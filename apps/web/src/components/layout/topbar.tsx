@@ -19,16 +19,21 @@ export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
     role === "bureau"
       ? [
           { href: "/bureau/dashboard", label: "Tableau de bord" },
+          { href: "/bureau/evenements", label: "Événements" },
+          { href: "/bureau/voyages", label: "Voyages" },
+          { href: "/bureau/locations", label: "Locations" },
           { href: "/bureau/commissions", label: "Commissions" },
           { href: "/bureau/comptabilite", label: "Comptabilité" },
           { href: "/bureau/membres", label: "Membres" },
-          { href: "/bureau/messagerie", label: "Messagerie" },
+          { href: "/bureau/messagerie", label: "Messages" },
         ]
       : [
           { href: "/amicaliste/accueil", label: "Accueil" },
           { href: "/amicaliste/evenements", label: "Événements" },
           { href: "/amicaliste/voyages", label: "Voyages" },
+          { href: "/amicaliste/locations", label: "Locations" },
           { href: "/amicaliste/commissions", label: "Commissions" },
+          { href: "/amicaliste/messagerie", label: "Messages" },
         ];
 
   return (

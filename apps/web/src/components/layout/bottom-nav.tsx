@@ -12,8 +12,8 @@ interface NavItem {
 
 const bureauNav: NavItem[] = [
   { href: "/bureau/dashboard", label: "Accueil", icon: "home" },
-  { href: "/bureau/commissions", label: "Commissions", icon: "grid" },
-  { href: "/bureau/comptabilite", label: "Compta", icon: "receipt" },
+  { href: "/bureau/evenements", label: "Événements", icon: "calendar" },
+  { href: "/bureau/locations", label: "Locations", icon: "key" },
   { href: "/bureau/membres", label: "Membres", icon: "users" },
   { href: "/bureau/messagerie", label: "Messages", icon: "mail" },
 ];
@@ -21,8 +21,9 @@ const bureauNav: NavItem[] = [
 const amicalisteNav: NavItem[] = [
   { href: "/amicaliste/accueil", label: "Accueil", icon: "home" },
   { href: "/amicaliste/evenements", label: "Événements", icon: "calendar" },
+  { href: "/amicaliste/locations", label: "Locations", icon: "key" },
   { href: "/amicaliste/voyages", label: "Voyages", icon: "map-pin" },
-  { href: "/amicaliste/commissions", label: "Commissions", icon: "grid" },
+  { href: "/amicaliste/messagerie", label: "Messages", icon: "mail" },
 ];
 
 const iconPaths: Record<string, string> = {
@@ -33,6 +34,7 @@ const iconPaths: Record<string, string> = {
   mail: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
   calendar: "M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M16 2v4 M8 2v4 M3 10h18",
   "map-pin": "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+  key: "M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4",
 };
 
 function NavIcon({ name }: { name: string }) {
