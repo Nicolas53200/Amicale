@@ -41,7 +41,7 @@ export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
         ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-surface-elevated/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b border-border bg-surface-elevated/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <Link
           href={role === "bureau" ? "/bureau/dashboard" : "/amicaliste/accueil"}
@@ -62,7 +62,9 @@ export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
           ))}
         </nav>
 
-        <SearchDialog basePath={basePath} />
+        <div className="hidden md:block">
+          <SearchDialog basePath={basePath} />
+        </div>
 
         <div className="flex items-center gap-1">
           <ThemeToggle />
@@ -89,7 +91,7 @@ export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
           {role === "bureau" && (
             <Link
               href="/bureau/parametres"
-              className="rounded-lg p-2 text-content-secondary transition-colors hover:bg-surface-secondary hover:text-content-primary"
+              className="hidden rounded-lg p-2 text-content-secondary transition-colors hover:bg-surface-secondary hover:text-content-primary sm:block"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -107,7 +109,12 @@ export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
               </svg>
             </Link>
           )}
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="hidden sm:inline-flex"
+          >
             Déconnexion
           </Button>
         </div>

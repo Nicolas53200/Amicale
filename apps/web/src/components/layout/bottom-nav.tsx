@@ -28,8 +28,6 @@ const amicalisteNav: NavItem[] = [
 
 const iconPaths: Record<string, string> = {
   home: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
-  grid: "M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z",
-  receipt: "M4 2v20l4-2 4 2 4-2 4 2V2l-4 2-4-2-4 2z M8 10h8 M8 14h4",
   users: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M16 3.13a4 4 0 0 1 0 7.75",
   mail: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
   calendar: "M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M16 2v4 M8 2v4 M3 10h18",
@@ -37,18 +35,19 @@ const iconPaths: Record<string, string> = {
   key: "M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4",
 };
 
-function NavIcon({ name }: { name: string }) {
+function NavIcon({ name, active }: { name: string; active: boolean }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
+      width="22"
+      height="22"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth={active ? 2.5 : 1.8}
       strokeLinecap="round"
       strokeLinejoin="round"
+      className="transition-all duration-200"
     >
       {(iconPaths[name] ?? "").split(" M").map((d, i) => (
         <path key={i} d={i === 0 ? d : `M${d}`} />
@@ -62,8 +61,8 @@ export function BottomNav({ role }: { role: "bureau" | "amicaliste" }) {
   const items = role === "bureau" ? bureauNav : amicalisteNav;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-surface-elevated/95 backdrop-blur-sm md:hidden">
-      <div className="flex items-center justify-around py-1">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-surface-elevated/95 backdrop-blur-md md:hidden pb-[env(safe-area-inset-bottom)]">
+      <div className="flex items-center justify-around">
         {items.map((item) => {
           const active = pathname.startsWith(item.href);
           return (
@@ -71,14 +70,17 @@ export function BottomNav({ role }: { role: "bureau" | "amicaliste" }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] font-medium transition-colors",
+                "relative flex flex-col items-center gap-0.5 px-3 py-2 text-[10px] font-medium transition-all duration-200",
                 active
                   ? "text-brand-500"
-                  : "text-content-muted hover:text-content-secondary"
+                  : "text-content-muted active:scale-95"
               )}
             >
-              <NavIcon name={item.icon} />
-              {item.label}
+              {active && (
+                <span className="absolute -top-px left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-brand-500" />
+              )}
+              <NavIcon name={item.icon} active={active} />
+              <span className={cn(active && "font-semibold")}>{item.label}</span>
             </Link>
           );
         })}
