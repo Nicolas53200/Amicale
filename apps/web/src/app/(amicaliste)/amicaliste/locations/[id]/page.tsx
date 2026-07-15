@@ -38,10 +38,6 @@ export default function LocationDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    loadAsset();
-  }, [id]);
-
   async function loadAsset() {
     const supabase = createClient();
     const { data } = await supabase
@@ -51,6 +47,10 @@ export default function LocationDetailPage() {
       .single();
     if (data) setAsset(data as AssetData);
   }
+
+  useEffect(() => {
+    loadAsset();
+  }, [id]);
 
   async function handleBooking(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

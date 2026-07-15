@@ -33,10 +33,6 @@ export function Inbox() {
   const [selected, setSelected] = useState<Message | null>(null);
   const [sending, setSending] = useState(false);
 
-  useEffect(() => {
-    load();
-  }, [tab]);
-
   async function load() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -73,6 +69,10 @@ export function Inbox() {
       setMembers((data as Member[]) ?? []);
     }
   }
+
+  useEffect(() => {
+    load();
+  }, [tab]);
 
   async function markAsRead(msg: Message) {
     if (msg.read_at) return;

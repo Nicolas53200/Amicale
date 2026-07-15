@@ -50,16 +50,6 @@ export function SearchDialog({ basePath }: { basePath: string }) {
     }
   }, [open]);
 
-  useEffect(() => {
-    if (!query.trim()) { setResults([]); return; }
-    const timeout = setTimeout(() => search(query), 200);
-    return () => clearTimeout(timeout);
-  }, [query]);
-
-  useEffect(() => {
-    setSelectedIdx(0);
-  }, [results]);
-
   async function search(q: string) {
     const supabase = createClient();
     const term = `%${q}%`;
@@ -125,6 +115,16 @@ export function SearchDialog({ basePath }: { basePath: string }) {
 
     setResults(items);
   }
+
+  useEffect(() => {
+    if (!query.trim()) { setResults([]); return; }
+    const timeout = setTimeout(() => search(query), 200);
+    return () => clearTimeout(timeout);
+  }, [query]);
+
+  useEffect(() => {
+    setSelectedIdx(0);
+  }, [results]);
 
   function navigate(href: string) {
     setOpen(false);

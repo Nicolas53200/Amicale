@@ -20,23 +20,6 @@ export function NotificationList() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    load();
-    const supabase = createClient();
-    const channel = supabase
-      .channel("notifications-list")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications" },
-        () => load()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   async function load() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -60,6 +43,23 @@ export function NotificationList() {
     setNotifications((data as unknown as Notification[]) ?? []);
     setLoading(false);
   }
+
+  useEffect(() => {
+    load();
+    const supabase = createClient();
+    const channel = supabase
+      .channel("notifications-list")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications" },
+        () => load()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   async function markRead(id: string) {
     const supabase = createClient();

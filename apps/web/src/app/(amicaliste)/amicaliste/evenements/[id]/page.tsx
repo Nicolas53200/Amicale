@@ -38,11 +38,6 @@ export default function EvenementDetailPage() {
   const [myMemberId, setMyMemberId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadEvent();
-    loadMember();
-  }, [id]);
-
   async function loadEvent() {
     const supabase = createClient();
     const { data } = await supabase
@@ -66,6 +61,11 @@ export default function EvenementDetailPage() {
       .single();
     if (data) setMyMemberId(data.id);
   }
+
+  useEffect(() => {
+    loadEvent();
+    loadMember();
+  }, [id]);
 
   async function handleInscription() {
     if (!myMemberId) return;

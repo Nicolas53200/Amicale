@@ -40,11 +40,6 @@ export default function VoyageDetailPage() {
   const [nbChildren, setNbChildren] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadTrip();
-    loadMember();
-  }, [id]);
-
   async function loadTrip() {
     const supabase = createClient();
     const { data } = await supabase
@@ -68,6 +63,11 @@ export default function VoyageDetailPage() {
       .single();
     if (data) setMyMemberId(data.id);
   }
+
+  useEffect(() => {
+    loadTrip();
+    loadMember();
+  }, [id]);
 
   async function handleInscription() {
     if (!trip || !myMemberId) return;
