@@ -204,6 +204,22 @@ export default async function AccueilPage() {
         </h2>
         <div className="grid grid-cols-2 gap-3">
           <Link
+            href="/amicaliste/calendrier"
+            className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-500/20">
+              <span className="text-lg">📅</span>
+            </div>
+            <div className="min-w-0 pt-0.5">
+              <p className="text-[13px] font-semibold text-content-primary">
+                Calendrier
+              </p>
+              <p className="text-[11px] text-content-muted">
+                Vue mensuelle
+              </p>
+            </div>
+          </Link>
+          <Link
             href="/amicaliste/aide"
             className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
           >

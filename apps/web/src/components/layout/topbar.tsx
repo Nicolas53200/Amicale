@@ -35,6 +35,7 @@ export function Topbar({ role }: { role: "bureau" | "amicaliste" }) {
           { href: "/amicaliste/accueil", label: "Accueil" },
           { href: "/amicaliste/evenements", label: "Événements" },
           { href: "/amicaliste/voyages", label: "Voyages" },
+          { href: "/amicaliste/calendrier", label: "Calendrier" },
           { href: "/amicaliste/locations", label: "Locations" },
           { href: "/amicaliste/commissions", label: "Commissions" },
           { href: "/amicaliste/messagerie", label: "Messages" },
