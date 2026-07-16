@@ -197,57 +197,69 @@ export default async function AccueilPage() {
           </div>
         </div>
       )}
+      {/* Raccourcis - quick access horizontal scroll */}
+      <div className="pt-6">
+        <h2 className="mb-3 text-[17px] font-bold text-content-primary">
+          Raccourcis
+        </h2>
+        <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+          {[
+            { href: "/amicaliste/calendrier", icon: "📅", label: "Calendrier", bg: "bg-purple-100 dark:bg-purple-500/20" },
+            { href: "/amicaliste/locations", icon: "🏠", label: "Locations", bg: "bg-teal-100 dark:bg-teal-500/20" },
+            { href: "/amicaliste/commissions", icon: "📋", label: "Commissions", bg: "bg-rose-100 dark:bg-rose-500/20" },
+            { href: "/amicaliste/galerie", icon: "📷", label: "Galerie", bg: "bg-cyan-100 dark:bg-cyan-500/20" },
+            { href: "/amicaliste/journal", icon: "📰", label: "Journal", bg: "bg-rose-100 dark:bg-rose-500/20" },
+            { href: "/amicaliste/profil", icon: "👤", label: "Profil", bg: "bg-blue-100 dark:bg-blue-500/20" },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex shrink-0 flex-col items-center gap-1.5"
+            >
+              <div className={`flex h-14 w-14 items-center justify-center rounded-[16px] ${item.bg} shadow-sm transition-shadow active:shadow-none`}>
+                <span className="text-[22px]">{item.icon}</span>
+              </div>
+              <span className="text-[11px] font-medium text-content-secondary">{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Services */}
-      <div className="pt-6 pb-4">
+      <div className="pt-4 pb-4">
         <h2 className="mb-3 text-[17px] font-bold text-content-primary">
           Services
         </h2>
         <div className="grid grid-cols-2 gap-3">
           <Link
-            href="/amicaliste/calendrier"
+            href="/amicaliste/evenements"
             className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-500/20">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/10">
               <span className="text-lg">📅</span>
             </div>
             <div className="min-w-0 pt-0.5">
               <p className="text-[13px] font-semibold text-content-primary">
-                Calendrier
+                Evenements
               </p>
               <p className="text-[11px] text-content-muted">
-                Vue mensuelle
+                Inscriptions & details
               </p>
             </div>
           </Link>
           <Link
-            href="/amicaliste/aide"
+            href="/amicaliste/voyages"
             className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
-              <span className="text-lg">❓</span>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-500/20">
+              <span className="text-lg">✈️</span>
             </div>
             <div className="min-w-0 pt-0.5">
               <p className="text-[13px] font-semibold text-content-primary">
-                Aide & FAQ
+                Voyages
               </p>
               <p className="text-[11px] text-content-muted">
-                Questions frequentes
-              </p>
-            </div>
-          </Link>
-          <Link
-            href="/amicaliste/commissions"
-            className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-500/20">
-              <span className="text-lg">📋</span>
-            </div>
-            <div className="min-w-0 pt-0.5">
-              <p className="text-[13px] font-semibold text-content-primary">
-                Commissions
-              </p>
-              <p className="text-[11px] text-content-muted">
-                Organisation interne
+                Sorties & sejours
               </p>
             </div>
           </Link>
@@ -268,50 +280,50 @@ export default async function AccueilPage() {
             </div>
           </Link>
           <Link
-            href="/amicaliste/journal"
+            href="/amicaliste/messagerie"
             className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-500/20">
-              <span className="text-lg">📰</span>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-500/20">
+              <span className="text-lg">💬</span>
             </div>
             <div className="min-w-0 pt-0.5">
               <p className="text-[13px] font-semibold text-content-primary">
-                Journal
+                Messagerie
               </p>
               <p className="text-[11px] text-content-muted">
-                Actualites de l&apos;amicale
+                Communication
               </p>
             </div>
           </Link>
           <Link
-            href="/amicaliste/galerie"
+            href="/amicaliste/aide"
             className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cyan-100 dark:bg-cyan-500/20">
-              <span className="text-lg">📷</span>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
+              <span className="text-lg">❓</span>
             </div>
             <div className="min-w-0 pt-0.5">
               <p className="text-[13px] font-semibold text-content-primary">
-                Galerie
+                Aide & FAQ
               </p>
               <p className="text-[11px] text-content-muted">
-                Photos des événements
+                Questions frequentes
               </p>
             </div>
           </Link>
           <Link
-            href="/amicaliste/profil"
+            href="/amicaliste/notifications"
             className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-500/20">
-              <span className="text-lg">👤</span>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-500/20">
+              <span className="text-lg">🔔</span>
             </div>
             <div className="min-w-0 pt-0.5">
               <p className="text-[13px] font-semibold text-content-primary">
-                Mon profil
+                Notifications
               </p>
               <p className="text-[11px] text-content-muted">
-                Informations personnelles
+                Alertes & rappels
               </p>
             </div>
           </Link>

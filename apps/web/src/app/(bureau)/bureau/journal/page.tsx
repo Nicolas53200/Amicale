@@ -4,18 +4,28 @@ import { useState, useEffect, useCallback } from "react";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
 
 interface Post {
   id: string;
   title: string;
   message: string;
   sent_at: string;
+  type?: string | null;
 }
+
+const postTypes = [
+  { value: "info", label: "Info", icon: "📢" },
+  { value: "evenement", label: "Événement", icon: "📅" },
+  { value: "resultat", label: "Résultat", icon: "🏆" },
+  { value: "important", label: "Important", icon: "⚠️" },
+];
 
 export default function JournalBureauPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [postType, setPostType] = useState("info");
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -83,6 +93,24 @@ export default function JournalBureauPage() {
         </h3>
 
         <div className="flex flex-col gap-3">
+          <div className="flex gap-2">
+            {postTypes.map((pt) => (
+              <button
+                key={pt.value}
+                type="button"
+                onClick={() => setPostType(pt.value)}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors",
+                  postType === pt.value
+                    ? "bg-brand-500 text-white"
+                    : "bg-surface-secondary text-content-secondary hover:text-content-primary"
+                )}
+              >
+                <span className="text-[13px]">{pt.icon}</span>
+                {pt.label}
+              </button>
+            ))}
+          </div>
           <input
             type="text"
             placeholder="Titre de la publication"
@@ -134,11 +162,8 @@ export default function JournalBureauPage() {
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-[10px] bg-rose-100 dark:bg-rose-500/20">
-                      <span className="text-[9px] font-bold uppercase text-rose-600 dark:text-rose-400">
-                        {d.toLocaleDateString("fr-FR", { month: "short" })}
-                      </span>
-                      <span className="text-[14px] font-bold leading-none text-rose-700 dark:text-rose-300">
-                        {d.getDate()}
+                      <span className="text-[16px]">
+                        {postTypes.find((pt) => pt.value === post.type)?.icon || "📢"}
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">

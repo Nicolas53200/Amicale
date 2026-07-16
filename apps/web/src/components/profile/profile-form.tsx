@@ -294,6 +294,71 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
         </div>
       </div>
 
+      {/* Documents de l'amicale */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Documents de l&apos;amicale
+        </h3>
+        <div className="flex flex-col gap-2">
+          {[
+            { icon: "📋", title: "Statuts de l'amicale", type: "PDF" },
+            { icon: "📄", title: "Reglement interieur", type: "PDF" },
+            { icon: "📊", title: "Bilan annuel", type: "PDF" },
+          ].map((doc) => (
+            <div
+              key={doc.title}
+              className="flex items-center gap-3 rounded-[12px] bg-surface-secondary p-3"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-brand-50 dark:bg-brand-500/10">
+                <span className="text-sm">{doc.icon}</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] font-semibold text-content-primary">{doc.title}</p>
+                <p className="text-[11px] text-content-muted">{doc.type}</p>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-content-muted">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Vie de l'amicale */}
+      <div>
+        <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-content-secondary">
+          Vie de l&apos;amicale
+        </h3>
+        <div className="grid grid-cols-2 gap-3">
+          <a
+            href="/amicaliste/journal"
+            className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-500/20">
+              <span className="text-lg">📰</span>
+            </div>
+            <div className="min-w-0 pt-0.5">
+              <p className="text-[13px] font-semibold text-content-primary">Journal 2026</p>
+              <p className="text-[11px] text-content-muted">Livre souvenir</p>
+            </div>
+          </a>
+          <a
+            href="/amicaliste/galerie"
+            className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-500/20">
+              <span className="text-lg">📷</span>
+            </div>
+            <div className="min-w-0 pt-0.5">
+              <p className="text-[13px] font-semibold text-content-primary">Retours en images</p>
+              <p className="text-[11px] text-content-muted">Albums evenements</p>
+            </div>
+          </a>
+        </div>
+      </div>
+
       <div className="flex items-center gap-3">
         {saved && (
           <span className="text-[12px] font-medium text-emerald-600">
