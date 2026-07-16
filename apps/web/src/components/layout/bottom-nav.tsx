@@ -18,8 +18,10 @@ const bureauNav: NavItem[] = [
 
 const amicalisteNav: NavItem[] = [
   { href: "/amicaliste/accueil", label: "Accueil", icon: "home" },
-  { href: "/amicaliste/commissions", label: "Commissions", icon: "users" },
-  { href: "/amicaliste/messagerie", label: "Messages", icon: "message-circle" },
+  { href: "/amicaliste/evenements", label: "Événements", icon: "calendar" },
+  { href: "/amicaliste/voyages", label: "Voyages", icon: "plane" },
+  { href: "/amicaliste/locations", label: "Locations", icon: "key" },
+  { href: "/amicaliste/profil", label: "Profil", icon: "user" },
 ];
 
 const iconPaths: Record<string, string> = {
@@ -27,6 +29,10 @@ const iconPaths: Record<string, string> = {
   users: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M16 3.13a4 4 0 0 1 0 7.75",
   "message-circle": "M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z",
   briefcase: "M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2",
+  calendar: "M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M16 2v4 M8 2v4 M3 10h18",
+  plane: "M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z",
+  key: "M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4",
+  user: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
 };
 
 function NavIcon({ name, active }: { name: string; active: boolean }) {
@@ -61,13 +67,13 @@ export function BottomNav({ role }: { role: "bureau" | "amicaliste" }) {
           const active =
             role === "bureau" && item.href === "/bureau/dashboard"
               ? pathname.startsWith("/bureau")
-              : pathname.startsWith(item.href);
+              : pathname === item.href || (item.href !== "/amicaliste/accueil" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-col items-center gap-0.5 px-3 py-2 text-[10px] font-semibold transition-all duration-200",
+                "relative flex flex-col items-center gap-0.5 px-2 py-2 text-[10px] font-semibold transition-all duration-200",
                 active
                   ? "text-brand-500"
                   : "text-content-muted active:scale-95"

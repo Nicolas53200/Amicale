@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar } from "@/components/ui/avatar";
@@ -119,14 +117,14 @@ export function Inbox() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-1 rounded-lg bg-surface-secondary p-1">
+      <div className="flex gap-1 rounded-[14px] bg-surface-secondary p-1">
         {(["inbox", "sent", "compose"] as const).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => { setTab(t); setSelected(null); }}
             className={cn(
-              "flex-1 rounded-[14px] px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex-1 rounded-[12px] px-3 py-1.5 text-[12px] font-semibold transition-colors",
               tab === t
                 ? "bg-surface-elevated text-content-primary shadow-sm"
                 : "text-content-muted hover:text-content-secondary"
@@ -140,9 +138,9 @@ export function Inbox() {
       </div>
 
       {tab === "compose" ? (
-        <form onSubmit={handleSend} className="flex flex-col gap-4 rounded-lg bg-surface-elevated p-4 shadow-sm">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-content-secondary">Destinataire</label>
+        <form onSubmit={handleSend} className="flex flex-col gap-3 rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+          <div>
+            <label className="mb-1 block text-[12px] font-medium text-content-secondary">Destinataire</label>
             <select
               name="to_id"
               required
@@ -156,26 +154,28 @@ export function Inbox() {
               ))}
             </select>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-content-secondary">Sujet</label>
+          <div>
+            <label className="mb-1 block text-[12px] font-medium text-content-secondary">Sujet</label>
             <Input name="subject" placeholder="Objet du message" />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-content-secondary">Message</label>
+          <div>
+            <label className="mb-1 block text-[12px] font-medium text-content-secondary">Message</label>
             <Textarea name="body" required rows={4} placeholder="Votre message..." />
           </div>
-          <div className="flex justify-end">
-            <Button type="submit" disabled={sending}>
-              {sending ? "Envoi..." : "Envoyer"}
-            </Button>
-          </div>
+          <button
+            type="submit"
+            disabled={sending}
+            className="btn-gradient self-end rounded-[14px] px-6 py-2.5 text-[13px] font-semibold text-white"
+          >
+            {sending ? "Envoi..." : "Envoyer"}
+          </button>
         </form>
       ) : selected ? (
-        <div className="flex flex-col gap-4 rounded-lg bg-surface-elevated p-4 shadow-sm">
+        <div className="flex flex-col gap-4 rounded-[16px] bg-surface-elevated p-4 shadow-sm">
           <button
             type="button"
             onClick={() => setSelected(null)}
-            className="self-start text-sm text-brand-500 hover:underline"
+            className="self-start text-[13px] font-semibold text-brand-500"
           >
             ← Retour
           </button>
@@ -225,7 +225,7 @@ export function Inbox() {
           }
         />
       ) : (
-        <div className="flex flex-col divide-y divide-border rounded-lg bg-surface-elevated shadow-sm">
+        <div className="flex flex-col divide-y divide-border rounded-[16px] bg-surface-elevated shadow-sm overflow-hidden">
           {messages.map((msg) => {
             const person = tab === "inbox" ? msg.sender : msg.recipient;
             return (

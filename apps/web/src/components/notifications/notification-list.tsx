@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 
@@ -104,12 +103,16 @@ export function NotificationList() {
     <div className="flex flex-col gap-4">
       {unread > 0 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-content-muted">
+          <p className="text-[12px] text-content-muted">
             {unread} non lue{unread > 1 ? "s" : ""}
           </p>
-          <Button variant="ghost" size="sm" onClick={markAllRead}>
+          <button
+            type="button"
+            onClick={markAllRead}
+            className="text-[12px] font-semibold text-brand-500"
+          >
             Tout marquer comme lu
-          </Button>
+          </button>
         </div>
       )}
 
@@ -120,7 +123,7 @@ export function NotificationList() {
           description="Vos notifications apparaîtront ici"
         />
       ) : (
-        <div className="flex flex-col divide-y divide-border rounded-lg bg-surface-elevated shadow-sm">
+        <div className="flex flex-col divide-y divide-border rounded-[16px] bg-surface-elevated shadow-sm overflow-hidden">
           {notifications.map((n) => (
             <button
               key={n.id}
