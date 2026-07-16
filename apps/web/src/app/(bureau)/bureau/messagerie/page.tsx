@@ -9,7 +9,7 @@ export default function MessageriePage() {
         subtitle="Échangez avec les membres"
         backHref="/bureau/dashboard"
       />
-      <Inbox />
+      <Inbox isBureau />
     </div>
   );
 }
