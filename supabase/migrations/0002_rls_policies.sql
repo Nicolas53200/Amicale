@@ -40,8 +40,9 @@ CREATE POLICY "members_delete" ON members
 
 -- Allow unauthenticated users to look up invitation codes (for onboarding)
 CREATE POLICY "members_invitation_lookup" ON members
-  FOR SELECT USING (invitation_code IS NOT NULL)
-  TO anon;
+  FOR SELECT
+  TO anon
+  USING (invitation_code IS NOT NULL);
 
 -- Commissions: scoped to org
 CREATE POLICY "commissions_select" ON commissions

@@ -306,7 +306,7 @@ CREATE POLICY "members_select" ON members FOR SELECT USING (org_id = public.org_
 CREATE POLICY "members_insert" ON members FOR INSERT WITH CHECK (org_id = public.org_id());
 CREATE POLICY "members_update" ON members FOR UPDATE USING (org_id = public.org_id());
 CREATE POLICY "members_delete" ON members FOR DELETE USING (org_id = public.org_id());
-CREATE POLICY "members_invitation_lookup" ON members FOR SELECT USING (invitation_code IS NOT NULL) TO anon;
+CREATE POLICY "members_invitation_lookup" ON members FOR SELECT TO anon USING (invitation_code IS NOT NULL);
 
 CREATE POLICY "commissions_select" ON commissions FOR SELECT USING (org_id = public.org_id());
 CREATE POLICY "commissions_insert" ON commissions FOR INSERT WITH CHECK (org_id = public.org_id());
