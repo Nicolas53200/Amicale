@@ -24,7 +24,6 @@ export function TripCard({
   priceAdult,
   maxSeats,
   registrationCount,
-  imageUrl,
   basePath = "/amicaliste/voyages",
 }: TripCardProps) {
   const start = new Date(startDate);
@@ -35,27 +34,27 @@ export function TripCard({
   return (
     <Link
       href={`${basePath}/${id}`}
-      className="group flex flex-col overflow-hidden rounded-lg bg-surface-elevated shadow-sm transition-shadow hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-[16px] bg-surface-elevated shadow-sm transition-shadow active:scale-[0.98]"
     >
-      <div className="flex h-32 items-center justify-center bg-gradient-to-br from-brand-100 to-brand-200 text-4xl dark:from-brand-500/20 dark:to-brand-600/20">
+      <div className="flex h-28 items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 text-4xl dark:from-blue-500/20 dark:to-blue-600/20">
         ✈️
       </div>
-      <div className="flex flex-col gap-2 p-4">
-        <h3 className="text-sm font-semibold text-content-primary group-hover:text-brand-500">
+      <div className="flex flex-col gap-1.5 p-3.5">
+        <h3 className="text-[14px] font-semibold text-content-primary">
           {destination}
         </h3>
-        <p className="text-xs text-content-muted">
+        <p className="text-[12px] text-content-muted">
           {start.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
           {" → "}
-          {end.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+          {end.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
           {" · "}
           {days} jour{days > 1 ? "s" : ""}
         </p>
-        <div className="flex items-center gap-2">
+        <div className="mt-1 flex items-center gap-2">
           <Badge variant="default">
             {fmt(parseFloat(priceAdult))}/pers.
           </Badge>
-          <span className="text-xs text-content-muted">
+          <span className="text-[11px] text-content-muted">
             {registrationCount} inscrit{registrationCount !== 1 ? "s" : ""}
             {maxSeats && ` / ${maxSeats}`}
           </span>
