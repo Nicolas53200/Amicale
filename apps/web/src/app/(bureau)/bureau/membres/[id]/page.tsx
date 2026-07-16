@@ -1,4 +1,4 @@
-import { getMember } from "@/lib/actions/members";
+import { getMember, getMemberCommissions } from "@/lib/actions/members";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { MemberDetail } from "@/components/members/member-detail";
 
@@ -8,7 +8,10 @@ export default async function MemberDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const member = await getMember(id);
+  const [member, commissions] = await Promise.all([
+    getMember(id),
+    getMemberCommissions(id).catch(() => []),
+  ]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -17,7 +20,7 @@ export default async function MemberDetailPage({
         subtitle={member.role === "membre" ? "Membre" : member.role}
         backHref="/bureau/membres"
       />
-      <MemberDetail member={member} />
+      <MemberDetail member={member} commissions={commissions} />
     </div>
   );
 }

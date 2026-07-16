@@ -2,11 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { updateMember, deleteMember } from "@/lib/actions/members";
+import {
+  updateMember,
+  deleteMember,
+  updateMemberRole,
+  updateMemberStatus,
+} from "@/lib/actions/members";
 import { cn } from "@/lib/utils";
 
 interface Member {
@@ -28,27 +34,75 @@ interface Member {
   created_at: string;
 }
 
+interface Commission {
+  commission_id: string;
+  role: string;
+  commissions: {
+    id: string;
+    name: string;
+    icon: string | null;
+    color: string | null;
+  } | null;
+}
+
 const roleLabels: Record<string, string> = {
-  president: "Président(e)",
-  tresorier: "Trésorier(ère)",
-  secretaire: "Secrétaire",
+  president: "President(e)",
+  tresorier: "Tresorier(e)",
+  secretaire: "Secretaire",
   commissaire: "Commissaire",
   membre: "Membre",
 };
 
-const statusVariant: Record<string, "success" | "warning" | "neutral" | "default"> = {
+const statusLabels: Record<string, string> = {
+  actif: "Actif",
+  onboarding: "Onboarding",
+  invite: "Invite",
+  inactif: "Inactif",
+  suspendu: "Suspendu",
+};
+
+const statusVariant: Record<
+  string,
+  "success" | "warning" | "neutral" | "default" | "danger"
+> = {
   actif: "success",
   onboarding: "default",
   invite: "warning",
   inactif: "neutral",
+  suspendu: "danger",
 };
 
-export function MemberDetail({ member }: { member: Member }) {
+const bureauRoles = [
+  { value: "", label: "Aucun" },
+  { value: "president", label: "President(e)" },
+  { value: "vice_president", label: "Vice-president(e)" },
+  { value: "tresorier", label: "Tresorier(e)" },
+  { value: "tresorier_adjoint", label: "Tresorier(e) adjoint(e)" },
+  { value: "secretaire", label: "Secretaire" },
+  { value: "secretaire_adjoint", label: "Secretaire adjoint(e)" },
+];
+
+export function MemberDetail({
+  member,
+  commissions = [],
+}: {
+  member: Member;
+  commissions?: Commission[];
+}) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Bureau role management
+  const [isBureau, setIsBureau] = useState(member.is_bureau);
+  const [bureauRole, setBureauRole] = useState(member.bureau_role ?? "");
+  const [savingRole, setSavingRole] = useState(false);
+
+  // Status management
+  const [currentStatus, setCurrentStatus] = useState(member.status);
+  const [savingStatus, setSavingStatus] = useState(false);
 
   async function handleSave(formData: FormData) {
     setSaving(true);
@@ -73,9 +127,56 @@ export function MemberDetail({ member }: { member: Member }) {
     }
   }
 
+  async function handleBureauToggle() {
+    setSavingRole(true);
+    try {
+      const newIsBureau = !isBureau;
+      await updateMemberRole(member.id, {
+        is_bureau: newIsBureau,
+        bureau_role: newIsBureau ? bureauRole || null : null,
+      });
+      setIsBureau(newIsBureau);
+      if (!newIsBureau) setBureauRole("");
+      router.refresh();
+    } catch {
+      // revert
+    } finally {
+      setSavingRole(false);
+    }
+  }
+
+  async function handleBureauRoleChange(newRole: string) {
+    setSavingRole(true);
+    setBureauRole(newRole);
+    try {
+      await updateMemberRole(member.id, {
+        bureau_role: newRole || null,
+      });
+      router.refresh();
+    } catch {
+      setBureauRole(member.bureau_role ?? "");
+    } finally {
+      setSavingRole(false);
+    }
+  }
+
+  async function handleStatusChange(newStatus: string) {
+    setSavingStatus(true);
+    const previousStatus = currentStatus;
+    setCurrentStatus(newStatus);
+    try {
+      await updateMemberStatus(member.id, newStatus);
+      router.refresh();
+    } catch {
+      setCurrentStatus(previousStatus);
+    } finally {
+      setSavingStatus(false);
+    }
+  }
+
   const infoRows = [
     { label: "Email", value: member.email, icon: "📧" },
-    { label: "Téléphone", value: member.phone, icon: "📱" },
+    { label: "Telephone", value: member.phone, icon: "📱" },
     { label: "Adresse", value: member.adresse, icon: "📍" },
     {
       label: "Date de naissance",
@@ -98,14 +199,18 @@ export function MemberDetail({ member }: { member: Member }) {
       <form action={handleSave} className="flex flex-col gap-4">
         {/* Profile header */}
         <div className="flex items-center gap-4 rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-          <Avatar name={`${member.first_name} ${member.last_name}`} src={member.avatar_url} size="lg" />
+          <Avatar
+            name={`${member.first_name} ${member.last_name}`}
+            src={member.avatar_url}
+            size="lg"
+          />
           <div>
             <p className="text-lg font-bold text-content-primary">
               {member.first_name} {member.last_name}
             </p>
             <div className="flex items-center gap-2">
               <Badge variant={statusVariant[member.status] || "neutral"}>
-                {member.status}
+                {statusLabels[member.status] || member.status}
               </Badge>
               {member.is_bureau && <Badge variant="default">Bureau</Badge>}
             </div>
@@ -120,58 +225,95 @@ export function MemberDetail({ member }: { member: Member }) {
           <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Prénom</label>
-                <Input name="first_name" defaultValue={member.first_name} required />
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                  Prenom
+                </label>
+                <Input
+                  name="first_name"
+                  defaultValue={member.first_name}
+                  required
+                />
               </div>
               <div>
-                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Nom</label>
-                <Input name="last_name" defaultValue={member.last_name} required />
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                  Nom
+                </label>
+                <Input
+                  name="last_name"
+                  defaultValue={member.last_name}
+                  required
+                />
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-[12px] font-medium text-content-secondary">Email</label>
-              <Input name="email" type="email" defaultValue={member.email ?? ""} />
+              <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                Email
+              </label>
+              <Input
+                name="email"
+                type="email"
+                defaultValue={member.email ?? ""}
+              />
             </div>
             <div>
-              <label className="mb-1 block text-[12px] font-medium text-content-secondary">Téléphone</label>
+              <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                Telephone
+              </label>
               <Input name="phone" defaultValue={member.phone ?? ""} />
             </div>
             <div>
-              <label className="mb-1 block text-[12px] font-medium text-content-secondary">Adresse</label>
+              <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                Adresse
+              </label>
               <Input name="adresse" defaultValue={member.adresse ?? ""} />
             </div>
             <div>
-              <label className="mb-1 block text-[12px] font-medium text-content-secondary">Date de naissance</label>
-              <Input name="date_naissance" type="date" defaultValue={member.date_naissance ?? ""} />
+              <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                Date de naissance
+              </label>
+              <Input
+                name="date_naissance"
+                type="date"
+                defaultValue={member.date_naissance ?? ""}
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Grade</label>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                  Grade
+                </label>
                 <Input name="grade" defaultValue={member.grade ?? ""} />
               </div>
               <div>
-                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Centre</label>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                  Centre
+                </label>
                 <Input name="centre" defaultValue={member.centre ?? ""} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Rôle</label>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                  Role
+                </label>
                 <Select name="role" defaultValue={member.role}>
                   <option value="membre">Membre</option>
                   <option value="commissaire">Commissaire</option>
-                  <option value="secretaire">Secrétaire</option>
-                  <option value="tresorier">Trésorier(ère)</option>
-                  <option value="president">Président(e)</option>
+                  <option value="secretaire">Secretaire</option>
+                  <option value="tresorier">Tresorier(e)</option>
+                  <option value="president">President(e)</option>
                 </Select>
               </div>
               <div>
-                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Statut</label>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                  Statut
+                </label>
                 <Select name="status" defaultValue={member.status}>
-                  <option value="invite">Invité</option>
+                  <option value="invite">Invite</option>
                   <option value="onboarding">Onboarding</option>
                   <option value="actif">Actif</option>
                   <option value="inactif">Inactif</option>
+                  <option value="suspendu">Suspendu</option>
                 </Select>
               </div>
             </div>
@@ -202,7 +344,11 @@ export function MemberDetail({ member }: { member: Member }) {
     <div className="flex flex-col gap-4">
       {/* Profile header card */}
       <div className="flex items-center gap-4 rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-        <Avatar name={`${member.first_name} ${member.last_name}`} src={member.avatar_url} size="lg" />
+        <Avatar
+          name={`${member.first_name} ${member.last_name}`}
+          src={member.avatar_url}
+          size="lg"
+        />
         <div className="flex-1">
           <p className="text-lg font-bold text-content-primary">
             {member.first_name} {member.last_name}
@@ -211,10 +357,16 @@ export function MemberDetail({ member }: { member: Member }) {
             {roleLabels[member.role] || member.role}
           </p>
           <div className="mt-1 flex items-center gap-2">
-            <Badge variant={statusVariant[member.status] || "neutral"}>
-              {member.status}
+            <Badge variant={statusVariant[currentStatus] || "neutral"}>
+              {statusLabels[currentStatus] || currentStatus}
             </Badge>
-            {member.is_bureau && <Badge variant="default">Bureau</Badge>}
+            {isBureau && <Badge variant="default">Bureau</Badge>}
+            {member.bureau_role && (
+              <Badge variant="neutral">
+                {bureauRoles.find((r) => r.value === member.bureau_role)
+                  ?.label || member.bureau_role}
+              </Badge>
+            )}
           </div>
         </div>
       </div>
@@ -230,6 +382,149 @@ export function MemberDetail({ member }: { member: Member }) {
         </div>
       )}
 
+      {/* Status management */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Statut du membre
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(statusLabels).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              disabled={savingStatus || currentStatus === value}
+              onClick={() => handleStatusChange(value)}
+              className={cn(
+                "rounded-full px-3.5 py-1.5 text-[12px] font-medium transition-colors disabled:opacity-50",
+                currentStatus === value
+                  ? "bg-brand-500 text-white"
+                  : "bg-surface-secondary text-content-secondary hover:text-content-primary"
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {savingStatus && (
+          <p className="mt-2 text-[11px] text-content-muted">
+            Mise a jour...
+          </p>
+        )}
+      </div>
+
+      {/* Bureau role management */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Role au bureau
+        </h3>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[13px] font-medium text-content-primary">
+                Membre du bureau
+              </p>
+              <p className="text-[11px] text-content-muted">
+                Donne acces aux fonctionnalites du bureau
+              </p>
+            </div>
+            <button
+              type="button"
+              disabled={savingRole}
+              onClick={handleBureauToggle}
+              className={cn(
+                "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 disabled:opacity-50",
+                isBureau ? "bg-brand-500" : "bg-gray-300 dark:bg-gray-600"
+              )}
+            >
+              <span
+                className={cn(
+                  "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform",
+                  isBureau ? "translate-x-5" : "translate-x-0"
+                )}
+              />
+            </button>
+          </div>
+
+          {isBureau && (
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                Fonction au bureau
+              </label>
+              <Select
+                value={bureauRole}
+                onChange={(e) => handleBureauRoleChange(e.target.value)}
+                disabled={savingRole}
+              >
+                {bureauRoles.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Commission membership */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Commissions
+        </h3>
+        {commissions.length === 0 ? (
+          <p className="text-[13px] italic text-content-muted">
+            Ce membre n&apos;appartient a aucune commission.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {commissions.map((cm) => {
+              const commission = cm.commissions;
+              if (!commission) return null;
+              return (
+                <Link
+                  key={cm.commission_id}
+                  href={`/bureau/commissions/${commission.id}`}
+                  className="flex items-center gap-3 rounded-[12px] bg-surface-secondary p-3 transition-colors hover:bg-surface-primary"
+                >
+                  <div
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm"
+                    style={{
+                      backgroundColor: commission.color
+                        ? `${commission.color}20`
+                        : undefined,
+                    }}
+                  >
+                    {commission.icon || "📋"}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-semibold text-content-primary">
+                      {commission.name}
+                    </p>
+                    <p className="text-[11px] text-content-muted">
+                      {cm.role === "responsable" ? "Responsable" : "Membre"}
+                    </p>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-content-muted"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {/* Info rows */}
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
         <h3 className="mb-3 text-[14px] font-bold text-content-primary">
@@ -243,11 +538,15 @@ export function MemberDetail({ member }: { member: Member }) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] text-content-muted">{row.label}</p>
-                <p className={cn(
-                  "text-[13px] font-medium",
-                  row.value ? "text-content-primary" : "text-content-muted italic"
-                )}>
-                  {row.value || "Non renseigné"}
+                <p
+                  className={cn(
+                    "text-[13px] font-medium",
+                    row.value
+                      ? "text-content-primary"
+                      : "text-content-muted italic"
+                  )}
+                >
+                  {row.value || "Non renseigne"}
                 </p>
               </div>
             </div>
@@ -255,7 +554,57 @@ export function MemberDetail({ member }: { member: Member }) {
         </div>
       </div>
 
-      {/* Actions */}
+      {/* Quick actions */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Actions rapides
+        </h3>
+        <div className="grid grid-cols-2 gap-2">
+          {member.email && (
+            <a
+              href={`mailto:${member.email}`}
+              className="flex items-center gap-2 rounded-[12px] bg-surface-secondary p-3 text-[13px] font-medium text-content-primary transition-colors hover:bg-surface-primary"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-sm dark:bg-brand-500/20">
+                📧
+              </span>
+              Envoyer un email
+            </a>
+          )}
+          {member.phone && (
+            <a
+              href={`tel:${member.phone}`}
+              className="flex items-center gap-2 rounded-[12px] bg-surface-secondary p-3 text-[13px] font-medium text-content-primary transition-colors hover:bg-surface-primary"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-sm dark:bg-emerald-500/20">
+                📱
+              </span>
+              Appeler
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="flex items-center gap-2 rounded-[12px] bg-surface-secondary p-3 text-[13px] font-medium text-content-primary transition-colors hover:bg-surface-primary"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-sm dark:bg-amber-500/20">
+              ✏️
+            </span>
+            Modifier le profil
+          </button>
+          <Link
+            href="/bureau/membres"
+            className="flex items-center gap-2 rounded-[12px] bg-surface-secondary p-3 text-[13px] font-medium text-content-primary transition-colors hover:bg-surface-primary"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm dark:bg-gray-500/20">
+              👥
+            </span>
+            Voir tous
+          </Link>
+        </div>
+      </div>
+
+      {/* Primary actions */}
       <div className="flex gap-3">
         <button
           type="button"
@@ -279,7 +628,7 @@ export function MemberDetail({ member }: { member: Member }) {
             Supprimer {member.first_name} {member.last_name} ?
           </p>
           <p className="mt-1 text-[12px] text-red-600 dark:text-red-400">
-            Cette action est irréversible.
+            Cette action est irreversible.
           </p>
           <div className="mt-3 flex gap-3">
             <button

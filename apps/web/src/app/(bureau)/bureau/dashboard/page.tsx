@@ -59,6 +59,13 @@ const outilsBureau = [
     subtitle: "Comptes-rendus",
     href: "/bureau/reunions",
   },
+  {
+    icon: "📰",
+    color: "bg-rose-100 dark:bg-rose-500/20",
+    title: "Journal",
+    subtitle: "Actualités",
+    href: "/bureau/journal",
+  },
 ];
 
 export default async function DashboardPage() {

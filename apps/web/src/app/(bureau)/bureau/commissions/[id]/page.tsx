@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { ModuleTabs } from "@/components/commission/module-tabs";
+import { CommissionActions } from "@/components/commission/commission-actions";
 
 const modelLabels: Record<string, string> = {
   simple: "Simple",
@@ -56,6 +58,15 @@ export default async function CommissionDetailPage({
             {commission.description}
           </p>
         )}
+        <div className="mt-3 flex gap-3">
+          <Link
+            href={`/bureau/commissions/${id}/edit`}
+            className="btn-gradient rounded-full px-4 py-2 text-[12px] font-semibold text-white"
+          >
+            Modifier
+          </Link>
+          <CommissionActions commissionId={id} />
+        </div>
       </div>
 
       {/* Module tabs */}

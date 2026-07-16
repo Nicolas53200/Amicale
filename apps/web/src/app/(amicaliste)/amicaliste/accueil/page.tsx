@@ -252,6 +252,22 @@ export default async function AccueilPage() {
             </div>
           </Link>
           <Link
+            href="/amicaliste/journal"
+            className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-500/20">
+              <span className="text-lg">📰</span>
+            </div>
+            <div className="min-w-0 pt-0.5">
+              <p className="text-[13px] font-semibold text-content-primary">
+                Journal
+              </p>
+              <p className="text-[11px] text-content-muted">
+                Actualites de l&apos;amicale
+              </p>
+            </div>
+          </Link>
+          <Link
             href="/amicaliste/profil"
             className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
           >

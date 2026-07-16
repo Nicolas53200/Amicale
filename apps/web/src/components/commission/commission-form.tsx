@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
-import { createCommission } from "@/lib/actions/commissions";
+import { createCommission, updateCommission } from "@/lib/actions/commissions";
 import { cn } from "@/lib/utils";
 
 const MODELS = [
@@ -30,12 +30,26 @@ const COLORS = [
   "#F59E0B", "#EF4444", "#EC4899", "#06B6D4",
 ];
 
-export function CommissionForm() {
+interface CommissionData {
+  id: string;
+  name: string;
+  description?: string | null;
+  model: string;
+  icon?: string | null;
+  color?: string | null;
+  budget?: number | string | null;
+  features?: string[] | null;
+}
+
+export function CommissionForm({ commission }: { commission?: CommissionData }) {
   const router = useRouter();
-  const [model, setModel] = useState("simple");
-  const [icon, setIcon] = useState("📋");
-  const [color, setColor] = useState("#FF6B35");
-  const [features, setFeatures] = useState(["notifications", "documents", "compta", "membres"]);
+  const isEdit = !!commission;
+  const [model, setModel] = useState(commission?.model || "simple");
+  const [icon, setIcon] = useState(commission?.icon || "📋");
+  const [color, setColor] = useState(commission?.color || "#FF6B35");
+  const [features, setFeatures] = useState<string[]>(
+    commission?.features ?? ["notifications", "documents", "compta", "membres"]
+  );
   const [submitting, setSubmitting] = useState(false);
 
   function toggleFeature(f: string) {
@@ -54,8 +68,13 @@ export function CommissionForm() {
     formData.set("color", color);
     formData.set("features", JSON.stringify(features));
 
-    await createCommission(formData);
-    router.push("/bureau/commissions");
+    if (isEdit) {
+      await updateCommission(commission.id, formData);
+      router.push(`/bureau/commissions/${commission.id}`);
+    } else {
+      await createCommission(formData);
+      router.push("/bureau/commissions");
+    }
     router.refresh();
   }
 
@@ -70,20 +89,20 @@ export function CommissionForm() {
             <label className="mb-1 block text-[12px] font-medium text-content-secondary">
               Nom de la commission
             </label>
-            <Input name="name" required placeholder="Ex : Commission Sport" />
+            <Input name="name" required placeholder="Ex : Commission Sport" defaultValue={commission?.name} />
           </div>
           <div>
             <label className="mb-1 block text-[12px] font-medium text-content-secondary">
               Description
             </label>
-            <Textarea name="description" placeholder="Objectif de la commission..." />
+            <Textarea name="description" placeholder="Objectif de la commission..." defaultValue={commission?.description ?? ""} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-[12px] font-medium text-content-secondary">
                 Budget annuel
               </label>
-              <Input name="budget" type="number" step="0.01" placeholder="0.00" />
+              <Input name="budget" type="number" step="0.01" placeholder="0.00" defaultValue={commission?.budget ?? ""} />
             </div>
             <div>
               <label className="mb-1 block text-[12px] font-medium text-content-secondary">
@@ -185,7 +204,10 @@ export function CommissionForm() {
           disabled={submitting}
           className="btn-gradient flex-1 rounded-[14px] px-4 py-3 text-[13px] font-semibold text-white"
         >
-          {submitting ? "Création..." : "Créer la commission"}
+          {submitting
+            ? isEdit ? "Enregistrement..." : "Création..."
+            : isEdit ? "Enregistrer" : "Créer la commission"
+          }
         </button>
       </div>
     </form>
