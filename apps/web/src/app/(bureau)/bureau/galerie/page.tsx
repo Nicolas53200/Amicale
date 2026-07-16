@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useToast } from "@/components/ui/toast";
 
 interface Album {
   id: string;
@@ -21,9 +22,18 @@ const GRADIENTS = [
   "from-indigo-500 to-blue-400",
 ];
 
+const categoryIcons: Record<string, string> = {
+  repas: "🍴",
+  bal: "🎵",
+  sport: "🏆",
+  ceremonie: "🎖️",
+  sortie: "⛰️",
+};
+
 export default function GalerieBureauPage() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   useEffect(() => {
     async function load() {
@@ -66,18 +76,12 @@ export default function GalerieBureauPage() {
       />
 
       <div className="flex justify-end">
-        <button className="btn-gradient flex items-center gap-2 rounded-[12px] px-4 py-2.5 text-[13px] font-semibold text-white">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+        <button
+          type="button"
+          onClick={() => showToast("Creation d'album a venir", "info")}
+          className="btn-gradient flex items-center gap-2 rounded-[12px] px-4 py-2.5 text-[13px] font-semibold text-white"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
@@ -92,38 +96,47 @@ export default function GalerieBureauPage() {
           description="Creez votre premier album pour partager les photos d'un evenement"
         />
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-3">
           {albums.map((album, i) => {
             const d = new Date(album.date);
+            const icon = categoryIcons[album.category ?? ""] || "📷";
             return (
               <div
                 key={album.id}
-                className="group relative aspect-[4/3] overflow-hidden rounded-[16px] shadow-sm"
+                className="flex items-center gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm"
               >
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${GRADIENTS[i % GRADIENTS.length]}`}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-3">
-                  <p className="text-[13px] font-bold text-white">
-                    {album.title}
-                  </p>
-                  <p className="text-[11px] text-white/70">
+                  className={`flex h-[70px] w-[70px] shrink-0 items-center justify-center rounded-[16px] bg-gradient-to-br ${GRADIENTS[i % GRADIENTS.length]}`}
+                >
+                  <span className="text-[32px]">{icon}</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[14px] font-bold text-content-primary">{album.title}</p>
+                  <p className="mt-0.5 text-[12px] text-content-muted">
                     {d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
                   </p>
                 </div>
-                <div className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                  <span className="text-sm">📷</span>
+                <div className="flex shrink-0 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => showToast("Upload de photos a venir", "info")}
+                    className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-surface-secondary text-content-muted"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                  </button>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-content-muted">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
                 </div>
               </div>
             );
           })}
         </div>
       )}
-
-      <p className="pb-4 text-center text-[11px] text-content-muted">
-        Les photos sont ajoutees par le bureau apres chaque evenement
-      </p>
     </div>
   );
 }
