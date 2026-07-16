@@ -14,7 +14,7 @@ interface Message {
   body: string;
   read_at: string | null;
   created_at: string;
-  sender?: { first_name: string; last_name: string; avatar_url: string | null } | null;
+  sender?: { id: string; first_name: string; last_name: string; avatar_url: string | null } | null;
   recipient?: { first_name: string; last_name: string; avatar_url: string | null } | null;
 }
 
@@ -58,7 +58,7 @@ export function Inbox({ isBureau = false }: InboxProps) {
     if (tab === "inbox") {
       const { data } = await supabase
         .from("messages")
-        .select("*, sender:from_id(first_name, last_name, avatar_url)")
+        .select("*, sender:from_id(id, first_name, last_name, avatar_url)")
         .eq("to_id", member.id)
         .order("created_at", { ascending: false });
       setMessages((data as Message[]) ?? []);
@@ -172,8 +172,7 @@ export function Inbox({ isBureau = false }: InboxProps) {
   }
 
   function handleReply(msg: Message) {
-    const senderId = (msg.sender as unknown as { id: string } | undefined)?.id;
-    if (!senderId) {
+    if (!msg.sender?.id) {
       // Fallback: switch to compose without pre-fill
       setTab("compose");
       return;
@@ -181,13 +180,11 @@ export function Inbox({ isBureau = false }: InboxProps) {
     const reSubject = msg.subject
       ? msg.subject.startsWith("RE: ") ? msg.subject : `RE: ${msg.subject}`
       : "";
-    setReplyTo({ recipientId: senderId, subject: reSubject });
+    setReplyTo({ recipientId: msg.sender.id, subject: reSubject });
     setSelected(null);
     setTab("compose");
   }
 
-  const unread = tab === "inbox" ? messages.filter((m) => !m.read_at).length : 0;
-  // We need to always compute unread count for the tab label, even when not on inbox tab
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -221,13 +218,6 @@ export function Inbox({ isBureau = false }: InboxProps) {
     compose: "Nouveau",
     broadcast: "Diffusion",
   };
-
-  // When switching to compose with reply pre-fill, we need to load members too
-  useEffect(() => {
-    if (tab === "compose" && replyTo) {
-      // Members are loaded by the main load() effect
-    }
-  }, [tab, replyTo]);
 
   return (
     <div className="flex flex-col gap-4">

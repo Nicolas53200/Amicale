@@ -66,6 +66,20 @@ const outilsBureau = [
     subtitle: "Actualités",
     href: "/bureau/journal",
   },
+  {
+    icon: "📷",
+    color: "bg-cyan-100 dark:bg-cyan-500/20",
+    title: "Galerie",
+    subtitle: "Photos événements",
+    href: "/bureau/galerie",
+  },
+  {
+    icon: "📑",
+    color: "bg-violet-100 dark:bg-violet-500/20",
+    title: "Modèles",
+    subtitle: "Documents types",
+    href: "/bureau/modeles",
+  },
 ];
 
 export default async function DashboardPage() {

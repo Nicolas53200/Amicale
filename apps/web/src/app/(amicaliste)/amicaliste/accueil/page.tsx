@@ -268,6 +268,22 @@ export default async function AccueilPage() {
             </div>
           </Link>
           <Link
+            href="/amicaliste/galerie"
+            className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cyan-100 dark:bg-cyan-500/20">
+              <span className="text-lg">📷</span>
+            </div>
+            <div className="min-w-0 pt-0.5">
+              <p className="text-[13px] font-semibold text-content-primary">
+                Galerie
+              </p>
+              <p className="text-[11px] text-content-muted">
+                Photos des événements
+              </p>
+            </div>
+          </Link>
+          <Link
             href="/amicaliste/profil"
             className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
           >
