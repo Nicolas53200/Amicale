@@ -16,8 +16,15 @@ interface OnboardingProps {
 
 const steps = [
   { number: 1, title: "Bienvenue" },
-  { number: 2, title: "Completer" },
-  { number: 3, title: "Confirmation" },
+  { number: 2, title: "Infos" },
+  { number: 3, title: "Famille" },
+  { number: 4, title: "Avatar" },
+  { number: 5, title: "Valider" },
+];
+
+const avatarEmojis = [
+  "🚒", "🧑‍🚒", "🔥", "⛑️", "🦺", "💪", "🏋️", "⚡",
+  "🐕", "🐱", "🏔️", "🌊", "🎸", "⚽", "🎯", "🍀",
 ];
 
 export function OnboardingWizard({ memberId, firstName, lastName, orgName }: OnboardingProps) {
@@ -28,6 +35,10 @@ export function OnboardingWizard({ memberId, firstName, lastName, orgName }: Onb
   const [dateNaissance, setDateNaissance] = useState("");
   const [grade, setGrade] = useState("");
   const [centre, setCentre] = useState("");
+  const [situationFamiliale, setSituationFamiliale] = useState("");
+  const [nbEnfants, setNbEnfants] = useState("0");
+  const [contactUrgence, setContactUrgence] = useState("");
+  const [selectedEmoji, setSelectedEmoji] = useState("🚒");
   const [saving, setSaving] = useState(false);
 
   async function finishOnboarding() {
@@ -145,12 +156,12 @@ export function OnboardingWizard({ memberId, firstName, lastName, orgName }: Onb
           </div>
         )}
 
-        {/* Step 2: Additional info */}
+        {/* Step 2: Professional info */}
         {step === 1 && (
           <div className="rounded-[16px] bg-surface-elevated p-6 shadow-sm">
             <div className="mb-4 text-center">
               <h2 className="text-[18px] font-bold text-content-primary">
-                Informations complementaires
+                Coordonnees & grade
               </h2>
               <p className="mt-1 text-[12px] text-content-muted">Facultatif, modifiable plus tard</p>
             </div>
@@ -199,8 +210,121 @@ export function OnboardingWizard({ memberId, firstName, lastName, orgName }: Onb
           </div>
         )}
 
-        {/* Step 3: Confirmation / Summary */}
+        {/* Step 3: Famille */}
         {step === 2 && (
+          <div className="rounded-[16px] bg-surface-elevated p-6 shadow-sm">
+            <div className="mb-4 text-center">
+              <h2 className="text-[18px] font-bold text-content-primary">
+                Vie familiale
+              </h2>
+              <p className="mt-1 text-[12px] text-content-muted">
+                Aide a organiser les voyages et evenements familiaux
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                  Situation familiale
+                </label>
+                <select
+                  value={situationFamiliale}
+                  onChange={(e) => setSituationFamiliale(e.target.value)}
+                  className="w-full rounded-[10px] border border-border bg-surface-primary px-3 py-2.5 text-[13px] text-content-primary focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20"
+                >
+                  <option value="">Non precise</option>
+                  <option value="celibataire">Celibataire</option>
+                  <option value="en_couple">En couple</option>
+                  <option value="marie">Marie(e)</option>
+                  <option value="pacse">Pacse(e)</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                  Nombre d&apos;enfants
+                </label>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setNbEnfants(String(Math.max(0, Number(nbEnfants) - 1)))}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-secondary text-lg font-bold text-content-primary"
+                  >
+                    -
+                  </button>
+                  <span className="min-w-[2rem] text-center text-[18px] font-bold tabular-nums text-content-primary">
+                    {nbEnfants}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setNbEnfants(String(Math.min(10, Number(nbEnfants) + 1)))}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-lg font-bold text-brand-700 dark:bg-brand-500/20 dark:text-brand-400"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+                  Contact d&apos;urgence
+                </label>
+                <Input
+                  value={contactUrgence}
+                  onChange={(e) => setContactUrgence(e.target.value)}
+                  placeholder="Nom et telephone"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-between">
+              <Button variant="ghost" onClick={() => setStep(1)}>Retour</Button>
+              <Button onClick={() => setStep(3)}>Suivant</Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Avatar / Emoji */}
+        {step === 3 && (
+          <div className="rounded-[16px] bg-surface-elevated p-6 shadow-sm">
+            <div className="mb-4 text-center">
+              <h2 className="text-[18px] font-bold text-content-primary">
+                Votre avatar
+              </h2>
+              <p className="mt-1 text-[12px] text-content-muted">
+                Choisissez un emoji qui vous represente
+              </p>
+            </div>
+
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20">
+              <span className="text-4xl">{selectedEmoji}</span>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2">
+              {avatarEmojis.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => setSelectedEmoji(emoji)}
+                  className={cn(
+                    "flex h-14 items-center justify-center rounded-[12px] text-2xl transition-all",
+                    selectedEmoji === emoji
+                      ? "bg-brand-100 ring-2 ring-brand-500 dark:bg-brand-500/20"
+                      : "bg-surface-secondary hover:bg-surface-primary"
+                  )}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-between">
+              <Button variant="ghost" onClick={() => setStep(2)}>Retour</Button>
+              <Button onClick={() => setStep(4)}>Suivant</Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: Confirmation / Summary */}
+        {step === 4 && (
           <div className="rounded-[16px] bg-surface-elevated p-6 shadow-sm">
             <div className="mb-5 text-center">
               <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-500/20">
@@ -217,6 +341,7 @@ export function OnboardingWizard({ memberId, firstName, lastName, orgName }: Onb
             </div>
 
             <div className="flex flex-col gap-2">
+              <SummaryRow label="Avatar" value={selectedEmoji} />
               <SummaryRow label="Prenom" value={firstName} />
               <SummaryRow label="Nom" value={lastName} />
               <SummaryRow label="Telephone" value={phone} />
@@ -224,10 +349,13 @@ export function OnboardingWizard({ memberId, firstName, lastName, orgName }: Onb
               <SummaryRow label="Centre" value={centre} />
               <SummaryRow label="Date de naissance" value={dateNaissance ? formatDate(dateNaissance) : ""} />
               <SummaryRow label="Adresse" value={adresse} />
+              {situationFamiliale && <SummaryRow label="Situation" value={situationFamiliale} />}
+              {Number(nbEnfants) > 0 && <SummaryRow label="Enfants" value={nbEnfants} />}
+              {contactUrgence && <SummaryRow label="Urgence" value={contactUrgence} />}
             </div>
 
             <div className="mt-6 flex justify-between">
-              <Button variant="ghost" onClick={() => setStep(1)}>Retour</Button>
+              <Button variant="ghost" onClick={() => setStep(3)}>Retour</Button>
               <Button onClick={finishOnboarding} disabled={saving}>
                 {saving ? "Finalisation..." : "Commencer"}
               </Button>

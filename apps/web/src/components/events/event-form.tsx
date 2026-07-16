@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createEvent, updateEvent } from "@/lib/actions/events";
+import { cn } from "@/lib/utils";
 
 interface EventData {
   id: string;
@@ -20,9 +21,19 @@ interface EventData {
   commission_id?: string | null;
 }
 
+const eventTypes = [
+  { value: "repas", label: "Repas", icon: "🍴", color: "bg-orange-100 dark:bg-orange-500/20 border-orange-300 dark:border-orange-500/40" },
+  { value: "bal", label: "Bal", icon: "🎵", color: "bg-purple-100 dark:bg-purple-500/20 border-purple-300 dark:border-purple-500/40" },
+  { value: "sport", label: "Sport", icon: "🏆", color: "bg-green-100 dark:bg-green-500/20 border-green-300 dark:border-green-500/40" },
+  { value: "ceremonie", label: "Ceremonie", icon: "🎖️", color: "bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40" },
+  { value: "sortie", label: "Sortie", icon: "⛰️", color: "bg-teal-100 dark:bg-teal-500/20 border-teal-300 dark:border-teal-500/40" },
+  { value: "autre", label: "Autre", icon: "🎉", color: "bg-rose-100 dark:bg-rose-500/20 border-rose-300 dark:border-rose-500/40" },
+];
+
 export function EventForm({ event }: { event?: EventData }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [selectedType, setSelectedType] = useState(event?.category || "");
   const isEdit = !!event;
 
   function formatDateForInput(dateStr: string | null | undefined) {
@@ -47,6 +58,34 @@ export function EventForm({ event }: { event?: EventData }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {/* Type d'evenement */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Type d&apos;evenement
+        </h3>
+        <div className="grid grid-cols-3 gap-2">
+          {eventTypes.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() => setSelectedType(t.value)}
+              className={cn(
+                "flex flex-col items-center gap-1.5 rounded-[12px] border-2 p-3 transition-all",
+                selectedType === t.value
+                  ? t.color
+                  : "border-transparent bg-surface-secondary"
+              )}
+            >
+              <span className="text-xl">{t.icon}</span>
+              <span className="text-[11px] font-semibold text-content-primary">
+                {t.label}
+              </span>
+            </button>
+          ))}
+        </div>
+        <input type="hidden" name="category" value={selectedType} />
+      </div>
+
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
         <h3 className="mb-3 text-[14px] font-bold text-content-primary">
           Informations
@@ -89,16 +128,12 @@ export function EventForm({ event }: { event?: EventData }) {
             </div>
             <div>
               <label className="mb-1 block text-[12px] font-medium text-content-secondary">Places max</label>
-              <Input name="max_attendees" type="number" placeholder="Illimité" defaultValue={event?.max_attendees ?? ""} />
+              <Input name="max_attendees" type="number" placeholder="Illimite" defaultValue={event?.max_attendees ?? ""} />
             </div>
             <div>
-              <label className="mb-1 block text-[12px] font-medium text-content-secondary">Bénévoles max</label>
-              <Input name="max_benevoles" type="number" placeholder="Illimité" defaultValue={event?.max_benevoles ?? ""} />
+              <label className="mb-1 block text-[12px] font-medium text-content-secondary">Benevoles max</label>
+              <Input name="max_benevoles" type="number" placeholder="Illimite" defaultValue={event?.max_benevoles ?? ""} />
             </div>
-          </div>
-          <div>
-            <label className="mb-1 block text-[12px] font-medium text-content-secondary">Catégorie</label>
-            <Input name="category" placeholder="Repas, Sport, Culturel..." defaultValue={event?.category ?? ""} />
           </div>
         </div>
       </div>

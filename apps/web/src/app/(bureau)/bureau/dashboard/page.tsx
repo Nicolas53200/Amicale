@@ -53,6 +53,13 @@ const outilsBureau = [
     href: "/bureau/locations",
   },
   {
+    icon: "✈️",
+    color: "bg-blue-100 dark:bg-blue-500/20",
+    title: "Voyages",
+    subtitle: "Sorties & séjours",
+    href: "/bureau/voyages",
+  },
+  {
     icon: "📝",
     color: "bg-indigo-100 dark:bg-indigo-500/20",
     title: "Réunions",
@@ -80,15 +87,22 @@ const outilsBureau = [
     subtitle: "Documents types",
     href: "/bureau/modeles",
   },
+  {
+    icon: "🎨",
+    color: "bg-fuchsia-100 dark:bg-fuchsia-500/20",
+    title: "Personnaliser",
+    subtitle: "Apparence & identité",
+    href: "/bureau/parametres",
+  },
 ];
 
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const [membersRes, commissionsRes, entriesRes, eventsRes] =
+  const [membersRes, commissionsRes, entriesRes, eventsRes, reunionsRes] =
     await Promise.all([
       supabase.from("members").select("id, status, role, created_at"),
-      supabase.from("commissions").select("id, budget").eq("active", true),
+      supabase.from("commissions").select("id, name, icon, color, budget").eq("active", true),
       supabase
         .from("accounting_entries")
         .select("type, amount, status, label, created_at, commissions:commission_id(name)")
@@ -100,12 +114,20 @@ export default async function DashboardPage() {
         .gte("date", new Date().toISOString())
         .order("date")
         .limit(5),
+      supabase
+        .from("notifications")
+        .select("id, title, message, sent_at")
+        .eq("type", "reunion")
+        .gte("sent_at", new Date().toISOString())
+        .order("sent_at")
+        .limit(3),
     ]);
 
   const members = membersRes.data ?? [];
   const commissions = commissionsRes.data ?? [];
   const recentEntries = entriesRes.data ?? [];
   const upcomingEvents = eventsRes.data ?? [];
+  const prochReunions = reunionsRes.data ?? [];
 
   const totalMembers = members.length;
   const activeMembers = members.filter((m) => m.status === "actif").length;
@@ -319,6 +341,99 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Prochaines reunions */}
+      {prochReunions.length > 0 && (
+        <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-[14px] font-bold text-content-primary">
+              Prochaines reunions
+            </h3>
+            <Link
+              href="/bureau/reunions"
+              className="text-[12px] font-semibold text-brand-500"
+            >
+              Voir tout
+            </Link>
+          </div>
+          <div className="flex flex-col gap-2">
+            {prochReunions.map((r) => {
+              const d = new Date(r.sent_at);
+              return (
+                <div
+                  key={r.id}
+                  className="flex items-center gap-3 rounded-[12px] bg-surface-secondary p-3"
+                >
+                  <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-[10px] bg-indigo-100 dark:bg-indigo-500/20">
+                    <span className="text-[9px] font-bold uppercase text-indigo-600 dark:text-indigo-400">
+                      {d.toLocaleDateString("fr-FR", { month: "short" })}
+                    </span>
+                    <span className="text-[14px] font-bold leading-none text-indigo-700 dark:text-indigo-300">
+                      {d.getDate()}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-content-primary">
+                      {r.title}
+                    </p>
+                    <p className="text-[11px] text-content-muted">
+                      {d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Commissions actives */}
+      {commissions.length > 0 && (
+        <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-[14px] font-bold text-content-primary">
+              Commissions
+            </h3>
+            <Link
+              href="/bureau/commissions"
+              className="text-[12px] font-semibold text-brand-500"
+            >
+              Gerer
+            </Link>
+          </div>
+          <div className="flex flex-col gap-2">
+            {commissions.map((c) => (
+              <Link
+                key={c.id}
+                href={`/bureau/commissions/${c.id}`}
+                className="flex items-center gap-3 rounded-[12px] bg-surface-secondary p-3 transition-colors active:bg-surface-secondary/80"
+              >
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm"
+                  style={{
+                    backgroundColor: c.color ? `${c.color}20` : undefined,
+                  }}
+                >
+                  {c.icon || "📋"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold text-content-primary">
+                    {c.name}
+                  </p>
+                  {c.budget > 0 && (
+                    <p className="text-[11px] text-content-muted">
+                      Budget : {fmt(c.budget)}
+                    </p>
+                  )}
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-content-muted">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Outils du bureau */}
       <div>

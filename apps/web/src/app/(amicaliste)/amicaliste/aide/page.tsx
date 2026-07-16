@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { GradientHeader } from "@/components/layout/gradient-header";
+import { useToast } from "@/components/ui/toast";
 
 const faqData = [
   {
@@ -111,8 +112,17 @@ function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
+const feedbackTypes = [
+  { value: "bug", label: "Signaler un bug", icon: "🐛" },
+  { value: "idea", label: "Proposer une idee", icon: "💡" },
+  { value: "question", label: "Poser une question", icon: "❓" },
+];
+
 export default function AidePage() {
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
+  const [feedbackType, setFeedbackType] = useState("bug");
+  const [feedbackText, setFeedbackText] = useState("");
+  const { showToast } = useToast();
 
   const toggle = (key: string) => {
     setOpenItems((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -167,6 +177,50 @@ export default function AidePage() {
           </div>
         </div>
       ))}
+
+      {/* Feedback form */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Nous faire un retour
+        </h3>
+        <div className="mb-3 flex gap-2">
+          {feedbackTypes.map((ft) => (
+            <button
+              key={ft.value}
+              type="button"
+              onClick={() => setFeedbackType(ft.value)}
+              className={`flex flex-1 flex-col items-center gap-1 rounded-[12px] border-2 p-2.5 transition-all ${
+                feedbackType === ft.value
+                  ? "border-brand-400 bg-brand-50 dark:border-brand-500/50 dark:bg-brand-500/10"
+                  : "border-transparent bg-surface-secondary"
+              }`}
+            >
+              <span className="text-lg">{ft.icon}</span>
+              <span className="text-[10px] font-semibold text-content-primary">{ft.label}</span>
+            </button>
+          ))}
+        </div>
+        <textarea
+          value={feedbackText}
+          onChange={(e) => setFeedbackText(e.target.value)}
+          rows={3}
+          placeholder="Decrivez votre retour..."
+          className="mb-3 w-full resize-none rounded-[10px] border border-border bg-surface-primary px-3 py-2.5 text-[13px] text-content-primary placeholder:text-content-muted focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20"
+        />
+        <button
+          type="button"
+          onClick={() => {
+            if (feedbackText.trim()) {
+              showToast("Merci pour votre retour !", "success");
+              setFeedbackText("");
+            }
+          }}
+          disabled={!feedbackText.trim()}
+          className="btn-gradient w-full rounded-[14px] px-4 py-3 text-[13px] font-semibold text-white disabled:opacity-50"
+        >
+          Envoyer
+        </button>
+      </div>
 
       {/* Contact bureau card */}
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
