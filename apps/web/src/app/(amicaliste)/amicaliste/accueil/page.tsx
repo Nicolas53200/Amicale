@@ -197,6 +197,78 @@ export default async function AccueilPage() {
           </div>
         </div>
       )}
+      {/* Services */}
+      <div className="pt-6 pb-4">
+        <h2 className="mb-3 text-[17px] font-bold text-content-primary">
+          Services
+        </h2>
+        <div className="grid grid-cols-2 gap-3">
+          <Link
+            href="/amicaliste/aide"
+            className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
+              <span className="text-lg">❓</span>
+            </div>
+            <div className="min-w-0 pt-0.5">
+              <p className="text-[13px] font-semibold text-content-primary">
+                Aide & FAQ
+              </p>
+              <p className="text-[11px] text-content-muted">
+                Questions frequentes
+              </p>
+            </div>
+          </Link>
+          <Link
+            href="/amicaliste/commissions"
+            className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-500/20">
+              <span className="text-lg">📋</span>
+            </div>
+            <div className="min-w-0 pt-0.5">
+              <p className="text-[13px] font-semibold text-content-primary">
+                Commissions
+              </p>
+              <p className="text-[11px] text-content-muted">
+                Organisation interne
+              </p>
+            </div>
+          </Link>
+          <Link
+            href="/amicaliste/locations"
+            className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-500/20">
+              <span className="text-lg">🏠</span>
+            </div>
+            <div className="min-w-0 pt-0.5">
+              <p className="text-[13px] font-semibold text-content-primary">
+                Locations
+              </p>
+              <p className="text-[11px] text-content-muted">
+                Biens disponibles
+              </p>
+            </div>
+          </Link>
+          <Link
+            href="/amicaliste/profil"
+            className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-500/20">
+              <span className="text-lg">👤</span>
+            </div>
+            <div className="min-w-0 pt-0.5">
+              <p className="text-[13px] font-semibold text-content-primary">
+                Mon profil
+              </p>
+              <p className="text-[11px] text-content-muted">
+                Informations personnelles
+              </p>
+            </div>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

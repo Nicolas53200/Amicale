@@ -52,6 +52,13 @@ const outilsBureau = [
     subtitle: "Biens & réservations",
     href: "/bureau/locations",
   },
+  {
+    icon: "📝",
+    color: "bg-indigo-100 dark:bg-indigo-500/20",
+    title: "Réunions",
+    subtitle: "Comptes-rendus",
+    href: "/bureau/reunions",
+  },
 ];
 
 export default async function DashboardPage() {
