@@ -54,6 +54,37 @@ export async function createAsset(formData: FormData) {
   revalidatePath("/amicaliste/locations");
 }
 
+export async function updateAsset(id: string, formData: FormData) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("assets")
+    .update({
+      name: formData.get("name") as string,
+      type: formData.get("type") as string,
+      description: (formData.get("description") as string) || null,
+      daily_rate: parseFloat(formData.get("daily_rate") as string),
+      deposit: formData.get("deposit")
+        ? parseFloat(formData.get("deposit") as string)
+        : 0,
+      rules: (formData.get("rules") as string) || null,
+    })
+    .eq("id", id);
+
+  if (error) throw error;
+  revalidatePath("/bureau/locations");
+  revalidatePath(`/bureau/locations/${id}`);
+  revalidatePath("/amicaliste/locations");
+}
+
+export async function deleteAsset(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("assets").delete().eq("id", id);
+  if (error) throw error;
+  revalidatePath("/bureau/locations");
+  revalidatePath("/amicaliste/locations");
+}
+
 export async function getBookingsForAsset(assetId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

@@ -1,16 +1,14 @@
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { EventForm } from "@/components/events/event-form";
 
 export default function NouvelEvenementPage() {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-content-primary">
-          Nouvel événement
-        </h1>
-        <p className="text-sm text-content-secondary">
-          Créez un nouvel événement pour votre amicale
-        </p>
-      </div>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Nouvel événement"
+        subtitle="Créez un événement pour votre amicale"
+        backHref="/bureau/evenements"
+      />
       <EventForm />
     </div>
   );

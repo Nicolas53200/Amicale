@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { TripCard } from "@/components/trips/trip-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { getTrips } from "@/lib/actions/trips";
 
 export default async function VoyagesPage() {
@@ -19,20 +19,21 @@ export default async function VoyagesPage() {
   );
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-content-primary">Voyages</h1>
-          <p className="text-sm text-content-secondary">
-            Gérez les voyages de votre amicale
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/bureau/voyages/new">Nouveau voyage</Link>
-        </Button>
-      </div>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Voyages"
+        subtitle={`${total} voyage${total > 1 ? "s" : ""} · ${upcoming} à venir`}
+        backHref="/bureau/dashboard"
+      >
+        <Link
+          href="/bureau/voyages/new"
+          className="rounded-full bg-white/20 px-4 py-2 text-[12px] font-semibold text-white backdrop-blur-sm"
+        >
+          + Nouveau voyage
+        </Link>
+      </GradientHeader>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-3 gap-3">
         <StatCard label="Total" value={String(total)} icon="✈️" />
         <StatCard label="À venir" value={String(upcoming)} icon="🔜" />
         <StatCard label="Inscrits" value={String(totalInscrits)} icon="👥" />

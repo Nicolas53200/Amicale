@@ -106,6 +106,45 @@ export async function registerForEvent(eventId: string, nbPersonnes = 1, isBenev
   revalidatePath(`/bureau/evenements/${eventId}`);
 }
 
+export async function updateEvent(id: string, formData: FormData) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("events")
+    .update({
+      commission_id: (formData.get("commission_id") as string) || null,
+      title: formData.get("title") as string,
+      description: (formData.get("description") as string) || null,
+      date: formData.get("date") as string,
+      end_date: (formData.get("end_date") as string) || null,
+      location: (formData.get("location") as string) || null,
+      max_attendees: formData.get("max_attendees")
+        ? parseInt(formData.get("max_attendees") as string)
+        : null,
+      price: formData.get("price")
+        ? parseFloat(formData.get("price") as string)
+        : 0,
+      max_benevoles: formData.get("max_benevoles")
+        ? parseInt(formData.get("max_benevoles") as string)
+        : null,
+      category: (formData.get("category") as string) || null,
+    })
+    .eq("id", id);
+
+  if (error) throw error;
+  revalidatePath("/bureau/evenements");
+  revalidatePath(`/bureau/evenements/${id}`);
+  revalidatePath("/amicaliste/evenements");
+}
+
+export async function deleteEvent(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("events").delete().eq("id", id);
+  if (error) throw error;
+  revalidatePath("/bureau/evenements");
+  revalidatePath("/amicaliste/evenements");
+}
+
 export async function cancelRegistration(eventId: string) {
   const supabase = await createClient();
   const {

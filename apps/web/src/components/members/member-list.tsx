@@ -70,6 +70,7 @@ export function MemberList({ members }: { members: Member[] }) {
           {filtered.map((m) => (
             <div key={m.id} className="animate-fade-in">
               <MemberCard
+                id={m.id}
                 firstName={m.first_name}
                 lastName={m.last_name}
                 role={m.role}

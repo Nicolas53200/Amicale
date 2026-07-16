@@ -1,16 +1,14 @@
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { TripForm } from "@/components/trips/trip-form";
 
 export default function NouveauVoyagePage() {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-content-primary">
-          Nouveau voyage
-        </h1>
-        <p className="text-sm text-content-secondary">
-          Créez un nouveau voyage pour votre amicale
-        </p>
-      </div>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Nouveau voyage"
+        subtitle="Créez un voyage pour votre amicale"
+        backHref="/bureau/voyages"
+      />
       <TripForm />
     </div>
   );
