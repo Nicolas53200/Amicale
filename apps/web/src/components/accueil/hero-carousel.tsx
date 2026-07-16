@@ -64,7 +64,7 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
   }
 
   return (
-    <div className="relative -mx-4 -mt-6 bg-accent-gradient pt-[env(safe-area-inset-top)]">
+    <div className="relative -mx-4 -mt-6 flex min-h-[55vh] flex-col bg-accent-gradient pt-[env(safe-area-inset-top)] md:min-h-0">
       {/* Decorative circles */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-10 top-4 h-44 w-44 rounded-full bg-white/10" />
@@ -229,9 +229,9 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
         )}
       </div>
 
-      {/* Wave separator */}
+      {/* Wave separator — pushed to bottom of gradient */}
       <svg
-        className="relative z-10 -mb-px block w-full"
+        className="relative z-10 -mb-px mt-auto block w-full"
         viewBox="0 0 1440 50"
         fill="none"
         preserveAspectRatio="none"
