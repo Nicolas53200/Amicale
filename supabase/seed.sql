@@ -72,43 +72,43 @@ INSERT INTO commissions (id, org_id, name, model, icon, color, budget, features,
 -- 4.3 Membres (9 membres du prototype)
 -- Note : les user_id seront mis à jour après création des users auth
 INSERT INTO members (id, org_id, first_name, last_name, email, phone, role, status, grade, centre, is_bureau, bureau_role, onboarding_completed, invitation_code) VALUES
-  ('m0000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Nicolas', 'Morel', 'nicolas.morel53@hotmail.fr', '06 12 34 56 78', 'president', 'actif', 'Adjudant-chef', 'CIS Laval', true, 'Président', true, 'INVITE-NICOLAS'),
-  ('m0000002-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Sophie', 'Martin', 'sophie.martin@email.fr', '06 23 45 67 89', 'tresorier', 'actif', 'Sergent-chef', 'CIS Laval', true, 'Trésorière', true, 'INVITE-SOPHIE'),
-  ('m0000003-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Thomas', 'Dubois', 'thomas.dubois@email.fr', '06 34 56 78 90', 'secretaire', 'actif', 'Caporal-chef', 'CIS Changé', true, 'Secrétaire', true, 'INVITE-THOMAS'),
-  ('m0000004-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111', 'Marie', 'Bernard', 'marie.bernard@email.fr', '06 45 67 89 01', 'commissaire', 'actif', 'Sergent', 'CIS Laval', true, 'Commissaire aux comptes', true, 'INVITE-MARIE'),
-  ('m0000005-0000-0000-0000-000000000005', '11111111-1111-1111-1111-111111111111', 'Pierre', 'Petit', 'pierre.petit@email.fr', '06 56 78 90 12', 'membre', 'actif', 'Caporal', 'CIS Bonchamp', false, NULL, true, 'INVITE-PIERRE'),
-  ('m0000006-0000-0000-0000-000000000006', '11111111-1111-1111-1111-111111111111', 'Julie', 'Robert', 'julie.robert@email.fr', '06 67 89 01 23', 'membre', 'actif', 'Sapeur 1ère classe', 'CIS Laval', false, NULL, true, 'INVITE-JULIE'),
-  ('m0000007-0000-0000-0000-000000000007', '11111111-1111-1111-1111-111111111111', 'Antoine', 'Richard', 'antoine.richard@email.fr', '06 78 90 12 34', 'membre', 'actif', 'Caporal-chef', 'CIS Changé', false, NULL, true, 'INVITE-ANTOINE'),
-  ('m0000008-0000-0000-0000-000000000008', '11111111-1111-1111-1111-111111111111', 'Claire', 'Durand', 'claire.durand@email.fr', '06 89 01 23 45', 'membre', 'actif', 'Lieutenant', 'CIS Laval', false, NULL, true, 'INVITE-CLAIRE'),
-  ('m0000009-0000-0000-0000-000000000009', '11111111-1111-1111-1111-111111111111', 'Lucas', 'Leroy', 'lucas.leroy@email.fr', '06 90 12 34 56', 'membre', 'inactif', 'Adjudant', 'CIS Bonchamp', false, NULL, false, 'INVITE-LUCAS');
+  ('b0000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Nicolas', 'Morel', 'nicolas.morel53@hotmail.fr', '06 12 34 56 78', 'president', 'actif', 'Adjudant-chef', 'CIS Laval', true, 'Président', true, 'INVITE-NICOLAS'),
+  ('b0000002-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Sophie', 'Martin', 'sophie.martin@email.fr', '06 23 45 67 89', 'tresorier', 'actif', 'Sergent-chef', 'CIS Laval', true, 'Trésorière', true, 'INVITE-SOPHIE'),
+  ('b0000003-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Thomas', 'Dubois', 'thomas.dubois@email.fr', '06 34 56 78 90', 'secretaire', 'actif', 'Caporal-chef', 'CIS Changé', true, 'Secrétaire', true, 'INVITE-THOMAS'),
+  ('b0000004-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111', 'Marie', 'Bernard', 'marie.bernard@email.fr', '06 45 67 89 01', 'commissaire', 'actif', 'Sergent', 'CIS Laval', true, 'Commissaire aux comptes', true, 'INVITE-MARIE'),
+  ('b0000005-0000-0000-0000-000000000005', '11111111-1111-1111-1111-111111111111', 'Pierre', 'Petit', 'pierre.petit@email.fr', '06 56 78 90 12', 'membre', 'actif', 'Caporal', 'CIS Bonchamp', false, NULL, true, 'INVITE-PIERRE'),
+  ('b0000006-0000-0000-0000-000000000006', '11111111-1111-1111-1111-111111111111', 'Julie', 'Robert', 'julie.robert@email.fr', '06 67 89 01 23', 'membre', 'actif', 'Sapeur 1ère classe', 'CIS Laval', false, NULL, true, 'INVITE-JULIE'),
+  ('b0000007-0000-0000-0000-000000000007', '11111111-1111-1111-1111-111111111111', 'Antoine', 'Richard', 'antoine.richard@email.fr', '06 78 90 12 34', 'membre', 'actif', 'Caporal-chef', 'CIS Changé', false, NULL, true, 'INVITE-ANTOINE'),
+  ('b0000008-0000-0000-0000-000000000008', '11111111-1111-1111-1111-111111111111', 'Claire', 'Durand', 'claire.durand@email.fr', '06 89 01 23 45', 'membre', 'actif', 'Lieutenant', 'CIS Laval', false, NULL, true, 'INVITE-CLAIRE'),
+  ('b0000009-0000-0000-0000-000000000009', '11111111-1111-1111-1111-111111111111', 'Lucas', 'Leroy', 'lucas.leroy@email.fr', '06 90 12 34 56', 'membre', 'inactif', 'Adjudant', 'CIS Bonchamp', false, NULL, false, 'INVITE-LUCAS');
 
 
 -- 4.4 Commission members (affecter des membres aux commissions)
 INSERT INTO commission_members (commission_id, member_id, role) VALUES
   -- Événements
-  ('c0000001-0000-0000-0000-000000000001', 'm0000001-0000-0000-0000-000000000001', 'responsable'),
-  ('c0000001-0000-0000-0000-000000000001', 'm0000005-0000-0000-0000-000000000005', 'membre'),
-  ('c0000001-0000-0000-0000-000000000001', 'm0000006-0000-0000-0000-000000000006', 'membre'),
+  ('c0000001-0000-0000-0000-000000000001', 'b0000001-0000-0000-0000-000000000001', 'responsable'),
+  ('c0000001-0000-0000-0000-000000000001', 'b0000005-0000-0000-0000-000000000005', 'membre'),
+  ('c0000001-0000-0000-0000-000000000001', 'b0000006-0000-0000-0000-000000000006', 'membre'),
   -- Voyages
-  ('c0000002-0000-0000-0000-000000000002', 'm0000002-0000-0000-0000-000000000002', 'responsable'),
-  ('c0000002-0000-0000-0000-000000000002', 'm0000007-0000-0000-0000-000000000007', 'membre'),
+  ('c0000002-0000-0000-0000-000000000002', 'b0000002-0000-0000-0000-000000000002', 'responsable'),
+  ('c0000002-0000-0000-0000-000000000002', 'b0000007-0000-0000-0000-000000000007', 'membre'),
   -- Locations
-  ('c0000003-0000-0000-0000-000000000003', 'm0000003-0000-0000-0000-000000000003', 'responsable'),
-  ('c0000003-0000-0000-0000-000000000003', 'm0000008-0000-0000-0000-000000000008', 'membre'),
+  ('c0000003-0000-0000-0000-000000000003', 'b0000003-0000-0000-0000-000000000003', 'responsable'),
+  ('c0000003-0000-0000-0000-000000000003', 'b0000008-0000-0000-0000-000000000008', 'membre'),
   -- Sport
-  ('c0000004-0000-0000-0000-000000000004', 'm0000005-0000-0000-0000-000000000005', 'responsable'),
-  ('c0000004-0000-0000-0000-000000000004', 'm0000007-0000-0000-0000-000000000007', 'membre'),
+  ('c0000004-0000-0000-0000-000000000004', 'b0000005-0000-0000-0000-000000000005', 'responsable'),
+  ('c0000004-0000-0000-0000-000000000004', 'b0000007-0000-0000-0000-000000000007', 'membre'),
   -- Noël
-  ('c0000005-0000-0000-0000-000000000005', 'm0000006-0000-0000-0000-000000000006', 'responsable'),
-  ('c0000005-0000-0000-0000-000000000005', 'm0000004-0000-0000-0000-000000000004', 'membre'),
+  ('c0000005-0000-0000-0000-000000000005', 'b0000006-0000-0000-0000-000000000006', 'responsable'),
+  ('c0000005-0000-0000-0000-000000000005', 'b0000004-0000-0000-0000-000000000004', 'membre'),
   -- Sainte-Barbe
-  ('c0000007-0000-0000-0000-000000000007', 'm0000001-0000-0000-0000-000000000001', 'responsable'),
-  ('c0000007-0000-0000-0000-000000000007', 'm0000002-0000-0000-0000-000000000002', 'membre'),
-  ('c0000007-0000-0000-0000-000000000007', 'm0000003-0000-0000-0000-000000000003', 'membre'),
+  ('c0000007-0000-0000-0000-000000000007', 'b0000001-0000-0000-0000-000000000001', 'responsable'),
+  ('c0000007-0000-0000-0000-000000000007', 'b0000002-0000-0000-0000-000000000002', 'membre'),
+  ('c0000007-0000-0000-0000-000000000007', 'b0000003-0000-0000-0000-000000000003', 'membre'),
   -- Solidarité
-  ('c0000008-0000-0000-0000-000000000008', 'm0000004-0000-0000-0000-000000000004', 'responsable'),
+  ('c0000008-0000-0000-0000-000000000008', 'b0000004-0000-0000-0000-000000000004', 'responsable'),
   -- Foyer
-  ('c0000009-0000-0000-0000-000000000009', 'm0000008-0000-0000-0000-000000000008', 'responsable');
+  ('c0000009-0000-0000-0000-000000000009', 'b0000008-0000-0000-0000-000000000008', 'responsable');
 
 
 -- 4.5 Événements
@@ -136,25 +136,25 @@ INSERT INTO events (id, org_id, commission_id, title, description, date, end_dat
 
 -- 4.6 Inscriptions événements
 INSERT INTO event_registrations (event_id, member_id, status, nb_personnes, is_benevole) VALUES
-  ('e0000001-0000-0000-0000-000000000001', 'm0000001-0000-0000-0000-000000000001', 'inscrit', 2, NULL),
-  ('e0000001-0000-0000-0000-000000000001', 'm0000002-0000-0000-0000-000000000002', 'inscrit', 2, NULL),
-  ('e0000001-0000-0000-0000-000000000001', 'm0000005-0000-0000-0000-000000000005', 'inscrit', 1, 'cuisine'),
-  ('e0000001-0000-0000-0000-000000000001', 'm0000006-0000-0000-0000-000000000006', 'inscrit', 1, 'service'),
-  ('e0000002-0000-0000-0000-000000000002', 'm0000005-0000-0000-0000-000000000005', 'inscrit', 1, NULL),
-  ('e0000002-0000-0000-0000-000000000002', 'm0000007-0000-0000-0000-000000000007', 'inscrit', 1, NULL),
-  ('e0000005-0000-0000-0000-000000000005', 'm0000001-0000-0000-0000-000000000001', 'inscrit', 1, NULL),
-  ('e0000005-0000-0000-0000-000000000005', 'm0000007-0000-0000-0000-000000000007', 'inscrit', 1, NULL);
+  ('e0000001-0000-0000-0000-000000000001', 'b0000001-0000-0000-0000-000000000001', 'inscrit', 2, NULL),
+  ('e0000001-0000-0000-0000-000000000001', 'b0000002-0000-0000-0000-000000000002', 'inscrit', 2, NULL),
+  ('e0000001-0000-0000-0000-000000000001', 'b0000005-0000-0000-0000-000000000005', 'inscrit', 1, 'cuisine'),
+  ('e0000001-0000-0000-0000-000000000001', 'b0000006-0000-0000-0000-000000000006', 'inscrit', 1, 'service'),
+  ('e0000002-0000-0000-0000-000000000002', 'b0000005-0000-0000-0000-000000000005', 'inscrit', 1, NULL),
+  ('e0000002-0000-0000-0000-000000000002', 'b0000007-0000-0000-0000-000000000007', 'inscrit', 1, NULL),
+  ('e0000005-0000-0000-0000-000000000005', 'b0000001-0000-0000-0000-000000000001', 'inscrit', 1, NULL),
+  ('e0000005-0000-0000-0000-000000000005', 'b0000007-0000-0000-0000-000000000007', 'inscrit', 1, NULL);
 
 
 -- 4.7 Voyages
 INSERT INTO trips (id, org_id, commission_id, destination, description, start_date, end_date, price_adult, price_child, max_seats, included, itinerary) VALUES
-  ('t0000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'c0000002-0000-0000-0000-000000000002',
+  ('d0000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'c0000002-0000-0000-0000-000000000002',
    'Saint-Malo', 'Week-end découverte de la cité corsaire. Visite des remparts, de l''aquarium et balade en bateau.',
    '2026-09-05 07:00:00+02', '2026-09-07 20:00:00+02', 180, 90, 50,
    '["Transport en bus","Hôtel 2 nuits","Petit-déjeuner","Entrée aquarium"]'::jsonb,
    '[{"jour":1,"titre":"Arrivée & remparts","desc":"Départ 7h, arrivée 12h. Pique-nique puis visite des remparts."},{"jour":2,"titre":"Aquarium & plage","desc":"Visite de l''aquarium le matin, plage et temps libre l''après-midi."},{"jour":3,"titre":"Balade en mer & retour","desc":"Balade en bateau le matin, retour prévu vers 20h."}]'::jsonb),
 
-  ('t0000002-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'c0000002-0000-0000-0000-000000000002',
+  ('d0000002-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'c0000002-0000-0000-0000-000000000002',
    'Strasbourg - Marché de Noël', 'Séjour au cœur des marchés de Noël de Strasbourg. Vin chaud et ambiance féérique.',
    '2026-12-19 06:00:00+01', '2026-12-21 22:00:00+01', 220, 110, 45,
    '["Transport en bus","Hôtel 2 nuits","Petit-déjeuner","Visite guidée"]'::jsonb,
@@ -163,10 +163,10 @@ INSERT INTO trips (id, org_id, commission_id, destination, description, start_da
 
 -- 4.8 Inscriptions voyages
 INSERT INTO trip_registrations (trip_id, member_id, nb_adults, nb_children, total_amount, payment_status) VALUES
-  ('t0000001-0000-0000-0000-000000000001', 'm0000001-0000-0000-0000-000000000001', 2, 1, 450, 'paye'),
-  ('t0000001-0000-0000-0000-000000000001', 'm0000002-0000-0000-0000-000000000002', 1, 0, 180, 'paye'),
-  ('t0000001-0000-0000-0000-000000000001', 'm0000006-0000-0000-0000-000000000006', 2, 2, 540, 'en_attente'),
-  ('t0000002-0000-0000-0000-000000000002', 'm0000001-0000-0000-0000-000000000001', 2, 1, 550, 'en_attente');
+  ('d0000001-0000-0000-0000-000000000001', 'b0000001-0000-0000-0000-000000000001', 2, 1, 450, 'paye'),
+  ('d0000001-0000-0000-0000-000000000001', 'b0000002-0000-0000-0000-000000000002', 1, 0, 180, 'paye'),
+  ('d0000001-0000-0000-0000-000000000001', 'b0000006-0000-0000-0000-000000000006', 2, 2, 540, 'en_attente'),
+  ('d0000002-0000-0000-0000-000000000002', 'b0000001-0000-0000-0000-000000000001', 2, 1, 550, 'en_attente');
 
 
 -- 4.9 Biens locatifs
@@ -190,10 +190,10 @@ INSERT INTO assets (id, org_id, name, type, description, daily_rate, deposit, ru
 
 -- 4.10 Réservations
 INSERT INTO asset_bookings (asset_id, member_id, start_date, end_date, status, total_amount, deposit_paid, notes) VALUES
-  ('a0000001-0000-0000-0000-000000000001', 'm0000001-0000-0000-0000-000000000001', '2026-08-01', '2026-08-08', 'confirmee', 455, 300, 'Vacances famille'),
-  ('a0000001-0000-0000-0000-000000000001', 'm0000005-0000-0000-0000-000000000005', '2026-08-15', '2026-08-22', 'en_attente', 455, 0, 'Semaine 33'),
-  ('a0000002-0000-0000-0000-000000000002', 'm0000006-0000-0000-0000-000000000006', '2026-07-19', '2026-07-20', 'confirmee', 100, 200, 'Anniversaire'),
-  ('a0000004-0000-0000-0000-000000000004', 'm0000007-0000-0000-0000-000000000007', '2026-07-25', '2026-08-01', 'confirmee', 175, 100, 'Camping famille');
+  ('a0000001-0000-0000-0000-000000000001', 'b0000001-0000-0000-0000-000000000001', '2026-08-01', '2026-08-08', 'confirmee', 455, 300, 'Vacances famille'),
+  ('a0000001-0000-0000-0000-000000000001', 'b0000005-0000-0000-0000-000000000005', '2026-08-15', '2026-08-22', 'en_attente', 455, 0, 'Semaine 33'),
+  ('a0000002-0000-0000-0000-000000000002', 'b0000006-0000-0000-0000-000000000006', '2026-07-19', '2026-07-20', 'confirmee', 100, 200, 'Anniversaire'),
+  ('a0000004-0000-0000-0000-000000000004', 'b0000007-0000-0000-0000-000000000007', '2026-07-25', '2026-08-01', 'confirmee', 175, 100, 'Camping famille');
 
 
 -- 4.11 Comptabilité
@@ -217,19 +217,19 @@ INSERT INTO notifications (org_id, commission_id, target_member_id, title, messa
   ('11111111-1111-1111-1111-111111111111', NULL, NULL, 'Inscriptions voyage Saint-Malo ouvertes', 'Les inscriptions pour le week-end à Saint-Malo (5-7 septembre) sont ouvertes ! Places limitées à 50 personnes, ne tardez pas.', false, now() - interval '3 days'),
   ('11111111-1111-1111-1111-111111111111', NULL, NULL, 'Tournoi de foot le 16 août', 'Le tournoi inter-centres aura lieu le samedi 16 août au stade municipal. Inscrivez votre équipe de 6 joueurs dès maintenant.', false, now() - interval '1 day'),
   ('11111111-1111-1111-1111-111111111111', 'c0000001-0000-0000-0000-000000000001', NULL, 'Repas annuel : recherche bénévoles', 'Nous cherchons encore 4 bénévoles pour le service du repas annuel du 20 septembre. Contactez la commission événements.', false, now()),
-  ('11111111-1111-1111-1111-111111111111', 'c0000003-0000-0000-0000-000000000003', 'm0000001-0000-0000-0000-000000000001', 'Votre réservation est confirmée', 'Votre réservation de l''appartement aux Sables d''Olonne du 1er au 8 août est confirmée. Bon séjour !', false, now() - interval '5 days');
+  ('11111111-1111-1111-1111-111111111111', 'c0000003-0000-0000-0000-000000000003', 'b0000001-0000-0000-0000-000000000001', 'Votre réservation est confirmée', 'Votre réservation de l''appartement aux Sables d''Olonne du 1er au 8 août est confirmée. Bon séjour !', false, now() - interval '5 days');
 
 
 -- 4.13 Messages
 INSERT INTO messages (org_id, from_id, to_id, subject, body, read_at) VALUES
-  ('11111111-1111-1111-1111-111111111111', 'm0000002-0000-0000-0000-000000000002', 'm0000001-0000-0000-0000-000000000001', 'Budget Sainte-Barbe', 'Salut Nicolas, j''ai finalisé le budget prévisionnel pour la Sainte-Barbe. On est à 3 800€ avec le traiteur et la déco. Tu valides ?', NULL),
-  ('11111111-1111-1111-1111-111111111111', 'm0000003-0000-0000-0000-000000000003', 'm0000001-0000-0000-0000-000000000001', 'Clés appartement', 'Bonjour, les clés de l''appartement des Sables sont disponibles au foyer. Tu peux passer les récupérer quand tu veux.', NULL),
-  ('11111111-1111-1111-1111-111111111111', 'm0000001-0000-0000-0000-000000000001', 'm0000002-0000-0000-0000-000000000002', 'RE: Budget Sainte-Barbe', 'C''est bon Sophie, le budget est validé. Tu peux lancer les commandes. Merci !', now()),
-  ('11111111-1111-1111-1111-111111111111', 'm0000005-0000-0000-0000-000000000005', 'm0000001-0000-0000-0000-000000000001', 'Inscription tournoi foot', 'Salut ! Je suis dispo pour le tournoi de foot. On peut compter sur Antoine aussi. Il nous manque 4 joueurs, tu sais qui est motivé ?', NULL);
+  ('11111111-1111-1111-1111-111111111111', 'b0000002-0000-0000-0000-000000000002', 'b0000001-0000-0000-0000-000000000001', 'Budget Sainte-Barbe', 'Salut Nicolas, j''ai finalisé le budget prévisionnel pour la Sainte-Barbe. On est à 3 800€ avec le traiteur et la déco. Tu valides ?', NULL),
+  ('11111111-1111-1111-1111-111111111111', 'b0000003-0000-0000-0000-000000000003', 'b0000001-0000-0000-0000-000000000001', 'Clés appartement', 'Bonjour, les clés de l''appartement des Sables sont disponibles au foyer. Tu peux passer les récupérer quand tu veux.', NULL),
+  ('11111111-1111-1111-1111-111111111111', 'b0000001-0000-0000-0000-000000000001', 'b0000002-0000-0000-0000-000000000002', 'RE: Budget Sainte-Barbe', 'C''est bon Sophie, le budget est validé. Tu peux lancer les commandes. Merci !', now()),
+  ('11111111-1111-1111-1111-111111111111', 'b0000005-0000-0000-0000-000000000005', 'b0000001-0000-0000-0000-000000000001', 'Inscription tournoi foot', 'Salut ! Je suis dispo pour le tournoi de foot. On peut compter sur Antoine aussi. Il nous manque 4 joueurs, tu sais qui est motivé ?', NULL);
 
 
 -- 4.14 Documents
 INSERT INTO documents (org_id, commission_id, title, content, created_by) VALUES
-  ('11111111-1111-1111-1111-111111111111', 'c0000001-0000-0000-0000-000000000001', 'PV Réunion bureau juin 2026', 'Compte-rendu de la réunion du bureau du 15 juin 2026. Points abordés : budget Sainte-Barbe, organisation repas annuel, point locations été.', 'm0000003-0000-0000-0000-000000000003'),
-  ('11111111-1111-1111-1111-111111111111', 'c0000002-0000-0000-0000-000000000002', 'Programme voyage Saint-Malo', 'Programme détaillé du week-end à Saint-Malo. Jour 1 : remparts. Jour 2 : aquarium. Jour 3 : balade en mer.', 'm0000002-0000-0000-0000-000000000002'),
-  ('11111111-1111-1111-1111-111111111111', 'c0000007-0000-0000-0000-000000000007', 'Devis traiteur Sainte-Barbe', 'Devis reçu du traiteur Le Gourmand : 35€/pers, menu 4 services, boissons incluses.', 'm0000002-0000-0000-0000-000000000002');
+  ('11111111-1111-1111-1111-111111111111', 'c0000001-0000-0000-0000-000000000001', 'PV Réunion bureau juin 2026', 'Compte-rendu de la réunion du bureau du 15 juin 2026. Points abordés : budget Sainte-Barbe, organisation repas annuel, point locations été.', 'b0000003-0000-0000-0000-000000000003'),
+  ('11111111-1111-1111-1111-111111111111', 'c0000002-0000-0000-0000-000000000002', 'Programme voyage Saint-Malo', 'Programme détaillé du week-end à Saint-Malo. Jour 1 : remparts. Jour 2 : aquarium. Jour 3 : balade en mer.', 'b0000002-0000-0000-0000-000000000002'),
+  ('11111111-1111-1111-1111-111111111111', 'c0000007-0000-0000-0000-000000000007', 'Devis traiteur Sainte-Barbe', 'Devis reçu du traiteur Le Gourmand : 35€/pers, menu 4 services, boissons incluses.', 'b0000002-0000-0000-0000-000000000002');
