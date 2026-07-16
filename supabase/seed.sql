@@ -3,7 +3,7 @@
 -- ============================================================
 
 -- Cette fonction ajoute org_id au JWT pour que les policies RLS
--- puissent utiliser auth.org_id()
+-- puissent utiliser public.org_id()
 CREATE OR REPLACE FUNCTION public.custom_access_token_hook(event JSONB)
 RETURNS JSONB AS $$
 DECLARE

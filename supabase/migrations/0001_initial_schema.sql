@@ -18,7 +18,7 @@ CREATE TABLE organizations (
 CREATE TABLE members (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  user_id UUID,
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   email VARCHAR(255),
@@ -260,7 +260,7 @@ CREATE INDEX messages_to_idx ON messages(to_id);
 CREATE INDEX messages_read_idx ON messages(read_at);
 
 -- Helper function: get current user's org_id from JWT
-CREATE OR REPLACE FUNCTION auth.org_id()
+CREATE OR REPLACE FUNCTION public.org_id()
 RETURNS UUID AS $$
   SELECT (auth.jwt() ->> 'org_id')::UUID;
 $$ LANGUAGE SQL STABLE;
