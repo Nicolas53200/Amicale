@@ -5,6 +5,9 @@ import { ModuleCompta } from "./module-compta";
 import { ModuleDocuments } from "./module-documents";
 import { ModuleMembres } from "./module-membres";
 import { ModuleNotifications } from "./module-notifications";
+import { ModuleEvenements } from "./module-evenements";
+import { ModuleVoyages } from "./module-voyages";
+import { ModuleLocations } from "./module-locations";
 
 interface ModuleTabsProps {
   commissionId: string;
@@ -15,7 +18,10 @@ interface ModuleTabsProps {
 }
 
 const TAB_CONFIG: Record<string, { label: string; icon: string }> = {
-  compta: { label: "Comptabilité", icon: "💰" },
+  evenements: { label: "Evenements", icon: "📅" },
+  voyages: { label: "Voyages", icon: "✈️" },
+  locations: { label: "Locations", icon: "🏠" },
+  compta: { label: "Comptabilite", icon: "💰" },
   documents: { label: "Documents", icon: "📄" },
   membres: { label: "Membres", icon: "👥" },
   notifications: { label: "Notifications", icon: "🔔" },
@@ -31,9 +37,7 @@ export function ModuleTabs({
   const activeFeatures = features.filter((f) => f in TAB_CONFIG);
   if (activeFeatures.length === 0) return null;
 
-  const defaultTab = activeFeatures.includes("compta")
-    ? "compta"
-    : activeFeatures[0]!;
+  const defaultTab = activeFeatures[0]!;
 
   return (
     <Tabs defaultValue={defaultTab}>
@@ -45,6 +49,24 @@ export function ModuleTabs({
           </TabsTrigger>
         ))}
       </TabsList>
+
+      {activeFeatures.includes("evenements") && (
+        <TabsContent value="evenements">
+          <ModuleEvenements commissionId={commissionId} isReadOnly={isReadOnly} />
+        </TabsContent>
+      )}
+
+      {activeFeatures.includes("voyages") && (
+        <TabsContent value="voyages">
+          <ModuleVoyages commissionId={commissionId} isReadOnly={isReadOnly} />
+        </TabsContent>
+      )}
+
+      {activeFeatures.includes("locations") && (
+        <TabsContent value="locations">
+          <ModuleLocations commissionId={commissionId} isReadOnly={isReadOnly} />
+        </TabsContent>
+      )}
 
       {activeFeatures.includes("compta") && (
         <TabsContent value="compta">
