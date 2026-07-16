@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/button";
-import { StatCard } from "@/components/ui/stat-card";
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { CommissionCard } from "@/components/commission/commission-card";
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -9,6 +8,7 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "EUR",
+    maximumFractionDigits: 0,
   }).format(n);
 
 export default async function CommissionsPage() {
@@ -23,33 +23,45 @@ export default async function CommissionsPage() {
   const list = commissions ?? [];
   const total = list.length;
   const fixed = list.filter((c) => c.is_fixed).length;
-  const custom = total - fixed;
   const budgetTotal = list.reduce(
     (s, c) => s + parseFloat(c.budget || "0"),
     0
   );
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-content-primary">
-            Commissions
-          </h1>
-          <p className="text-sm text-content-secondary">
-            Gérez les commissions de votre amicale
-          </p>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Commissions"
+        subtitle="Organisation interne"
+        backHref="/bureau/dashboard"
+      />
+
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-[14px] bg-surface-elevated p-3 shadow-sm">
+          <p className="text-[10px] font-semibold uppercase text-content-muted">Total</p>
+          <p className="mt-1 text-xl font-bold tabular-nums text-content-primary">{total}</p>
         </div>
-        <Button asChild>
-          <Link href="/bureau/commissions/new">Nouvelle commission</Link>
-        </Button>
+        <div className="rounded-[14px] bg-surface-elevated p-3 shadow-sm">
+          <p className="text-[10px] font-semibold uppercase text-content-muted">Fixes</p>
+          <p className="mt-1 text-xl font-bold tabular-nums text-content-primary">{fixed}</p>
+        </div>
+        <div className="rounded-[14px] bg-surface-elevated p-3 shadow-sm">
+          <p className="text-[10px] font-semibold uppercase text-content-muted">Budget</p>
+          <p className="mt-1 text-lg font-bold tabular-nums text-content-primary">{fmt(budgetTotal)}</p>
+        </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total" value={String(total)} icon="📋" />
-        <StatCard label="Fixes" value={String(fixed)} icon="📌" />
-        <StatCard label="Custom" value={String(custom)} icon="✨" />
-        <StatCard label="Budget total" value={fmt(budgetTotal)} icon="💰" />
+      <div className="flex items-center justify-between">
+        <h3 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
+          Toutes les commissions
+        </h3>
+        <Link
+          href="/bureau/commissions/new"
+          className="btn-gradient rounded-full px-4 py-2 text-[12px] font-semibold text-white"
+        >
+          + Nouvelle
+        </Link>
       </div>
 
       {list.length === 0 ? (

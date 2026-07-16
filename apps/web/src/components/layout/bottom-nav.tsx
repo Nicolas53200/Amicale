@@ -11,11 +11,9 @@ interface NavItem {
 }
 
 const bureauNav: NavItem[] = [
-  { href: "/bureau/dashboard", label: "Accueil", icon: "home" },
-  { href: "/bureau/evenements", label: "Événements", icon: "calendar" },
-  { href: "/bureau/locations", label: "Locations", icon: "key" },
-  { href: "/bureau/membres", label: "Membres", icon: "users" },
-  { href: "/bureau/messagerie", label: "Messages", icon: "mail" },
+  { href: "/amicaliste/accueil", label: "Amicaliste", icon: "home" },
+  { href: "/bureau/dashboard", label: "Bureau", icon: "briefcase" },
+  { href: "/bureau/messagerie", label: "Messages", icon: "message-circle" },
 ];
 
 const amicalisteNav: NavItem[] = [
@@ -27,11 +25,8 @@ const amicalisteNav: NavItem[] = [
 const iconPaths: Record<string, string> = {
   home: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
   users: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M16 3.13a4 4 0 0 1 0 7.75",
-  mail: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
   "message-circle": "M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z",
-  calendar: "M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M16 2v4 M8 2v4 M3 10h18",
-  "map-pin": "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
-  key: "M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4",
+  briefcase: "M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2",
 };
 
 function NavIcon({ name, active }: { name: string; active: boolean }) {
@@ -63,7 +58,10 @@ export function BottomNav({ role }: { role: "bureau" | "amicaliste" }) {
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface-elevated/92 backdrop-blur-xl md:hidden pb-[env(safe-area-inset-bottom)]" style={{ borderTop: '0.5px solid rgba(0,0,0,0.08)' }}>
       <div className="flex items-center justify-around">
         {items.map((item) => {
-          const active = pathname.startsWith(item.href);
+          const active =
+            role === "bureau" && item.href === "/bureau/dashboard"
+              ? pathname.startsWith("/bureau")
+              : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}

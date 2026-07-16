@@ -8,7 +8,9 @@ export default function BureauLayout({
 }) {
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Topbar role="bureau" />
+      <div className="hidden md:block">
+        <Topbar role="bureau" />
+      </div>
       <main className="mx-auto max-w-7xl px-4 py-6 pb-20 md:pb-6">
         {children}
       </main>

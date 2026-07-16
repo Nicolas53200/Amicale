@@ -70,6 +70,15 @@
     animation: scaleIn 0.2s ease-out;
   }
 
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   .bg-accent-gradient {
     background: var(--accent-gradient);
   }

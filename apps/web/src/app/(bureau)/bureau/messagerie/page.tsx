@@ -1,14 +1,14 @@
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { Inbox } from "@/components/messages/inbox";
 
 export default function MessageriePage() {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-content-primary">Messagerie</h1>
-        <p className="text-sm text-content-secondary">
-          Échangez avec les membres de votre amicale
-        </p>
-      </div>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Messagerie"
+        subtitle="Échangez avec les membres"
+        backHref="/bureau/dashboard"
+      />
       <Inbox />
     </div>
   );
