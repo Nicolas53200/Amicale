@@ -6,7 +6,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -37,58 +36,57 @@ export default function LoginPage() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="mb-2 text-center text-3xl font-bold text-brand-500">
-          Amicale
-        </div>
-        <CardTitle className="text-center">Connexion</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-sm font-medium text-content-secondary">
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="votre@email.fr"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm font-medium text-content-secondary">
-              Mot de passe
-            </label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
-          </div>
-          {error && (
-            <p className="text-sm text-red-500">{error}</p>
-          )}
-          <Button type="submit" disabled={loading}>
-            {loading ? "Connexion..." : "Se connecter"}
-          </Button>
-        </form>
-        <div className="mt-6 text-center text-sm text-content-muted">
-          <Link
-            href="/invitation"
-            className="text-brand-500 hover:underline"
+    <div className="rounded-[20px] bg-surface-elevated p-6 shadow-sm">
+      <h2 className="mb-5 text-center text-lg font-bold text-content-primary">
+        Connexion
+      </h2>
+      <form onSubmit={handleLogin} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="email"
+            className="text-[13px] font-medium text-content-secondary"
           >
-            Rejoindre avec un code d&apos;invitation
-          </Link>
+            Email
+          </label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="votre@email.fr"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+          />
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="password"
+            className="text-[13px] font-medium text-content-secondary"
+          >
+            Mot de passe
+          </label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+          />
+        </div>
+        {error && <p className="text-sm text-red-500">{error}</p>}
+        <Button type="submit" disabled={loading} className="mt-1">
+          {loading ? "Connexion..." : "Se connecter"}
+        </Button>
+      </form>
+      <div className="mt-6 text-center">
+        <Link
+          href="/invitation"
+          className="text-[13px] font-medium text-brand-500 hover:underline"
+        >
+          Rejoindre avec un code d&apos;invitation
+        </Link>
+      </div>
+    </div>
   );
 }

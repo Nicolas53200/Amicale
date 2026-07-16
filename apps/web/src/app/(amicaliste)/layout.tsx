@@ -8,7 +8,9 @@ export default function AmicalisteLayout({
 }) {
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Topbar role="amicaliste" />
+      <div className="hidden md:block">
+        <Topbar role="amicaliste" />
+      </div>
       <main className="mx-auto max-w-3xl px-4 py-6 pb-20 md:pb-6">
         {children}
       </main>
