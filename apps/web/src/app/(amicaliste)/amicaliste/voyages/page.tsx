@@ -1,18 +1,17 @@
 import { TripCard } from "@/components/trips/trip-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { getUpcomingTrips } from "@/lib/actions/trips";
 
 export default async function VoyagesPage() {
   const trips = await getUpcomingTrips();
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-content-primary">Voyages</h1>
-        <p className="text-sm text-content-secondary">
-          Les prochains voyages proposés par votre amicale
-        </p>
-      </div>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Voyages"
+        subtitle={`${trips.length} voyage${trips.length > 1 ? "s" : ""} à venir`}
+      />
 
       {trips.length === 0 ? (
         <EmptyState

@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { GradientHeader } from "@/components/layout/gradient-header";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -33,6 +31,7 @@ interface EventData {
 
 export default function EvenementDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const [event, setEvent] = useState<EventData | null>(null);
   const [myMemberId, setMyMemberId] = useState<string | null>(null);
@@ -118,7 +117,7 @@ export default function EvenementDetailPage() {
   if (!event) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm text-content-muted">Chargement...</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
       </div>
     );
   }
@@ -131,31 +130,19 @@ export default function EvenementDetailPage() {
   const isFull = event.max_attendees
     ? inscrits.length >= event.max_attendees
     : false;
+  const d = new Date(event.date);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <Link
-          href="/amicaliste/evenements"
-          className="text-sm text-brand-500 hover:underline"
-        >
-          ← Événements
-        </Link>
-        <h1 className="mt-2 text-2xl font-bold text-content-primary">
-          {event.title}
-        </h1>
-        <p className="mt-1 text-sm text-content-muted">
-          {new Date(event.date).toLocaleDateString("fr-FR", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-          {event.location && ` · ${event.location}`}
-        </p>
-        <div className="mt-2 flex gap-2">
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title={event.title}
+        subtitle={`${d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}${event.location ? ` · ${event.location}` : ""}`}
+        backHref="/amicaliste/evenements"
+      />
+
+      {/* Info */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <div className="flex flex-wrap gap-2">
           {event.price > 0 ? (
             <Badge variant="default">{fmt(event.price)}</Badge>
           ) : (
@@ -164,94 +151,119 @@ export default function EvenementDetailPage() {
           {event.category && <Badge variant="neutral">{event.category}</Badge>}
           {isFull && <Badge variant="danger">Complet</Badge>}
         </div>
-      </div>
-
-      {event.description && (
-        <p className="text-sm text-content-secondary">{event.description}</p>
-      )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Votre inscription</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {myRegistration ? (
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-content-primary">
-                  Vous êtes inscrit{myRegistration.is_benevole ? " comme bénévole" : ""}
-                </p>
-                <p className="text-xs text-content-muted">
-                  {myRegistration.nb_personnes} personne{myRegistration.nb_personnes > 1 ? "s" : ""}
-                </p>
-              </div>
-              <Button variant="destructive" size="sm" onClick={handleCancel} disabled={loading}>
-                Se désinscrire
-              </Button>
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={handleInscription} disabled={loading || isFull}>
-                {isFull ? "Complet" : "S'inscrire"}
-              </Button>
-              {event.max_benevoles !== 0 && (
-                <Button variant="secondary" onClick={handleBenevole} disabled={loading}>
-                  Devenir bénévole
-                </Button>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Inscrits ({inscrits.length}
-              {event.max_attendees ? ` / ${event.max_attendees}` : ""})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {inscrits.length === 0 ? (
-              <p className="text-sm text-content-muted">Aucun inscrit</p>
-            ) : (
-              <ul className="flex flex-col gap-1">
-                {inscrits.map((r) => (
-                  <li key={r.member_id} className="text-sm text-content-secondary">
-                    {r.members.first_name} {r.members.last_name}
-                    {r.nb_personnes > 1 && ` (+${r.nb_personnes - 1})`}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-
-        {(benevoles.length > 0 || event.max_benevoles) && (
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Bénévoles ({benevoles.length}
-                {event.max_benevoles ? ` / ${event.max_benevoles}` : ""})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {benevoles.length === 0 ? (
-                <p className="text-sm text-content-muted">Aucun bénévole</p>
-              ) : (
-                <ul className="flex flex-col gap-1">
-                  {benevoles.map((r) => (
-                    <li key={r.member_id} className="text-sm text-content-secondary">
-                      {r.members.first_name} {r.members.last_name}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
+        {event.description && (
+          <p className="mt-3 text-[13px] text-content-secondary">
+            {event.description}
+          </p>
         )}
       </div>
+
+      {/* Inscription */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Votre inscription
+        </h3>
+        {myRegistration ? (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[13px] font-medium text-content-primary">
+                Vous êtes inscrit{myRegistration.is_benevole ? " comme bénévole" : ""}
+              </p>
+              <p className="text-[11px] text-content-muted">
+                {myRegistration.nb_personnes} personne{myRegistration.nb_personnes > 1 ? "s" : ""}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={loading}
+              className="rounded-full bg-red-50 px-4 py-2 text-[12px] font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400"
+            >
+              Se désinscrire
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleInscription}
+              disabled={loading || isFull}
+              className="btn-gradient flex-1 rounded-[14px] px-4 py-3 text-[13px] font-semibold text-white disabled:opacity-50"
+            >
+              {isFull ? "Complet" : "S'inscrire"}
+            </button>
+            {event.max_benevoles !== 0 && (
+              <button
+                type="button"
+                onClick={handleBenevole}
+                disabled={loading}
+                className="flex-1 rounded-[14px] bg-surface-secondary px-4 py-3 text-[13px] font-semibold text-content-primary"
+              >
+                Devenir bénévole
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Inscrits */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Inscrits ({inscrits.length}
+          {event.max_attendees ? ` / ${event.max_attendees}` : ""})
+        </h3>
+        {inscrits.length === 0 ? (
+          <p className="py-2 text-center text-[13px] text-content-muted">Aucun inscrit</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {inscrits.map((r) => (
+              <div key={r.member_id} className="flex items-center gap-3 rounded-[10px] bg-surface-secondary p-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-50 text-[12px] font-bold text-brand-600 dark:bg-brand-500/10">
+                  {r.members.first_name[0]}{r.members.last_name[0]}
+                </div>
+                <div className="flex-1">
+                  <p className="text-[13px] font-medium text-content-primary">
+                    {r.members.first_name} {r.members.last_name}
+                  </p>
+                  <p className="text-[11px] text-content-muted">
+                    {r.nb_personnes} personne{r.nb_personnes > 1 ? "s" : ""}
+                  </p>
+                </div>
+                <Badge variant={r.status === "inscrit" ? "success" : "neutral"}>
+                  {r.status}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Bénévoles */}
+      {(benevoles.length > 0 || event.max_benevoles) && (
+        <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+          <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+            Bénévoles ({benevoles.length}
+            {event.max_benevoles ? ` / ${event.max_benevoles}` : ""})
+          </h3>
+          {benevoles.length === 0 ? (
+            <p className="py-2 text-center text-[13px] text-content-muted">Aucun bénévole</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {benevoles.map((r) => (
+                <div key={r.member_id} className="flex items-center gap-3 rounded-[10px] bg-surface-secondary p-2.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50 text-[12px] font-bold text-amber-600 dark:bg-amber-500/10">
+                    {r.members.first_name[0]}{r.members.last_name[0]}
+                  </div>
+                  <span className="flex-1 text-[13px] font-medium text-content-primary">
+                    {r.members.first_name} {r.members.last_name}
+                  </span>
+                  <Badge variant="warning">Bénévole</Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

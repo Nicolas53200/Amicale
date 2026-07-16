@@ -1,20 +1,17 @@
 import { EventCard } from "@/components/events/event-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { getUpcomingEvents } from "@/lib/actions/events";
 
 export default async function EvenementsPage() {
   const events = await getUpcomingEvents();
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-content-primary">
-          Événements
-        </h1>
-        <p className="text-sm text-content-secondary">
-          Les prochains événements de votre amicale
-        </p>
-      </div>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Événements"
+        subtitle={`${events.length} événement${events.length > 1 ? "s" : ""} à venir`}
+      />
 
       {events.length === 0 ? (
         <EmptyState

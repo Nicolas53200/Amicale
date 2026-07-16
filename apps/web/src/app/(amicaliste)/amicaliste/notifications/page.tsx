@@ -1,16 +1,13 @@
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { NotificationList } from "@/components/notifications/notification-list";
 
 export default function NotificationsPage() {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-content-primary">
-          Notifications
-        </h1>
-        <p className="text-sm text-content-secondary">
-          Restez informé de l&apos;actualité de votre amicale
-        </p>
-      </div>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Notifications"
+        subtitle="Restez informé de l'actualité de votre amicale"
+      />
       <NotificationList />
     </div>
   );

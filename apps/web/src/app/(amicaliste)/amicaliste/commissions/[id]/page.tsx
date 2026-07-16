@@ -1,10 +1,16 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { ModuleTabs } from "@/components/commission/module-tabs";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+
+const modelLabels: Record<string, string> = {
+  simple: "Simple",
+  evenement: "Événements",
+  location: "Locations",
+  voyage: "Voyages",
+  bons: "Bons cadeaux",
+};
 
 export default async function CommissionAmicalisteDetailPage({
   params,
@@ -26,36 +32,25 @@ export default async function CommissionAmicalisteDetailPage({
   const features = (commission.features as string[]) ?? [];
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <div
-            className={cn(
-              "flex h-14 w-14 items-center justify-center rounded-xl text-2xl",
-              commission.color ? "" : "bg-brand-100 dark:bg-brand-500/20"
-            )}
-            style={
-              commission.color
-                ? { backgroundColor: `${commission.color}20`, color: commission.color }
-                : undefined
-            }
-          >
-            {commission.icon || "📋"}
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-content-primary">
-              {commission.name}
-            </h1>
-            {commission.description && (
-              <p className="text-sm text-content-muted">
-                {commission.description}
-              </p>
-            )}
-          </div>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title={`${commission.icon || "📋"} ${commission.name}`}
+        subtitle={commission.description || modelLabels[commission.model] || commission.model}
+        backHref="/amicaliste/commissions"
+      />
+
+      {/* Info card */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="neutral">
+            {modelLabels[commission.model] || commission.model}
+          </Badge>
+          {budget > 0 && (
+            <Badge variant="default">
+              Budget : {new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(budget)}
+            </Badge>
+          )}
         </div>
-        <Button variant="secondary" asChild>
-          <Link href="/amicaliste/commissions">Retour</Link>
-        </Button>
       </div>
 
       <ModuleTabs

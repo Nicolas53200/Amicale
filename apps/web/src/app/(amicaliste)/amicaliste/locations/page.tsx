@@ -1,18 +1,17 @@
 import { AssetCard } from "@/components/assets/asset-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { getAssets } from "@/lib/actions/assets";
 
 export default async function LocationsPage() {
   const assets = await getAssets();
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-content-primary">Locations</h1>
-        <p className="text-sm text-content-secondary">
-          Les biens disponibles à la location
-        </p>
-      </div>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Locations"
+        subtitle="Les biens disponibles à la location"
+      />
 
       {assets.length === 0 ? (
         <EmptyState
