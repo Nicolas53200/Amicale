@@ -8,6 +8,15 @@ import { ModuleNotifications } from "./module-notifications";
 import { ModuleEvenements } from "./module-evenements";
 import { ModuleVoyages } from "./module-voyages";
 import { ModuleLocations } from "./module-locations";
+import { NoelBureau } from "./noel-bureau";
+import { NoelAmicaliste } from "./noel-amicaliste";
+import { FdfBureau } from "./fdf-bureau";
+import { FdfAmicaliste } from "./fdf-amicaliste";
+import { SainteBarbeBureau } from "./saintebarbe-bureau";
+import { SainteBarbeAmicaliste } from "./saintebarbe-amicaliste";
+import { SolidariteBureau } from "./solidarite-bureau";
+import { SolidariteAmicaliste } from "./solidarite-amicaliste";
+import { FoyerBureau } from "./foyer-bureau";
 
 interface ModuleTabsProps {
   commissionId: string;
@@ -27,6 +36,30 @@ const TAB_CONFIG: Record<string, { label: string; icon: string }> = {
   notifications: { label: "Notifications", icon: "🔔" },
 };
 
+const SPECIALIZED_KEYWORDS: Record<string, string> = {
+  "noel": "noel",
+  "noël": "noel",
+  "arbre": "noel",
+  "fdf": "fdf",
+  "femmes": "fdf",
+  "fête des femmes": "fdf",
+  "sainte-barbe": "saintebarbe",
+  "sainte barbe": "saintebarbe",
+  "saintebarbe": "saintebarbe",
+  "solidarite": "solidarite",
+  "solidarité": "solidarite",
+  "action sociale": "solidarite",
+  "foyer": "foyer",
+};
+
+function detectSpecialized(name: string): string | null {
+  const lower = name.toLowerCase();
+  for (const [keyword, type] of Object.entries(SPECIALIZED_KEYWORDS)) {
+    if (lower.includes(keyword)) return type;
+  }
+  return null;
+}
+
 export function ModuleTabs({
   commissionId,
   commissionName,
@@ -34,6 +67,28 @@ export function ModuleTabs({
   budget,
   isReadOnly = false,
 }: ModuleTabsProps) {
+  const specialized = detectSpecialized(commissionName);
+
+  if (specialized) {
+    if (isReadOnly) {
+      switch (specialized) {
+        case "noel": return <NoelAmicaliste />;
+        case "fdf": return <FdfAmicaliste />;
+        case "saintebarbe": return <SainteBarbeAmicaliste />;
+        case "solidarite": return <SolidariteAmicaliste />;
+        case "foyer": return null;
+      }
+    } else {
+      switch (specialized) {
+        case "noel": return <NoelBureau budget={budget} />;
+        case "fdf": return <FdfBureau budget={budget} />;
+        case "saintebarbe": return <SainteBarbeBureau budget={budget} />;
+        case "solidarite": return <SolidariteBureau budget={budget} />;
+        case "foyer": return <FoyerBureau budget={budget} />;
+      }
+    }
+  }
+
   const activeFeatures = features.filter((f) => f in TAB_CONFIG);
   if (activeFeatures.length === 0) return null;
 
