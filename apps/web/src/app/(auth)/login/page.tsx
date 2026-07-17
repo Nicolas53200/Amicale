@@ -101,12 +101,18 @@ export default function LoginPage() {
           {loading ? "Connexion..." : "Se connecter"}
         </Button>
       </form>
-      <div className="mt-6 text-center">
+      <div className="mt-6 flex flex-col items-center gap-2 text-center">
         <Link
           href="/invitation"
           className="text-[13px] font-medium text-brand-500 hover:underline"
         >
           Rejoindre avec un code d&apos;invitation
+        </Link>
+        <Link
+          href="/setup"
+          className="text-[13px] font-medium text-content-muted hover:text-brand-500 hover:underline"
+        >
+          Créer une nouvelle amicale
         </Link>
       </div>
     </div>

@@ -2,6 +2,30 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/email";
+import { buildInvitationEmail } from "@/lib/emails/invitation";
+
+async function getCurrentMemberOrg() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Non authentifié");
+
+  const { data: member } = await supabase
+    .from("members")
+    .select("org_id, organizations:org_id(name)")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!member) throw new Error("Membre non trouvé");
+
+  const orgName = (member.organizations as unknown as { name: string } | null)?.name ?? "Amicale";
+  return { supabase, user, orgId: member.org_id as string, orgName };
+}
+
+function buildInvitationUrl(code: string): string {
+  const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  return `${base}/invitation/${code}`;
+}
 
 export async function getMembers() {
   const supabase = await createClient();
@@ -43,23 +67,18 @@ export async function getMemberStats() {
 }
 
 export async function createMember(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase, orgId, orgName } = await getCurrentMemberOrg();
 
   const firstName = formData.get("first_name") as string;
+  const memberEmail = (formData.get("email") as string) || null;
   const suffix = Math.floor(1000 + Math.random() * 9000);
   const invitationCode = `INV-${firstName.toUpperCase()}-${suffix}`;
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Non authentifié");
-
-  const orgId = user.user_metadata?.org_id;
-  if (!orgId) throw new Error("Organisation non trouvée");
 
   const { error } = await supabase.from("members").insert({
     org_id: orgId,
     first_name: firstName,
     last_name: formData.get("last_name") as string,
-    email: (formData.get("email") as string) || null,
+    email: memberEmail,
     phone: (formData.get("phone") as string) || null,
     role: (formData.get("role") as string) || "membre",
     grade: (formData.get("grade") as string) || null,
@@ -69,6 +88,16 @@ export async function createMember(formData: FormData) {
   });
 
   if (error) throw error;
+
+  if (memberEmail) {
+    const { subject, html } = buildInvitationEmail({
+      firstName,
+      orgName,
+      invitationUrl: buildInvitationUrl(invitationCode),
+    });
+    await sendEmail({ to: memberEmail, subject, html });
+  }
+
   revalidatePath("/bureau/membres");
   return { invitationCode };
 }
@@ -132,15 +161,8 @@ export async function updateMemberStatus(id: string, status: string) {
 }
 
 export async function inviteMember(email: string) {
-  const supabase = await createClient();
+  const { supabase, orgId, orgName } = await getCurrentMemberOrg();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Non authentifie");
-
-  const orgId = user.user_metadata?.org_id;
-  if (!orgId) throw new Error("Organisation non trouvee");
-
-  // Check if member with this email already exists
   const { data: existing } = await supabase
     .from("members")
     .select("id")
@@ -149,7 +171,7 @@ export async function inviteMember(email: string) {
     .maybeSingle();
 
   if (existing) {
-    throw new Error("Un membre avec cet email existe deja");
+    throw new Error("Un membre avec cet email existe déjà");
   }
 
   const suffix = Math.floor(1000 + Math.random() * 9000);
@@ -166,6 +188,14 @@ export async function inviteMember(email: string) {
   });
 
   if (error) throw error;
+
+  const { subject, html } = buildInvitationEmail({
+    firstName: "",
+    orgName,
+    invitationUrl: buildInvitationUrl(invitationCode),
+  });
+  await sendEmail({ to: email, subject, html });
+
   revalidatePath("/bureau/membres");
   return { invitationCode };
 }
