@@ -282,6 +282,7 @@ export default async function AccueilPage() {
           {[
             { href: "/amicaliste/calendrier", icon: "📅", label: "Calendrier", bg: "bg-purple-100 dark:bg-purple-500/20" },
             { href: "/amicaliste/locations", icon: "🏠", label: "Locations", bg: "bg-teal-100 dark:bg-teal-500/20" },
+            { href: "/amicaliste/cotisations", icon: "💳", label: "Cotisation", bg: "bg-emerald-100 dark:bg-emerald-500/20" },
             { href: "/amicaliste/commissions", icon: "📋", label: "Commissions", bg: "bg-rose-100 dark:bg-rose-500/20" },
             { href: "/amicaliste/galerie", icon: "📷", label: "Galerie", bg: "bg-cyan-100 dark:bg-cyan-500/20" },
             { href: "/amicaliste/journal", icon: "📰", label: "Journal", bg: "bg-rose-100 dark:bg-rose-500/20" },
