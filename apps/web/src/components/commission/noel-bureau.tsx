@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useCommissionItems, useCommissionContacts } from "@/hooks/use-commission-data";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -15,17 +16,20 @@ interface Bon {
 }
 
 interface Magasin {
+  id?: string;
   nom: string;
   adresse: string;
 }
 
 interface Materiel {
+  id?: string;
   nom: string;
   qte: number;
   fournisseur: string;
 }
 
 interface Achat {
+  id?: string;
   lib: string;
   qte: number;
   pu: number;
@@ -60,18 +64,69 @@ const DEMO_ACHATS: Achat[] = [
 type Tab = "tableau" | "bons" | "logistique" | "compta";
 type BonFilter = "tous" | "attente" | "remis" | "limite";
 
-export function NoelBureau({ budget = 3000 }: { budget?: number }) {
+export function NoelBureau({ commissionId, budget = 3000 }: { commissionId: string; budget?: number }) {
   const [tab, setTab] = useState<Tab>("tableau");
   const [prixBon, setPrixBon] = useState(40);
   const [ageLimite, setAgeLimite] = useState(16);
-  const [magasins, setMagasins] = useState(DEMO_MAGASINS);
-  const [bons, setBons] = useState(DEMO_BONS);
-  const [materiel, setMateriel] = useState(DEMO_MATERIEL);
-  const [achats, setAchats] = useState(DEMO_ACHATS);
   const [bonFilter, setBonFilter] = useState<BonFilter>("tous");
   const [showMagasinModal, setShowMagasinModal] = useState(false);
   const [magNom, setMagNom] = useState("");
   const [magAdr, setMagAdr] = useState("");
+
+  // Supabase hooks
+  const { contacts: dbMagasins, loading: loadingMag, add: addMagasinDb, remove: removeMagasinDb } = useCommissionContacts(commissionId, "magasin");
+  const { items: dbBons, loading: loadingBons, update: updateBonDb } = useCommissionItems(commissionId, "voucher");
+  const { items: dbMateriel, loading: loadingMat, remove: removeMaterielDb } = useCommissionItems(commissionId, "material");
+  const { items: dbAchats, loading: loadingAch, remove: removeAchatDb } = useCommissionItems(commissionId, "stock");
+
+  // Local state for demo fallback (allows local mutations on demo data)
+  const [localMagasins, setLocalMagasins] = useState(DEMO_MAGASINS);
+  const [localBons, setLocalBons] = useState(DEMO_BONS);
+  const [localMateriel, setLocalMateriel] = useState(DEMO_MATERIEL);
+  const [localAchats, setLocalAchats] = useState(DEMO_ACHATS);
+
+  // Determine whether to use DB or demo fallback
+  const useDbMagasins = !loadingMag && dbMagasins.length > 0;
+  const useDbBons = !loadingBons && dbBons.length > 0;
+  const useDbMateriel = !loadingMat && dbMateriel.length > 0;
+  const useDbAchats = !loadingAch && dbAchats.length > 0;
+
+  // Map DB data to local shape, fall back to demo
+  const magasins: Magasin[] = useDbMagasins
+    ? dbMagasins.map(c => ({
+        id: c.id as string,
+        nom: c.name as string,
+        adresse: (c.address as string) ?? "",
+      }))
+    : localMagasins;
+
+  const bons: Bon[] = useDbBons
+    ? dbBons.map(i => ({
+        id: i.id as string,
+        enfant: i.name as string,
+        age: ((i.metadata as Record<string, unknown>)?.age as number) ?? 0,
+        famille: ((i.metadata as Record<string, unknown>)?.famille as string) ?? "",
+        statut: (((i.metadata as Record<string, unknown>)?.statut as string) ?? "attente") as "attente" | "remis",
+      }))
+    : localBons;
+
+  const materiel: Materiel[] = useDbMateriel
+    ? dbMateriel.map(i => ({
+        id: i.id as string,
+        nom: i.name as string,
+        qte: (i.quantity as number) ?? 0,
+        fournisseur: ((i.metadata as Record<string, unknown>)?.fournisseur as string) ?? "",
+      }))
+    : localMateriel;
+
+  const achats: Achat[] = useDbAchats
+    ? dbAchats.map(i => ({
+        id: i.id as string,
+        lib: i.name as string,
+        qte: (i.quantity as number) ?? 0,
+        pu: (i.price as number) ?? 0,
+      }))
+    : localAchats;
 
   const eligibles = bons.filter((b) => b.age <= ageLimite);
   const familles = new Set(eligibles.map((b) => b.famille));
@@ -86,11 +141,59 @@ export function NoelBureau({ budget = 3000 }: { budget?: number }) {
     return true;
   });
 
+  // CRUD handlers
+  const handleRemoveMagasin = (m: Magasin, i: number) => {
+    if (m.id && useDbMagasins) {
+      removeMagasinDb(m.id);
+    } else {
+      setLocalMagasins(p => p.filter((_, j) => j !== i));
+    }
+  };
+
+  const handleAddMagasin = () => {
+    if (magNom) {
+      addMagasinDb({ name: magNom, address: magAdr, type: "magasin" });
+      setMagNom("");
+      setMagAdr("");
+      setShowMagasinModal(false);
+    }
+  };
+
+  const handleToggleBon = (b: Bon) => {
+    const newStatut = b.statut === "remis" ? "attente" : "remis";
+    if (useDbBons) {
+      const dbBon = dbBons.find(d => d.id === b.id);
+      if (dbBon) {
+        updateBonDb(b.id, {
+          metadata: { ...(dbBon.metadata as Record<string, unknown>), statut: newStatut },
+        });
+      }
+    } else {
+      setLocalBons(p => p.map(x => x.id === b.id ? { ...x, statut: newStatut } : x));
+    }
+  };
+
+  const handleRemoveMateriel = (m: Materiel, i: number) => {
+    if (m.id && useDbMateriel) {
+      removeMaterielDb(m.id);
+    } else {
+      setLocalMateriel(p => p.filter((_, j) => j !== i));
+    }
+  };
+
+  const handleRemoveAchat = (a: Achat, i: number) => {
+    if (a.id && useDbAchats) {
+      removeAchatDb(a.id);
+    } else {
+      setLocalAchats(p => p.filter((_, j) => j !== i));
+    }
+  };
+
   const tabs: { key: Tab; icon: string; label: string }[] = [
-    { key: "tableau", icon: "📊", label: "Tableau" },
-    { key: "bons", icon: "🎁", label: "Bons cadeaux" },
-    { key: "logistique", icon: "📦", label: "Logistique" },
-    { key: "compta", icon: "💰", label: "Compta" },
+    { key: "tableau", icon: "\u{1F4CA}", label: "Tableau" },
+    { key: "bons", icon: "\u{1F381}", label: "Bons cadeaux" },
+    { key: "logistique", icon: "\u{1F4E6}", label: "Logistique" },
+    { key: "compta", icon: "\u{1F4B0}", label: "Compta" },
   ];
 
   return (
@@ -137,12 +240,12 @@ export function NoelBureau({ budget = 3000 }: { budget?: number }) {
             <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Paramètres des bons cadeaux</p>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-[11px] font-medium text-content-muted">Montant du bon (€)</label>
+                <label className="mb-1 block text-[11px] font-medium text-content-muted">Montant du bon (&euro;)</label>
                 <input type="number" value={prixBon} onChange={(e) => setPrixBon(Number(e.target.value))}
                   className="w-full rounded-[10px] bg-surface-secondary px-3 py-2 text-[13px] text-content-primary" />
               </div>
               <div>
-                <label className="mb-1 block text-[11px] font-medium text-content-muted">Âge limite (ans)</label>
+                <label className="mb-1 block text-[11px] font-medium text-content-muted">&Acirc;ge limite (ans)</label>
                 <input type="number" value={ageLimite} onChange={(e) => setAgeLimite(Number(e.target.value))}
                   className="w-full rounded-[10px] bg-surface-secondary px-3 py-2 text-[13px] text-content-primary" />
               </div>
@@ -168,12 +271,12 @@ export function NoelBureau({ budget = 3000 }: { budget?: number }) {
             <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Magasins partenaires</p>
             <div className="flex flex-col gap-2">
               {magasins.map((m, i) => (
-                <div key={i} className="flex items-center justify-between rounded-[12px] bg-surface-secondary px-3 py-2.5">
+                <div key={m.id ?? i} className="flex items-center justify-between rounded-[12px] bg-surface-secondary px-3 py-2.5">
                   <div>
                     <p className="text-[13px] font-semibold text-content-primary">{m.nom}</p>
                     <p className="text-[11px] text-content-muted">{m.adresse}</p>
                   </div>
-                  <button type="button" onClick={() => setMagasins((p) => p.filter((_, j) => j !== i))}
+                  <button type="button" onClick={() => handleRemoveMagasin(m, i)}
                     className="text-[11px] text-red-500">Retirer</button>
                 </div>
               ))}
@@ -190,7 +293,7 @@ export function NoelBureau({ budget = 3000 }: { budget?: number }) {
       {tab === "bons" && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2.5 rounded-[14px] bg-green-50 p-3 dark:bg-green-900/20">
-            <span className="text-xl">🎁</span>
+            <span className="text-xl">{"\u{1F381}"}</span>
             <p className="text-[12px] text-content-primary"><strong>{eligibles.filter((b) => b.statut === "attente").length} bons</strong> à préparer · les amicalistes viennent les récupérer avant l&apos;arbre de Noël.</p>
           </div>
 
@@ -209,13 +312,13 @@ export function NoelBureau({ budget = 3000 }: { budget?: number }) {
           {filteredBons.map((b) => (
             <div key={b.id} className="flex items-center justify-between rounded-[14px] bg-surface-elevated p-3 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-lg dark:bg-green-900/30">🎁</div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-lg dark:bg-green-900/30">{"\u{1F381}"}</div>
                 <div>
                   <p className="text-[13px] font-semibold text-content-primary">{b.enfant}</p>
                   <p className="text-[11px] text-content-muted">{b.age} ans · Famille {b.famille} · {fmt(prixBon)}</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setBons((p) => p.map((x) => x.id === b.id ? { ...x, statut: x.statut === "remis" ? "attente" : "remis" } : x))}
+              <button type="button" onClick={() => handleToggleBon(b)}
                 className={cn("rounded-full px-2.5 py-1 text-[10px] font-bold",
                   b.statut === "remis" ? "bg-green-100 text-green-700 dark:bg-green-900/30" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30")}>
                 {b.statut === "remis" ? "Remis" : "À remettre"}
@@ -231,12 +334,12 @@ export function NoelBureau({ budget = 3000 }: { budget?: number }) {
           <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
             <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Réservation de matériel</p>
             {materiel.map((m, i) => (
-              <div key={i} className="flex items-center justify-between border-b border-surface-secondary py-2.5 last:border-0">
+              <div key={m.id ?? i} className="flex items-center justify-between border-b border-surface-secondary py-2.5 last:border-0">
                 <div>
                   <p className="text-[13px] font-semibold text-content-primary">{m.nom}</p>
                   <p className="text-[11px] text-content-muted">Qté : {m.qte} · {m.fournisseur}</p>
                 </div>
-                <button type="button" onClick={() => setMateriel((p) => p.filter((_, j) => j !== i))}
+                <button type="button" onClick={() => handleRemoveMateriel(m, i)}
                   className="text-[11px] text-red-500">Retirer</button>
               </div>
             ))}
@@ -248,12 +351,12 @@ export function NoelBureau({ budget = 3000 }: { budget?: number }) {
           <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
             <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Plateaux repas & achats</p>
             {achats.map((a, i) => (
-              <div key={i} className="flex items-center justify-between border-b border-surface-secondary py-2.5 last:border-0">
+              <div key={a.id ?? i} className="flex items-center justify-between border-b border-surface-secondary py-2.5 last:border-0">
                 <div>
                   <p className="text-[13px] font-semibold text-content-primary">{a.lib}</p>
                   <p className="text-[11px] text-content-muted">{a.qte} × {fmt(a.pu)} = {fmt(a.qte * a.pu)}</p>
                 </div>
-                <button type="button" onClick={() => setAchats((p) => p.filter((_, j) => j !== i))}
+                <button type="button" onClick={() => handleRemoveAchat(a, i)}
                   className="text-[11px] text-red-500">Retirer</button>
               </div>
             ))}
@@ -297,7 +400,7 @@ export function NoelBureau({ budget = 3000 }: { budget?: number }) {
               ))}
             </div>
             <input type="text" placeholder="Libellé" className="mb-2 w-full rounded-[10px] bg-surface-secondary px-3 py-2 text-[13px] text-content-primary" />
-            <input type="number" placeholder="Montant (€)" className="mb-2 w-full rounded-[10px] bg-surface-secondary px-3 py-2 text-[13px] text-content-primary" />
+            <input type="number" placeholder="Montant (&euro;)" className="mb-2 w-full rounded-[10px] bg-surface-secondary px-3 py-2 text-[13px] text-content-primary" />
             <div className="mb-3 rounded-[12px] border-2 border-dashed border-surface-secondary p-4 text-center">
               <p className="text-[12px] font-semibold text-content-secondary">Joindre le document</p>
               <p className="text-[10px] text-content-muted">PDF, scan · max 10 Mo</p>
@@ -323,7 +426,7 @@ export function NoelBureau({ budget = 3000 }: { budget?: number }) {
             <div className="flex gap-3">
               <button type="button" onClick={() => setShowMagasinModal(false)}
                 className="flex-1 rounded-full bg-surface-secondary py-2.5 text-[12px] font-semibold text-content-secondary">Annuler</button>
-              <button type="button" onClick={() => { if (magNom) { setMagasins((p) => [...p, { nom: magNom, adresse: magAdr }]); setMagNom(""); setMagAdr(""); setShowMagasinModal(false); }}}
+              <button type="button" onClick={handleAddMagasin}
                 className="flex-1 rounded-full bg-green-700 py-2.5 text-[12px] font-semibold text-white">Ajouter</button>
             </div>
           </div>

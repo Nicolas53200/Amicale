@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useCommissionActivities } from "@/hooks/use-commission-data";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -42,9 +43,24 @@ const STATUT_BADGE: Record<string, { label: string; cls: string }> = {
   annule: { label: "Annulé", cls: "bg-red-100 text-red-600 dark:bg-red-900/30" },
 };
 
-export function SportBureau({ budget = 300 }: { budget?: number }) {
+export function SportBureau({ commissionId, budget = 300 }: { commissionId: string; budget?: number }) {
   const [tab, setTab] = useState<Tab>("tableau");
-  const [events] = useState(DEMO_EVENTS);
+  const { activities: dbEvents, loading: eventsLoading, add: addEvent, update: updateEvent, remove: removeEvent } = useCommissionActivities(commissionId, "sport_event");
+
+  const events: SportEvent[] = dbEvents.length > 0
+    ? dbEvents.map((a) => ({
+        id: a.id as string,
+        nom: a.title as string,
+        date: a.date as string,
+        lieu: (a.metadata as Record<string, unknown>)?.location as string ?? "",
+        statut: a.status as "programme" | "termine" | "annule",
+        inscrits: (a.metadata as Record<string, unknown>)?.current_participants as number ?? 0,
+        max: (a.metadata as Record<string, unknown>)?.max_participants as number ?? 0,
+      }))
+    : DEMO_EVENTS;
+
+  const membres = DEMO_MEMBRES;
+
   const [rapportTitre, setRapportTitre] = useState("");
   const [rapportActivites, setRapportActivites] = useState("");
   const [rapportPoints, setRapportPoints] = useState("");
@@ -218,9 +234,9 @@ export function SportBureau({ budget = 300 }: { budget?: number }) {
       {tab === "membres" && (
         <div className="flex flex-col gap-3">
           <p className="text-[12px] font-bold uppercase tracking-wide text-content-muted">
-            {DEMO_MEMBRES.length} membres de la commission
+            {membres.length} membres de la commission
           </p>
-          {DEMO_MEMBRES.map((m, i) => (
+          {membres.map((m, i) => (
             <div key={i} className="flex items-center gap-3 rounded-[14px] bg-surface-elevated p-3 shadow-sm">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-[13px] font-bold text-green-700 dark:bg-green-900/30">
                 {m.nom.split(" ").map((w) => w[0]).join("")}

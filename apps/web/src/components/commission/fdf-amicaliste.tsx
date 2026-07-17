@@ -1,15 +1,27 @@
 "use client";
 
+import { useCommissionContacts } from "@/hooks/use-commission-data";
+
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
 
-const PRESTATAIRES = [
+const DEMO_PRESTATAIRES = [
   { icon: "🌹", nom: "Fleuriste Dupont", adresse: "12 rue du Commerce" },
   { icon: "🧖", nom: "Spa Belle Vie", adresse: "Centre-ville, Laval" },
   { icon: "💍", nom: "Bijouterie Laval", adresse: "Place du Vieux-Saint-Louis" },
 ];
 
-export function FdfAmicaliste() {
+export function FdfAmicaliste({ commissionId }: { commissionId: string }) {
+  // Supabase data with demo fallback
+  const { contacts: dbPrestataires } = useCommissionContacts(commissionId, "prestataire");
+
+  const prestataires = dbPrestataires.length > 0
+    ? dbPrestataires.map((c) => ({
+        icon: (c.icon as string) ?? "🏪",
+        nom: (c.name as string) ?? "",
+        adresse: (c.address as string) ?? "",
+      }))
+    : DEMO_PRESTATAIRES;
   return (
     <div className="flex flex-col gap-4">
       {/* Hero */}
@@ -77,7 +89,7 @@ export function FdfAmicaliste() {
       <div>
         <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-content-muted">Prestataires partenaires</p>
         <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
-          {PRESTATAIRES.map((p, i) => (
+          {prestataires.map((p, i) => (
             <div key={i} className="flex min-w-[140px] shrink-0 flex-col items-center rounded-[14px] bg-pink-50 p-4 text-center dark:bg-pink-900/20">
               <span className="mb-2 text-3xl">{p.icon}</span>
               <p className="text-[12px] font-bold text-pink-600">{p.nom}</p>

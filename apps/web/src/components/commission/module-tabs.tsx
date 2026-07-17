@@ -81,23 +81,23 @@ export function ModuleTabs({
   if (specialized) {
     if (isReadOnly) {
       switch (specialized) {
-        case "noel": return <NoelAmicaliste />;
-        case "fdf": return <FdfAmicaliste />;
-        case "saintebarbe": return <SainteBarbeAmicaliste />;
-        case "solidarite": return <SolidariteAmicaliste />;
-        case "foyer": return <FoyerAmicaliste />;
-        case "sport": return <SportAmicaliste />;
-        case "calendriers": return <CalendriersAmicaliste />;
+        case "noel": return <NoelAmicaliste commissionId={commissionId} />;
+        case "fdf": return <FdfAmicaliste commissionId={commissionId} />;
+        case "saintebarbe": return <SainteBarbeAmicaliste commissionId={commissionId} />;
+        case "solidarite": return <SolidariteAmicaliste commissionId={commissionId} />;
+        case "foyer": return <FoyerAmicaliste commissionId={commissionId} />;
+        case "sport": return <SportAmicaliste commissionId={commissionId} />;
+        case "calendriers": return <CalendriersAmicaliste commissionId={commissionId} />;
       }
     } else {
       switch (specialized) {
-        case "noel": return <NoelBureau budget={budget} />;
-        case "fdf": return <FdfBureau budget={budget} />;
-        case "saintebarbe": return <SainteBarbeBureau budget={budget} />;
-        case "solidarite": return <SolidariteBureau budget={budget} />;
-        case "foyer": return <FoyerBureau budget={budget} />;
-        case "sport": return <SportBureau budget={budget} />;
-        case "calendriers": return <CalendriersBureau budget={budget} />;
+        case "noel": return <NoelBureau commissionId={commissionId} budget={budget} />;
+        case "fdf": return <FdfBureau commissionId={commissionId} budget={budget} />;
+        case "saintebarbe": return <SainteBarbeBureau commissionId={commissionId} budget={budget} />;
+        case "solidarite": return <SolidariteBureau commissionId={commissionId} budget={budget} />;
+        case "foyer": return <FoyerBureau commissionId={commissionId} budget={budget} />;
+        case "sport": return <SportBureau commissionId={commissionId} budget={budget} />;
+        case "calendriers": return <CalendriersBureau commissionId={commissionId} budget={budget} />;
       }
     }
   }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useCommissionItems, useCommissionContacts } from "@/hooks/use-commission-data";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -39,13 +40,36 @@ const DEMO_PRESTATAIRES: Prestataire[] = [
 type Tab = "tableau" | "bons" | "prestataires" | "compta";
 type BonFilter = "tous" | "pompiers" | "conjointes" | "attente" | "remis" | "envoyes";
 
-export function FdfBureau({ budget = 2000 }: { budget?: number }) {
+export function FdfBureau({ budget = 2000, commissionId }: { budget?: number; commissionId: string }) {
   const [tab, setTab] = useState<Tab>("tableau");
   const [prixBon, setPrixBon] = useState(50);
-  const [bons, setBons] = useState(DEMO_BONS);
-  const [prestataires] = useState(DEMO_PRESTATAIRES);
   const [bonFilter, setBonFilter] = useState<BonFilter>("tous");
   const [search, setSearch] = useState("");
+
+  // Supabase data with demo fallback
+  const { items: dbBons, update: updateBon, add: addBon, remove: removeBon } = useCommissionItems(commissionId, "voucher");
+  const { contacts: dbPrestataires, add: addPrestataire, remove: removePrestataire } = useCommissionContacts(commissionId, "prestataire");
+
+  const [demoBons, setDemoBons] = useState(DEMO_BONS);
+
+  const useDbBons = dbBons.length > 0;
+  const bons: Bon[] = useDbBons
+    ? dbBons.map((i) => ({
+        id: i.id as string,
+        nom: (i.name as string) ?? "",
+        type: (i.item_type as "pompier" | "conjointe") ?? "pompier",
+        statut: (i.status as "attente" | "remis" | "envoye") ?? "attente",
+      }))
+    : demoBons;
+
+  const prestataires: Prestataire[] = dbPrestataires.length > 0
+    ? dbPrestataires.map((c) => ({
+        nom: (c.name as string) ?? "",
+        adresse: (c.address as string) ?? "",
+        categorie: (c.category_label as string) ?? "",
+        icon: (c.icon as string) ?? "🏪",
+      }))
+    : DEMO_PRESTATAIRES;
 
   const totalBons = bons.length * prixBon;
   const reste = budget - totalBons;
@@ -165,7 +189,14 @@ export function FdfBureau({ budget = 2000 }: { budget?: number }) {
                   <p className="text-[11px] text-content-muted">{b.type === "pompier" ? "Pompier" : "Conjointe"} · {fmt(prixBon)}</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setBons((p) => p.map((x) => x.id === b.id ? { ...x, statut: x.statut === "remis" ? "attente" : "remis" } : x))}
+              <button type="button" onClick={() => {
+                  const newStatut = b.statut === "remis" ? "attente" : "remis";
+                  if (useDbBons) {
+                    updateBon(b.id, { status: newStatut });
+                  } else {
+                    setDemoBons((p) => p.map((x) => x.id === b.id ? { ...x, statut: newStatut } : x));
+                  }
+                }}
                 className={cn("rounded-full px-2.5 py-1 text-[10px] font-bold",
                   b.statut === "remis" ? "bg-green-100 text-green-700 dark:bg-green-900/30" :
                   b.statut === "envoye" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30" :

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useCommissionActivities, useCommissionContacts } from "@/hooks/use-commission-data";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -52,10 +53,32 @@ const TYPE_ICONS: Record<string, string> = {
 
 type Tab = "tableau" | "inscriptions" | "repas" | "prestataires" | "budget";
 
-export function SainteBarbeBureau({ budget = 5000 }: { budget?: number }) {
+export function SainteBarbeBureau({ budget = 5000, commissionId }: { budget?: number; commissionId: string }) {
   const [tab, setTab] = useState<Tab>("tableau");
-  const [inscriptions] = useState(DEMO_INSCRIPTIONS);
-  const [prestataires] = useState(DEMO_PRESTATAIRES);
+
+  // Supabase data with demo fallback
+  const { activities: dbInscriptions, add: addInscription, update: updateInscription, remove: removeInscription } = useCommissionActivities(commissionId, "inscription");
+  const { contacts: dbPrestataires, add: addPrestataire, remove: removePrestataire } = useCommissionContacts(commissionId, "prestataire");
+
+  const inscriptions: Inscription[] = dbInscriptions.length > 0
+    ? dbInscriptions.map((a) => ({
+        id: a.id as string,
+        nom: (a.name as string) ?? "",
+        invites: (a.guests as number) ?? 0,
+        choixRepas: (a.meal_choice as string) ?? "Menu standard",
+        paye: (a.paid as boolean) ?? false,
+      }))
+    : DEMO_INSCRIPTIONS;
+
+  const prestataires: PrestataireItem[] = dbPrestataires.length > 0
+    ? dbPrestataires.map((c) => ({
+        nom: (c.name as string) ?? "",
+        type: (c.category_label as string) ?? "",
+        devis: (c.quote_amount as number) ?? 0,
+        reel: (c.actual_amount as number) ?? 0,
+        statut: (c.status as "devis_recu" | "commande" | "confirme" | "paye") ?? "devis_recu",
+      }))
+    : DEMO_PRESTATAIRES;
 
   const totalInscrits = inscriptions.reduce((s, i) => s + 1 + i.invites, 0);
   const totalPaye = inscriptions.filter((i) => i.paye).length;

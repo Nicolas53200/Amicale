@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useCommissionActivities, useCommissionContacts } from "@/hooks/use-commission-data";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -24,6 +25,19 @@ interface Retour {
   monnaie: number;
   cheques: number;
   total: number;
+}
+
+interface Prestataire {
+  id: string;
+  nom: string;
+  type: string;
+  description: string;
+  icon: string;
+  iconBg: string;
+  devis: number;
+  devisLabel: string;
+  statut: string;
+  statutColor: string;
 }
 
 const MOIS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
@@ -52,6 +66,11 @@ const DEMO_RETOURS: Retour[] = [
   { secteur: "T5", porteur: "Pierre Roux", date: "2026-02-01", vendus: 170, monnaie: 520, cheques: 1759, total: 2279 },
 ];
 
+const DEMO_PRESTATAIRES: Prestataire[] = [
+  { id: "imp", nom: "Imprimerie Duval", type: "Impression", description: "2 ans de collaboration", icon: "🖨️", iconBg: "bg-blue-100 dark:bg-blue-900/30", devis: 4328, devisLabel: "", statut: "Commande signée", statutColor: "text-green-600" },
+  { id: "graph", nom: "Studio Graphik", type: "Conception", description: "1ère année", icon: "🎨", iconBg: "bg-purple-100 dark:bg-purple-900/30", devis: 680, devisLabel: "", statut: "7/12 photos validées", statutColor: "text-amber-600" },
+];
+
 const STATUT_CONFIG: Record<string, { label: string; cls: string; dot: string }> = {
   attribue: { label: "Attribué", cls: "bg-amber-100 text-amber-700 dark:bg-amber-900/30", dot: "bg-amber-500" },
   rendu: { label: "Rendu", cls: "bg-green-100 text-green-700 dark:bg-green-900/30", dot: "bg-green-500" },
@@ -61,12 +80,62 @@ const STATUT_CONFIG: Record<string, { label: string; cls: string; dot: string }>
 
 type Tab = "tableau" | "secteurs" | "retours" | "conception" | "prestataires" | "compta";
 
-export function CalendriersBureau({ budget = 15148 }: { budget?: number }) {
+export function CalendriersBureau({ commissionId, budget = 15148 }: { commissionId: string; budget?: number }) {
   const [tab, setTab] = useState<Tab>("tableau");
-  const [secteurs] = useState(DEMO_SECTEURS);
-  const [retours] = useState(DEMO_RETOURS);
   const [search, setSearch] = useState("");
   const [selectedSecteur, setSelectedSecteur] = useState<Secteur | null>(null);
+
+  const { activities: dbSecteurs, loading: secteursLoading, add: addSecteur, update: updateSecteur, remove: removeSecteur } = useCommissionActivities(commissionId, "calendar_sector");
+  const { activities: dbRetours, loading: retoursLoading, add: addRetour, update: updateRetour, remove: removeRetour } = useCommissionActivities(commissionId, "calendar_return");
+  const { contacts: dbPrestataires, loading: prestatauresLoading, add: addPrestataire, remove: removePrestataire } = useCommissionContacts(commissionId, "prestataire");
+
+  const secteurs: Secteur[] = dbSecteurs.length > 0
+    ? dbSecteurs.map((a) => {
+        const meta = (a.metadata ?? {}) as Record<string, unknown>;
+        return {
+          id: a.id as string,
+          nom: a.title as string,
+          responsable: meta.responsable as string ?? "",
+          calendriers: meta.total as number ?? 0,
+          logements: meta.logements as number ?? 0,
+          vendus: meta.vendus as number ?? 0,
+          statut: a.status as "attribue" | "rendu" | "disponible" | "collectif",
+        };
+      })
+    : DEMO_SECTEURS;
+
+  const retours: Retour[] = dbRetours.length > 0
+    ? dbRetours.map((a) => {
+        const meta = (a.metadata ?? {}) as Record<string, unknown>;
+        return {
+          secteur: a.title as string,
+          porteur: meta.porteur as string ?? "",
+          date: a.date as string,
+          vendus: meta.vendus as number ?? 0,
+          monnaie: meta.monnaie as number ?? 0,
+          cheques: meta.cheques as number ?? 0,
+          total: (meta.monnaie as number ?? 0) + (meta.cheques as number ?? 0),
+        };
+      })
+    : DEMO_RETOURS;
+
+  const prestataires: Prestataire[] = dbPrestataires.length > 0
+    ? dbPrestataires.map((c) => {
+        const meta = (c.metadata ?? {}) as Record<string, unknown>;
+        return {
+          id: c.id as string,
+          nom: c.name as string,
+          type: meta.type as string ?? "",
+          description: meta.description as string ?? "",
+          icon: meta.icon as string ?? "🏪",
+          iconBg: meta.iconBg as string ?? "bg-blue-100 dark:bg-blue-900/30",
+          devis: meta.devis as number ?? 0,
+          devisLabel: meta.devisLabel as string ?? "",
+          statut: meta.statut as string ?? "",
+          statutColor: meta.statutColor as string ?? "text-content-primary",
+        };
+      })
+    : DEMO_PRESTATAIRES;
 
   const totalCal = secteurs.reduce((s, sec) => s + sec.calendriers, 0);
   const totalVendus = secteurs.reduce((s, sec) => s + sec.vendus, 0);
@@ -279,49 +348,29 @@ export function CalendriersBureau({ budget = 15148 }: { budget?: number }) {
       {/* PRESTATAIRES */}
       {tab === "prestataires" && (
         <div className="flex flex-col gap-3">
-          <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-blue-100 dark:bg-blue-900/30">
-                <span className="text-lg">🖨️</span>
+          {prestataires.map((p) => (
+            <div key={p.id} className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+              <div className="mb-3 flex items-center gap-3">
+                <div className={cn("flex h-9 w-9 items-center justify-center rounded-[10px]", p.iconBg)}>
+                  <span className="text-lg">{p.icon}</span>
+                </div>
+                <div>
+                  <p className="text-[13px] font-semibold text-content-primary">{p.nom}</p>
+                  <p className="text-[11px] text-content-muted">{p.type} · {p.description}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[13px] font-semibold text-content-primary">Imprimerie Duval</p>
-                <p className="text-[11px] text-content-muted">Impression · 2 ans de collaboration</p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <div className="flex justify-between text-[12px]">
-                <span className="text-content-secondary">Devis 2026</span>
-                <span className="font-semibold text-content-primary">{fmt(4328)} — {totalCal.toLocaleString("fr-FR")} ex.</span>
-              </div>
-              <div className="flex justify-between text-[12px]">
-                <span className="text-content-secondary">Statut</span>
-                <span className="font-semibold text-green-600">Commande signée</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-purple-100 dark:bg-purple-900/30">
-                <span className="text-lg">🎨</span>
-              </div>
-              <div>
-                <p className="text-[13px] font-semibold text-content-primary">Studio Graphik</p>
-                <p className="text-[11px] text-content-muted">Conception · 1ère année</p>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex justify-between text-[12px]">
+                  <span className="text-content-secondary">Devis 2026</span>
+                  <span className="font-semibold text-content-primary">{fmt(p.devis)}{p.devisLabel ? ` — ${p.devisLabel}` : ""}</span>
+                </div>
+                <div className="flex justify-between text-[12px]">
+                  <span className="text-content-secondary">Statut</span>
+                  <span className={cn("font-semibold", p.statutColor)}>{p.statut}</span>
+                </div>
               </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <div className="flex justify-between text-[12px]">
-                <span className="text-content-secondary">Devis 2026</span>
-                <span className="font-semibold text-content-primary">{fmt(680)}</span>
-              </div>
-              <div className="flex justify-between text-[12px]">
-                <span className="text-content-secondary">Statut</span>
-                <span className="font-semibold text-amber-600">7/12 photos validées</span>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       )}
 

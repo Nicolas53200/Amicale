@@ -2,10 +2,37 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useCommissionSettings } from "@/hooks/use-commission-data";
 
-export function SainteBarbeAmicaliste() {
+const DEMO_SETTINGS: Record<string, string> = {
+  event_date: "4 dec. 2026",
+  event_time: "19h00",
+  event_venue: "Salle des fetes",
+  capacity: "120 places",
+  tarif_adulte: "25 €",
+  tarif_enfant: "12 €",
+  max_guests: "4",
+};
+
+export function SainteBarbeAmicaliste({ commissionId }: { commissionId: string }) {
   const [inscrit, setInscrit] = useState(false);
   const [nbInvites, setNbInvites] = useState(0);
+
+  // Supabase settings with demo fallback
+  const { settings: dbSettings } = useCommissionSettings({ commissionId });
+
+  const hasDbSettings = Object.keys(dbSettings).length > 0;
+  const settings = hasDbSettings
+    ? {
+        event_date: (dbSettings.event_date as string) ?? DEMO_SETTINGS.event_date,
+        event_time: (dbSettings.event_time as string) ?? DEMO_SETTINGS.event_time,
+        event_venue: (dbSettings.event_venue as string) ?? DEMO_SETTINGS.event_venue,
+        capacity: (dbSettings.capacity as string) ?? DEMO_SETTINGS.capacity,
+        tarif_adulte: (dbSettings.tarif_adulte as string) ?? DEMO_SETTINGS.tarif_adulte,
+        tarif_enfant: (dbSettings.tarif_enfant as string) ?? DEMO_SETTINGS.tarif_enfant,
+        max_guests: (dbSettings.max_guests as string) ?? DEMO_SETTINGS.max_guests,
+      }
+    : DEMO_SETTINGS;
 
   return (
     <div className="flex flex-col gap-4">
@@ -17,7 +44,7 @@ export function SainteBarbeAmicaliste() {
           </div>
           <div>
             <p className="text-[15px] font-bold text-red-600">Sainte-Barbe 2026</p>
-            <p className="text-[12px] text-red-800 dark:text-red-400">Sam. 4 déc. 2026 · 19h00 · Salle des fêtes</p>
+            <p className="text-[12px] text-red-800 dark:text-red-400">Sam. {settings.event_date} · {settings.event_time} · {settings.event_venue}</p>
           </div>
         </div>
         <p className="mt-2 text-[12px] leading-relaxed text-red-800 dark:text-red-400">
@@ -30,12 +57,12 @@ export function SainteBarbeAmicaliste() {
         <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Informations</p>
         <div className="grid grid-cols-2 gap-2 text-[12px]">
           {[
-            ["📅", "Date", "4 déc. 2026"],
-            ["🕐", "Heure", "19h00"],
-            ["📍", "Lieu", "Salle des fêtes"],
-            ["👥", "Capacité", "120 places"],
-            ["💰", "Tarif adulte", "25 €"],
-            ["👶", "Tarif enfant", "12 €"],
+            ["📅", "Date", settings.event_date],
+            ["🕐", "Heure", settings.event_time],
+            ["📍", "Lieu", settings.event_venue],
+            ["👥", "Capacité", settings.capacity],
+            ["💰", "Tarif adulte", settings.tarif_adulte],
+            ["👶", "Tarif enfant", settings.tarif_enfant],
           ].map(([icon, label, value]) => (
             <div key={label as string} className="flex items-center gap-2 rounded-[10px] bg-surface-secondary px-3 py-2">
               <span>{icon}</span>
@@ -54,8 +81,8 @@ export function SainteBarbeAmicaliste() {
         {!inscrit ? (
           <div>
             <div className="mb-3">
-              <label className="mb-1 block text-[11px] font-medium text-content-muted">Nombre d&apos;invités (max 4)</label>
-              <input type="number" min={0} max={4} value={nbInvites} onChange={(e) => setNbInvites(Math.min(4, Number(e.target.value)))}
+              <label className="mb-1 block text-[11px] font-medium text-content-muted">Nombre d&apos;invités (max {settings.max_guests})</label>
+              <input type="number" min={0} max={Number(settings.max_guests)} value={nbInvites} onChange={(e) => setNbInvites(Math.min(Number(settings.max_guests), Number(e.target.value)))}
                 className="w-full rounded-[10px] bg-surface-secondary px-3 py-2 text-[13px] text-content-primary" />
             </div>
             <button type="button" onClick={() => setInscrit(true)}

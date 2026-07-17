@@ -1,5 +1,7 @@
 "use client";
 
+import { useCommissionActivities } from "@/hooks/use-commission-data";
+
 interface SportEvent {
   nom: string;
   date: string;
@@ -30,7 +32,18 @@ const STATUT_BADGE: Record<string, { label: string; cls: string }> = {
   termine: { label: "Terminé", cls: "bg-green-100 text-green-700 dark:bg-green-900/30" },
 };
 
-export function SportAmicaliste() {
+export function SportAmicaliste({ commissionId }: { commissionId: string }) {
+  const { activities: dbEvents, loading } = useCommissionActivities(commissionId, "sport_event");
+
+  const events: SportEvent[] = dbEvents.length > 0
+    ? dbEvents.map((a) => ({
+        nom: a.title as string,
+        date: a.date as string,
+        lieu: (a.metadata as Record<string, unknown>)?.location as string ?? "",
+        statut: a.status as "programme" | "termine",
+        description: a.description as string ?? "",
+      }))
+    : DEMO_EVENTS;
   return (
     <div className="flex flex-col gap-4">
       <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-green-600 to-emerald-700 p-5">
@@ -40,11 +53,11 @@ export function SportAmicaliste() {
           <p className="mt-1 text-[13px] text-white/80">Activités sportives 2026</p>
           <div className="mt-3 flex gap-3">
             <div className="rounded-[10px] bg-white/15 px-3 py-1.5 backdrop-blur-sm">
-              <p className="text-[16px] font-bold text-white">{DEMO_EVENTS.filter((e) => e.statut === "programme").length}</p>
+              <p className="text-[16px] font-bold text-white">{events.filter((e) => e.statut === "programme").length}</p>
               <p className="text-[10px] text-white/70">À venir</p>
             </div>
             <div className="rounded-[10px] bg-white/15 px-3 py-1.5 backdrop-blur-sm">
-              <p className="text-[16px] font-bold text-white">{DEMO_EVENTS.length}</p>
+              <p className="text-[16px] font-bold text-white">{events.length}</p>
               <p className="text-[10px] text-white/70">Total</p>
             </div>
           </div>
@@ -52,7 +65,7 @@ export function SportAmicaliste() {
       </div>
 
       <p className="text-[12px] font-bold uppercase tracking-wide text-content-muted">Prochains événements</p>
-      {DEMO_EVENTS.filter((e) => e.statut === "programme").map((ev, i) => {
+      {events.filter((e) => e.statut === "programme").map((ev, i) => {
         const d = new Date(ev.date);
         const badge = STATUT_BADGE[ev.statut];
         return (

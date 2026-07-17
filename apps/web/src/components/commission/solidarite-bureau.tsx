@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useCommissionActivities } from "@/hooks/use-commission-data";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -27,10 +28,10 @@ interface ActionSol {
 }
 
 const TYPE_ICONS: Record<string, string> = {
-  mariage: "💒", naissance: "👶", retraite: "🎉", promotion: "🎖️",
-  hospitalisation: "🏥", deces: "🕊️", difficulte_sociale: "🤝",
-  aide_exceptionnelle: "🆘", fleurs: "💐", couronne: "🌿",
-  bon_cadeau: "🎁", cheque_cadeau: "💳", don: "❤️",
+  mariage: "\u{1F492}", naissance: "\u{1F476}", retraite: "\u{1F389}", promotion: "\u{1F396}️",
+  hospitalisation: "\u{1F3E5}", deces: "\u{1F54A}️", difficulte_sociale: "\u{1F91D}",
+  aide_exceptionnelle: "\u{1F198}", fleurs: "\u{1F490}", couronne: "\u{1F33F}",
+  bon_cadeau: "\u{1F381}", cheque_cadeau: "\u{1F4B3}", don: "❤️",
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -61,20 +62,51 @@ const DEMO_ACTIONS: ActionSol[] = [
 
 type Tab = "tableau" | "aides" | "actions" | "budget";
 
-export function SolidariteBureau({ budget = 3000 }: { budget?: number }) {
+export function SolidariteBureau({ budget = 3000, commissionId }: { budget?: number; commissionId: string }) {
   const [tab, setTab] = useState<Tab>("tableau");
-  const [aides] = useState(DEMO_AIDES);
-  const [actions] = useState(DEMO_ACTIONS);
+  const { activities: dbActivities, loading, add: addActivity, update: updateActivity, remove: removeActivity } = useCommissionActivities(commissionId, "action_solidaire");
+
+  const dbAides = dbActivities.filter((a) => (a.metadata as any)?.type !== "collective");
+  const dbActions = dbActivities.filter((a) => (a.metadata as any)?.type === "collective");
+
+  const aides: Aide[] = dbAides.length > 0
+    ? dbAides.map((a) => ({
+        id: a.id as string,
+        type: (a.metadata as any)?.aide_type ?? "",
+        membre: a.name as string ?? "",
+        date: a.date as string ?? "",
+        montant: (a.metadata as any)?.montant ?? 0,
+        statut: (a.status as Aide["statut"]) ?? "en_cours",
+        confidentiel: (a.metadata as any)?.confidentiel ?? false,
+        notes: a.description as string ?? "",
+      }))
+    : DEMO_AIDES;
+
+  const actions: ActionSol[] = dbActions.length > 0
+    ? dbActions.map((a) => ({
+        id: a.id as string,
+        titre: a.name as string ?? "",
+        type: (a.metadata as any)?.action_type ?? "",
+        date: a.date as string ?? "",
+        description: a.description as string ?? "",
+        montant: (a.metadata as any)?.montant ?? 0,
+      }))
+    : DEMO_ACTIONS;
+
   const [showModal, setShowModal] = useState(false);
+  const [formType, setFormType] = useState("");
+  const [formMembre, setFormMembre] = useState("");
+  const [formMontant, setFormMontant] = useState("");
+  const [formConfidentiel, setFormConfidentiel] = useState(false);
 
   const totalAides = aides.filter((a) => a.statut !== "annule").reduce((s, a) => s + a.montant, 0);
   const totalActions = actions.reduce((s, a) => s + a.montant, 0);
 
   const tabs: { key: Tab; icon: string; label: string }[] = [
-    { key: "tableau", icon: "📊", label: "Tableau" },
-    { key: "aides", icon: "🤝", label: "Aides" },
-    { key: "actions", icon: "👥", label: "Actions" },
-    { key: "budget", icon: "💰", label: "Budget" },
+    { key: "tableau", icon: "\u{1F4CA}", label: "Tableau" },
+    { key: "aides", icon: "\u{1F91D}", label: "Aides" },
+    { key: "actions", icon: "\u{1F465}", label: "Actions" },
+    { key: "budget", icon: "\u{1F4B0}", label: "Budget" },
   ];
 
   return (
@@ -106,20 +138,20 @@ export function SolidariteBureau({ budget = 3000 }: { budget?: number }) {
             </div>
             <div className="rounded-[14px] bg-surface-elevated p-3 text-center shadow-sm">
               <p className="text-[18px] font-bold text-green-600">{fmt(totalAides + totalActions)}</p>
-              <p className="text-[11px] text-content-muted">Engagé</p>
+              <p className="text-[11px] text-content-muted">Engag&#233;</p>
             </div>
           </div>
 
           <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-            <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Dernières aides</p>
+            <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Derni&#232;res aides</p>
             {aides.slice(0, 3).map((a) => (
               <div key={a.id} className="flex items-center gap-3 border-b border-surface-secondary py-2.5 last:border-0">
-                <span className="text-lg">{TYPE_ICONS[a.type] || "🤝"}</span>
+                <span className="text-lg">{TYPE_ICONS[a.type] || "\u{1F91D}"}</span>
                 <div className="flex-1">
                   <p className="text-[13px] font-semibold text-content-primary">{a.membre}</p>
-                  <p className="text-[11px] text-content-muted">{TYPE_LABELS[a.type]} · {fmt(a.montant)}</p>
+                  <p className="text-[11px] text-content-muted">{TYPE_LABELS[a.type]} &#183; {fmt(a.montant)}</p>
                 </div>
-                {a.confidentiel && <span className="text-[10px] text-amber-600">🔒</span>}
+                {a.confidentiel && <span className="text-[10px] text-amber-600">{"\u{1F512}"}</span>}
               </div>
             ))}
           </div>
@@ -137,10 +169,10 @@ export function SolidariteBureau({ budget = 3000 }: { budget?: number }) {
             <div key={a.id} className="rounded-[14px] bg-surface-elevated p-4 shadow-sm">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{TYPE_ICONS[a.type] || "🤝"}</span>
+                  <span className="text-2xl">{TYPE_ICONS[a.type] || "\u{1F91D}"}</span>
                   <div>
                     <p className="text-[13px] font-bold text-content-primary">{a.membre}</p>
-                    <p className="text-[11px] text-content-muted">{TYPE_LABELS[a.type]} · {new Date(a.date).toLocaleDateString("fr-FR")}</p>
+                    <p className="text-[11px] text-content-muted">{TYPE_LABELS[a.type]} &#183; {new Date(a.date).toLocaleDateString("fr-FR")}</p>
                   </div>
                 </div>
                 <span className={cn("rounded-full px-2.5 py-1 text-[10px] font-bold",
@@ -152,7 +184,7 @@ export function SolidariteBureau({ budget = 3000 }: { budget?: number }) {
               </div>
               <div className="mt-2 flex items-center gap-3 text-[11px]">
                 <span className="font-semibold text-blue-700">{fmt(a.montant)}</span>
-                {a.confidentiel && <span className="flex items-center gap-1 text-amber-600">🔒 Confidentiel</span>}
+                {a.confidentiel && <span className="flex items-center gap-1 text-amber-600">{"\u{1F512}"} Confidentiel</span>}
                 {a.notes && <span className="text-content-muted">{a.notes}</span>}
               </div>
             </div>
@@ -168,7 +200,7 @@ export function SolidariteBureau({ budget = 3000 }: { budget?: number }) {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-[13px] font-bold text-content-primary">{a.titre}</p>
-                  <p className="text-[11px] text-content-muted">{ACTION_TYPES[a.type]} · {new Date(a.date).toLocaleDateString("fr-FR")}</p>
+                  <p className="text-[11px] text-content-muted">{ACTION_TYPES[a.type]} &#183; {new Date(a.date).toLocaleDateString("fr-FR")}</p>
                 </div>
                 <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-bold text-blue-700 dark:bg-blue-900/30">{fmt(a.montant)}</span>
               </div>
@@ -184,9 +216,9 @@ export function SolidariteBureau({ budget = 3000 }: { budget?: number }) {
       {/* BUDGET */}
       {tab === "budget" && (
         <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-          <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Synthèse budgétaire</p>
+          <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Synth&#232;se budg&#233;taire</p>
           <div className="flex justify-between border-b border-surface-secondary py-2">
-            <span className="text-[12px] text-content-secondary">Budget alloué</span>
+            <span className="text-[12px] text-content-secondary">Budget allou&#233;</span>
             <span className="text-[13px] font-bold text-content-primary">{fmt(budget)}</span>
           </div>
           <div className="flex justify-between border-b border-surface-secondary py-2">
@@ -206,44 +238,57 @@ export function SolidariteBureau({ budget = 3000 }: { budget?: number }) {
         </div>
       )}
 
-      {/* Modal aide (simplified) */}
+      {/* Modal aide */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center" onClick={() => setShowModal(false)}>
           <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-[20px] bg-surface-elevated p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="mb-4 text-[15px] font-bold text-content-primary">Nouvelle aide</h3>
-            <label className="mb-1 block text-[11px] font-medium text-content-muted">Type d&apos;événement</label>
-            <select className="mb-3 w-full rounded-[10px] bg-surface-secondary px-3 py-2.5 text-[13px] text-content-primary">
-              <option value="">-- Sélectionner --</option>
+            <label className="mb-1 block text-[11px] font-medium text-content-muted">Type d&apos;&#233;v&#233;nement</label>
+            <select value={formType} onChange={(e) => setFormType(e.target.value)} className="mb-3 w-full rounded-[10px] bg-surface-secondary px-3 py-2.5 text-[13px] text-content-primary">
+              <option value="">-- S&#233;lectionner --</option>
               <optgroup label="Vie personnelle">
                 <option value="mariage">Mariage</option>
                 <option value="naissance">Naissance</option>
                 <option value="retraite">Retraite</option>
                 <option value="promotion">Promotion</option>
               </optgroup>
-              <optgroup label="Difficulté">
+              <optgroup label="Difficult&#233;">
                 <option value="hospitalisation">Hospitalisation</option>
-                <option value="deces">Décès</option>
-                <option value="difficulte_sociale">Difficulté sociale</option>
+                <option value="deces">D&#233;c&#232;s</option>
+                <option value="difficulte_sociale">Difficult&#233; sociale</option>
               </optgroup>
               <optgroup label="Gestes de l'amicale">
                 <option value="fleurs">Fleurs</option>
-                <option value="couronne">Couronne funèbre</option>
+                <option value="couronne">Couronne fun&#232;bre</option>
                 <option value="bon_cadeau">Bon cadeau</option>
                 <option value="don">Don</option>
               </optgroup>
             </select>
-            <label className="mb-1 block text-[11px] font-medium text-content-muted">Amicaliste concerné(e)</label>
-            <input type="text" placeholder="Nom prénom" className="mb-3 w-full rounded-[10px] bg-surface-secondary px-3 py-2.5 text-[13px] text-content-primary" />
-            <label className="mb-1 block text-[11px] font-medium text-content-muted">Montant (€)</label>
-            <input type="number" placeholder="0.00" className="mb-3 w-full rounded-[10px] bg-surface-secondary px-3 py-2.5 text-[13px] text-content-primary" />
+            <label className="mb-1 block text-[11px] font-medium text-content-muted">Amicaliste concern&#233;(e)</label>
+            <input type="text" placeholder="Nom pr&#233;nom" value={formMembre} onChange={(e) => setFormMembre(e.target.value)} className="mb-3 w-full rounded-[10px] bg-surface-secondary px-3 py-2.5 text-[13px] text-content-primary" />
+            <label className="mb-1 block text-[11px] font-medium text-content-muted">Montant (&euro;)</label>
+            <input type="number" placeholder="0.00" value={formMontant} onChange={(e) => setFormMontant(e.target.value)} className="mb-3 w-full rounded-[10px] bg-surface-secondary px-3 py-2.5 text-[13px] text-content-primary" />
             <label className="mb-3 flex items-center gap-2 text-[13px] text-content-secondary">
-              <input type="checkbox" className="h-4 w-4 accent-blue-700" />
-              Confidentiel — visible commission uniquement
+              <input type="checkbox" checked={formConfidentiel} onChange={(e) => setFormConfidentiel(e.target.checked)} className="h-4 w-4 accent-blue-700" />
+              Confidentiel &mdash; visible commission uniquement
             </label>
             <div className="flex gap-3">
               <button type="button" onClick={() => setShowModal(false)}
                 className="flex-1 rounded-full bg-surface-secondary py-2.5 text-[12px] font-semibold text-content-secondary">Annuler</button>
-              <button type="button" onClick={() => setShowModal(false)}
+              <button type="button" onClick={async () => {
+                  if (formType && formMembre) {
+                    await addActivity({
+                      type: "action_solidaire",
+                      name: formMembre,
+                      date: new Date().toISOString().split("T")[0],
+                      status: "en_cours",
+                      description: "",
+                      metadata: { aide_type: formType, montant: parseFloat(formMontant) || 0, confidentiel: formConfidentiel },
+                    });
+                    setFormType(""); setFormMembre(""); setFormMontant(""); setFormConfidentiel(false);
+                  }
+                  setShowModal(false);
+                }}
                 className="flex-1 rounded-full bg-blue-700 py-2.5 text-[12px] font-semibold text-white">Enregistrer</button>
             </div>
           </div>
