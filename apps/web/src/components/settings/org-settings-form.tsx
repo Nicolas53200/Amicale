@@ -216,10 +216,117 @@ export function OrgSettingsForm({ org }: { org: OrgData }) {
         </div>
       </div>
 
+      {/* Cotisations */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Cotisations
+        </h3>
+        <p className="mb-3 text-[12px] text-content-muted">
+          Definissez le montant et la frequence des cotisations des membres.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+              Montant annuel
+            </label>
+            <div className="relative">
+              <Input
+                name="cotisation_amount"
+                type="number"
+                min="0"
+                step="0.01"
+                defaultValue=""
+                placeholder="30"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-content-muted">
+                &euro;
+              </span>
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-[12px] font-medium text-content-secondary">
+              Frequence
+            </label>
+            <select
+              name="cotisation_frequency"
+              className="w-full rounded-[10px] border border-border-default bg-surface-secondary px-3 py-2.5 text-[13px] text-content-primary outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="annuelle">Annuelle</option>
+              <option value="semestrielle">Semestrielle</option>
+              <option value="trimestrielle">Trimestrielle</option>
+              <option value="mensuelle">Mensuelle</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Donnees et securite */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Donnees et securite
+        </h3>
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            className="flex items-center gap-3 rounded-[12px] bg-surface-secondary p-3 text-left transition-colors hover:bg-surface-tertiary"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-blue-50 dark:bg-blue-500/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600 dark:text-blue-400">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold text-content-primary">Exporter les donnees</p>
+              <p className="text-[11px] text-content-muted">Telecharger les donnees de l&apos;amicale (CSV)</p>
+            </div>
+          </button>
+          <button
+            type="button"
+            className="flex items-center gap-3 rounded-[12px] bg-surface-secondary p-3 text-left transition-colors hover:bg-surface-tertiary"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-emerald-50 dark:bg-emerald-500/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold text-content-primary">Politique de confidentialite</p>
+              <p className="text-[11px] text-content-muted">RGPD et traitement des donnees</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Zone danger */}
+      <div className="rounded-[16px] border-2 border-red-200 bg-red-50/50 p-4 dark:border-red-500/20 dark:bg-red-500/5">
+        <h3 className="mb-1 text-[14px] font-bold text-red-700 dark:text-red-400">
+          Zone danger
+        </h3>
+        <p className="mb-3 text-[12px] text-red-600/70 dark:text-red-400/70">
+          Ces actions sont irreversibles. Procedez avec precaution.
+        </p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="rounded-[10px] border border-red-300 bg-white px-4 py-2 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-50 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+          >
+            Reinitialiser les donnees
+          </button>
+          <button
+            type="button"
+            className="rounded-[10px] bg-red-600 px-4 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-red-700"
+          >
+            Supprimer l&apos;amicale
+          </button>
+        </div>
+      </div>
+
       <div className="flex items-center gap-3">
         {saved && (
           <span className="text-[12px] font-medium text-emerald-600">
-            Paramètres mis à jour
+            Parametres mis a jour
           </span>
         )}
         <button

@@ -148,6 +148,29 @@ export default async function AccueilPage() {
         )}
       </div>
 
+      {/* Cotisation status */}
+      <div className="pt-4">
+        <div className="flex items-center gap-3 rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[14px] font-semibold text-content-primary">
+              Cotisation 2026
+            </p>
+            <p className="text-[12px] text-emerald-600 dark:text-emerald-400">
+              A jour
+            </p>
+          </div>
+          <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
+            30 &euro;
+          </span>
+        </div>
+      </div>
+
       {/* Mot du président */}
       <div className="pt-4">
         <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
