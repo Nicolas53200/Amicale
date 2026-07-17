@@ -29,20 +29,28 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthPage =
-    request.nextUrl.pathname.startsWith("/login") ||
-    request.nextUrl.pathname.startsWith("/invitation");
+  const pathname = request.nextUrl.pathname;
 
-  if (!user && !isAuthPage && request.nextUrl.pathname !== "/") {
+  const isPublicPage =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/invitation");
+
+  const isOnboarding = pathname.startsWith("/onboarding");
+
+  if (!user && !isPublicPage && pathname !== "/") {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  if (user && isAuthPage) {
+  if (user && isPublicPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/bureau/dashboard";
     return NextResponse.redirect(url);
+  }
+
+  if (user && isOnboarding) {
+    return supabaseResponse;
   }
 
   return supabaseResponse;

@@ -23,13 +23,15 @@ const steps = [
 ];
 
 const avatarEmojis = [
-  "🚒", "🧑‍🚒", "🔥", "⛑️", "🦺", "💪", "🏋️", "⚡",
-  "🐕", "🐱", "🏔️", "🌊", "🎸", "⚽", "🎯", "🍀",
+  "\u{1F692}", "\u{1F9D1}‍\u{1F692}", "\u{1F525}", "⛑️", "\u{1F9BA}", "\u{1F4AA}", "\u{1F3CB}️", "⚡",
+  "\u{1F415}", "\u{1F431}", "\u{1F3D4}️", "\u{1F30A}", "\u{1F3B8}", "⚽", "\u{1F3AF}", "\u{1F340}",
 ];
 
-export function OnboardingWizard({ memberId, firstName, lastName, orgName }: OnboardingProps) {
+export function OnboardingWizard({ memberId, firstName: initialFirstName, lastName: initialLastName, orgName }: OnboardingProps) {
   const router = useRouter();
   const [step, setStep] = useState(0);
+  const [firstName, setFirstName] = useState(initialFirstName);
+  const [lastName, setLastName] = useState(initialLastName);
   const [phone, setPhone] = useState("");
   const [adresse, setAdresse] = useState("");
   const [dateNaissance, setDateNaissance] = useState("");
@@ -38,24 +40,35 @@ export function OnboardingWizard({ memberId, firstName, lastName, orgName }: Onb
   const [situationFamiliale, setSituationFamiliale] = useState("");
   const [nbEnfants, setNbEnfants] = useState("0");
   const [contactUrgence, setContactUrgence] = useState("");
-  const [selectedEmoji, setSelectedEmoji] = useState("🚒");
+  const [selectedEmoji, setSelectedEmoji] = useState("\u{1F692}");
   const [saving, setSaving] = useState(false);
+
+  const namesEditable = !initialFirstName || !initialLastName;
 
   async function finishOnboarding() {
     setSaving(true);
     const supabase = createClient();
 
-    const updates: Record<string, string | boolean> = {
+    const updates: Record<string, unknown> = {
       onboarding_completed: true,
       status: "actif",
+      avatar_url: selectedEmoji,
     };
+    if (namesEditable) {
+      if (firstName) updates.first_name = firstName;
+      if (lastName) updates.last_name = lastName;
+    }
     if (phone) updates.phone = phone;
     if (adresse) updates.adresse = adresse;
     if (dateNaissance) updates.date_naissance = dateNaissance;
     if (grade) updates.grade = grade;
     if (centre) updates.centre = centre;
+    if (situationFamiliale) updates.situation_familiale = situationFamiliale;
+    updates.nb_enfants = Number(nbEnfants);
+    if (contactUrgence) updates.contact_urgence = contactUrgence;
 
     await supabase.from("members").update(updates).eq("id", memberId);
+    await supabase.auth.refreshSession();
 
     router.push("/amicaliste/accueil");
     router.refresh();
@@ -64,7 +77,7 @@ export function OnboardingWizard({ memberId, firstName, lastName, orgName }: Onb
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-secondary px-4">
       <div className="w-full max-w-lg">
-        {/* Step indicator - numbered circles */}
+        {/* Step indicator */}
         <div className="mb-8 flex items-center justify-center gap-0">
           {steps.map((s, i) => (
             <div key={i} className="flex items-center">
@@ -119,7 +132,7 @@ export function OnboardingWizard({ memberId, firstName, lastName, orgName }: Onb
                 </svg>
               </div>
               <h1 className="text-[22px] font-bold text-content-primary">
-                Bienvenue {firstName} !
+                Bienvenue {firstName || ""} !
               </h1>
               <p className="text-[13px] text-content-secondary">
                 Vous avez rejoint l&apos;amicale <strong>{orgName}</strong>.
@@ -131,11 +144,21 @@ export function OnboardingWizard({ memberId, firstName, lastName, orgName }: Onb
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1 block text-[12px] font-medium text-content-secondary">Prenom</label>
-                  <Input value={firstName} disabled />
+                  <Input
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    disabled={!namesEditable}
+                    required
+                  />
                 </div>
                 <div>
                   <label className="mb-1 block text-[12px] font-medium text-content-secondary">Nom</label>
-                  <Input value={lastName} disabled />
+                  <Input
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    disabled={!namesEditable}
+                    required
+                  />
                 </div>
               </div>
               <div>

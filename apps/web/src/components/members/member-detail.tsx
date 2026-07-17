@@ -374,10 +374,27 @@ export function MemberDetail({
       {member.invitation_code && member.status === "invite" && (
         <div className="rounded-[16px] bg-amber-50 p-4 shadow-sm dark:bg-amber-500/10">
           <p className="text-[12px] font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
-            Code d&apos;invitation
+            Lien d&apos;invitation
           </p>
-          <p className="mt-1 text-lg font-bold tracking-widest text-amber-800 dark:text-amber-300">
-            {member.invitation_code}
+          <div className="mt-2 flex items-center gap-2">
+            <p className="flex-1 truncate text-[13px] font-medium text-amber-800 dark:text-amber-300">
+              {typeof window !== "undefined"
+                ? `${window.location.origin}/invitation/${member.invitation_code}`
+                : `/invitation/${member.invitation_code}`}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                const url = `${window.location.origin}/invitation/${member.invitation_code}`;
+                navigator.clipboard.writeText(url);
+              }}
+              className="shrink-0 rounded-[8px] bg-amber-600 px-3 py-1.5 text-[11px] font-semibold text-white"
+            >
+              Copier
+            </button>
+          </div>
+          <p className="mt-1.5 text-[11px] text-amber-600 dark:text-amber-500">
+            Code : <span className="font-mono font-bold">{member.invitation_code}</span>
           </p>
         </div>
       )}

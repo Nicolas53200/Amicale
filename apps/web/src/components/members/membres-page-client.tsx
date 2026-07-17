@@ -33,6 +33,7 @@ export function MembresPageClient({ members }: { members: Member[] }) {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
   const [inviteResult, setInviteResult] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
 
   const total = members.length;
@@ -198,11 +199,27 @@ export function MembresPageClient({ members }: { members: Member[] }) {
             <p className="text-[12px] font-semibold text-emerald-700 dark:text-emerald-400">
               Invitation creee
             </p>
-            <p className="mt-1 font-mono text-[13px] font-bold text-emerald-800 dark:text-emerald-300">
-              {inviteResult}
-            </p>
-            <p className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-500">
-              Partagez ce code avec le membre.
+            <div className="mt-2 flex items-center gap-2">
+              <p className="flex-1 truncate text-[12px] font-medium text-emerald-800 dark:text-emerald-300">
+                {typeof window !== "undefined"
+                  ? `${window.location.origin}/invitation/${inviteResult}`
+                  : `/invitation/${inviteResult}`}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = `${window.location.origin}/invitation/${inviteResult}`;
+                  navigator.clipboard.writeText(url);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="shrink-0 rounded-[8px] bg-emerald-600 px-3 py-1.5 text-[11px] font-semibold text-white"
+              >
+                {copied ? "Copié !" : "Copier"}
+              </button>
+            </div>
+            <p className="mt-1.5 text-[11px] text-emerald-600 dark:text-emerald-500">
+              Partagez ce lien avec le membre.
             </p>
           </div>
         )}

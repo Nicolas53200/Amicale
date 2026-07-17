@@ -20,18 +20,40 @@ export default function LoginPage() {
     setError("");
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
+    if (loginError) {
       setError("Email ou mot de passe incorrect");
       setLoading(false);
       return;
     }
 
-    router.push("/bureau/dashboard");
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: member } = await supabase
+        .from("members")
+        .select("onboarding_completed, is_bureau")
+        .eq("user_id", user.id)
+        .single();
+
+      if (member && !member.onboarding_completed) {
+        router.push("/onboarding");
+        router.refresh();
+        return;
+      }
+
+      if (member?.is_bureau) {
+        router.push("/bureau/dashboard");
+      } else {
+        router.push("/amicaliste/accueil");
+      }
+    } else {
+      router.push("/bureau/dashboard");
+    }
+
     router.refresh();
   }
 
