@@ -17,6 +17,9 @@ import { SainteBarbeAmicaliste } from "./saintebarbe-amicaliste";
 import { SolidariteBureau } from "./solidarite-bureau";
 import { SolidariteAmicaliste } from "./solidarite-amicaliste";
 import { FoyerBureau } from "./foyer-bureau";
+import { FoyerAmicaliste } from "./foyer-amicaliste";
+import { SportBureau } from "./sport-bureau";
+import { SportAmicaliste } from "./sport-amicaliste";
 
 interface ModuleTabsProps {
   commissionId: string;
@@ -50,6 +53,8 @@ const SPECIALIZED_KEYWORDS: Record<string, string> = {
   "solidarité": "solidarite",
   "action sociale": "solidarite",
   "foyer": "foyer",
+  "sport": "sport",
+  "sportive": "sport",
 };
 
 function detectSpecialized(name: string): string | null {
@@ -76,7 +81,8 @@ export function ModuleTabs({
         case "fdf": return <FdfAmicaliste />;
         case "saintebarbe": return <SainteBarbeAmicaliste />;
         case "solidarite": return <SolidariteAmicaliste />;
-        case "foyer": return null;
+        case "foyer": return <FoyerAmicaliste />;
+        case "sport": return <SportAmicaliste />;
       }
     } else {
       switch (specialized) {
@@ -85,6 +91,7 @@ export function ModuleTabs({
         case "saintebarbe": return <SainteBarbeBureau budget={budget} />;
         case "solidarite": return <SolidariteBureau budget={budget} />;
         case "foyer": return <FoyerBureau budget={budget} />;
+        case "sport": return <SportBureau budget={budget} />;
       }
     }
   }
