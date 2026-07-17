@@ -9,13 +9,23 @@ const fmt = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
-const outilsBureau = [
+interface OutilBureau {
+  icon: string;
+  color: string;
+  title: string;
+  subtitle: string;
+  href: string;
+  badgeKey?: string;
+}
+
+const outilsBureau: OutilBureau[] = [
   {
     icon: "👥",
     color: "bg-blue-100 dark:bg-blue-500/20",
     title: "Membres",
     subtitle: "Gestion des adhérents",
     href: "/bureau/membres",
+    badgeKey: "membres",
   },
   {
     icon: "💬",
@@ -30,6 +40,7 @@ const outilsBureau = [
     title: "Comptabilité",
     subtitle: "Finances & budgets",
     href: "/bureau/comptabilite",
+    badgeKey: "compta",
   },
   {
     icon: "📅",
@@ -37,6 +48,7 @@ const outilsBureau = [
     title: "Événements",
     subtitle: "Agenda & inscriptions",
     href: "/bureau/evenements",
+    badgeKey: "events",
   },
   {
     icon: "📋",
@@ -44,6 +56,7 @@ const outilsBureau = [
     title: "Commissions",
     subtitle: "Organisation interne",
     href: "/bureau/commissions",
+    badgeKey: "commissions",
   },
   {
     icon: "🏠",
@@ -51,6 +64,7 @@ const outilsBureau = [
     title: "Locations",
     subtitle: "Biens & réservations",
     href: "/bureau/locations",
+    badgeKey: "locations",
   },
   {
     icon: "✈️",
@@ -58,6 +72,7 @@ const outilsBureau = [
     title: "Voyages",
     subtitle: "Sorties & séjours",
     href: "/bureau/voyages",
+    badgeKey: "voyages",
   },
   {
     icon: "📝",
@@ -99,7 +114,9 @@ const outilsBureau = [
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const [membersRes, commissionsRes, entriesRes, eventsRes, reunionsRes] =
+  const nowISO = new Date().toISOString();
+
+  const [membersRes, commissionsRes, entriesRes, eventsRes, reunionsRes, tripsRes, locationsRes, pendingComptaRes] =
     await Promise.all([
       supabase.from("members").select("id, status, role, created_at"),
       supabase.from("commissions").select("id, name, icon, color, budget").eq("active", true),
@@ -111,16 +128,27 @@ export default async function DashboardPage() {
       supabase
         .from("events")
         .select("id, title, date, location, event_registrations(count)")
-        .gte("date", new Date().toISOString())
+        .gte("date", nowISO)
         .order("date")
         .limit(5),
       supabase
         .from("notifications")
         .select("id, title, message, sent_at")
         .eq("type", "reunion")
-        .gte("sent_at", new Date().toISOString())
+        .gte("sent_at", nowISO)
         .order("sent_at")
         .limit(3),
+      supabase
+        .from("trips")
+        .select("id")
+        .gte("start_date", nowISO),
+      supabase
+        .from("locations")
+        .select("id"),
+      supabase
+        .from("accounting_entries")
+        .select("id")
+        .eq("status", "en_attente"),
     ]);
 
   const members = membersRes.data ?? [];
@@ -128,6 +156,31 @@ export default async function DashboardPage() {
   const recentEntries = entriesRes.data ?? [];
   const upcomingEvents = eventsRes.data ?? [];
   const prochReunions = reunionsRes.data ?? [];
+  const upcomingTrips = tripsRes.data ?? [];
+  const locationCount = locationsRes.data?.length ?? 0;
+  const pendingCompta = pendingComptaRes.data?.length ?? 0;
+
+  const badges: Record<string, string> = {};
+  if (members.length > 0) badges.membres = `${members.length}`;
+  if (pendingCompta > 0) badges.compta = `${pendingCompta} en att.`;
+  if (upcomingEvents.length > 0) badges.events = `${upcomingEvents.length}`;
+  if (commissions.length > 0) badges.commissions = `${commissions.length}`;
+  if (locationCount > 0) badges.locations = `${locationCount}`;
+  if (upcomingTrips.length > 0) badges.voyages = `${upcomingTrips.length}`;
+
+  const nowMs = new Date(nowISO).getTime();
+  const missions: { icon: string; text: string; href: string }[] = [];
+  if (pendingCompta > 0)
+    missions.push({ icon: "\u{1F4B0}", text: `${pendingCompta} operation${pendingCompta > 1 ? "s" : ""} en attente de validation`, href: "/bureau/comptabilite" });
+  const nextEv = upcomingEvents[0];
+  if (nextEv) {
+    const daysUntil = Math.ceil((new Date(nextEv.date).getTime() - nowMs) / (1000 * 60 * 60 * 24));
+    if (daysUntil <= 7 && daysUntil >= 0)
+      missions.push({ icon: "\u{1F4C5}", text: `"${nextEv.title}" dans ${daysUntil} jour${daysUntil > 1 ? "s" : ""}`, href: `/bureau/evenements/${nextEv.id}` });
+  }
+  const nextReunion = prochReunions[0];
+  if (nextReunion)
+    missions.push({ icon: "\u{1F4DD}", text: `Reunion : ${nextReunion.title}`, href: "/bureau/reunions" });
 
   const totalMembers = members.length;
   const activeMembers = members.filter((m) => m.status === "actif").length;
@@ -252,6 +305,31 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Missions du jour */}
+      {missions.length > 0 && (
+        <div className="rounded-[16px] bg-gradient-to-br from-amber-50 to-orange-50 p-4 shadow-sm dark:from-amber-500/10 dark:to-orange-500/10">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="text-base">🎯</span>
+            <h3 className="text-[14px] font-bold text-content-primary">Missions du jour</h3>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {missions.map((m, i) => (
+              <Link
+                key={i}
+                href={m.href}
+                className="flex items-center gap-2.5 rounded-[10px] bg-white/60 px-3 py-2 transition-colors active:bg-white/40 dark:bg-white/5 dark:active:bg-white/10"
+              >
+                <span className="text-[14px]">{m.icon}</span>
+                <span className="flex-1 text-[12px] font-medium text-content-primary">{m.text}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-content-muted">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Big stat cards */}
       <div className="grid grid-cols-2 gap-3">
@@ -441,28 +519,36 @@ export default async function DashboardPage() {
           Outils du bureau
         </h3>
         <div className="grid grid-cols-2 gap-3">
-          {outilsBureau.map((outil) => (
-            <Link
-              key={outil.href}
-              href={outil.href}
-              className="flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
-            >
-              <div className={cn(
-                "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                outil.color
-              )}>
-                <span className="text-lg">{outil.icon}</span>
-              </div>
-              <div className="min-w-0 pt-0.5">
-                <p className="text-[13px] font-semibold text-content-primary">
-                  {outil.title}
-                </p>
-                <p className="text-[11px] text-content-muted">
-                  {outil.subtitle}
-                </p>
-              </div>
-            </Link>
-          ))}
+          {outilsBureau.map((outil) => {
+            const badge = outil.badgeKey ? badges[outil.badgeKey] : undefined;
+            return (
+              <Link
+                key={outil.href}
+                href={outil.href}
+                className="relative flex items-start gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:shadow-none"
+              >
+                <div className={cn(
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                  outil.color
+                )}>
+                  <span className="text-lg">{outil.icon}</span>
+                </div>
+                <div className="min-w-0 pt-0.5">
+                  <p className="text-[13px] font-semibold text-content-primary">
+                    {outil.title}
+                  </p>
+                  <p className="text-[11px] text-content-muted">
+                    {outil.subtitle}
+                  </p>
+                </div>
+                {badge && (
+                  <span className="absolute right-2.5 top-2.5 rounded-full bg-brand-500 px-1.5 py-0.5 text-[9px] font-bold tabular-nums text-white">
+                    {badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>
