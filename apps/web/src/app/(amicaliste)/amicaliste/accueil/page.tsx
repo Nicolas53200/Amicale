@@ -5,18 +5,41 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 export default async function AccueilPage() {
   const supabase = await createClient();
+  const nowISO = new Date().toISOString();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  let memberName: string | undefined;
+  let unreadMessages = 0;
+
+  if (user) {
+    const { data: member } = await supabase
+      .from("members")
+      .select("id, first_name")
+      .eq("user_id", user.id)
+      .single();
+
+    if (member) {
+      memberName = member.first_name;
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .eq("to_id", member.id)
+        .is("read_at", null);
+      unreadMessages = count ?? 0;
+    }
+  }
 
   const [eventsRes, tripsRes] = await Promise.all([
     supabase
       .from("events")
       .select("id, title, date, location")
-      .gte("date", new Date().toISOString())
+      .gte("date", nowISO)
       .order("date")
       .limit(6),
     supabase
       .from("trips")
       .select("id, destination, start_date, end_date, location:destination")
-      .gte("start_date", new Date().toISOString())
+      .gte("start_date", nowISO)
       .order("start_date")
       .limit(2),
   ]);
@@ -45,7 +68,7 @@ export default async function AccueilPage() {
 
   return (
     <div className="flex flex-col">
-      <HeroCarousel items={carouselItems} />
+      <HeroCarousel items={carouselItems} unreadMessages={unreadMessages} memberName={memberName} />
 
       {/* Prochains événements */}
       <div className="pt-4">
@@ -123,6 +146,36 @@ export default async function AccueilPage() {
             })}
           </div>
         )}
+      </div>
+
+      {/* Mot du président */}
+      <div className="pt-4">
+        <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
+              <span className="text-lg">📢</span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <p className="text-[14px] font-bold text-content-primary">
+                  Mot du president
+                </p>
+                <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-semibold text-brand-600 dark:bg-brand-500/10 dark:text-brand-400">
+                  Nouveau
+                </span>
+              </div>
+              <p className="mt-2 text-[13px] leading-relaxed text-content-secondary">
+                Chers amicalistes, je vous souhaite une excellente saison.
+                N&apos;hesitez pas a consulter les evenements a venir et a vous
+                inscrire aux activites proposees. Votre participation fait vivre
+                notre amicale !
+              </p>
+              <p className="mt-2 text-[11px] font-medium text-content-muted">
+                — Le bureau de l&apos;amicale
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Voyages à venir */}

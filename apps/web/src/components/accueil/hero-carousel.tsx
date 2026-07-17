@@ -13,6 +13,8 @@ interface CarouselItem {
 
 interface HeroCarouselProps {
   items: CarouselItem[];
+  unreadMessages?: number;
+  memberName?: string;
 }
 
 const slideColors = [
@@ -22,7 +24,7 @@ const slideColors = [
   "linear-gradient(135deg, rgba(60,120,80,0.9) 0%, rgba(40,100,70,0.8) 100%)",
 ];
 
-export function HeroCarousel({ items }: HeroCarouselProps) {
+export function HeroCarousel({ items, unreadMessages = 0, memberName }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0);
   const touchRef = useRef({ startX: 0, startY: 0 });
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -77,7 +79,7 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
         <div className="flex items-center justify-between pb-3 pt-4">
           <div>
             <h1 className="text-[22px] font-bold text-white">
-              Bonjour <span className="inline-block">👋</span>
+              Bonjour{memberName ? ` ${memberName}` : ""} <span className="inline-block">👋</span>
             </h1>
             <p className="text-[13px] text-white/70">Amicale SP</p>
           </div>
@@ -130,9 +132,16 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
               Messages
             </p>
             <p className="text-[12px] text-content-muted">
-              Vous avez des messages en attente
+              {unreadMessages > 0
+                ? `${unreadMessages} message${unreadMessages > 1 ? "s" : ""} non lu${unreadMessages > 1 ? "s" : ""}`
+                : "Aucun nouveau message"}
             </p>
           </div>
+          {unreadMessages > 0 && (
+            <span className="shrink-0 rounded-full bg-brand-500 px-2 py-0.5 text-[11px] font-bold text-white">
+              {unreadMessages}
+            </span>
+          )}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="18"
