@@ -39,6 +39,9 @@ CREATE TABLE members (
   bureau_role VARCHAR(100),
   is_bureau BOOLEAN NOT NULL DEFAULT false,
   onboarding_completed BOOLEAN NOT NULL DEFAULT false,
+  situation_familiale VARCHAR(50),
+  nb_enfants INTEGER NOT NULL DEFAULT 0,
+  contact_urgence TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -306,7 +309,8 @@ CREATE POLICY "members_select" ON members FOR SELECT USING (org_id = public.org_
 CREATE POLICY "members_insert" ON members FOR INSERT WITH CHECK (org_id = public.org_id());
 CREATE POLICY "members_update" ON members FOR UPDATE USING (org_id = public.org_id());
 CREATE POLICY "members_delete" ON members FOR DELETE USING (org_id = public.org_id());
-CREATE POLICY "members_invitation_lookup" ON members FOR SELECT TO anon USING (invitation_code IS NOT NULL);
+CREATE POLICY "members_invitation_lookup" ON members FOR SELECT TO anon USING (invitation_code IS NOT NULL AND status = 'invite');
+CREATE POLICY "members_self_select" ON members FOR SELECT TO authenticated USING (user_id = auth.uid());
 
 CREATE POLICY "commissions_select" ON commissions FOR SELECT USING (org_id = public.org_id());
 CREATE POLICY "commissions_insert" ON commissions FOR INSERT WITH CHECK (org_id = public.org_id());
@@ -366,24 +370,28 @@ CREATE POLICY "messages_update" ON messages FOR UPDATE USING (org_id = public.or
 
 
 -- ============================================================
--- PARTIE 4 : HOOK JWT (injecte org_id dans le token)
+-- PARTIE 4 : HOOK JWT (injecte org_id, onboarding, role)
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION public.custom_access_token_hook(event JSONB)
 RETURNS JSONB AS $$
 DECLARE
   claims JSONB;
-  member_org_id UUID;
+  member_record RECORD;
 BEGIN
   claims := event->'claims';
 
-  SELECT m.org_id INTO member_org_id
+  SELECT m.org_id, m.onboarding_completed, m.is_bureau, m.role
+  INTO member_record
   FROM public.members m
   WHERE m.user_id = (event->>'user_id')::UUID
   LIMIT 1;
 
-  IF member_org_id IS NOT NULL THEN
-    claims := jsonb_set(claims, '{org_id}', to_jsonb(member_org_id::TEXT));
+  IF member_record.org_id IS NOT NULL THEN
+    claims := jsonb_set(claims, '{org_id}', to_jsonb(member_record.org_id::TEXT));
+    claims := jsonb_set(claims, '{onboarding_completed}', to_jsonb(member_record.onboarding_completed));
+    claims := jsonb_set(claims, '{is_bureau}', to_jsonb(member_record.is_bureau));
+    claims := jsonb_set(claims, '{member_role}', to_jsonb(member_record.role));
     event := jsonb_set(event, '{claims}', claims);
   END IF;
 
@@ -395,6 +403,127 @@ GRANT USAGE ON SCHEMA public TO supabase_auth_admin;
 GRANT EXECUTE ON FUNCTION public.custom_access_token_hook TO supabase_auth_admin;
 REVOKE EXECUTE ON FUNCTION public.custom_access_token_hook FROM authenticated, anon, public;
 GRANT SELECT ON TABLE public.members TO supabase_auth_admin;
+
+
+-- ============================================================
+-- PARTIE 4b : FONCTIONS SECURITY DEFINER
+-- ============================================================
+
+-- Bind authenticated user to an invitation code (bypasses RLS)
+CREATE OR REPLACE FUNCTION public.bind_user_to_invitation(p_invitation_code TEXT)
+RETURNS JSONB AS $$
+DECLARE
+  v_member RECORD;
+  v_user_id UUID;
+BEGIN
+  v_user_id := auth.uid();
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'Not authenticated';
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM public.members WHERE user_id = v_user_id) THEN
+    RAISE EXCEPTION 'User already has a member profile';
+  END IF;
+
+  SELECT id, org_id, first_name, last_name
+  INTO v_member
+  FROM public.members
+  WHERE invitation_code = p_invitation_code
+    AND user_id IS NULL
+    AND status = 'invite';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Code d''invitation invalide ou déjà utilisé';
+  END IF;
+
+  UPDATE public.members
+  SET user_id = v_user_id,
+      status = 'onboarding',
+      invitation_code = NULL
+  WHERE id = v_member.id;
+
+  RETURN jsonb_build_object(
+    'member_id', v_member.id,
+    'org_id', v_member.org_id,
+    'first_name', v_member.first_name,
+    'last_name', v_member.last_name
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.bind_user_to_invitation TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.bind_user_to_invitation FROM anon, public;
+
+-- Create default commissions for a new organization
+CREATE OR REPLACE FUNCTION public.create_default_commissions(p_org_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  INSERT INTO commissions (org_id, name, model, icon, color, budget, is_fixed, description) VALUES
+    (p_org_id, 'Événements', 'evenement', '🎉', '#FF6B35', 5000, true, 'Organisation des événements festifs et sportifs'),
+    (p_org_id, 'Voyages', 'voyage', '✈️', '#3B82F6', 8000, true, 'Organisation des voyages et sorties'),
+    (p_org_id, 'Locations', 'location', '🏠', '#10B981', 2000, true, 'Gestion des biens locatifs'),
+    (p_org_id, 'Sport', 'simple', '⚽', '#8B5CF6', 1500, true, 'Activités sportives et tournois'),
+    (p_org_id, 'Noël', 'simple', '🎄', '#EF4444', 3000, true, 'Organisation des fêtes de Noël'),
+    (p_org_id, 'Fête des familles', 'simple', '👨‍👩‍👧‍👦', '#F59E0B', 2000, true, 'Journée annuelle des familles'),
+    (p_org_id, 'Sainte-Barbe', 'simple', '🔥', '#DC2626', 4000, true, 'Organisation de la Sainte-Barbe'),
+    (p_org_id, 'Solidarité', 'simple', '🤝', '#06B6D4', 1000, true, 'Actions de solidarité entre membres'),
+    (p_org_id, 'Foyer', 'simple', '☕', '#78716C', 500, true, 'Gestion du foyer et des consommations');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+REVOKE EXECUTE ON FUNCTION public.create_default_commissions FROM anon, public, authenticated;
+
+-- Setup a new organization with president + default commissions
+CREATE OR REPLACE FUNCTION public.setup_organization(
+  p_org_name TEXT,
+  p_org_slug TEXT,
+  p_first_name TEXT,
+  p_last_name TEXT,
+  p_email TEXT
+)
+RETURNS JSONB AS $$
+DECLARE
+  v_user_id UUID;
+  v_org_id UUID;
+  v_member_id UUID;
+BEGIN
+  v_user_id := auth.uid();
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'Not authenticated';
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM public.members WHERE user_id = v_user_id) THEN
+    RAISE EXCEPTION 'Vous avez déjà un profil membre';
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM public.organizations WHERE slug = p_org_slug) THEN
+    RAISE EXCEPTION 'Ce nom d''amicale est déjà utilisé';
+  END IF;
+
+  INSERT INTO public.organizations (name, slug)
+  VALUES (p_org_name, p_org_slug)
+  RETURNING id INTO v_org_id;
+
+  INSERT INTO public.members (
+    org_id, user_id, first_name, last_name, email,
+    role, status, is_bureau, bureau_role, onboarding_completed
+  ) VALUES (
+    v_org_id, v_user_id, p_first_name, p_last_name, p_email,
+    'president', 'onboarding', true, 'Président', false
+  )
+  RETURNING id INTO v_member_id;
+
+  PERFORM public.create_default_commissions(v_org_id);
+
+  RETURN jsonb_build_object(
+    'org_id', v_org_id,
+    'member_id', v_member_id
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.setup_organization TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.setup_organization FROM anon, public;
 
 
 -- ============================================================
@@ -518,3 +647,63 @@ INSERT INTO documents (org_id, commission_id, title, content, created_by) VALUES
   ('11111111-1111-1111-1111-111111111111', 'c0000001-0000-0000-0000-000000000001', 'PV Réunion bureau juin 2026', 'Compte-rendu de la réunion du bureau du 15 juin 2026. Points abordés : budget Sainte-Barbe, organisation repas annuel, point locations été.', 'b0000003-0000-0000-0000-000000000003'),
   ('11111111-1111-1111-1111-111111111111', 'c0000002-0000-0000-0000-000000000002', 'Programme voyage Saint-Malo', 'Programme détaillé du week-end à Saint-Malo. Jour 1 : remparts. Jour 2 : aquarium. Jour 3 : balade en mer.', 'b0000002-0000-0000-0000-000000000002'),
   ('11111111-1111-1111-1111-111111111111', 'c0000007-0000-0000-0000-000000000007', 'Devis traiteur Sainte-Barbe', 'Devis reçu du traiteur Le Gourmand : 35€/pers, menu 4 services, boissons incluses.', 'b0000002-0000-0000-0000-000000000002');
+
+
+-- ============================================================
+-- PARTIE 6 : STORAGE BUCKETS + RLS
+-- ============================================================
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES
+  ('avatars', 'avatars', true, 5242880,
+    ARRAY['image/jpeg','image/png','image/webp','image/gif']),
+  ('assets', 'assets', true, 10485760,
+    ARRAY['image/jpeg','image/png','image/webp','image/gif']),
+  ('events', 'events', true, 10485760,
+    ARRAY['image/jpeg','image/png','image/webp','image/gif']),
+  ('documents', 'documents', false, 20971520, NULL)
+ON CONFLICT (id) DO NOTHING;
+
+-- Avatars — public read, authenticated write
+CREATE POLICY "avatars_public_read" ON storage.objects
+  FOR SELECT USING (bucket_id = 'avatars');
+CREATE POLICY "avatars_auth_insert" ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'avatars');
+CREATE POLICY "avatars_auth_update" ON storage.objects
+  FOR UPDATE TO authenticated USING (bucket_id = 'avatars');
+CREATE POLICY "avatars_auth_delete" ON storage.objects
+  FOR DELETE TO authenticated USING (bucket_id = 'avatars');
+
+-- Assets — public read, authenticated write
+CREATE POLICY "assets_public_read" ON storage.objects
+  FOR SELECT USING (bucket_id = 'assets');
+CREATE POLICY "assets_auth_insert" ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'assets');
+CREATE POLICY "assets_auth_update" ON storage.objects
+  FOR UPDATE TO authenticated USING (bucket_id = 'assets');
+CREATE POLICY "assets_auth_delete" ON storage.objects
+  FOR DELETE TO authenticated USING (bucket_id = 'assets');
+
+-- Events — public read, authenticated write
+CREATE POLICY "events_public_read" ON storage.objects
+  FOR SELECT USING (bucket_id = 'events');
+CREATE POLICY "events_auth_insert" ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'events');
+CREATE POLICY "events_auth_update" ON storage.objects
+  FOR UPDATE TO authenticated USING (bucket_id = 'events');
+CREATE POLICY "events_auth_delete" ON storage.objects
+  FOR DELETE TO authenticated USING (bucket_id = 'events');
+
+-- Documents — org-scoped (private bucket)
+CREATE POLICY "documents_org_read" ON storage.objects
+  FOR SELECT TO authenticated
+  USING (bucket_id = 'documents' AND (storage.foldername(name))[1] = public.org_id()::text);
+CREATE POLICY "documents_org_insert" ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'documents' AND (storage.foldername(name))[1] = public.org_id()::text);
+CREATE POLICY "documents_org_update" ON storage.objects
+  FOR UPDATE TO authenticated
+  USING (bucket_id = 'documents' AND (storage.foldername(name))[1] = public.org_id()::text);
+CREATE POLICY "documents_org_delete" ON storage.objects
+  FOR DELETE TO authenticated
+  USING (bucket_id = 'documents' AND (storage.foldername(name))[1] = public.org_id()::text);

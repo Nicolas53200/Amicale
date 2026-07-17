@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { updateProfile, updateMemberAvatarUrl } from "@/lib/actions/profile";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile, buildPath } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 
 const avatarEmojis = [
@@ -60,29 +60,12 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
     };
     reader.readAsDataURL(file);
 
-    // Upload to Supabase Storage
     setUploadingAvatar(true);
     try {
-      const supabase = createClient();
-      const ext = file.name.split(".").pop() || "jpg";
-      const filePath = `${profile.id}/${Date.now()}.${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        setUploadingAvatar(false);
-        return;
-      }
-
-      const { data: urlData } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
-
-      if (urlData?.publicUrl) {
-        await updateMemberAvatarUrl(urlData.publicUrl);
+      const path = buildPath(profile.id, file);
+      const publicUrl = await uploadFile("avatars", path, file);
+      if (publicUrl) {
+        await updateMemberAvatarUrl(publicUrl);
         router.refresh();
       }
     } catch (err) {
