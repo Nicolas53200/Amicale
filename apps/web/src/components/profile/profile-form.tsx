@@ -7,6 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { updateProfile, updateMemberAvatarUrl } from "@/lib/actions/profile";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
+
+const avatarEmojis = [
+  "\u{1F692}", "\u{1F9D1}‍\u{1F692}", "\u{1F525}", "⛑️", "\u{1F9BA}", "\u{1F4AA}", "\u{1F3CB}️", "⚡",
+  "\u{1F415}", "\u{1F431}", "\u{1F3D4}️", "\u{1F30A}", "\u{1F3B8}", "⚽", "\u{1F3AF}", "\u{1F340}",
+];
 
 interface ProfileData {
   id: string;
@@ -40,6 +46,7 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
   const [saved, setSaved] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -113,6 +120,10 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
                   alt={`${profile.first_name} ${profile.last_name}`}
                   className="h-16 w-16 rounded-full object-cover ring-2 ring-brand-200 ring-offset-2 dark:ring-brand-500/30"
                 />
+              ) : selectedEmoji ? (
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 ring-2 ring-brand-200 ring-offset-2 dark:bg-brand-500/20 dark:ring-brand-500/30">
+                  <span className="text-2xl">{selectedEmoji}</span>
+                </div>
               ) : (
                 <Avatar
                   name={`${profile.first_name} ${profile.last_name}`}
@@ -246,32 +257,86 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
         </div>
       </div>
 
+      {/* Emoji avatar picker */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Avatar emoji
+        </h3>
+        <p className="mb-3 text-[12px] text-content-muted">
+          Choisissez un emoji pour personnaliser votre profil
+        </p>
+        <div className="grid grid-cols-8 gap-2">
+          {avatarEmojis.map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => {
+                setAvatarPreview(null);
+                setSelectedEmoji(emoji);
+              }}
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-[10px] text-lg transition-all",
+                selectedEmoji === emoji
+                  ? "bg-brand-100 ring-2 ring-brand-500 dark:bg-brand-500/20"
+                  : "bg-surface-secondary hover:bg-surface-tertiary"
+              )}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+        {selectedEmoji && (
+          <input type="hidden" name="avatar_emoji" value={selectedEmoji} />
+        )}
+      </div>
+
       {/* Family section */}
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-[14px] font-bold text-content-primary">
-            Famille
-          </h3>
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-500/20 dark:text-amber-400">
-            Prochainement
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Famille
+        </h3>
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-content-secondary">Situation familiale</label>
+              <select
+                name="situation_familiale"
+                defaultValue=""
+                className="w-full rounded-[10px] border border-border-default bg-surface-secondary px-3 py-2.5 text-[13px] text-content-primary outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value="">Non renseigne</option>
+                <option value="celibataire">Celibataire</option>
+                <option value="marie">Marie(e)</option>
+                <option value="pacse">Pacse(e)</option>
+                <option value="concubinage">Concubinage</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-content-secondary">Nombre d&apos;enfants</label>
+              <Input
+                name="nb_enfants"
+                type="number"
+                min="0"
+                max="20"
+                defaultValue=""
+                placeholder="0"
+              />
+            </div>
+          </div>
           <div>
             <label className="mb-1 block text-[12px] font-medium text-content-secondary">Conjoint(e)</label>
             <Input
-              disabled
-              placeholder="Nom du conjoint"
-              className="opacity-50"
+              name="conjoint"
+              defaultValue=""
+              placeholder="Prenom et nom du conjoint"
             />
           </div>
           <div>
-            <label className="mb-1 block text-[12px] font-medium text-content-secondary">Nombre d&apos;enfants</label>
+            <label className="mb-1 block text-[12px] font-medium text-content-secondary">Contact d&apos;urgence</label>
             <Input
-              type="number"
-              disabled
-              placeholder="0"
-              className="opacity-50"
+              name="contact_urgence"
+              defaultValue=""
+              placeholder="Nom et telephone"
             />
           </div>
         </div>
@@ -279,18 +344,13 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
 
       {/* Notification preferences */}
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-[14px] font-bold text-content-primary">
-            Notifications
-          </h3>
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-500/20 dark:text-amber-400">
-            Prochainement
-          </span>
-        </div>
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Notifications
+        </h3>
         <div className="flex flex-col gap-3">
-          <ToggleRow label="Notifications evenements" disabled />
-          <ToggleRow label="Notifications voyages" disabled />
-          <ToggleRow label="Notifications messagerie" disabled />
+          <ToggleRow label="Notifications evenements" name="notif_events" />
+          <ToggleRow label="Notifications voyages" name="notif_voyages" />
+          <ToggleRow label="Notifications messagerie" name="notif_messages" />
         </div>
       </div>
 
@@ -377,18 +437,18 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
   );
 }
 
-function ToggleRow({ label, disabled }: { label: string; disabled?: boolean }) {
+function ToggleRow({ label, name }: { label: string; name?: string }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-[13px] text-content-secondary">{label}</span>
-      <label className="relative inline-flex cursor-not-allowed items-center">
+      <label className="relative inline-flex cursor-pointer items-center">
         <input
           type="checkbox"
+          name={name}
           className="peer sr-only"
-          disabled={disabled}
           defaultChecked
         />
-        <div className="peer h-5 w-9 rounded-full bg-gray-300 opacity-50 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-500 peer-checked:after:translate-x-full dark:bg-gray-600 dark:peer-checked:bg-brand-500" />
+        <div className="peer h-5 w-9 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-500 peer-checked:after:translate-x-full dark:bg-gray-600 dark:peer-checked:bg-brand-500" />
       </label>
     </div>
   );
