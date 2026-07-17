@@ -56,8 +56,8 @@ export function ModuleEvenements({
     return (
       <EmptyState
         icon="📅"
-        title="Aucun evenement"
-        description="Les evenements de cette commission apparaitront ici"
+        title="Aucun événement"
+        description="Les événements de cette commission apparaîtront ici"
       />
     );
   }
@@ -96,7 +96,7 @@ export function ModuleEvenements({
                 <span className="text-[11px] font-semibold text-brand-600">{fmt(ev.price)}</span>
               )}
               <Badge variant={isPast ? "neutral" : "success"}>
-                {isPast ? "Passe" : "A venir"}
+                {isPast ? "Passé" : "À venir"}
               </Badge>
             </div>
           </Link>

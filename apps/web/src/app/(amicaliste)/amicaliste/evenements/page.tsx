@@ -8,8 +8,8 @@ export default async function EvenementsPage() {
   return (
     <div className="flex flex-col gap-4">
       <GradientHeader
-        title="Evenements"
-        subtitle={`${events.length} evenement${events.length > 1 ? "s" : ""} a venir`}
+        title="Événements"
+        subtitle={`${events.length} événement${events.length > 1 ? "s" : ""} à venir`}
       />
       <EventsListClient events={events} />
     </div>

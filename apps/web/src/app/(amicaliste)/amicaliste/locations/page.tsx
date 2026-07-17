@@ -63,7 +63,7 @@ export default async function LocationsPage() {
         <EmptyState
           icon="🏠"
           title="Aucun bien disponible"
-          description="Les biens locatifs de votre amicale apparaitront ici"
+          description="Les biens locatifs de votre amicale apparaîtront ici"
         />
       ) : (
         <div className="grid grid-cols-2 gap-3">

@@ -54,8 +54,8 @@ export default async function VoyagesPage() {
       {trips.length === 0 ? (
         <EmptyState
           icon="✈️"
-          title="Aucun voyage a venir"
-          description="Les prochains voyages apparaitront ici"
+          title="Aucun voyage à venir"
+          description="Les prochains voyages apparaîtront ici"
         />
       ) : (
         <div className="flex flex-col gap-3">

@@ -22,7 +22,7 @@ const categoryConfig: { value: string; label: string; icon: string }[] = [
   { value: "sport", label: "Sport", icon: "⚽" },
   { value: "bal", label: "Bal", icon: "🎵" },
   { value: "sortie", label: "Sortie", icon: "⛰️" },
-  { value: "ceremonie", label: "Ceremonie", icon: "🎖️" },
+  { value: "ceremonie", label: "Cérémonie", icon: "🎖️" },
 ];
 
 export function EventsListClient({ events }: { events: EventItem[] }) {
@@ -68,7 +68,7 @@ export function EventsListClient({ events }: { events: EventItem[] }) {
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-[14px] bg-surface-elevated p-3 text-center shadow-sm">
           <p className="text-[18px] font-bold text-brand-600 dark:text-brand-400">{events.length}</p>
-          <p className="text-[11px] text-content-muted">A venir</p>
+          <p className="text-[11px] text-content-muted">À venir</p>
         </div>
         <div className="rounded-[14px] bg-surface-elevated p-3 text-center shadow-sm">
           <p className="text-[18px] font-bold text-content-primary">
@@ -88,8 +88,8 @@ export function EventsListClient({ events }: { events: EventItem[] }) {
       {filtered.length === 0 ? (
         <EmptyState
           icon="🎉"
-          title={category !== "all" ? "Aucun evenement dans cette categorie" : "Aucun evenement a venir"}
-          description="Les prochains evenements apparaitront ici"
+          title={category !== "all" ? "Aucun événement dans cette catégorie" : "Aucun événement à venir"}
+          description="Les prochains événements apparaîtront ici"
         />
       ) : (
         <div className="flex flex-col gap-3">

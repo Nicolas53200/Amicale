@@ -79,7 +79,7 @@ export default function GaleriePage() {
         <EmptyState
           icon="📷"
           title="Aucun album disponible"
-          description="Les albums photos apparaitront ici apres chaque evenement"
+          description="Les albums photos apparaîtront ici après chaque événement"
         />
       ) : (
         <>

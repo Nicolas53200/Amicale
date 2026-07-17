@@ -226,7 +226,7 @@ const categories = [
     ],
   },
   {
-    title: "Evenements",
+    title: "Événements",
     icon: "\u{1F389}",
     templates: [
       {

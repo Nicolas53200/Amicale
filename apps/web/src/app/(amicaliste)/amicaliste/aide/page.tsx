@@ -12,32 +12,32 @@ const faqData = [
       {
         question: "Comment modifier mes informations personnelles ?",
         answer:
-          "Rendez-vous dans l'onglet Profil accessible depuis le menu en bas de l'ecran. Vous pourrez y modifier votre nom, prenom, email, telephone et adresse.",
+          "Rendez-vous dans l’onglet Profil accessible depuis le menu en bas de l’écran. Vous pourrez y modifier votre nom, prénom, email, téléphone et adresse.",
       },
       {
         question: "Comment changer mon mot de passe ?",
         answer:
-          "Dans votre Profil, appuyez sur \"Modifier le mot de passe\". Saisissez votre ancien mot de passe, puis le nouveau. Un email de confirmation vous sera envoye.",
+          "Dans votre Profil, appuyez sur « Modifier le mot de passe ». Saisissez votre ancien mot de passe, puis le nouveau. Un email de confirmation vous sera envoyé.",
       },
       {
-        question: "Comment contacter le bureau de l'amicale ?",
+        question: "Comment contacter le bureau de l’amicale ?",
         answer:
-          "Utilisez la messagerie interne accessible depuis l'onglet Messages. Vous pouvez ecrire directement au bureau ou a un membre en particulier.",
+          "Utilisez la messagerie interne accessible depuis l’onglet Messages. Vous pouvez écrire directement au bureau ou à un membre en particulier.",
       },
     ],
   },
   {
-    category: "Evenements",
+    category: "Événements",
     items: [
       {
-        question: "Comment m'inscrire a un evenement ?",
+        question: "Comment m’inscrire à un événement ?",
         answer:
-          "Depuis la page Evenements, appuyez sur l'evenement qui vous interesse puis sur le bouton \"S'inscrire\". Vous recevrez une confirmation par notification.",
+          "Depuis la page Événements, appuyez sur l’événement qui vous intéresse puis sur le bouton « S’inscrire ». Vous recevrez une confirmation par notification.",
       },
       {
         question: "Puis-je annuler mon inscription ?",
         answer:
-          "Oui, retournez sur la fiche de l'evenement et appuyez sur \"Annuler mon inscription\". Attention, certains evenements ont une date limite d'annulation.",
+          "Oui, retournez sur la fiche de l’événement et appuyez sur « Annuler mon inscription ». Attention, certains événements ont une date limite d’annulation.",
       },
     ],
   },
@@ -45,14 +45,14 @@ const faqData = [
     category: "Voyages",
     items: [
       {
-        question: "Comment reserver un voyage ?",
+        question: "Comment réserver un voyage ?",
         answer:
-          "Consultez les voyages disponibles dans l'onglet Voyages. Selectionnez celui qui vous interesse, choisissez le nombre de participants et validez votre inscription.",
+          "Consultez les voyages disponibles dans l’onglet Voyages. Sélectionnez celui qui vous intéresse, choisissez le nombre de participants et validez votre inscription.",
       },
       {
         question: "Comment fonctionne le paiement des voyages ?",
         answer:
-          "Le paiement s'effectue aupres du bureau de l'amicale. Vous pouvez payer en une ou plusieurs fois selon les modalites indiquees sur la fiche du voyage.",
+          "Le paiement s’effectue auprès du bureau de l’amicale. Vous pouvez payer en une ou plusieurs fois selon les modalités indiquées sur la fiche du voyage.",
       },
     ],
   },
@@ -60,19 +60,19 @@ const faqData = [
     category: "Locations",
     items: [
       {
-        question: "Quels biens sont disponibles a la location ?",
+        question: "Quels biens sont disponibles à la location ?",
         answer:
-          "L'amicale met a disposition plusieurs biens : appartements, barnums, remorques et emplacements camping. Consultez la page Locations pour voir les disponibilites.",
+          "L’amicale met à disposition plusieurs biens : appartements, barnums, remorques et emplacements camping. Consultez la page Locations pour voir les disponibilités.",
       },
       {
         question: "Comment faire une demande de location ?",
         answer:
-          "Sur la fiche du bien souhaite, appuyez sur \"Demander une reservation\". Selectionnez vos dates et validez. Le bureau traitera votre demande dans les meilleurs delais.",
+          "Sur la fiche du bien souhaité, appuyez sur « Demander une réservation ». Sélectionnez vos dates et validez. Le bureau traitera votre demande dans les meilleurs délais.",
       },
       {
         question: "Quels sont les tarifs de location ?",
         answer:
-          "Les tarifs varient selon le bien et la duree. Ils sont affiches sur chaque fiche de bien. Les membres de l'amicale beneficient de tarifs preferentiels.",
+          "Les tarifs varient selon le bien et la durée. Ils sont affichés sur chaque fiche de bien. Les membres de l’amicale bénéficient de tarifs préférentiels.",
       },
     ],
   },
@@ -82,12 +82,27 @@ const faqData = [
       {
         question: "Comment envoyer un message au bureau ?",
         answer:
-          "Allez dans l'onglet Messagerie et selectionnez la conversation avec le bureau, ou creez une nouvelle conversation. Vos messages sont prives et securises.",
+          "Allez dans l’onglet Messagerie et sélectionnez la conversation avec le bureau, ou créez une nouvelle conversation. Vos messages sont privés et sécurisés.",
       },
       {
-        question: "Puis-je envoyer des messages a d'autres membres ?",
+        question: "Puis-je envoyer des messages à d’autres membres ?",
         answer:
-          "Oui, la messagerie permet d'echanger avec tous les membres de l'amicale. Creez une nouvelle conversation et selectionnez le destinataire.",
+          "Oui, la messagerie permet d’échanger avec tous les membres de l’amicale. Créez une nouvelle conversation et sélectionnez le destinataire.",
+      },
+    ],
+  },
+  {
+    category: "Cotisations",
+    items: [
+      {
+        question: "Quel est le montant de la cotisation ?",
+        answer:
+          "Le montant est fixé chaque année lors de l’assemblée générale. Consultez la page Cotisations pour connaître le montant en vigueur et votre statut de paiement.",
+      },
+      {
+        question: "Comment payer ma cotisation ?",
+        answer:
+          "Vous pouvez payer par virement bancaire, chèque ou espèces auprès du trésorier. Le détail des moyens de paiement est disponible dans la page Cotisations.",
       },
     ],
   },
@@ -114,7 +129,7 @@ function ChevronIcon({ open }: { open: boolean }) {
 
 const feedbackTypes = [
   { value: "bug", label: "Signaler un bug", icon: "🐛" },
-  { value: "idea", label: "Proposer une idee", icon: "💡" },
+  { value: "idea", label: "Proposer une idée", icon: "💡" },
   { value: "question", label: "Poser une question", icon: "❓" },
 ];
 
@@ -132,7 +147,7 @@ export default function AidePage() {
     <div className="flex flex-col gap-4">
       <GradientHeader
         title="Aide & FAQ"
-        subtitle="Questions frequentes"
+        subtitle="Questions fréquentes"
         backHref="/amicaliste/accueil"
       />
 
@@ -204,7 +219,7 @@ export default function AidePage() {
           value={feedbackText}
           onChange={(e) => setFeedbackText(e.target.value)}
           rows={3}
-          placeholder="Decrivez votre retour..."
+          placeholder="Décrivez votre retour..."
           className="mb-3 w-full resize-none rounded-[10px] border border-border bg-surface-primary px-3 py-2.5 text-[13px] text-content-primary placeholder:text-content-muted focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20"
         />
         <button
@@ -230,7 +245,7 @@ export default function AidePage() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[14px] font-bold text-content-primary">
-              Besoin d&apos;aide supplementaire ?
+              Besoin d&apos;aide supplémentaire ?
             </p>
             <p className="mt-1 text-[12px] text-content-muted">
               Contactez directement le bureau de l&apos;amicale via la

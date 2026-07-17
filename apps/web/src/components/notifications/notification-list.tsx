@@ -21,7 +21,7 @@ type Filter = "all" | "unread" | "events" | "commissions";
 const filterConfig: { id: Filter; label: string }[] = [
   { id: "all", label: "Toutes" },
   { id: "unread", label: "Non lues" },
-  { id: "events", label: "Evenements" },
+  { id: "events", label: "Événements" },
   { id: "commissions", label: "Commissions" },
 ];
 
@@ -193,7 +193,7 @@ export function NotificationList() {
         <EmptyState
           icon="🔔"
           title={filter === "unread" ? "Tout est lu" : "Aucune notification"}
-          description={filter === "unread" ? "Vous etes a jour !" : "Vos notifications apparaitront ici"}
+          description={filter === "unread" ? "Vous êtes à jour !" : "Vos notifications apparaîtront ici"}
         />
       ) : (
         grouped.map((group) => (

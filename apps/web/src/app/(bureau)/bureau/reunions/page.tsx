@@ -357,12 +357,12 @@ export default function ReunionsPage() {
         {past.length === 0 && reunions.length === 0 ? (
           <EmptyState
             icon="📋"
-            title="Aucune reunion"
-            description="Les comptes-rendus des reunions apparaitront ici"
+            title="Aucune réunion"
+            description="Les comptes-rendus des réunions apparaîtront ici"
           />
         ) : past.length === 0 ? (
           <p className="py-4 text-center text-[13px] text-content-muted">
-            Aucune reunion passee
+            Aucune réunion passée
           </p>
         ) : (
           <div className="flex flex-col gap-2">

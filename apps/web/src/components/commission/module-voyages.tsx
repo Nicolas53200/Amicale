@@ -57,7 +57,7 @@ export function ModuleVoyages({
       <EmptyState
         icon="✈️"
         title="Aucun voyage"
-        description="Les voyages de cette commission apparaitront ici"
+        description="Les voyages de cette commission apparaîtront ici"
       />
     );
   }

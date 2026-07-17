@@ -494,7 +494,7 @@ function DemandesTab({
       <EmptyState
         icon="📋"
         title="Aucune demande en attente"
-        description="Les nouvelles demandes de reservation apparaitront ici"
+        description="Les nouvelles demandes de réservation apparaîtront ici"
       />
     );
   }
@@ -585,8 +585,8 @@ function SuiviTab({
     return (
       <EmptyState
         icon="📊"
-        title="Aucune reservation confirmee"
-        description="Les reservations validees apparaitront ici"
+        title="Aucune réservation confirmée"
+        description="Les réservations validées apparaîtront ici"
       />
     );
   }
@@ -811,8 +811,8 @@ function ComptaTab({
       {bookings.length === 0 && (
         <EmptyState
           icon="💰"
-          title="Aucune donnee financiere"
-          description="Les revenus apparaitront ici une fois les premieres reservations effectuees"
+          title="Aucune donnée financière"
+          description="Les revenus apparaîtront ici une fois les premières réservations effectuées"
         />
       )}
     </div>

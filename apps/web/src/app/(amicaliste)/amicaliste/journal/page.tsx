@@ -19,15 +19,15 @@ export default async function JournalAmicalistePage() {
     <div className="flex flex-col gap-4">
       <GradientHeader
         title="Journal"
-        subtitle="Actualites de votre amicale"
+        subtitle="Actualités de votre amicale"
         backHref="/amicaliste/accueil"
       />
 
       {items.length === 0 ? (
         <EmptyState
           icon="📰"
-          title="Aucune actualite"
-          description="Les actualites de l'amicale apparaitront ici"
+          title="Aucune actualité"
+          description="Les actualités de l'amicale apparaîtront ici"
         />
       ) : (
         <div className="flex flex-col gap-2">

@@ -79,7 +79,7 @@ export default function JournalBureauPage() {
     <div className="flex flex-col gap-4">
       <GradientHeader
         title="Journal de l'amicale"
-        subtitle="Actualites et annonces"
+        subtitle="Actualités et annonces"
         backHref="/bureau/dashboard"
       />
 
@@ -149,7 +149,7 @@ export default function JournalBureauPage() {
           <EmptyState
             icon="📰"
             title="Aucune publication"
-            description="Les publications du journal apparaitront ici"
+            description="Les publications du journal apparaîtront ici"
           />
         ) : (
           <div className="flex flex-col gap-2">

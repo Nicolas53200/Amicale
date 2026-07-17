@@ -296,12 +296,12 @@ export default function CalendrierPage() {
                     </p>
                     <p className="text-[11px] text-content-muted">
                       {item.type === "event"
-                        ? item.category ?? "Evenement"
+                        ? item.category ?? "Événement"
                         : `Voyage · ${new Date(item.start_date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} → ${new Date(item.end_date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}`}
                     </p>
                   </div>
                   <Badge variant={item.type === "event" ? "default" : "neutral"}>
-                    {item.type === "event" ? "Evenement" : "Voyage"}
+                    {item.type === "event" ? "Événement" : "Voyage"}
                   </Badge>
                 </Link>
               ))}

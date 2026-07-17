@@ -62,7 +62,7 @@ export function ModuleLocations({
       <EmptyState
         icon="🏠"
         title="Aucun bien"
-        description="Les biens locatifs de cette commission apparaitront ici"
+        description="Les biens locatifs de cette commission apparaîtront ici"
       />
     );
   }

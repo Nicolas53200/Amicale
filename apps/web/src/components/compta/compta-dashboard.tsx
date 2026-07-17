@@ -270,7 +270,7 @@ export function ComptaDashboard() {
         <div className="grid grid-cols-2 gap-2">
           {[
             { icon: "\u{2795}", label: "Ajouter une recette", action: () => { setNewOpType("recette"); setActiveTab("journal"); } },
-            { icon: "\u{2796}", label: "Ajouter une depense", action: () => { setNewOpType("depense"); setActiveTab("journal"); } },
+            { icon: "\u{2796}", label: "Ajouter une dépense", action: () => { setNewOpType("depense"); setActiveTab("journal"); } },
             { icon: "\u{1F4B3}", label: "Saisir un remboursement", action: () => setActiveTab("remboursements") },
             { icon: "\u{1F4CA}", label: "Generer un bilan", action: () => setActiveTab("export") },
           ].map((btn) => (
@@ -840,7 +840,7 @@ export function ComptaDashboard() {
                 Operations hors commission
               </h3>
               {horsComm.length === 0 ? (
-                <EmptyState icon={"\u{1F4E6}"} title="Aucune operation" description="Les operations sans commission apparaitront ici" />
+                <EmptyState icon={"\u{1F4E6}"} title="Aucune opération" description="Les opérations sans commission apparaîtront ici" />
               ) : (
                 <div className="flex flex-col gap-2">
                   {horsComm.map((entry) => (
@@ -919,12 +919,12 @@ export function ComptaDashboard() {
             </div>
             <div>
               <h3 className="text-[14px] font-bold text-content-primary">Gestion des prets</h3>
-              <p className="text-[11px] text-content-muted">Prets accordes aux amicalistes ou commissions</p>
+              <p className="text-[11px] text-content-muted">Prêts accordés aux amicalistes ou commissions</p>
             </div>
           </div>
-          <EmptyState icon={"\u{1F91D}"} title="Aucun pret en cours" description="Les prets seront affiches ici avec suivi des echeances" />
+          <EmptyState icon={"\u{1F91D}"} title="Aucun prêt en cours" description="Les prêts seront affichés ici avec suivi des échéances" />
           <div className="mt-4 rounded-[12px] bg-surface-secondary p-3">
-            <p className="text-[12px] font-semibold text-content-primary">Comment ca marche ?</p>
+            <p className="text-[12px] font-semibold text-content-primary">Comment ça marche ?</p>
             <ul className="mt-2 flex flex-col gap-1.5 text-[11px] text-content-muted">
               <li>{"•"} Enregistrez un pret accorde a un amicaliste</li>
               <li>{"•"} Suivez les remboursements par echeances</li>

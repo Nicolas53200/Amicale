@@ -21,6 +21,7 @@ import { FoyerAmicaliste } from "./foyer-amicaliste";
 import { SportBureau } from "./sport-bureau";
 import { SportAmicaliste } from "./sport-amicaliste";
 import { CalendriersBureau } from "./calendriers-bureau";
+import { CalendriersAmicaliste } from "./calendriers-amicaliste";
 
 interface ModuleTabsProps {
   commissionId: string;
@@ -31,10 +32,10 @@ interface ModuleTabsProps {
 }
 
 const TAB_CONFIG: Record<string, { label: string; icon: string }> = {
-  evenements: { label: "Evenements", icon: "📅" },
+  evenements: { label: "Événements", icon: "📅" },
   voyages: { label: "Voyages", icon: "✈️" },
   locations: { label: "Locations", icon: "🏠" },
-  compta: { label: "Comptabilite", icon: "💰" },
+  compta: { label: "Comptabilité", icon: "💰" },
   documents: { label: "Documents", icon: "📄" },
   membres: { label: "Membres", icon: "👥" },
   notifications: { label: "Notifications", icon: "🔔" },
@@ -86,7 +87,7 @@ export function ModuleTabs({
         case "solidarite": return <SolidariteAmicaliste />;
         case "foyer": return <FoyerAmicaliste />;
         case "sport": return <SportAmicaliste />;
-        case "calendriers": return null;
+        case "calendriers": return <CalendriersAmicaliste />;
       }
     } else {
       switch (specialized) {
