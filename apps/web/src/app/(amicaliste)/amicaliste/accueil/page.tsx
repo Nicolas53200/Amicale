@@ -149,8 +149,8 @@ export default async function AccueilPage() {
       </div>
 
       {/* Cotisation status */}
-      <div className="pt-4">
-        <div className="flex items-center gap-3 rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+      <Link href="/amicaliste/cotisations" className="block pt-4">
+        <div className="flex items-center gap-3 rounded-[16px] bg-surface-elevated p-4 shadow-sm transition-shadow active:shadow-none">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-500/20">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -169,7 +169,7 @@ export default async function AccueilPage() {
             30 &euro;
           </span>
         </div>
-      </div>
+      </Link>
 
       {/* Mot du président */}
       <div className="pt-4">

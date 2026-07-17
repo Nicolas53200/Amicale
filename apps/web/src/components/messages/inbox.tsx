@@ -25,6 +25,34 @@ interface Member {
 }
 
 type Tab = "inbox" | "sent" | "compose" | "broadcast";
+type MsgType = "normal" | "reunion" | "urgence" | "info";
+
+const MSG_TYPES: { value: MsgType; label: string; icon: string; activeColor: string }[] = [
+  { value: "normal", label: "Normal", icon: "💬", activeColor: "bg-brand-500 text-white" },
+  { value: "reunion", label: "Réunion", icon: "📋", activeColor: "bg-blue-600 text-white" },
+  { value: "urgence", label: "Urgence", icon: "🚨", activeColor: "bg-red-600 text-white" },
+  { value: "info", label: "Info", icon: "ℹ️", activeColor: "bg-teal-600 text-white" },
+];
+
+const MSG_TYPE_BADGE: Record<MsgType, { icon: string; color: string }> = {
+  normal: { icon: "", color: "" },
+  reunion: { icon: "📋", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30" },
+  urgence: { icon: "🚨", color: "bg-red-100 text-red-700 dark:bg-red-900/30" },
+  info: { icon: "ℹ️", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/30" },
+};
+
+function detectMsgType(subject: string | null): MsgType {
+  if (!subject) return "normal";
+  if (subject.startsWith("[REUNION]")) return "reunion";
+  if (subject.startsWith("[URGENCE]")) return "urgence";
+  if (subject.startsWith("[INFO]")) return "info";
+  return "normal";
+}
+
+function stripTypePrefix(subject: string | null): string | null {
+  if (!subject) return null;
+  return subject.replace(/^\[(REUNION|URGENCE|INFO)\]\s*/, "");
+}
 
 interface InboxProps {
   isBureau?: boolean;
@@ -37,6 +65,7 @@ export function Inbox({ isBureau = false }: InboxProps) {
   const [selected, setSelected] = useState<Message | null>(null);
   const [sending, setSending] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [msgType, setMsgType] = useState<MsgType>("normal");
 
   // For reply pre-fill
   const [replyTo, setReplyTo] = useState<{ recipientId: string; subject: string } | null>(null);
@@ -112,16 +141,22 @@ export function Inbox({ isBureau = false }: InboxProps) {
 
     const orgId = user.user_metadata?.org_id;
 
+    const rawSubject = (form.get("subject") as string) || "";
+    const subjectWithType = msgType !== "normal" && rawSubject
+      ? `[${msgType.toUpperCase()}] ${rawSubject}`
+      : rawSubject || null;
+
     await supabase.from("messages").insert({
       org_id: orgId,
       from_id: member.id,
       to_id: form.get("to_id") as string,
-      subject: (form.get("subject") as string) || null,
+      subject: subjectWithType,
       body: form.get("body") as string,
     });
 
     setSending(false);
     setReplyTo(null);
+    setMsgType("normal");
     setTab("sent");
   }
 
@@ -141,10 +176,12 @@ export function Inbox({ isBureau = false }: InboxProps) {
     if (!member) return;
 
     const orgId = user.user_metadata?.org_id;
-    const subject = (form.get("subject") as string) || null;
+    const rawSubject = (form.get("subject") as string) || "";
+    const subject = msgType !== "normal" && rawSubject
+      ? `[${msgType.toUpperCase()}] ${rawSubject}`
+      : rawSubject || null;
     const body = form.get("body") as string;
 
-    // Insert one message per member
     const inserts = members.map((m) => ({
       org_id: orgId,
       from_id: member.id,
@@ -158,6 +195,7 @@ export function Inbox({ isBureau = false }: InboxProps) {
     }
 
     setSending(false);
+    setMsgType("normal");
     setTab("sent");
   }
 
@@ -261,6 +299,20 @@ export function Inbox({ isBureau = false }: InboxProps) {
               ))}
             </select>
           </div>
+          {isBureau && (
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-content-secondary">Type de message</label>
+              <div className="flex gap-2">
+                {MSG_TYPES.map((mt) => (
+                  <button key={mt.value} type="button" onClick={() => setMsgType(mt.value)}
+                    className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all",
+                      msgType === mt.value ? mt.activeColor : "bg-surface-secondary text-content-secondary")}>
+                    <span>{mt.icon}</span>{mt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-[12px] font-medium text-content-secondary">Sujet</label>
             <Input
@@ -294,6 +346,18 @@ export function Inbox({ isBureau = false }: InboxProps) {
             <span className="text-[12px] font-medium text-brand-600 dark:text-brand-400">
               Ce message sera envoyé à tous les membres ({members.length})
             </span>
+          </div>
+          <div>
+            <label className="mb-1 block text-[12px] font-medium text-content-secondary">Type de message</label>
+            <div className="flex gap-2">
+              {MSG_TYPES.map((mt) => (
+                <button key={mt.value} type="button" onClick={() => setMsgType(mt.value)}
+                  className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all",
+                    msgType === mt.value ? mt.activeColor : "bg-surface-secondary text-content-secondary")}>
+                  <span>{mt.icon}</span>{mt.label}
+                </button>
+              ))}
+            </div>
           </div>
           <div>
             <label className="mb-1 block text-[12px] font-medium text-content-secondary">Sujet</label>
@@ -346,11 +410,22 @@ export function Inbox({ isBureau = false }: InboxProps) {
               </p>
             </div>
           </div>
-          {selected.subject && (
-            <h3 className="text-base font-semibold text-content-primary">
-              {selected.subject}
-            </h3>
-          )}
+          {selected.subject && (() => {
+            const dt = detectMsgType(selected.subject);
+            const db = MSG_TYPE_BADGE[dt];
+            return (
+              <div className="flex items-center gap-2">
+                {dt !== "normal" && db.icon && (
+                  <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold", db.color)}>
+                    {db.icon} {dt === "reunion" ? "Réunion" : dt === "urgence" ? "Urgence" : "Info"}
+                  </span>
+                )}
+                <h3 className="text-base font-semibold text-content-primary">
+                  {stripTypePrefix(selected.subject)}
+                </h3>
+              </div>
+            );
+          })()}
           <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-content-secondary">
             {selected.body}
           </div>
@@ -382,12 +457,16 @@ export function Inbox({ isBureau = false }: InboxProps) {
         <div className="flex flex-col divide-y divide-border rounded-[16px] bg-surface-elevated shadow-sm overflow-hidden">
           {messages.map((msg) => {
             const person = tab === "inbox" ? msg.sender : msg.recipient;
+            const mType = detectMsgType(msg.subject);
+            const badge = MSG_TYPE_BADGE[mType];
+            const cleanSubject = stripTypePrefix(msg.subject);
             return (
               <div
                 key={msg.id}
                 className={cn(
                   "flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-secondary",
-                  tab === "inbox" && !msg.read_at && "bg-brand-50/50 dark:bg-brand-500/5"
+                  tab === "inbox" && !msg.read_at && "bg-brand-50/50 dark:bg-brand-500/5",
+                  mType === "urgence" && "border-l-2 border-l-red-500"
                 )}
               >
                 <button
@@ -407,6 +486,11 @@ export function Inbox({ isBureau = false }: InboxProps) {
                       <span className={cn("truncate text-sm", !msg.read_at && tab === "inbox" ? "font-semibold text-content-primary" : "text-content-secondary")}>
                         {person?.first_name} {person?.last_name}
                       </span>
+                      {mType !== "normal" && badge.icon && (
+                        <span className={cn("shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold", badge.color)}>
+                          {badge.icon}
+                        </span>
+                      )}
                       {tab === "inbox" && !msg.read_at && (
                         <span className="h-2 w-2 shrink-0 rounded-full bg-brand-500" />
                       )}
@@ -417,8 +501,8 @@ export function Inbox({ isBureau = false }: InboxProps) {
                         })}
                       </span>
                     </div>
-                    {msg.subject && (
-                      <p className="truncate text-sm text-content-primary">{msg.subject}</p>
+                    {cleanSubject && (
+                      <p className="truncate text-sm text-content-primary">{cleanSubject}</p>
                     )}
                     <p className="truncate text-xs text-content-muted">{msg.body}</p>
                   </div>
