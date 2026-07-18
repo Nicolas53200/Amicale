@@ -4,8 +4,29 @@ import { useState } from "react";
 import Link from "next/link";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { useToast } from "@/components/ui/toast";
+import { GuidedTour } from "@/components/layout/guided-tour";
 
 const faqData = [
+  {
+    category: "Premiers pas",
+    items: [
+      {
+        question: "Comment fonctionne l’application ?",
+        answer:
+          "L’application vous permet de gérer votre vie d’amicaliste : consulter les événements et voyages, réserver des biens, suivre vos cotisations, échanger avec les autres membres et le bureau. Tout est accessible depuis le menu en bas de l’écran.",
+      },
+      {
+        question: "Comment installer l’application sur mon téléphone ?",
+        answer:
+          "Sur iPhone : ouvrez l’app dans Safari, appuyez sur le bouton Partager (carré avec flèche), puis « Sur l’écran d’accueil ». Sur Android : Chrome vous proposera automatiquement un bouton « Installer », ou appuyez sur le menu ⋮ puis « Installer l’application ». L’app s’ouvrira ensuite comme une application classique.",
+      },
+      {
+        question: "Comment naviguer dans l’application ?",
+        answer:
+          "Le menu en bas de l’écran vous donne accès aux sections principales : Accueil, Événements, Voyages, Locations et Plus. La section « Plus » regroupe les commissions, la galerie, le calendrier, les cotisations, la messagerie et les notifications.",
+      },
+    ],
+  },
   {
     category: "Mon compte",
     items: [
@@ -32,12 +53,17 @@ const faqData = [
       {
         question: "Comment m’inscrire à un événement ?",
         answer:
-          "Depuis la page Événements, appuyez sur l’événement qui vous intéresse puis sur le bouton « S’inscrire ». Vous recevrez une confirmation par notification.",
+          "Depuis la page Événements, appuyez sur l’événement qui vous intéresse puis sur le bouton « S’inscrire ». Choisissez le nombre de participants et validez. Vous recevrez une confirmation par notification.",
       },
       {
         question: "Puis-je annuler mon inscription ?",
         answer:
           "Oui, retournez sur la fiche de l’événement et appuyez sur « Annuler mon inscription ». Attention, certains événements ont une date limite d’annulation.",
+      },
+      {
+        question: "Comment devenir bénévole pour un événement ?",
+        answer:
+          "Sur la fiche de l’événement, si des places bénévoles sont disponibles, un bouton « S’inscrire comme bénévole » apparaît. Sélectionnez le poste souhaité et validez votre inscription.",
       },
     ],
   },
@@ -47,12 +73,17 @@ const faqData = [
       {
         question: "Comment réserver un voyage ?",
         answer:
-          "Consultez les voyages disponibles dans l’onglet Voyages. Sélectionnez celui qui vous intéresse, choisissez le nombre de participants et validez votre inscription.",
+          "Consultez les voyages disponibles dans l’onglet Voyages. Sélectionnez celui qui vous intéresse, choisissez le nombre d’adultes et d’enfants, puis validez votre inscription. Le montant total est calculé automatiquement.",
       },
       {
         question: "Comment fonctionne le paiement des voyages ?",
         answer:
           "Le paiement s’effectue auprès du bureau de l’amicale. Vous pouvez payer en une ou plusieurs fois selon les modalités indiquées sur la fiche du voyage.",
+      },
+      {
+        question: "Comment annuler mon inscription à un voyage ?",
+        answer:
+          "Sur la fiche du voyage, appuyez sur « Annuler mon inscription ». Les conditions d’annulation et de remboursement varient selon le voyage et la date d’annulation.",
       },
     ],
   },
@@ -62,17 +93,57 @@ const faqData = [
       {
         question: "Quels biens sont disponibles à la location ?",
         answer:
-          "L’amicale met à disposition plusieurs biens : appartements, barnums, remorques et emplacements camping. Consultez la page Locations pour voir les disponibilités.",
+          "L’amicale met à disposition plusieurs biens : appartements, barnums, remorques et emplacements camping. Consultez la page Locations pour voir les disponibilités et les photos.",
       },
       {
         question: "Comment faire une demande de location ?",
         answer:
-          "Sur la fiche du bien souhaité, appuyez sur « Demander une réservation ». Sélectionnez vos dates et validez. Le bureau traitera votre demande dans les meilleurs délais.",
+          "Sur la fiche du bien souhaité, appuyez sur « Demander une réservation ». Sélectionnez vos dates de début et fin, ajoutez éventuellement des notes, puis validez. Le bureau traitera votre demande dans les meilleurs délais.",
       },
       {
         question: "Quels sont les tarifs de location ?",
         answer:
-          "Les tarifs varient selon le bien et la durée. Ils sont affichés sur chaque fiche de bien. Les membres de l’amicale bénéficient de tarifs préférentiels.",
+          "Les tarifs journaliers et le montant de la caution sont affichés sur chaque fiche de bien. Le montant total est calculé automatiquement en fonction de la durée de votre réservation.",
+      },
+      {
+        question: "Comment suivre le statut de ma réservation ?",
+        answer:
+          "Retournez sur la fiche du bien. Votre réservation apparaît avec son statut : en attente de validation, confirmée ou refusée. Vous recevrez une notification quand le bureau aura traité votre demande.",
+      },
+    ],
+  },
+  {
+    category: "Commissions",
+    items: [
+      {
+        question: "Qu’est-ce qu’une commission ?",
+        answer:
+          "Une commission est un groupe de travail thématique au sein de l’amicale (ex : commission voyages, événements, sport, Noël…). Chaque commission organise ses activités, gère son budget et communique avec ses membres.",
+      },
+      {
+        question: "Comment rejoindre une commission ?",
+        answer:
+          "Consultez la liste des commissions depuis le menu. Si des places sont disponibles, vous pouvez demander à rejoindre une commission. Le responsable de la commission validera votre demande.",
+      },
+      {
+        question: "Comment voir les activités d’une commission ?",
+        answer:
+          "Appuyez sur une commission pour voir sa fiche détaillée : ses membres, ses événements à venir, ses documents partagés et son budget.",
+      },
+    ],
+  },
+  {
+    category: "Calendrier & Galerie",
+    items: [
+      {
+        question: "Comment fonctionne le calendrier ?",
+        answer:
+          "Le calendrier regroupe automatiquement tous les événements, voyages et réservations de l’amicale. Vous pouvez naviguer par mois et appuyer sur une date pour voir les activités prévues.",
+      },
+      {
+        question: "Comment consulter la galerie photos ?",
+        answer:
+          "La galerie est accessible depuis le menu « Plus ». Elle regroupe les photos des événements, voyages et activités de l’amicale, classées par album.",
       },
     ],
   },
@@ -92,6 +163,21 @@ const faqData = [
     ],
   },
   {
+    category: "Notifications",
+    items: [
+      {
+        question: "Comment fonctionnent les notifications ?",
+        answer:
+          "Vous recevez des notifications pour les événements importants : nouveaux événements, confirmation d’inscription, rappels, messages du bureau. Consultez-les depuis l’icône cloche dans le menu.",
+      },
+      {
+        question: "Comment gérer mes préférences de notification ?",
+        answer:
+          "Dans votre Profil, section « Notifications », vous pouvez choisir quels types de notifications recevoir : événements, voyages, messages, rappels.",
+      },
+    ],
+  },
+  {
     category: "Cotisations",
     items: [
       {
@@ -103,6 +189,26 @@ const faqData = [
         question: "Comment payer ma cotisation ?",
         answer:
           "Vous pouvez payer par virement bancaire, chèque ou espèces auprès du trésorier. Le détail des moyens de paiement est disponible dans la page Cotisations.",
+      },
+      {
+        question: "Comment savoir si ma cotisation est à jour ?",
+        answer:
+          "La page Cotisations affiche votre statut : à jour, en retard ou non payée. Vous pouvez aussi consulter l’historique de vos paiements.",
+      },
+    ],
+  },
+  {
+    category: "Nouveautés & Mises à jour",
+    items: [
+      {
+        question: "Comment savoir quand l’application est mise à jour ?",
+        answer:
+          "Une popup « Nouveautés » s’affiche automatiquement à votre connexion quand de nouvelles fonctionnalités sont disponibles. Vous pouvez aussi consulter l’historique complet dans la page Nouveautés.",
+      },
+      {
+        question: "L’application se met-elle à jour automatiquement ?",
+        answer:
+          "Oui, l’application se met à jour automatiquement à chaque visite. Aucune action de votre part n’est nécessaire — vous bénéficiez toujours de la dernière version.",
       },
     ],
   },
@@ -137,6 +243,7 @@ export default function AidePage() {
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
   const [feedbackType, setFeedbackType] = useState("bug");
   const [feedbackText, setFeedbackText] = useState("");
+  const [showTour, setShowTour] = useState(false);
   const { showToast } = useToast();
 
   const toggle = (key: string) => {
@@ -147,9 +254,38 @@ export default function AidePage() {
     <div className="flex flex-col gap-4">
       <GradientHeader
         title="Aide & FAQ"
-        subtitle="Questions fréquentes"
+        subtitle="Guide d'utilisation"
         backHref="/amicaliste/accueil"
       />
+
+      {/* Tour guidé */}
+      <div className="rounded-[16px] bg-gradient-to-br from-brand-400 to-brand-600 p-5 shadow-sm">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-[16px] font-bold text-white">
+              Visite guidée
+            </h3>
+            <p className="mt-1 text-[13px] text-white/80">
+              Découvrez les fonctionnalités de l&apos;application en quelques étapes
+            </p>
+            <button
+              onClick={() => setShowTour(true)}
+              className="mt-3 rounded-full bg-white px-5 py-2 text-[13px] font-semibold text-brand-600 transition-colors hover:bg-white/90 active:bg-white/80"
+            >
+              Lancer la visite
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {showTour && <GuidedTour onClose={() => setShowTour(false)} />}
 
       {faqData.map((section) => (
         <div key={section.category}>
