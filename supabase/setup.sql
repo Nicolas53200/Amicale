@@ -680,6 +680,37 @@ INSERT INTO documents (org_id, commission_id, title, content, created_by) VALUES
 
 
 -- ============================================================
+-- PARTIE 5b : CHANGELOGS (système "Nouveautés")
+-- ============================================================
+
+CREATE TABLE changelogs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
+  version TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  changes JSONB DEFAULT '[]',
+  published_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_changelogs_published ON changelogs(published_at DESC);
+
+ALTER TABLE members ADD COLUMN IF NOT EXISTS last_seen_changelog TIMESTAMPTZ;
+
+ALTER TABLE changelogs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "changelogs_select" ON changelogs FOR SELECT
+  USING (org_id IS NULL OR org_id = public.org_id());
+CREATE POLICY "changelogs_insert" ON changelogs FOR INSERT
+  WITH CHECK (org_id = public.org_id());
+CREATE POLICY "changelogs_update" ON changelogs FOR UPDATE
+  USING (org_id = public.org_id());
+CREATE POLICY "changelogs_delete" ON changelogs FOR DELETE
+  USING (org_id = public.org_id());
+
+
+-- ============================================================
 -- PARTIE 6 : STORAGE BUCKETS + RLS
 -- ============================================================
 
