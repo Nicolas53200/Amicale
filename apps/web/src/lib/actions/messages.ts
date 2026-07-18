@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getOrgId } from "@/lib/auth";
 
 export async function getInbox() {
   const supabase = await createClient();
@@ -60,7 +61,7 @@ export async function sendMessage(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Non authentifié");
 
-  const orgId = user.user_metadata?.org_id;
+  const orgId = await getOrgId();
 
   const { data: member } = await supabase
     .from("members")

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { createClient } from "@/lib/supabase/client";
+import { getOrgIdClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 interface Entry {
@@ -162,12 +163,10 @@ export function ComptaDashboard() {
     setSubmittingOp(true);
 
     const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const orgId = await getOrgIdClient();
 
     await supabase.from("accounting_entries").insert({
-      org_id: user?.user_metadata?.org_id,
+      org_id: orgId,
       label: newOpLabel.trim(),
       amount: parseFloat(newOpAmount),
       type: newOpType,
@@ -199,6 +198,7 @@ export function ComptaDashboard() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    const orgId = await getOrgIdClient();
 
     const { data: member } = await supabase
       .from("members")
@@ -207,7 +207,7 @@ export function ComptaDashboard() {
       .single();
 
     await supabase.from("documents").insert({
-      org_id: user?.user_metadata?.org_id,
+      org_id: orgId,
       title: newDocTitle.trim(),
       content: newDocContent.trim() || null,
       commission_id: newDocCommission || null,

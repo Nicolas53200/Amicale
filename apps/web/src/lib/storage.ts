@@ -42,9 +42,10 @@ export function getPublicUrl(bucket: Bucket, path: string): string {
 }
 
 export function buildPath(
+  orgId: string,
   folder: string,
   file: File,
 ): string {
   const ext = file.name.split(".").pop() || "jpg";
-  return `${folder}/${Date.now()}.${ext}`;
+  return `${orgId}/${folder}/${Date.now()}.${ext}`;
 }

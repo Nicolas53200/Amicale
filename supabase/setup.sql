@@ -231,6 +231,7 @@ CREATE TABLE notifications (
   title VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
   target_member_id UUID REFERENCES members(id) ON DELETE CASCADE,
+  type VARCHAR(50),
   read BOOLEAN NOT NULL DEFAULT false,
   sent_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -309,7 +310,7 @@ CREATE POLICY "members_select" ON members FOR SELECT USING (org_id = public.org_
 CREATE POLICY "members_insert" ON members FOR INSERT WITH CHECK (org_id = public.org_id());
 CREATE POLICY "members_update" ON members FOR UPDATE USING (org_id = public.org_id());
 CREATE POLICY "members_delete" ON members FOR DELETE USING (org_id = public.org_id());
-CREATE POLICY "members_invitation_lookup" ON members FOR SELECT TO anon USING (invitation_code IS NOT NULL AND status = 'invite');
+CREATE POLICY "members_anon_blocked" ON members FOR SELECT TO anon USING (false);
 CREATE POLICY "members_self_select" ON members FOR SELECT TO authenticated USING (user_id = auth.uid());
 
 CREATE POLICY "commissions_select" ON commissions FOR SELECT USING (org_id = public.org_id());
@@ -319,6 +320,7 @@ CREATE POLICY "commissions_delete" ON commissions FOR DELETE USING (org_id = pub
 
 CREATE POLICY "commission_members_select" ON commission_members FOR SELECT USING (EXISTS (SELECT 1 FROM commissions WHERE commissions.id = commission_members.commission_id AND commissions.org_id = public.org_id()));
 CREATE POLICY "commission_members_insert" ON commission_members FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM commissions WHERE commissions.id = commission_members.commission_id AND commissions.org_id = public.org_id()));
+CREATE POLICY "commission_members_update" ON commission_members FOR UPDATE USING (EXISTS (SELECT 1 FROM commissions WHERE commissions.id = commission_members.commission_id AND commissions.org_id = public.org_id()));
 CREATE POLICY "commission_members_delete" ON commission_members FOR DELETE USING (EXISTS (SELECT 1 FROM commissions WHERE commissions.id = commission_members.commission_id AND commissions.org_id = public.org_id()));
 
 CREATE POLICY "events_select" ON events FOR SELECT USING (org_id = public.org_id());
@@ -338,6 +340,7 @@ CREATE POLICY "trips_delete" ON trips FOR DELETE USING (org_id = public.org_id()
 
 CREATE POLICY "trip_registrations_select" ON trip_registrations FOR SELECT USING (EXISTS (SELECT 1 FROM trips WHERE trips.id = trip_registrations.trip_id AND trips.org_id = public.org_id()));
 CREATE POLICY "trip_registrations_insert" ON trip_registrations FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM trips WHERE trips.id = trip_registrations.trip_id AND trips.org_id = public.org_id()));
+CREATE POLICY "trip_registrations_update" ON trip_registrations FOR UPDATE USING (EXISTS (SELECT 1 FROM trips WHERE trips.id = trip_registrations.trip_id AND trips.org_id = public.org_id()));
 CREATE POLICY "trip_registrations_delete" ON trip_registrations FOR DELETE USING (EXISTS (SELECT 1 FROM trips WHERE trips.id = trip_registrations.trip_id AND trips.org_id = public.org_id()));
 
 CREATE POLICY "assets_select" ON assets FOR SELECT USING (org_id = public.org_id());
@@ -363,10 +366,12 @@ CREATE POLICY "documents_delete" ON documents FOR DELETE USING (org_id = public.
 CREATE POLICY "notifications_select" ON notifications FOR SELECT USING (org_id = public.org_id() AND (target_member_id IS NULL OR target_member_id IN (SELECT id FROM members WHERE user_id = auth.uid())));
 CREATE POLICY "notifications_insert" ON notifications FOR INSERT WITH CHECK (org_id = public.org_id());
 CREATE POLICY "notifications_update" ON notifications FOR UPDATE USING (org_id = public.org_id() AND target_member_id IN (SELECT id FROM members WHERE user_id = auth.uid()));
+CREATE POLICY "notifications_delete" ON notifications FOR DELETE USING (org_id = public.org_id());
 
 CREATE POLICY "messages_select" ON messages FOR SELECT USING (org_id = public.org_id() AND (from_id IN (SELECT id FROM members WHERE user_id = auth.uid()) OR to_id IN (SELECT id FROM members WHERE user_id = auth.uid())));
 CREATE POLICY "messages_insert" ON messages FOR INSERT WITH CHECK (org_id = public.org_id() AND from_id IN (SELECT id FROM members WHERE user_id = auth.uid()));
 CREATE POLICY "messages_update" ON messages FOR UPDATE USING (org_id = public.org_id() AND to_id IN (SELECT id FROM members WHERE user_id = auth.uid()));
+CREATE POLICY "messages_delete" ON messages FOR DELETE USING (org_id = public.org_id() AND from_id IN (SELECT id FROM members WHERE user_id = auth.uid()));
 
 
 -- ============================================================
@@ -408,6 +413,31 @@ GRANT SELECT ON TABLE public.members TO supabase_auth_admin;
 -- ============================================================
 -- PARTIE 4b : FONCTIONS SECURITY DEFINER
 -- ============================================================
+
+-- Lookup invitation code safely (returns only non-PII fields)
+CREATE OR REPLACE FUNCTION public.lookup_invitation(p_code TEXT)
+RETURNS JSONB AS $$
+DECLARE
+  v_result JSONB;
+BEGIN
+  SELECT jsonb_build_object(
+    'org_name', o.name,
+    'first_name', m.first_name,
+    'last_name', m.last_name
+  )
+  INTO v_result
+  FROM public.members m
+  JOIN public.organizations o ON o.id = m.org_id
+  WHERE m.invitation_code = p_code
+    AND m.status = 'invite'
+    AND m.invitation_code IS NOT NULL
+    AND m.user_id IS NULL;
+
+  RETURN v_result; -- NULL if not found
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.lookup_invitation TO anon, authenticated;
 
 -- Bind authenticated user to an invitation code (bypasses RLS)
 CREATE OR REPLACE FUNCTION public.bind_user_to_invitation(p_invitation_code TEXT)
@@ -664,35 +694,44 @@ VALUES
   ('documents', 'documents', false, 20971520, NULL)
 ON CONFLICT (id) DO NOTHING;
 
--- Avatars — public read, authenticated write
+-- Avatars — public read, org-scoped write (path: {org_id}/...)
 CREATE POLICY "avatars_public_read" ON storage.objects
   FOR SELECT USING (bucket_id = 'avatars');
 CREATE POLICY "avatars_auth_insert" ON storage.objects
-  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'avatars');
+  FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = public.org_id()::text);
 CREATE POLICY "avatars_auth_update" ON storage.objects
-  FOR UPDATE TO authenticated USING (bucket_id = 'avatars');
+  FOR UPDATE TO authenticated
+  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = public.org_id()::text);
 CREATE POLICY "avatars_auth_delete" ON storage.objects
-  FOR DELETE TO authenticated USING (bucket_id = 'avatars');
+  FOR DELETE TO authenticated
+  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = public.org_id()::text);
 
--- Assets — public read, authenticated write
+-- Assets — public read, org-scoped write (path: {org_id}/...)
 CREATE POLICY "assets_public_read" ON storage.objects
   FOR SELECT USING (bucket_id = 'assets');
 CREATE POLICY "assets_auth_insert" ON storage.objects
-  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'assets');
+  FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'assets' AND (storage.foldername(name))[1] = public.org_id()::text);
 CREATE POLICY "assets_auth_update" ON storage.objects
-  FOR UPDATE TO authenticated USING (bucket_id = 'assets');
+  FOR UPDATE TO authenticated
+  USING (bucket_id = 'assets' AND (storage.foldername(name))[1] = public.org_id()::text);
 CREATE POLICY "assets_auth_delete" ON storage.objects
-  FOR DELETE TO authenticated USING (bucket_id = 'assets');
+  FOR DELETE TO authenticated
+  USING (bucket_id = 'assets' AND (storage.foldername(name))[1] = public.org_id()::text);
 
--- Events — public read, authenticated write
+-- Events — public read, org-scoped write (path: {org_id}/...)
 CREATE POLICY "events_public_read" ON storage.objects
   FOR SELECT USING (bucket_id = 'events');
 CREATE POLICY "events_auth_insert" ON storage.objects
-  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'events');
+  FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'events' AND (storage.foldername(name))[1] = public.org_id()::text);
 CREATE POLICY "events_auth_update" ON storage.objects
-  FOR UPDATE TO authenticated USING (bucket_id = 'events');
+  FOR UPDATE TO authenticated
+  USING (bucket_id = 'events' AND (storage.foldername(name))[1] = public.org_id()::text);
 CREATE POLICY "events_auth_delete" ON storage.objects
-  FOR DELETE TO authenticated USING (bucket_id = 'events');
+  FOR DELETE TO authenticated
+  USING (bucket_id = 'events' AND (storage.foldername(name))[1] = public.org_id()::text);
 
 -- Documents — org-scoped (private bucket)
 CREATE POLICY "documents_org_read" ON storage.objects

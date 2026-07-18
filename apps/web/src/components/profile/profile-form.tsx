@@ -16,6 +16,7 @@ const avatarEmojis = [
 
 interface ProfileData {
   id: string;
+  org_id: string;
   first_name: string;
   last_name: string;
   email: string | null;
@@ -62,7 +63,7 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
 
     setUploadingAvatar(true);
     try {
-      const path = buildPath(profile.id, file);
+      const path = buildPath(profile.org_id, profile.id, file);
       const publicUrl = await uploadFile("avatars", path, file);
       if (publicUrl) {
         await updateMemberAvatarUrl(publicUrl);

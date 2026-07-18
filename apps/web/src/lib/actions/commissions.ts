@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getOrgId } from "@/lib/auth";
 
 export async function getCommissions() {
   const supabase = await createClient();
@@ -53,11 +54,7 @@ export async function getCommissionStats() {
 export async function createCommission(formData: FormData) {
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Non authentifié");
-
-  const orgId = user.user_metadata?.org_id;
-  if (!orgId) throw new Error("Organisation non trouvée");
+  const orgId = await getOrgId();
 
   const featuresRaw = formData.get("features") as string;
   const features = featuresRaw

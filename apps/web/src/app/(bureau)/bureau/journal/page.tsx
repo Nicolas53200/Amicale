@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { createClient } from "@/lib/supabase/client";
+import { getOrgIdClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 interface Post {
@@ -51,12 +52,10 @@ export default function JournalBureauPage() {
     setSubmitting(true);
 
     const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const orgId = await getOrgIdClient();
 
     await supabase.from("notifications").insert({
-      org_id: user?.user_metadata?.org_id,
+      org_id: orgId,
       commission_id: null,
       target_member_id: null,
       title: title.trim(),

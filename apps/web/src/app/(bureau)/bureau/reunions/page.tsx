@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getOrgIdClient } from "@/lib/auth-client";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
@@ -68,8 +69,7 @@ export default function ReunionsPage() {
       .join("\n");
 
     const supabase = createClient();
-    const { data: userData } = await supabase.auth.getUser();
-    const orgId = userData.user?.user_metadata?.org_id;
+    const orgId = await getOrgIdClient();
 
     const sentAt = date && time ? `${date}T${time}:00` : date ? `${date}T18:00:00` : new Date().toISOString();
 

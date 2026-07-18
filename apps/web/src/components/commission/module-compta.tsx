@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { createClient } from "@/lib/supabase/client";
+import { getOrgIdClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 interface ModuleComptaProps {
@@ -74,8 +75,7 @@ export function ModuleCompta({
     setSubmitting(true);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const orgId = user?.user_metadata?.org_id;
+    const orgId = await getOrgIdClient();
 
     await supabase.from("accounting_entries").insert({
       org_id: orgId,

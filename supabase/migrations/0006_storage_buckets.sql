@@ -13,53 +13,56 @@ VALUES
   ('documents', 'documents', false, 20971520, NULL)
 ON CONFLICT (id) DO NOTHING;
 
--- 2. Avatars — public read, authenticated write
+-- 2. Avatars — public read, org-scoped write
+-- Path pattern: {org_id}/{user_id}/{timestamp}.{ext}
 CREATE POLICY "avatars_public_read" ON storage.objects
   FOR SELECT USING (bucket_id = 'avatars');
 
 CREATE POLICY "avatars_auth_insert" ON storage.objects
   FOR INSERT TO authenticated
-  WITH CHECK (bucket_id = 'avatars');
+  WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = public.org_id()::text);
 
 CREATE POLICY "avatars_auth_update" ON storage.objects
   FOR UPDATE TO authenticated
-  USING (bucket_id = 'avatars');
+  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = public.org_id()::text);
 
 CREATE POLICY "avatars_auth_delete" ON storage.objects
   FOR DELETE TO authenticated
-  USING (bucket_id = 'avatars');
+  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = public.org_id()::text);
 
--- 3. Assets — public read, authenticated write
+-- 3. Assets — public read, org-scoped write
+-- Path pattern: {org_id}/{folder}/{timestamp}.{ext}
 CREATE POLICY "assets_public_read" ON storage.objects
   FOR SELECT USING (bucket_id = 'assets');
 
 CREATE POLICY "assets_auth_insert" ON storage.objects
   FOR INSERT TO authenticated
-  WITH CHECK (bucket_id = 'assets');
+  WITH CHECK (bucket_id = 'assets' AND (storage.foldername(name))[1] = public.org_id()::text);
 
 CREATE POLICY "assets_auth_update" ON storage.objects
   FOR UPDATE TO authenticated
-  USING (bucket_id = 'assets');
+  USING (bucket_id = 'assets' AND (storage.foldername(name))[1] = public.org_id()::text);
 
 CREATE POLICY "assets_auth_delete" ON storage.objects
   FOR DELETE TO authenticated
-  USING (bucket_id = 'assets');
+  USING (bucket_id = 'assets' AND (storage.foldername(name))[1] = public.org_id()::text);
 
--- 4. Events — public read, authenticated write
+-- 4. Events — public read, org-scoped write
+-- Path pattern: {org_id}/{event_id}/{timestamp}.{ext}
 CREATE POLICY "events_public_read" ON storage.objects
   FOR SELECT USING (bucket_id = 'events');
 
 CREATE POLICY "events_auth_insert" ON storage.objects
   FOR INSERT TO authenticated
-  WITH CHECK (bucket_id = 'events');
+  WITH CHECK (bucket_id = 'events' AND (storage.foldername(name))[1] = public.org_id()::text);
 
 CREATE POLICY "events_auth_update" ON storage.objects
   FOR UPDATE TO authenticated
-  USING (bucket_id = 'events');
+  USING (bucket_id = 'events' AND (storage.foldername(name))[1] = public.org_id()::text);
 
 CREATE POLICY "events_auth_delete" ON storage.objects
   FOR DELETE TO authenticated
-  USING (bucket_id = 'events');
+  USING (bucket_id = 'events' AND (storage.foldername(name))[1] = public.org_id()::text);
 
 -- 5. Documents — org-scoped (private bucket)
 -- Path pattern: {org_id}/{document_id}/{filename}

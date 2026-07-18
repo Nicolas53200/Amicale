@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getOrgIdClient } from "@/lib/auth-client";
 
 interface UseCommissionDataOptions {
   commissionId: string;
@@ -29,8 +30,7 @@ export function useCommissionItems(commissionId: string, category?: string) {
 
   const add = async (item: Record<string, unknown>) => {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const orgId = user?.user_metadata?.org_id;
+    const orgId = await getOrgIdClient();
     const { data } = await supabase
       .from("commission_items")
       .insert({ ...item, org_id: orgId, commission_id: commissionId })
@@ -83,8 +83,7 @@ export function useCommissionContacts(commissionId: string, type?: string) {
 
   const add = async (contact: Record<string, unknown>) => {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const orgId = user?.user_metadata?.org_id;
+    const orgId = await getOrgIdClient();
     const { data } = await supabase
       .from("commission_contacts")
       .insert({ ...contact, org_id: orgId, commission_id: commissionId })
@@ -125,8 +124,7 @@ export function useCommissionActivities(commissionId: string, type?: string) {
 
   const add = async (activity: Record<string, unknown>) => {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const orgId = user?.user_metadata?.org_id;
+    const orgId = await getOrgIdClient();
     const { data } = await supabase
       .from("commission_activities")
       .insert({ ...activity, org_id: orgId, commission_id: commissionId })
@@ -180,8 +178,7 @@ export function useCommissionSettings({ commissionId }: UseCommissionDataOptions
 
   const set = async (key: string, value: unknown) => {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const orgId = user?.user_metadata?.org_id;
+    const orgId = await getOrgIdClient();
     await supabase
       .from("commission_settings")
       .upsert(

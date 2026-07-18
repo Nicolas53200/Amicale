@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getOrgIdClient } from "@/lib/auth-client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar } from "@/components/ui/avatar";
@@ -139,7 +140,7 @@ export function Inbox({ isBureau = false }: InboxProps) {
       .single();
     if (!member) return;
 
-    const orgId = user.user_metadata?.org_id;
+    const orgId = await getOrgIdClient();
 
     const rawSubject = (form.get("subject") as string) || "";
     const subjectWithType = msgType !== "normal" && rawSubject
@@ -175,7 +176,7 @@ export function Inbox({ isBureau = false }: InboxProps) {
       .single();
     if (!member) return;
 
-    const orgId = user.user_metadata?.org_id;
+    const orgId = await getOrgIdClient();
     const rawSubject = (form.get("subject") as string) || "";
     const subject = msgType !== "normal" && rawSubject
       ? `[${msgType.toUpperCase()}] ${rawSubject}`

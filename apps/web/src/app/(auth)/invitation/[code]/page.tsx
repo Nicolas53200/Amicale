@@ -14,6 +14,7 @@ export default function InvitationPage({
 }) {
   const { code } = use(params);
   const [member, setMember] = useState<{
+    org_name: string;
     first_name: string;
     last_name: string;
   } | null>(null);
@@ -27,17 +28,14 @@ export default function InvitationPage({
   useEffect(() => {
     async function lookupInvitation() {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from("members")
-        .select("first_name, last_name")
-        .eq("invitation_code", code)
-        .eq("status", "invite")
-        .single();
+      const { data, error } = await supabase.rpc("lookup_invitation", {
+        p_code: code,
+      });
 
       if (error || !data) {
         setError("Code d'invitation invalide ou expiré");
       } else {
-        setMember(data);
+        setMember(data as { org_name: string; first_name: string; last_name: string });
       }
       setLoading(false);
     }
@@ -118,7 +116,7 @@ export default function InvitationPage({
     <Card>
       <CardHeader>
         <div className="mb-2 text-center text-3xl font-bold text-brand-500">
-          Amicale
+          {member.org_name || "Amicale"}
         </div>
         <CardTitle className="text-center">
           {displayName ? `Bienvenue ${displayName}` : "Bienvenue"}

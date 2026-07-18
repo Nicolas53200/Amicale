@@ -8,17 +8,21 @@ CREATE OR REPLACE FUNCTION public.custom_access_token_hook(event JSONB)
 RETURNS JSONB AS $$
 DECLARE
   claims JSONB;
-  member_org_id UUID;
+  member_record RECORD;
 BEGIN
   claims := event->'claims';
 
-  SELECT m.org_id INTO member_org_id
+  SELECT m.org_id, m.onboarding_completed, m.is_bureau, m.role
+  INTO member_record
   FROM public.members m
   WHERE m.user_id = (event->>'user_id')::UUID
   LIMIT 1;
 
-  IF member_org_id IS NOT NULL THEN
-    claims := jsonb_set(claims, '{org_id}', to_jsonb(member_org_id::TEXT));
+  IF member_record.org_id IS NOT NULL THEN
+    claims := jsonb_set(claims, '{org_id}', to_jsonb(member_record.org_id::TEXT));
+    claims := jsonb_set(claims, '{onboarding_completed}', to_jsonb(member_record.onboarding_completed));
+    claims := jsonb_set(claims, '{is_bureau}', to_jsonb(member_record.is_bureau));
+    claims := jsonb_set(claims, '{member_role}', to_jsonb(member_record.role));
     event := jsonb_set(event, '{claims}', claims);
   END IF;
 

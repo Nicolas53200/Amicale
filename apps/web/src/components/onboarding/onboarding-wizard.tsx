@@ -67,7 +67,12 @@ export function OnboardingWizard({ memberId, firstName: initialFirstName, lastNa
     updates.nb_enfants = Number(nbEnfants);
     if (contactUrgence) updates.contact_urgence = contactUrgence;
 
-    await supabase.from("members").update(updates).eq("id", memberId);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase.from("members").update(updates).eq("id", memberId).eq("user_id", user.id);
     await supabase.auth.refreshSession();
 
     router.push("/amicaliste/accueil");

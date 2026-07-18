@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getOrgId } from "@/lib/auth";
 
 export async function getAccountingEntries(commissionId?: string) {
   const supabase = await createClient();
@@ -76,8 +77,7 @@ export async function createAccountingEntry(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Non authentifié");
 
-  const orgId = user.user_metadata?.org_id;
-  if (!orgId) throw new Error("Organisation non trouvée");
+  const orgId = await getOrgId();
 
   const commissionId = formData.get("commission_id") as string;
   const type = formData.get("type") as string;
