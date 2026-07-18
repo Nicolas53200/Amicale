@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { getOrgId } from "@/lib/auth";
+import { getOrgId, requireBureau } from "@/lib/auth";
 
 export async function getOrganization() {
   const supabase = await createClient();
@@ -24,8 +24,8 @@ export async function getOrganization() {
 }
 
 export async function updateOrganization(formData: FormData) {
+  const { orgId } = await requireBureau();
   const supabase = await createClient();
-  const orgId = await getOrgId();
 
   const name = formData.get("name") as string;
   const settings = {

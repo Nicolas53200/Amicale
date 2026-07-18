@@ -2,24 +2,17 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireBureau } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
 import { buildInvitationEmail } from "@/lib/emails/invitation";
 
-async function getCurrentMemberOrg() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Non authentifié");
-
-  const { data: member } = await supabase
-    .from("members")
-    .select("org_id, organizations:org_id(name)")
-    .eq("user_id", user.id)
+async function getOrgName(supabase: Awaited<ReturnType<typeof createClient>>, orgId: string) {
+  const { data } = await supabase
+    .from("organizations")
+    .select("name")
+    .eq("id", orgId)
     .single();
-
-  if (!member) throw new Error("Membre non trouvé");
-
-  const orgName = (member.organizations as unknown as { name: string } | null)?.name ?? "Amicale";
-  return { supabase, user, orgId: member.org_id as string, orgName };
+  return data?.name ?? "Amicale";
 }
 
 function buildInvitationUrl(code: string): string {
@@ -67,12 +60,13 @@ export async function getMemberStats() {
 }
 
 export async function createMember(formData: FormData) {
-  const { supabase, orgId, orgName } = await getCurrentMemberOrg();
+  const { orgId } = await requireBureau();
+  const supabase = await createClient();
+  const orgName = await getOrgName(supabase, orgId);
 
   const firstName = formData.get("first_name") as string;
   const memberEmail = (formData.get("email") as string) || null;
-  const suffix = Math.floor(1000 + Math.random() * 9000);
-  const invitationCode = `INV-${firstName.toUpperCase()}-${suffix}`;
+  const invitationCode = `INV-${crypto.randomUUID()}`;
 
   const { error } = await supabase.from("members").insert({
     org_id: orgId,
@@ -103,6 +97,7 @@ export async function createMember(formData: FormData) {
 }
 
 export async function updateMember(id: string, formData: FormData) {
+  await requireBureau();
   const supabase = await createClient();
 
   const updates: Record<string, unknown> = {};
@@ -120,6 +115,7 @@ export async function updateMember(id: string, formData: FormData) {
 }
 
 export async function deleteMember(id: string) {
+  await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("members").delete().eq("id", id);
   if (error) throw error;
@@ -130,6 +126,7 @@ export async function updateMemberRole(
   id: string,
   data: { role?: string; is_bureau?: boolean; bureau_role?: string | null }
 ) {
+  await requireBureau();
   const supabase = await createClient();
 
   const updates: Record<string, unknown> = {};
@@ -148,6 +145,7 @@ export async function updateMemberRole(
 }
 
 export async function updateMemberStatus(id: string, status: string) {
+  await requireBureau();
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -161,7 +159,9 @@ export async function updateMemberStatus(id: string, status: string) {
 }
 
 export async function inviteMember(email: string) {
-  const { supabase, orgId, orgName } = await getCurrentMemberOrg();
+  const { orgId } = await requireBureau();
+  const supabase = await createClient();
+  const orgName = await getOrgName(supabase, orgId);
 
   const { data: existing } = await supabase
     .from("members")
@@ -174,8 +174,7 @@ export async function inviteMember(email: string) {
     throw new Error("Un membre avec cet email existe déjà");
   }
 
-  const suffix = Math.floor(1000 + Math.random() * 9000);
-  const invitationCode = `INV-${suffix}`;
+  const invitationCode = `INV-${crypto.randomUUID()}`;
 
   const { error } = await supabase.from("members").insert({
     org_id: orgId,

@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { getOrgId } from "@/lib/auth";
+import { requireBureau } from "@/lib/auth";
 
 export async function getCommissions() {
   const supabase = await createClient();
@@ -52,9 +52,8 @@ export async function getCommissionStats() {
 }
 
 export async function createCommission(formData: FormData) {
+  const { orgId } = await requireBureau();
   const supabase = await createClient();
-
-  const orgId = await getOrgId();
 
   const featuresRaw = formData.get("features") as string;
   const features = featuresRaw
@@ -78,6 +77,7 @@ export async function createCommission(formData: FormData) {
 }
 
 export async function updateCommission(id: string, formData: FormData) {
+  await requireBureau();
   const supabase = await createClient();
 
   const updates: Record<string, unknown> = {};
@@ -102,6 +102,7 @@ export async function updateCommission(id: string, formData: FormData) {
 }
 
 export async function deleteCommission(id: string) {
+  await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase
     .from("commissions")
@@ -117,6 +118,7 @@ export async function addCommissionMember(
   memberId: string,
   role = "membre"
 ) {
+  await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("commission_members").insert({
     commission_id: commissionId,
@@ -132,6 +134,7 @@ export async function removeCommissionMember(
   commissionId: string,
   memberId: string
 ) {
+  await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase
     .from("commission_members")

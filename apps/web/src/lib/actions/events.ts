@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { getOrgId } from "@/lib/auth";
+import { requireBureau } from "@/lib/auth";
 
 export async function getEvents() {
   const supabase = await createClient();
@@ -43,8 +43,8 @@ export async function getEvent(id: string) {
 }
 
 export async function createEvent(formData: FormData) {
+  const { orgId } = await requireBureau();
   const supabase = await createClient();
-  const orgId = await getOrgId();
 
   const { error } = await supabase.from("events").insert({
     org_id: orgId,
@@ -103,6 +103,7 @@ export async function registerForEvent(eventId: string, nbPersonnes = 1, isBenev
 }
 
 export async function updateEvent(id: string, formData: FormData) {
+  await requireBureau();
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -134,6 +135,7 @@ export async function updateEvent(id: string, formData: FormData) {
 }
 
 export async function deleteEvent(id: string) {
+  await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("events").delete().eq("id", id);
   if (error) throw error;

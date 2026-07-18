@@ -110,7 +110,7 @@ export function HeroCarousel({ items, unreadMessages = 0, memberName }: HeroCaro
         {/* Messages card */}
         <Link
           href="/amicaliste/messagerie"
-          className="mb-4 flex items-center gap-3 rounded-[16px] bg-white p-3.5 shadow-sm"
+          className="mb-4 flex items-center gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm"
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20">
             <svg
@@ -119,7 +119,7 @@ export function HeroCarousel({ items, unreadMessages = 0, memberName }: HeroCaro
               height="20"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#E8553A"
+              stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"

@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { getOrgId } from "@/lib/auth";
+import { requireBureau } from "@/lib/auth";
 
 export async function getDocuments(commissionId?: string) {
   const supabase = await createClient();
@@ -33,19 +33,8 @@ export async function getDocument(id: string) {
 }
 
 export async function createDocument(formData: FormData) {
+  const { orgId, memberId } = await requireBureau();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Non authentifié");
-
-  const orgId = await getOrgId();
-
-  const { data: member } = await supabase
-    .from("members")
-    .select("id")
-    .eq("user_id", user.id)
-    .single();
 
   const { error } = await supabase.from("documents").insert({
     org_id: orgId,
@@ -54,7 +43,7 @@ export async function createDocument(formData: FormData) {
     content: (formData.get("content") as string) || null,
     file_url: (formData.get("file_url") as string) || null,
     file_type: (formData.get("file_type") as string) || null,
-    created_by: member?.id || null,
+    created_by: memberId,
   });
 
   if (error) throw error;
@@ -62,6 +51,7 @@ export async function createDocument(formData: FormData) {
 }
 
 export async function deleteDocument(id: string) {
+  await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("documents").delete().eq("id", id);
   if (error) throw error;
