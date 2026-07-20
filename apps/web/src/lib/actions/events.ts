@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { requireBureau } from "@/lib/auth";
+import { sendNotification } from "@/lib/actions/notifications";
 
 export async function getEvents() {
   const supabase = await createClient();
@@ -102,6 +103,31 @@ export async function registerForEvent(eventId: string, nbPersonnes = 1, isBenev
   );
 
   if (error) throw error;
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("title, org_id, commission_id")
+    .eq("id", eventId)
+    .single();
+
+  if (event) {
+    const { data: memberInfo } = await supabase
+      .from("members")
+      .select("first_name, last_name")
+      .eq("id", member.id)
+      .single();
+    const name = memberInfo
+      ? `${memberInfo.first_name} ${memberInfo.last_name}`
+      : "Un membre";
+    await sendNotification({
+      orgId: event.org_id,
+      title: `Inscription — ${event.title}`,
+      message: `${name} s'est inscrit(e) à l'événement "${event.title}"${isBenevole ? " en tant que bénévole" : ""}.`,
+      commissionId: event.commission_id,
+      type: "event",
+    });
+  }
+
   revalidatePath(`/amicaliste/evenements/${eventId}`);
   revalidatePath(`/bureau/evenements/${eventId}`);
 }
@@ -172,6 +198,31 @@ export async function cancelRegistration(eventId: string) {
     .eq("member_id", member.id);
 
   if (error) throw error;
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("title, org_id, commission_id")
+    .eq("id", eventId)
+    .single();
+
+  if (event) {
+    const { data: memberInfo } = await supabase
+      .from("members")
+      .select("first_name, last_name")
+      .eq("id", member.id)
+      .single();
+    const name = memberInfo
+      ? `${memberInfo.first_name} ${memberInfo.last_name}`
+      : "Un membre";
+    await sendNotification({
+      orgId: event.org_id,
+      title: `Désinscription — ${event.title}`,
+      message: `${name} s'est désinscrit(e) de l'événement "${event.title}".`,
+      commissionId: event.commission_id,
+      type: "event",
+    });
+  }
+
   revalidatePath(`/amicaliste/evenements/${eventId}`);
   revalidatePath(`/bureau/evenements/${eventId}`);
 }

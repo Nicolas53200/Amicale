@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { requireBureau } from "@/lib/auth";
+import { sendNotification } from "@/lib/actions/notifications";
 
 export async function getTrips() {
   const supabase = await createClient();
@@ -211,6 +212,32 @@ export async function registerForTrip(
   );
 
   if (error) throw error;
+
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("destination, name, org_id, commission_id")
+    .eq("id", tripId)
+    .single();
+
+  if (trip) {
+    const { data: memberInfo } = await supabase
+      .from("members")
+      .select("first_name, last_name")
+      .eq("id", member.id)
+      .single();
+    const memberName = memberInfo
+      ? `${memberInfo.first_name} ${memberInfo.last_name}`
+      : "Un membre";
+    const tripName = trip.name || trip.destination;
+    await sendNotification({
+      orgId: trip.org_id,
+      title: `Inscription voyage — ${tripName}`,
+      message: `${memberName} s'est inscrit(e) au voyage "${tripName}" (${nbAdults} adulte(s)${nbChildren > 0 ? `, ${nbChildren} enfant(s)` : ""}).`,
+      commissionId: trip.commission_id,
+      type: "voyage",
+    });
+  }
+
   revalidatePath(`/amicaliste/voyages/${tripId}`);
   revalidatePath(`/bureau/voyages/${tripId}`);
 }

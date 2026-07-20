@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { BookingCalendar } from "@/components/assets/booking-calendar";
+import { PhotoCarousel } from "@/components/assets/photo-carousel";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -30,6 +31,8 @@ interface AssetData {
   capacity: number | null;
   status: string | null;
   tags: string[] | null;
+  photos: string[];
+  cover_index: number | null;
 }
 
 export default function LocationDetailPage() {
@@ -43,7 +46,7 @@ export default function LocationDetailPage() {
     const supabase = createClient();
     const { data } = await supabase
       .from("assets")
-      .select("id, name, type, description, daily_rate, deposit, rules, capacity, status, tags")
+      .select("id, name, type, description, daily_rate, deposit, rules, capacity, status, tags, photos, cover_index")
       .eq("id", id)
       .single();
     if (data) setAsset(data as AssetData);
@@ -108,6 +111,10 @@ export default function LocationDetailPage() {
         subtitle={typeLabels[asset.type] || asset.type}
         backHref="/amicaliste/locations"
       />
+
+      {asset.photos && asset.photos.length > 0 && (
+        <PhotoCarousel photos={asset.photos} coverIndex={asset.cover_index} />
+      )}
 
       {/* Info */}
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">

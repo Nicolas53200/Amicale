@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getAsset } from "@/lib/actions/assets";
+import { getOrgId } from "@/lib/auth";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { AssetActions } from "@/components/assets/asset-actions";
 import { BookingCalendar } from "@/components/assets/booking-calendar";
+import { PhotoManager } from "@/components/assets/photo-manager";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -24,8 +26,10 @@ export default async function LocationDetailPage({
 }) {
   const { id } = await params;
   let asset;
+  let orgId: string;
   try {
     asset = await getAsset(id);
+    orgId = await getOrgId();
   } catch {
     notFound();
   }
@@ -73,6 +77,14 @@ export default async function LocationDetailPage({
           <AssetActions assetId={id} />
         </div>
       </div>
+
+      {/* Photos */}
+      <PhotoManager
+        assetId={asset.id}
+        orgId={orgId}
+        initialPhotos={asset.photos ?? []}
+        initialCoverIndex={asset.cover_index ?? null}
+      />
 
       {/* Règlement */}
       {asset.rules && (
