@@ -14,6 +14,7 @@ const fmt = (n: number) =>
 
 interface TripData {
   id: string;
+  name: string | null;
   destination: string;
   description: string | null;
   start_date: string;
@@ -21,6 +22,17 @@ interface TripData {
   price_adult: number;
   price_child: number | null;
   max_seats: number | null;
+  min_seats: number | null;
+  transport: string | null;
+  accommodation: string | null;
+  color: string | null;
+  children_allowed: boolean;
+  max_adults_per_household: number | null;
+  registration_deadline: string | null;
+  child_age_limit: number | null;
+  guides_needed: number | null;
+  included: string[] | null;
+  not_included: string[] | null;
   trip_registrations: {
     member_id: string;
     nb_adults: number;
@@ -65,9 +77,10 @@ export default function VoyageDetailPage() {
     if (data) setMyMemberId(data.id);
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    loadTrip();
-    loadMember();
+    void loadTrip();
+    void loadMember();
   }, [id]);
 
   async function handleCancel() {
@@ -99,11 +112,14 @@ export default function VoyageDetailPage() {
   );
   const totalSeats = trip.trip_registrations.reduce((s, r) => s + r.nb_adults + r.nb_children, 0);
   const isFull = trip.max_seats ? totalSeats >= trip.max_seats : false;
+  const deadlinePassed = trip.registration_deadline
+    ? new Date(trip.registration_deadline) < new Date()
+    : false;
 
   return (
     <div className="flex flex-col gap-4">
       <GradientHeader
-        title={trip.destination}
+        title={trip.name || trip.destination}
         subtitle={`${start.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })} → ${end.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })} · ${days} jour${days > 1 ? "s" : ""}`}
         backHref="/amicaliste/voyages"
       />
@@ -121,6 +137,9 @@ export default function VoyageDetailPage() {
               {totalSeats}/{trip.max_seats} places
             </Badge>
           )}
+          {trip.children_allowed && (
+            <Badge variant="neutral">Enfants acceptes</Badge>
+          )}
         </div>
         {trip.description && (
           <p className="mt-3 text-[13px] leading-relaxed text-content-secondary">
@@ -128,6 +147,88 @@ export default function VoyageDetailPage() {
           </p>
         )}
       </div>
+
+      {/* Logistique */}
+      {(trip.transport || trip.accommodation || trip.registration_deadline) && (
+        <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+          <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+            Informations pratiques
+          </h3>
+          <div className="flex flex-col gap-2">
+            {trip.transport && (
+              <div className="flex items-center gap-2">
+                <span className="text-[14px]">🚌</span>
+                <span className="text-[13px] text-content-secondary">{trip.transport}</span>
+              </div>
+            )}
+            {trip.accommodation && (
+              <div className="flex items-center gap-2">
+                <span className="text-[14px]">🏨</span>
+                <span className="text-[13px] text-content-secondary">{trip.accommodation}</span>
+              </div>
+            )}
+            {trip.registration_deadline && (
+              <div className="flex items-center gap-2">
+                <span className="text-[14px]">📅</span>
+                <span className="text-[13px] text-content-secondary">
+                  Inscription avant le {new Date(trip.registration_deadline).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                </span>
+                {deadlinePassed && (
+                  <Badge variant="danger">Expirée</Badge>
+                )}
+              </div>
+            )}
+            {trip.max_adults_per_household && (
+              <div className="flex items-center gap-2">
+                <span className="text-[14px]">👥</span>
+                <span className="text-[13px] text-content-secondary">
+                  Max {trip.max_adults_per_household} adulte{trip.max_adults_per_household > 1 ? "s" : ""} par foyer
+                </span>
+              </div>
+            )}
+            {trip.children_allowed && trip.child_age_limit && (
+              <div className="flex items-center gap-2">
+                <span className="text-[14px]">👶</span>
+                <span className="text-[13px] text-content-secondary">
+                  Enfants jusqu&apos;a {trip.child_age_limit} ans
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Inclus / Non inclus */}
+      {((trip.included && trip.included.length > 0) || (trip.not_included && trip.not_included.length > 0)) && (
+        <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+          {trip.included && trip.included.length > 0 && (
+            <div className="mb-3">
+              <h3 className="mb-2 text-[14px] font-bold text-content-primary">Inclus</h3>
+              <div className="flex flex-col gap-1">
+                {trip.included.map((item, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-[12px] text-green-600">✓</span>
+                    <span className="text-[13px] text-content-secondary">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {trip.not_included && trip.not_included.length > 0 && (
+            <div>
+              <h3 className="mb-2 text-[14px] font-bold text-content-primary">Non inclus</h3>
+              <div className="flex flex-col gap-1">
+                {trip.not_included.map((item, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-[12px] text-red-500">✗</span>
+                    <span className="text-[13px] text-content-secondary">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Inscription */}
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
@@ -168,10 +269,10 @@ export default function VoyageDetailPage() {
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            disabled={isFull}
+            disabled={isFull || deadlinePassed}
             className="btn-gradient w-full rounded-[14px] px-4 py-3 text-[13px] font-semibold text-white disabled:opacity-50"
           >
-            {isFull ? "Complet" : "S'inscrire"}
+            {isFull ? "Complet" : deadlinePassed ? "Inscriptions fermees" : "S'inscrire"}
           </button>
         )}
       </div>
@@ -240,11 +341,12 @@ export default function VoyageDetailPage() {
         open={showModal}
         onOpenChange={setShowModal}
         tripId={trip.id}
-        destination={trip.destination}
+        destination={trip.name || trip.destination}
         priceAdult={trip.price_adult}
         priceChild={trip.price_child}
         maxSeats={trip.max_seats}
         currentSeats={totalSeats}
+        childrenAllowed={trip.children_allowed}
         onSuccess={loadTrip}
       />
     </div>

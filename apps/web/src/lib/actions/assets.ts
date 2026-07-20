@@ -33,6 +33,8 @@ export async function createAsset(formData: FormData) {
   const { orgId } = await requireBureau();
   const supabase = await createClient();
 
+  const tagsRaw = formData.get("tags") as string;
+
   const { error } = await supabase.from("assets").insert({
     org_id: orgId,
     name: formData.get("name") as string,
@@ -43,6 +45,13 @@ export async function createAsset(formData: FormData) {
       ? parseFloat(formData.get("deposit") as string)
       : 0,
     rules: (formData.get("rules") as string) || null,
+    icon: (formData.get("icon") as string) || null,
+    color: (formData.get("color") as string) || null,
+    capacity: formData.get("capacity")
+      ? parseInt(formData.get("capacity") as string)
+      : null,
+    status: (formData.get("status") as string) || "disponible",
+    tags: tagsRaw ? JSON.parse(tagsRaw) : [],
   });
 
   if (error) throw error;
@@ -53,6 +62,8 @@ export async function createAsset(formData: FormData) {
 export async function updateAsset(id: string, formData: FormData) {
   await requireBureau();
   const supabase = await createClient();
+
+  const tagsRaw = formData.get("tags") as string;
 
   const { error } = await supabase
     .from("assets")
@@ -65,6 +76,13 @@ export async function updateAsset(id: string, formData: FormData) {
         ? parseFloat(formData.get("deposit") as string)
         : 0,
       rules: (formData.get("rules") as string) || null,
+      icon: (formData.get("icon") as string) || null,
+      color: (formData.get("color") as string) || null,
+      capacity: formData.get("capacity")
+        ? parseInt(formData.get("capacity") as string)
+        : null,
+      status: (formData.get("status") as string) || "disponible",
+      tags: tagsRaw ? JSON.parse(tagsRaw) : [],
     })
     .eq("id", id);
 

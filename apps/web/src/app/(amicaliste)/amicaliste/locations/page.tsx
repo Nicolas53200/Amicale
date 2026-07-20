@@ -83,6 +83,7 @@ export default async function LocationsPage() {
                   </h3>
                   <p className="text-[11px] text-white/80">
                     {typeLabels[a.type] || a.type}
+                    {a.capacity ? ` · ${a.capacity} pers.` : ""}
                   </p>
                 </div>
                 <div className="mt-3 flex items-center justify-between">

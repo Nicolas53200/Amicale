@@ -8,6 +8,8 @@ interface AssetCardProps {
   dailyRate: string;
   deposit: string;
   bookingCount: number;
+  status?: string | null;
+  capacity?: number | null;
   basePath?: string;
 }
 
@@ -28,6 +30,13 @@ const typeLabels: Record<string, string> = {
   camping: "Camping-car",
 };
 
+const statusLabels: Record<string, { label: string; variant: "success" | "warning" | "danger" | "neutral" }> = {
+  disponible: { label: "Disponible", variant: "success" },
+  reserve: { label: "Reserve", variant: "warning" },
+  maintenance: { label: "Maintenance", variant: "danger" },
+  indisponible: { label: "Indisponible", variant: "neutral" },
+};
+
 export function AssetCard({
   id,
   name,
@@ -35,8 +44,12 @@ export function AssetCard({
   dailyRate,
   deposit,
   bookingCount,
+  status,
+  capacity,
   basePath = "/amicaliste/locations",
 }: AssetCardProps) {
+  const statusInfo = statusLabels[status ?? "disponible"] ?? { label: "Disponible", variant: "success" as const };
+
   return (
     <Link
       href={`${basePath}/${id}`}
@@ -51,6 +64,7 @@ export function AssetCard({
         </h3>
         <p className="mt-0.5 text-[12px] text-content-muted">
           {typeLabels[type] || type}
+          {capacity ? ` · ${capacity} pers.` : ""}
         </p>
         <div className="mt-2 flex items-center gap-2">
           <Badge variant="default">{fmt(parseFloat(dailyRate))}/jour</Badge>
@@ -59,6 +73,7 @@ export function AssetCard({
               Caution : {fmt(parseFloat(deposit))}
             </span>
           )}
+          <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
         </div>
       </div>
       <svg

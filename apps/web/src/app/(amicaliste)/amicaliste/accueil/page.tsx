@@ -39,7 +39,7 @@ export default async function AccueilPage() {
       .limit(6),
     supabase
       .from("trips")
-      .select("id, destination, start_date, end_date, location:destination")
+      .select("id, name, destination, start_date, end_date, color, location:destination")
       .gte("start_date", nowISO)
       .order("start_date")
       .limit(2),
@@ -67,11 +67,11 @@ export default async function AccueilPage() {
     })),
     ...trips.slice(0, 1).map((t) => ({
       id: t.id,
-      title: t.destination,
+      title: (t as Record<string, unknown>).name as string || t.destination,
       date: t.start_date,
       location: null,
       type: "trip" as const,
-      color: null,
+      color: (t as Record<string, unknown>).color as string | null,
     })),
   ];
 

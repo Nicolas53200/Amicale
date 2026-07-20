@@ -27,6 +27,9 @@ interface AssetData {
   daily_rate: number;
   deposit: number;
   rules: string | null;
+  capacity: number | null;
+  status: string | null;
+  tags: string[] | null;
 }
 
 export default function LocationDetailPage() {
@@ -40,7 +43,7 @@ export default function LocationDetailPage() {
     const supabase = createClient();
     const { data } = await supabase
       .from("assets")
-      .select("id, name, type, description, daily_rate, deposit, rules")
+      .select("id, name, type, description, daily_rate, deposit, rules, capacity, status, tags")
       .eq("id", id)
       .single();
     if (data) setAsset(data as AssetData);
@@ -113,7 +116,24 @@ export default function LocationDetailPage() {
           {asset.deposit > 0 && (
             <Badge variant="neutral">Caution : {fmt(asset.deposit)}</Badge>
           )}
+          {asset.capacity && (
+            <Badge variant="neutral">{asset.capacity} pers.</Badge>
+          )}
+          {asset.status && asset.status !== "disponible" && (
+            <Badge variant={asset.status === "maintenance" ? "danger" : "warning"}>
+              {asset.status === "reserve" ? "Reserve" : asset.status === "maintenance" ? "Maintenance" : "Indisponible"}
+            </Badge>
+          )}
         </div>
+        {asset.tags && asset.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {asset.tags.map((tag, i) => (
+              <span key={i} className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-medium text-brand-700 dark:bg-brand-500/20 dark:text-brand-300">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
         {asset.description && (
           <p className="mt-3 text-[13px] text-content-secondary">
             {asset.description}

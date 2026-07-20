@@ -49,6 +49,14 @@ export default async function LocationDetailPage({
           {asset.deposit > 0 && (
             <Badge variant="neutral">Caution : {fmt(asset.deposit)}</Badge>
           )}
+          {asset.capacity && (
+            <Badge variant="neutral">{asset.capacity} pers.</Badge>
+          )}
+          {asset.status && asset.status !== "disponible" && (
+            <Badge variant={asset.status === "maintenance" ? "danger" : "warning"}>
+              {asset.status === "reserve" ? "Reserve" : asset.status === "maintenance" ? "Maintenance" : "Indisponible"}
+            </Badge>
+          )}
         </div>
         {asset.description && (
           <p className="mt-3 text-[13px] text-content-secondary">

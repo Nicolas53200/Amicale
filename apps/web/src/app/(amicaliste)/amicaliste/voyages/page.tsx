@@ -7,7 +7,7 @@ import { getUpcomingTrips } from "@/lib/actions/trips";
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
 
-const destinationGradients = [
+const fallbackGradients = [
   "from-blue-500 to-indigo-600",
   "from-emerald-500 to-teal-600",
   "from-rose-500 to-pink-600",
@@ -65,13 +65,20 @@ export default async function VoyagesPage() {
             const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
             const regCount = (t.trip_registrations as { count: number }[])?.[0]?.count ?? 0;
             const isFull = t.max_seats ? regCount >= t.max_seats : false;
-            const gradient = destinationGradients[i % destinationGradients.length];
+            const fallbackGradient = fallbackGradients[i % fallbackGradients.length];
+            const tripColor = t.color as string | null;
+            const bgStyle = tripColor
+              ? { background: `linear-gradient(135deg, ${tripColor}e6 0%, ${tripColor}cc 100%)` }
+              : undefined;
 
             return (
               <Link
                 key={t.id}
                 href={`/amicaliste/voyages/${t.id}`}
-                className={`group relative overflow-hidden rounded-[16px] bg-gradient-to-br ${gradient} p-5 shadow-sm transition-shadow active:shadow-none`}
+                className={`group relative overflow-hidden rounded-[16px] p-5 shadow-sm transition-shadow active:shadow-none ${
+                  tripColor ? "" : `bg-gradient-to-br ${fallbackGradient}`
+                }`}
+                style={bgStyle}
               >
                 {/* Decorative circle */}
                 <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10" />
@@ -83,10 +90,11 @@ export default async function VoyagesPage() {
                         {start.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} — {end.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
                       </span>
                       <h3 className="mt-3 text-[18px] font-bold text-white">
-                        {t.destination}
+                        {(t.name as string) || t.destination}
                       </h3>
                       <p className="mt-1 text-[13px] text-white/80">
-                        {days} jour{days > 1 ? "s" : ""} · {fmt(t.price_adult)}/adulte
+                        {(t.name as string) ? `${t.destination} · ` : ""}{days} jour{days > 1 ? "s" : ""}
+                        {(t.transport as string) && ` · ${t.transport}`}
                       </p>
                     </div>
                     <span className="text-3xl">✈️</span>
