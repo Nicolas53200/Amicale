@@ -20,6 +20,7 @@ export async function getUpcomingEvents() {
   const { data, error } = await supabase
     .from("events")
     .select("*, event_registrations(count)")
+    .eq("published", true)
     .gte("date", new Date().toISOString())
     .order("date")
     .limit(20);
@@ -64,6 +65,9 @@ export async function createEvent(formData: FormData) {
       ? parseInt(formData.get("max_benevoles") as string)
       : null,
     category: (formData.get("category") as string) || null,
+    icon: (formData.get("icon") as string) || null,
+    color: (formData.get("color") as string) || null,
+    published: formData.get("published") !== "false",
   });
 
   if (error) throw error;
@@ -125,6 +129,9 @@ export async function updateEvent(id: string, formData: FormData) {
         ? parseInt(formData.get("max_benevoles") as string)
         : null,
       category: (formData.get("category") as string) || null,
+      icon: (formData.get("icon") as string) || null,
+      color: (formData.get("color") as string) || null,
+      published: formData.get("published") !== "false",
     })
     .eq("id", id);
 

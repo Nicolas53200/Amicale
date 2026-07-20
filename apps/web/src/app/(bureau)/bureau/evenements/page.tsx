@@ -75,6 +75,7 @@ export default async function EvenementsPage() {
                 (e.event_registrations as { count: number }[])?.[0]?.count ?? 0
               }
               basePath="/bureau/evenements"
+              color={e.color}
             />
           ))}
         </div>

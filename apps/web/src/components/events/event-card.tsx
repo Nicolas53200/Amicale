@@ -10,6 +10,8 @@ interface EventCardProps {
   maxAttendees?: number | null;
   registrationCount: number;
   basePath?: string;
+  icon?: string | null;
+  color?: string | null;
 }
 
 const fmt = (n: number) =>
@@ -24,21 +26,35 @@ export function EventCard({
   maxAttendees,
   registrationCount,
   basePath = "/amicaliste/evenements",
+  color,
 }: EventCardProps) {
   const d = new Date(date);
   const priceNum = parseFloat(price || "0");
   const isFull = maxAttendees ? registrationCount >= maxAttendees : false;
+
+  const dateBoxStyle = color
+    ? { backgroundColor: `${color}18`, color }
+    : undefined;
 
   return (
     <Link
       href={`${basePath}/${id}`}
       className="group flex gap-3 rounded-[16px] bg-surface-elevated p-3.5 shadow-sm transition-shadow active:scale-[0.98]"
     >
-      <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-[12px] bg-brand-100 dark:bg-brand-500/20">
-        <span className="text-[10px] font-bold uppercase text-brand-600 dark:text-brand-400">
+      <div
+        className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-[12px] ${color ? "" : "bg-brand-100 dark:bg-brand-500/20"}`}
+        style={dateBoxStyle}
+      >
+        <span
+          className={`text-[10px] font-bold uppercase ${color ? "" : "text-brand-600 dark:text-brand-400"}`}
+          style={color ? { color } : undefined}
+        >
           {d.toLocaleDateString("fr-FR", { month: "short" }).replace(".", "")}
         </span>
-        <span className="text-[18px] font-bold leading-none text-brand-700 dark:text-brand-300">
+        <span
+          className={`text-[18px] font-bold leading-none ${color ? "" : "text-brand-700 dark:text-brand-300"}`}
+          style={color ? { color } : undefined}
+        >
           {d.getDate()}
         </span>
       </div>

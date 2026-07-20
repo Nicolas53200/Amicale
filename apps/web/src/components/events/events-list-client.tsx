@@ -14,6 +14,9 @@ interface EventItem {
   max_attendees: number | null;
   category: string | null;
   event_registrations: { count: number }[];
+  icon: string | null;
+  color: string | null;
+  published: boolean;
 }
 
 const categoryConfig: { value: string; label: string; icon: string }[] = [
@@ -105,6 +108,7 @@ export function EventsListClient({ events }: { events: EventItem[] }) {
               registrationCount={
                 (e.event_registrations as { count: number }[])?.[0]?.count ?? 0
               }
+              color={e.color}
             />
           ))}
         </div>

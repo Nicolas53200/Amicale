@@ -9,6 +9,7 @@ interface CarouselItem {
   date: string;
   location?: string | null;
   type: "event" | "trip";
+  color?: string | null;
 }
 
 interface HeroCarouselProps {
@@ -179,7 +180,9 @@ export function HeroCarousel({ items, unreadMessages = 0, memberName }: HeroCaro
                     <div
                       className="rounded-[16px] p-5"
                       style={{
-                        background: slideColors[i % slideColors.length],
+                        background: item.color
+                          ? `linear-gradient(135deg, ${item.color}e6 0%, ${item.color}cc 100%)`
+                          : slideColors[i % slideColors.length],
                         minHeight: "170px",
                       }}
                     >
