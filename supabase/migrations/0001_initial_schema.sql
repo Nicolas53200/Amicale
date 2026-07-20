@@ -89,6 +89,9 @@ CREATE TABLE events (
   price NUMERIC(10,2) DEFAULT 0,
   max_benevoles INTEGER,
   category VARCHAR(100),
+  icon VARCHAR(50),
+  color VARCHAR(20),
+  published BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -252,6 +255,7 @@ CREATE TABLE notifications (
   title VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
   target_member_id UUID REFERENCES members(id) ON DELETE CASCADE,
+  type VARCHAR(50),
   read BOOLEAN NOT NULL DEFAULT false,
   sent_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
