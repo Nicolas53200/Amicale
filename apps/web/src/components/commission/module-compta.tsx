@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { createClient } from "@/lib/supabase/client";
+import { getOrgIdClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 interface ModuleComptaProps {
@@ -74,8 +75,7 @@ export function ModuleCompta({
     setSubmitting(true);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const orgId = user?.user_metadata?.org_id;
+    const orgId = await getOrgIdClient();
 
     await supabase.from("accounting_entries").insert({
       org_id: orgId,
@@ -127,7 +127,7 @@ export function ModuleCompta({
       {!isReadOnly && (
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border border-border bg-surface-elevated p-4"
+          className="rounded-lg bg-surface-elevated p-4 shadow-sm"
         >
           <p className="mb-3 text-sm font-semibold text-content-primary">
             Nouvelle opération
@@ -139,7 +139,7 @@ export function ModuleCompta({
                 type="button"
                 onClick={() => setType(t)}
                 className={cn(
-                  "flex-1 rounded-md px-3 py-1.5 text-sm font-medium capitalize transition-colors",
+                  "flex-1 rounded-[14px] px-3 py-1.5 text-sm font-medium capitalize transition-colors",
                   type === t
                     ? "bg-surface-elevated text-content-primary shadow-sm"
                     : "text-content-muted hover:text-content-secondary"
@@ -185,7 +185,7 @@ export function ModuleCompta({
             {entries.map((entry) => (
               <div
                 key={entry.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-surface-elevated px-4 py-3"
+                className="flex items-center justify-between rounded-[14px] bg-surface-secondary px-4 py-3"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

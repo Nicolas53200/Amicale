@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireBureau } from "@/lib/auth";
 
 export async function getAssets() {
   const supabase = await createClient();
@@ -29,13 +30,8 @@ export async function getAsset(id: string) {
 }
 
 export async function createAsset(formData: FormData) {
+  const { orgId } = await requireBureau();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Non authentifié");
-
-  const orgId = user.user_metadata?.org_id;
 
   const { error } = await supabase.from("assets").insert({
     org_id: orgId,
@@ -49,6 +45,39 @@ export async function createAsset(formData: FormData) {
     rules: (formData.get("rules") as string) || null,
   });
 
+  if (error) throw error;
+  revalidatePath("/bureau/locations");
+  revalidatePath("/amicaliste/locations");
+}
+
+export async function updateAsset(id: string, formData: FormData) {
+  await requireBureau();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("assets")
+    .update({
+      name: formData.get("name") as string,
+      type: formData.get("type") as string,
+      description: (formData.get("description") as string) || null,
+      daily_rate: parseFloat(formData.get("daily_rate") as string),
+      deposit: formData.get("deposit")
+        ? parseFloat(formData.get("deposit") as string)
+        : 0,
+      rules: (formData.get("rules") as string) || null,
+    })
+    .eq("id", id);
+
+  if (error) throw error;
+  revalidatePath("/bureau/locations");
+  revalidatePath(`/bureau/locations/${id}`);
+  revalidatePath("/amicaliste/locations");
+}
+
+export async function deleteAsset(id: string) {
+  await requireBureau();
+  const supabase = await createClient();
+  const { error } = await supabase.from("assets").delete().eq("id", id);
   if (error) throw error;
   revalidatePath("/bureau/locations");
   revalidatePath("/amicaliste/locations");
@@ -101,6 +130,7 @@ export async function requestBooking(formData: FormData) {
 }
 
 export async function updateBookingStatus(bookingId: string, status: string) {
+  await requireBureau();
   const supabase = await createClient();
 
   const { error } = await supabase

@@ -57,7 +57,6 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-export function generateInvitationCode(firstName: string): string {
-  const suffix = Math.floor(1000 + Math.random() * 9000);
-  return `INV-${firstName.toUpperCase()}-${suffix}`;
+export function generateInvitationCode(): string {
+  return `INV-${crypto.randomUUID()}`;
 }

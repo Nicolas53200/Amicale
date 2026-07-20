@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { cancelTripRegistration } from "@/lib/actions/trips";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { GradientHeader } from "@/components/layout/gradient-header";
+import { TripInscriptionModal } from "@/components/trips/trip-inscription-modal";
+import { useToast } from "@/components/ui/toast";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -36,14 +36,10 @@ export default function VoyageDetailPage() {
   const id = params.id as string;
   const [trip, setTrip] = useState<TripData | null>(null);
   const [myMemberId, setMyMemberId] = useState<string | null>(null);
-  const [nbAdults, setNbAdults] = useState(1);
-  const [nbChildren, setNbChildren] = useState(0);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    loadTrip();
-    loadMember();
-  }, [id]);
+  const [showModal, setShowModal] = useState(false);
+  const [inscritsSectionOpen, setInscritsSectionOpen] = useState(true);
+  const { showToast } = useToast();
 
   async function loadTrip() {
     const supabase = createClient();
@@ -69,33 +65,28 @@ export default function VoyageDetailPage() {
     if (data) setMyMemberId(data.id);
   }
 
-  async function handleInscription() {
-    if (!trip || !myMemberId) return;
-    setLoading(true);
-    const total =
-      nbAdults * trip.price_adult +
-      nbChildren * (trip.price_child ?? 0);
+  useEffect(() => {
+    loadTrip();
+    loadMember();
+  }, [id]);
 
-    const supabase = createClient();
-    await supabase.from("trip_registrations").upsert(
-      {
-        trip_id: id,
-        member_id: myMemberId,
-        nb_adults: nbAdults,
-        nb_children: nbChildren,
-        total_amount: total,
-        payment_status: "en_attente",
-      },
-      { onConflict: "trip_id,member_id" }
-    );
-    await loadTrip();
-    setLoading(false);
+  async function handleCancel() {
+    setLoading(true);
+    try {
+      await cancelTripRegistration(id);
+      showToast("Inscription annulee", "info");
+      await loadTrip();
+    } catch {
+      showToast("Erreur lors de la desinscription", "error");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (!trip) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm text-content-muted">Chargement...</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
       </div>
     );
   }
@@ -110,119 +101,152 @@ export default function VoyageDetailPage() {
   const isFull = trip.max_seats ? totalSeats >= trip.max_seats : false;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <Link
-          href="/amicaliste/voyages"
-          className="text-sm text-brand-500 hover:underline"
-        >
-          ← Voyages
-        </Link>
-        <h1 className="mt-2 text-2xl font-bold text-content-primary">
-          {trip.destination}
-        </h1>
-        <p className="mt-1 text-sm text-content-muted">
-          {start.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
-          {" → "}
-          {end.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
-          {" · "}
-          {days} jour{days > 1 ? "s" : ""}
-        </p>
-        <div className="mt-2 flex gap-2">
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title={trip.destination}
+        subtitle={`${start.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })} → ${end.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })} · ${days} jour${days > 1 ? "s" : ""}`}
+        backHref="/amicaliste/voyages"
+      />
+
+      {/* Info */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <div className="flex flex-wrap gap-2">
           <Badge variant="default">{fmt(trip.price_adult)}/adulte</Badge>
-          {trip.price_child && (
+          {trip.price_child !== null && (
             <Badge variant="neutral">{fmt(trip.price_child)}/enfant</Badge>
           )}
           {isFull && <Badge variant="danger">Complet</Badge>}
+          {trip.max_seats && (
+            <Badge variant="neutral">
+              {totalSeats}/{trip.max_seats} places
+            </Badge>
+          )}
         </div>
+        {trip.description && (
+          <p className="mt-3 text-[13px] leading-relaxed text-content-secondary">
+            {trip.description}
+          </p>
+        )}
       </div>
 
-      {trip.description && (
-        <p className="text-sm text-content-secondary">{trip.description}</p>
-      )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Votre inscription</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {myRegistration ? (
+      {/* Inscription */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Votre inscription
+        </h3>
+        {myRegistration ? (
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-content-primary">
-                Vous êtes inscrit
+              <p className="text-[13px] font-medium text-content-primary">
+                Vous etes inscrit
               </p>
-              <p className="text-xs text-content-muted">
+              <p className="text-[11px] text-content-muted">
                 {myRegistration.nb_adults} adulte{myRegistration.nb_adults > 1 ? "s" : ""}
                 {myRegistration.nb_children > 0 &&
                   `, ${myRegistration.nb_children} enfant${myRegistration.nb_children > 1 ? "s" : ""}`}
                 {" · "}
                 Total : {fmt(myRegistration.total_amount)}
               </p>
-              <Badge
-                variant={myRegistration.payment_status === "paye" ? "success" : "warning"}
-                className="mt-2"
-              >
-                {myRegistration.payment_status === "paye" ? "Payé" : "En attente de paiement"}
-              </Badge>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-content-muted">Adultes</label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={nbAdults}
-                    onChange={(e) => setNbAdults(parseInt(e.target.value) || 1)}
-                  />
-                </div>
-                {trip.price_child !== null && (
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-content-muted">Enfants</label>
-                    <Input
-                      type="number"
-                      min={0}
-                      value={nbChildren}
-                      onChange={(e) => setNbChildren(parseInt(e.target.value) || 0)}
-                    />
-                  </div>
-                )}
+              <div className="mt-2">
+                <Badge
+                  variant={myRegistration.payment_status === "paye" ? "success" : "warning"}
+                >
+                  {myRegistration.payment_status === "paye" ? "Paye" : "En attente de paiement"}
+                </Badge>
               </div>
-              <p className="text-sm font-medium text-content-primary">
-                Total : {fmt(nbAdults * trip.price_adult + nbChildren * (trip.price_child ?? 0))}
-              </p>
-              <Button onClick={handleInscription} disabled={loading || isFull}>
-                {isFull ? "Complet" : "S'inscrire"}
-              </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={loading}
+              className="rounded-full bg-red-50 px-4 py-2 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400"
+            >
+              Se desinscrire
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            disabled={isFull}
+            className="btn-gradient w-full rounded-[14px] px-4 py-3 text-[13px] font-semibold text-white disabled:opacity-50"
+          >
+            {isFull ? "Complet" : "S'inscrire"}
+          </button>
+        )}
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
+      {/* Inscrits */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setInscritsSectionOpen(!inscritsSectionOpen)}
+          className="flex w-full items-center justify-between"
+        >
+          <h3 className="text-[14px] font-bold text-content-primary">
             Inscrits ({trip.trip_registrations.length}
             {trip.max_seats ? ` — ${totalSeats}/${trip.max_seats} places` : ""})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {trip.trip_registrations.length === 0 ? (
-            <p className="text-sm text-content-muted">Aucun inscrit</p>
-          ) : (
-            <ul className="flex flex-col gap-1">
-              {trip.trip_registrations.map((r) => (
-                <li key={r.member_id} className="text-sm text-content-secondary">
-                  {r.members.first_name} {r.members.last_name}
-                  {" — "}
-                  {r.nb_adults} ad.{r.nb_children > 0 && ` + ${r.nb_children} enf.`}
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+          </h3>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`text-content-muted transition-transform ${inscritsSectionOpen ? "rotate-180" : ""}`}
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+        {inscritsSectionOpen && (
+          <div className="mt-3">
+            {trip.trip_registrations.length === 0 ? (
+              <p className="py-2 text-center text-[13px] text-content-muted">Aucun inscrit</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {trip.trip_registrations.map((r) => (
+                  <div key={r.member_id} className="flex items-center gap-3 rounded-[10px] bg-surface-secondary p-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-[12px] font-bold text-blue-600 dark:bg-blue-500/10">
+                      {r.members.first_name[0]}{r.members.last_name[0]}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[13px] font-medium text-content-primary">
+                        {r.members.first_name} {r.members.last_name}
+                      </p>
+                      <p className="text-[11px] text-content-muted">
+                        {r.nb_adults} ad.{r.nb_children > 0 && ` + ${r.nb_children} enf.`}
+                        {" · "}
+                        {fmt(r.total_amount)}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={r.payment_status === "paye" ? "success" : "warning"}
+                    >
+                      {r.payment_status === "paye" ? "Paye" : "En attente"}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <TripInscriptionModal
+        open={showModal}
+        onOpenChange={setShowModal}
+        tripId={trip.id}
+        destination={trip.destination}
+        priceAdult={trip.price_adult}
+        priceChild={trip.price_child}
+        maxSeats={trip.max_seats}
+        currentSeats={totalSeats}
+        onSuccess={loadTrip}
+      />
     </div>
   );
 }

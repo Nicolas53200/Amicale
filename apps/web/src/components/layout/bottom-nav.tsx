@@ -11,44 +11,43 @@ interface NavItem {
 }
 
 const bureauNav: NavItem[] = [
-  { href: "/bureau/dashboard", label: "Accueil", icon: "home" },
-  { href: "/bureau/evenements", label: "Événements", icon: "calendar" },
-  { href: "/bureau/locations", label: "Locations", icon: "key" },
-  { href: "/bureau/membres", label: "Membres", icon: "users" },
-  { href: "/bureau/messagerie", label: "Messages", icon: "mail" },
+  { href: "/amicaliste/accueil", label: "Amicaliste", icon: "home" },
+  { href: "/bureau/dashboard", label: "Bureau", icon: "briefcase" },
+  { href: "/bureau/messagerie", label: "Messages", icon: "message-circle" },
 ];
 
 const amicalisteNav: NavItem[] = [
   { href: "/amicaliste/accueil", label: "Accueil", icon: "home" },
   { href: "/amicaliste/evenements", label: "Événements", icon: "calendar" },
+  { href: "/amicaliste/voyages", label: "Voyages", icon: "plane" },
   { href: "/amicaliste/locations", label: "Locations", icon: "key" },
-  { href: "/amicaliste/voyages", label: "Voyages", icon: "map-pin" },
-  { href: "/amicaliste/messagerie", label: "Messages", icon: "mail" },
+  { href: "/amicaliste/profil", label: "Profil", icon: "user" },
 ];
 
 const iconPaths: Record<string, string> = {
   home: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
-  grid: "M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z",
-  receipt: "M4 2v20l4-2 4 2 4-2 4 2V2l-4 2-4-2-4 2z M8 10h8 M8 14h4",
   users: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M16 3.13a4 4 0 0 1 0 7.75",
-  mail: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
+  "message-circle": "M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z",
+  briefcase: "M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2",
   calendar: "M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M16 2v4 M8 2v4 M3 10h18",
-  "map-pin": "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+  plane: "M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z",
   key: "M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4",
+  user: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
 };
 
-function NavIcon({ name }: { name: string }) {
+function NavIcon({ name, active }: { name: string; active: boolean }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
+      width="22"
+      height="22"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth={active ? 2.5 : 1.8}
       strokeLinecap="round"
       strokeLinejoin="round"
+      className="transition-all duration-200"
     >
       {(iconPaths[name] ?? "").split(" M").map((d, i) => (
         <path key={i} d={i === 0 ? d : `M${d}`} />
@@ -62,23 +61,26 @@ export function BottomNav({ role }: { role: "bureau" | "amicaliste" }) {
   const items = role === "bureau" ? bureauNav : amicalisteNav;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-surface-elevated/95 backdrop-blur-sm md:hidden">
-      <div className="flex items-center justify-around py-1">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface-elevated/92 backdrop-blur-xl md:hidden pb-[env(safe-area-inset-bottom)]" style={{ borderTop: '0.5px solid rgba(0,0,0,0.08)' }}>
+      <div className="flex items-center justify-around">
         {items.map((item) => {
-          const active = pathname.startsWith(item.href);
+          const active =
+            role === "bureau" && item.href === "/bureau/dashboard"
+              ? pathname.startsWith("/bureau")
+              : pathname === item.href || (item.href !== "/amicaliste/accueil" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] font-medium transition-colors",
+                "relative flex flex-col items-center gap-0.5 px-2 py-2 text-[10px] font-semibold transition-all duration-200",
                 active
                   ? "text-brand-500"
-                  : "text-content-muted hover:text-content-secondary"
+                  : "text-content-muted active:scale-95"
               )}
             >
-              <NavIcon name={item.icon} />
-              {item.label}
+              <NavIcon name={item.icon} active={active} />
+              <span>{item.label}</span>
             </Link>
           );
         })}

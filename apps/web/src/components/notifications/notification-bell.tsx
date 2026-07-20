@@ -8,23 +8,6 @@ import { cn } from "@/lib/utils";
 export function NotificationBell({ basePath }: { basePath: string }) {
   const [count, setCount] = useState(0);
 
-  useEffect(() => {
-    loadCount();
-    const supabase = createClient();
-    const channel = supabase
-      .channel("notifications-count")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications" },
-        () => loadCount()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   async function loadCount() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -46,6 +29,23 @@ export function NotificationBell({ basePath }: { basePath: string }) {
 
     setCount(c ?? 0);
   }
+
+  useEffect(() => {
+    loadCount();
+    const supabase = createClient();
+    const channel = supabase
+      .channel("notifications-count")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications" },
+        () => loadCount()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <Link

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getProfile } from "@/lib/actions/profile";
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { ProfileForm } from "@/components/profile/profile-form";
 
 export default async function ProfilPage() {
@@ -7,13 +8,11 @@ export default async function ProfilPage() {
   if (!profile) redirect("/login");
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-content-primary">Mon profil</h1>
-        <p className="text-sm text-content-secondary">
-          Gérez vos informations personnelles
-        </p>
-      </div>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Mon profil"
+        subtitle="Gérez vos informations personnelles"
+      />
       <ProfileForm profile={profile as Parameters<typeof ProfileForm>[0]["profile"]} />
     </div>
   );

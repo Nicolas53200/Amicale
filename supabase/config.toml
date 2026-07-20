@@ -4,7 +4,7 @@ name = "Amicale SaaS"
 
 [api]
 port = 54321
-schemas = ["public"]
+schemas = ["public", "storage"]
 extra_search_path = ["public"]
 
 [db]
@@ -18,5 +18,12 @@ jwt_expiry = 3600
 
 [auth.email]
 enable_signup = true
-enable_confirmations = true
-double_confirm_changes = true
+enable_confirmations = false
+double_confirm_changes = false
+
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/custom_access_token_hook"
+
+[storage]
+file_size_limit = "20MB"

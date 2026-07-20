@@ -14,6 +14,7 @@ export default function InvitationPage({
 }) {
   const { code } = use(params);
   const [member, setMember] = useState<{
+    org_name: string;
     first_name: string;
     last_name: string;
   } | null>(null);
@@ -27,16 +28,14 @@ export default function InvitationPage({
   useEffect(() => {
     async function lookupInvitation() {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from("members")
-        .select("first_name, last_name")
-        .eq("invitation_code", code)
-        .single();
+      const { data, error } = await supabase.rpc("lookup_invitation", {
+        p_code: code,
+      });
 
       if (error || !data) {
         setError("Code d'invitation invalide ou expiré");
       } else {
-        setMember(data);
+        setMember(data as { org_name: string; first_name: string; last_name: string });
       }
       setLoading(false);
     }
@@ -49,7 +48,8 @@ export default function InvitationPage({
     setError("");
 
     const supabase = createClient();
-    const { error: signupError } = await supabase.auth.signUp({
+
+    const { data: signUpData, error: signupError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -63,7 +63,25 @@ export default function InvitationPage({
       return;
     }
 
-    router.push("/amicaliste/accueil");
+    if (!signUpData.session) {
+      setError("Vérifiez votre email pour confirmer votre inscription.");
+      setSubmitting(false);
+      return;
+    }
+
+    const { error: bindError } = await supabase.rpc("bind_user_to_invitation", {
+      p_invitation_code: code,
+    });
+
+    if (bindError) {
+      setError(bindError.message);
+      setSubmitting(false);
+      return;
+    }
+
+    await supabase.auth.refreshSession();
+
+    router.push("/onboarding");
     router.refresh();
   }
 
@@ -92,14 +110,16 @@ export default function InvitationPage({
     );
   }
 
+  const displayName = [member.first_name, member.last_name].filter(Boolean).join(" ");
+
   return (
     <Card>
       <CardHeader>
         <div className="mb-2 text-center text-3xl font-bold text-brand-500">
-          Amicale
+          {member.org_name || "Amicale"}
         </div>
         <CardTitle className="text-center">
-          Bienvenue {member.first_name} {member.last_name}
+          {displayName ? `Bienvenue ${displayName}` : "Bienvenue"}
         </CardTitle>
         <p className="text-center text-sm text-content-secondary">
           Créez votre compte pour rejoindre l&apos;amicale

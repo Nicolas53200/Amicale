@@ -2,16 +2,17 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getOrgId, requireBureau } from "@/lib/auth";
 
 export async function getOrganization() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
 
-  const orgId = user.user_metadata?.org_id;
-  if (!orgId) return null;
+  let orgId: string;
+  try {
+    orgId = await getOrgId();
+  } catch {
+    return null;
+  }
 
   const { data } = await supabase
     .from("organizations")
@@ -23,14 +24,8 @@ export async function getOrganization() {
 }
 
 export async function updateOrganization(formData: FormData) {
+  const { orgId } = await requireBureau();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Non authentifié");
-
-  const orgId = user.user_metadata?.org_id;
-  if (!orgId) throw new Error("Organisation non trouvée");
 
   const name = formData.get("name") as string;
   const settings = {

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireBureau } from "@/lib/auth";
 
 export async function getAccountingEntries(commissionId?: string) {
   const supabase = await createClient();
@@ -71,22 +72,11 @@ export async function getAccountingStats(commissionId?: string) {
 }
 
 export async function createAccountingEntry(formData: FormData) {
+  const { orgId, memberId } = await requireBureau();
   const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Non authentifié");
-
-  const orgId = user.user_metadata?.org_id;
-  if (!orgId) throw new Error("Organisation non trouvée");
 
   const commissionId = formData.get("commission_id") as string;
   const type = formData.get("type") as string;
-
-  const { data: member } = await supabase
-    .from("members")
-    .select("id")
-    .eq("user_id", user.id)
-    .single();
 
   const { error } = await supabase.from("accounting_entries").insert({
     org_id: orgId,
@@ -98,7 +88,7 @@ export async function createAccountingEntry(formData: FormData) {
     status: type === "recette" ? "recette" : "attente",
     document_url: (formData.get("document_url") as string) || null,
     payment_mode: (formData.get("payment_mode") as string) || null,
-    submitted_by: member?.id || null,
+    submitted_by: memberId,
   });
 
   if (error) throw error;
@@ -111,20 +101,12 @@ export async function updateEntryStatus(
   status: string,
   paymentMode?: string
 ) {
+  const { memberId } = await requireBureau();
   const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Non authentifié");
-
-  const { data: member } = await supabase
-    .from("members")
-    .select("id")
-    .eq("user_id", user.id)
-    .single();
 
   const updates: Record<string, unknown> = { status };
   if (status === "valide") {
-    updates.validated_by = member?.id || null;
+    updates.validated_by = memberId;
     updates.payment_date = new Date().toISOString().split("T")[0];
     if (paymentMode) updates.payment_mode = paymentMode;
   }

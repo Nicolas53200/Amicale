@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { createClient } from "@/lib/supabase/client";
+import { getOrgIdClient } from "@/lib/auth-client";
 
 interface Document {
   id: string;
@@ -45,10 +46,10 @@ export function ModuleDocuments({
     setSubmitting(true);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const orgId = await getOrgIdClient();
 
     await supabase.from("documents").insert({
-      org_id: user?.user_metadata?.org_id,
+      org_id: orgId,
       commission_id: commissionId,
       title: title.trim(),
       created_by: null,

@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { StatCard } from "@/components/ui/stat-card";
+import { GradientHeader } from "@/components/layout/gradient-header";
 import { EventCard } from "@/components/events/event-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { getEvents } from "@/lib/actions/events";
@@ -19,25 +18,39 @@ export default async function EvenementsPage() {
   );
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-content-primary">
-            Événements
-          </h1>
-          <p className="text-sm text-content-secondary">
-            Gérez les événements de votre amicale
-          </p>
+    <div className="flex flex-col gap-4">
+      <GradientHeader
+        title="Événements"
+        subtitle="Gérez les événements de votre amicale"
+        backHref="/bureau/dashboard"
+      />
+
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-[14px] bg-surface-elevated p-3 shadow-sm">
+          <p className="text-[10px] font-semibold uppercase text-content-muted">Total</p>
+          <p className="mt-1 text-xl font-bold tabular-nums text-content-primary">{total}</p>
         </div>
-        <Button asChild>
-          <Link href="/bureau/evenements/new">Nouvel événement</Link>
-        </Button>
+        <div className="rounded-[14px] bg-surface-elevated p-3 shadow-sm">
+          <p className="text-[10px] font-semibold uppercase text-content-muted">À venir</p>
+          <p className="mt-1 text-xl font-bold tabular-nums text-brand-500">{upcoming}</p>
+        </div>
+        <div className="rounded-[14px] bg-surface-elevated p-3 shadow-sm">
+          <p className="text-[10px] font-semibold uppercase text-content-muted">Inscrits</p>
+          <p className="mt-1 text-xl font-bold tabular-nums text-content-primary">{totalInscrits}</p>
+        </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="Total" value={String(total)} icon="📅" />
-        <StatCard label="À venir" value={String(upcoming)} icon="🔜" />
-        <StatCard label="Inscrits" value={String(totalInscrits)} icon="👥" />
+      <div className="flex items-center justify-between">
+        <h3 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
+          Tous les événements
+        </h3>
+        <Link
+          href="/bureau/evenements/new"
+          className="btn-gradient rounded-full px-4 py-2 text-[12px] font-semibold text-white"
+        >
+          + Nouveau
+        </Link>
       </div>
 
       {events.length === 0 ? (

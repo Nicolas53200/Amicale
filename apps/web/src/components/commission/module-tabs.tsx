@@ -5,6 +5,23 @@ import { ModuleCompta } from "./module-compta";
 import { ModuleDocuments } from "./module-documents";
 import { ModuleMembres } from "./module-membres";
 import { ModuleNotifications } from "./module-notifications";
+import { ModuleEvenements } from "./module-evenements";
+import { ModuleVoyages } from "./module-voyages";
+import { ModuleLocations } from "./module-locations";
+import { NoelBureau } from "./noel-bureau";
+import { NoelAmicaliste } from "./noel-amicaliste";
+import { FdfBureau } from "./fdf-bureau";
+import { FdfAmicaliste } from "./fdf-amicaliste";
+import { SainteBarbeBureau } from "./saintebarbe-bureau";
+import { SainteBarbeAmicaliste } from "./saintebarbe-amicaliste";
+import { SolidariteBureau } from "./solidarite-bureau";
+import { SolidariteAmicaliste } from "./solidarite-amicaliste";
+import { FoyerBureau } from "./foyer-bureau";
+import { FoyerAmicaliste } from "./foyer-amicaliste";
+import { SportBureau } from "./sport-bureau";
+import { SportAmicaliste } from "./sport-amicaliste";
+import { CalendriersBureau } from "./calendriers-bureau";
+import { CalendriersAmicaliste } from "./calendriers-amicaliste";
 
 interface ModuleTabsProps {
   commissionId: string;
@@ -15,11 +32,42 @@ interface ModuleTabsProps {
 }
 
 const TAB_CONFIG: Record<string, { label: string; icon: string }> = {
+  evenements: { label: "Événements", icon: "📅" },
+  voyages: { label: "Voyages", icon: "✈️" },
+  locations: { label: "Locations", icon: "🏠" },
   compta: { label: "Comptabilité", icon: "💰" },
   documents: { label: "Documents", icon: "📄" },
   membres: { label: "Membres", icon: "👥" },
   notifications: { label: "Notifications", icon: "🔔" },
 };
+
+const SPECIALIZED_KEYWORDS: Record<string, string> = {
+  "noel": "noel",
+  "noël": "noel",
+  "arbre": "noel",
+  "fdf": "fdf",
+  "femmes": "fdf",
+  "fête des femmes": "fdf",
+  "sainte-barbe": "saintebarbe",
+  "sainte barbe": "saintebarbe",
+  "saintebarbe": "saintebarbe",
+  "solidarite": "solidarite",
+  "solidarité": "solidarite",
+  "action sociale": "solidarite",
+  "foyer": "foyer",
+  "sport": "sport",
+  "sportive": "sport",
+  "calendrier": "calendriers",
+  "calendriers": "calendriers",
+};
+
+function detectSpecialized(name: string): string | null {
+  const lower = name.toLowerCase();
+  for (const [keyword, type] of Object.entries(SPECIALIZED_KEYWORDS)) {
+    if (lower.includes(keyword)) return type;
+  }
+  return null;
+}
 
 export function ModuleTabs({
   commissionId,
@@ -28,12 +76,36 @@ export function ModuleTabs({
   budget,
   isReadOnly = false,
 }: ModuleTabsProps) {
+  const specialized = detectSpecialized(commissionName);
+
+  if (specialized) {
+    if (isReadOnly) {
+      switch (specialized) {
+        case "noel": return <NoelAmicaliste commissionId={commissionId} />;
+        case "fdf": return <FdfAmicaliste commissionId={commissionId} />;
+        case "saintebarbe": return <SainteBarbeAmicaliste commissionId={commissionId} />;
+        case "solidarite": return <SolidariteAmicaliste commissionId={commissionId} />;
+        case "foyer": return <FoyerAmicaliste commissionId={commissionId} />;
+        case "sport": return <SportAmicaliste commissionId={commissionId} />;
+        case "calendriers": return <CalendriersAmicaliste commissionId={commissionId} />;
+      }
+    } else {
+      switch (specialized) {
+        case "noel": return <NoelBureau commissionId={commissionId} budget={budget} />;
+        case "fdf": return <FdfBureau commissionId={commissionId} budget={budget} />;
+        case "saintebarbe": return <SainteBarbeBureau commissionId={commissionId} budget={budget} />;
+        case "solidarite": return <SolidariteBureau commissionId={commissionId} budget={budget} />;
+        case "foyer": return <FoyerBureau commissionId={commissionId} budget={budget} />;
+        case "sport": return <SportBureau commissionId={commissionId} budget={budget} />;
+        case "calendriers": return <CalendriersBureau commissionId={commissionId} budget={budget} />;
+      }
+    }
+  }
+
   const activeFeatures = features.filter((f) => f in TAB_CONFIG);
   if (activeFeatures.length === 0) return null;
 
-  const defaultTab = activeFeatures.includes("compta")
-    ? "compta"
-    : activeFeatures[0]!;
+  const defaultTab = activeFeatures[0]!;
 
   return (
     <Tabs defaultValue={defaultTab}>
@@ -45,6 +117,24 @@ export function ModuleTabs({
           </TabsTrigger>
         ))}
       </TabsList>
+
+      {activeFeatures.includes("evenements") && (
+        <TabsContent value="evenements">
+          <ModuleEvenements commissionId={commissionId} isReadOnly={isReadOnly} />
+        </TabsContent>
+      )}
+
+      {activeFeatures.includes("voyages") && (
+        <TabsContent value="voyages">
+          <ModuleVoyages commissionId={commissionId} isReadOnly={isReadOnly} />
+        </TabsContent>
+      )}
+
+      {activeFeatures.includes("locations") && (
+        <TabsContent value="locations">
+          <ModuleLocations commissionId={commissionId} isReadOnly={isReadOnly} />
+        </TabsContent>
+      )}
 
       {activeFeatures.includes("compta") && (
         <TabsContent value="compta">

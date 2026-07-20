@@ -10,6 +10,7 @@ import { createMember } from "@/lib/actions/members";
 export function InviteForm({ onSuccess }: { onSuccess?: () => void }) {
   const [submitting, setSubmitting] = useState(false);
   const [invitationCode, setInvitationCode] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -23,7 +24,17 @@ export function InviteForm({ onSuccess }: { onSuccess?: () => void }) {
     onSuccess?.();
   }
 
+  function copyLink() {
+    if (!invitationCode) return;
+    const url = `${window.location.origin}/invitation/${invitationCode}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   if (invitationCode) {
+    const inviteUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/invitation/${invitationCode}`;
+
     return (
       <Card>
         <CardHeader>
@@ -34,18 +45,33 @@ export function InviteForm({ onSuccess }: { onSuccess?: () => void }) {
             ✓
           </div>
           <p className="text-sm text-content-secondary">
-            Code d&apos;invitation :
+            Lien d&apos;invitation :
           </p>
-          <p className="rounded-lg bg-surface-secondary px-6 py-3 font-mono text-lg font-bold text-content-primary">
-            {invitationCode}
+          <div className="flex w-full items-center gap-2 rounded-[12px] bg-surface-secondary px-3 py-2.5">
+            <p className="flex-1 truncate text-[13px] font-medium text-content-primary">
+              {inviteUrl}
+            </p>
+            <button
+              type="button"
+              onClick={copyLink}
+              className="shrink-0 rounded-[8px] bg-brand-500 px-3 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-brand-600"
+            >
+              {copied ? "Copié !" : "Copier"}
+            </button>
+          </div>
+          <p className="text-[11px] text-content-muted">
+            Code : <span className="font-mono font-bold">{invitationCode}</span>
           </p>
           <p className="max-w-xs text-center text-xs text-content-muted">
-            Partagez ce code avec le membre pour qu&apos;il puisse rejoindre
-            l&apos;amicale.
+            Partagez ce lien avec le membre pour qu&apos;il puisse créer son
+            compte et rejoindre l&apos;amicale.
           </p>
           <Button
             variant="secondary"
-            onClick={() => setInvitationCode(null)}
+            onClick={() => {
+              setInvitationCode(null);
+              setCopied(false);
+            }}
           >
             Inviter un autre membre
           </Button>

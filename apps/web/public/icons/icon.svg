@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#FF6B35"/>
+  <g transform="translate(256,256)">
+    <!-- Flame/shield shape -->
+    <path d="M0-140 C60-140 110-100 110-40 C110 40 60 120 0 160 C-60 120 -110 40 -110-40 C-110-100 -60-140 0-140Z" fill="white" opacity="0.95"/>
+    <!-- Letter A -->
+    <text x="0" y="45" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="180" fill="#FF6B35">A</text>
+  </g>
+</svg>

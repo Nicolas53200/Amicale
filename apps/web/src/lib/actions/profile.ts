@@ -57,6 +57,31 @@ export async function updateProfile(formData: FormData) {
   revalidatePath("/bureau/profil");
 }
 
+export async function updateMemberAvatarUrl(avatarUrl: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Non authentifié");
+
+  const { data: member } = await supabase
+    .from("members")
+    .select("id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!member) throw new Error("Membre non trouvé");
+
+  const { error } = await supabase
+    .from("members")
+    .update({ avatar_url: avatarUrl })
+    .eq("id", member.id);
+
+  if (error) throw error;
+  revalidatePath("/amicaliste/profil");
+  revalidatePath("/bureau/profil");
+}
+
 export async function updatePassword(currentPassword: string, newPassword: string) {
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password: newPassword });
