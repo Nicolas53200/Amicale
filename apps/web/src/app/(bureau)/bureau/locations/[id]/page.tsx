@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { AssetActions } from "@/components/assets/asset-actions";
 import { BookingCalendar } from "@/components/assets/booking-calendar";
 import { PhotoManager } from "@/components/assets/photo-manager";
+import { BookingActions } from "@/components/assets/booking-actions";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -130,7 +131,7 @@ export default async function LocationDetailPage({
                     {fmt(b.total_amount)}
                   </p>
                 </div>
-                <Badge variant="warning">En attente</Badge>
+                <BookingActions bookingId={b.id} />
               </div>
             ))}
           </div>
