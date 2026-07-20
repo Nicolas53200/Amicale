@@ -253,7 +253,7 @@ export default async function AccueilPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[14px] font-semibold text-content-primary">
-                      {t.destination}
+                      {(t as Record<string, unknown>).name as string || t.destination}
                     </p>
                     <p className="text-[12px] text-content-muted">
                       {d.toLocaleDateString("fr-FR", {

@@ -143,12 +143,12 @@ export default async function DashboardPage() {
         .select("id")
         .gte("start_date", nowISO),
       supabase
-        .from("locations")
+        .from("assets")
         .select("id"),
       supabase
         .from("accounting_entries")
         .select("id")
-        .eq("status", "en_attente"),
+        .eq("status", "attente"),
     ]);
 
   const members = membersRes.data ?? [];
