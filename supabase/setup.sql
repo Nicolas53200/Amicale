@@ -489,15 +489,18 @@ CREATE OR REPLACE FUNCTION public.create_default_commissions(p_org_id UUID)
 RETURNS VOID AS $$
 BEGIN
   INSERT INTO commissions (org_id, name, model, icon, color, budget, is_fixed, description) VALUES
+    (p_org_id, 'Calendriers', 'simple', '📅', '#EF4444', 6000, true, 'Campagne de vente de calendriers'),
     (p_org_id, 'Événements', 'evenement', '🎉', '#FF6B35', 5000, true, 'Organisation des événements festifs et sportifs'),
     (p_org_id, 'Voyages', 'voyage', '✈️', '#3B82F6', 8000, true, 'Organisation des voyages et sorties'),
     (p_org_id, 'Locations', 'location', '🏠', '#10B981', 2000, true, 'Gestion des biens locatifs'),
     (p_org_id, 'Sport', 'simple', '⚽', '#8B5CF6', 1500, true, 'Activités sportives et tournois'),
-    (p_org_id, 'Noël', 'simple', '🎄', '#EF4444', 3000, true, 'Organisation des fêtes de Noël'),
-    (p_org_id, 'Fête des familles', 'simple', '👨‍👩‍👧‍👦', '#F59E0B', 2000, true, 'Journée annuelle des familles'),
+    (p_org_id, 'Noël', 'simple', '🎄', '#1A6B3A', 3000, true, 'Organisation de l''arbre de Noël'),
+    (p_org_id, 'Fête des Femmes', 'simple', '💐', '#E91E8C', 800, true, 'Bons cadeaux et prestataires pour la Fête des Femmes'),
     (p_org_id, 'Sainte-Barbe', 'simple', '🔥', '#DC2626', 4000, true, 'Organisation de la Sainte-Barbe'),
-    (p_org_id, 'Solidarité', 'simple', '🤝', '#06B6D4', 1000, true, 'Actions de solidarité entre membres'),
-    (p_org_id, 'Foyer', 'simple', '☕', '#78716C', 500, true, 'Gestion du foyer et des consommations');
+    (p_org_id, 'Solidarité', 'simple', '🤝', '#1D4ED8', 1000, true, 'Actions de solidarité entre membres'),
+    (p_org_id, 'Foyer', 'simple', '☕', '#78716C', 500, true, 'Gestion du foyer et des consommations'),
+    (p_org_id, 'JSP', 'simple', '🎓', '#3B82F6', 0, true, 'Jeunes Sapeurs-Pompiers'),
+    (p_org_id, 'Anciens SP', 'simple', '🏅', '#8B5CF6', 0, true, 'Anciens Sapeurs-Pompiers et mémoire');
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -569,15 +572,18 @@ INSERT INTO organizations (id, name, slug, plan, settings) VALUES (
 );
 
 INSERT INTO commissions (id, org_id, name, model, icon, color, budget, features, is_fixed, description) VALUES
-  ('c0000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Événements', 'evenement', '🎉', '#FF6B35', 5000, '["notifications","documents","compta","membres"]', true, 'Organisation des événements festifs et sportifs'),
-  ('c0000002-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Voyages', 'voyage', '✈️', '#3B82F6', 8000, '["notifications","documents","compta","membres"]', true, 'Organisation des voyages et sorties'),
-  ('c0000003-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Locations', 'location', '🏠', '#10B981', 2000, '["notifications","documents","compta","membres"]', true, 'Gestion des biens locatifs de l''amicale'),
-  ('c0000004-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111', 'Sport', 'simple', '⚽', '#8B5CF6', 1500, '["notifications","documents","compta","membres"]', true, 'Activités sportives et tournois'),
-  ('c0000005-0000-0000-0000-000000000005', '11111111-1111-1111-1111-111111111111', 'Noël', 'simple', '🎄', '#EF4444', 3000, '["notifications","documents","compta","membres"]', true, 'Organisation des fêtes de Noël'),
-  ('c0000006-0000-0000-0000-000000000006', '11111111-1111-1111-1111-111111111111', 'Fête des familles', 'simple', '👨‍👩‍👧‍👦', '#F59E0B', 2000, '["notifications","documents","compta","membres"]', true, 'Journée annuelle des familles'),
-  ('c0000007-0000-0000-0000-000000000007', '11111111-1111-1111-1111-111111111111', 'Sainte-Barbe', 'simple', '🔥', '#DC2626', 4000, '["notifications","documents","compta","membres"]', true, 'Organisation de la Sainte-Barbe'),
-  ('c0000008-0000-0000-0000-000000000008', '11111111-1111-1111-1111-111111111111', 'Solidarité', 'simple', '🤝', '#06B6D4', 1000, '["notifications","documents","compta","membres"]', true, 'Actions de solidarité entre membres'),
-  ('c0000009-0000-0000-0000-000000000009', '11111111-1111-1111-1111-111111111111', 'Foyer', 'simple', '☕', '#78716C', 500, '["notifications","documents","compta","membres"]', true, 'Gestion du foyer et des consommations');
+  ('c0000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Calendriers', 'simple', '📅', '#EF4444', 6000, '["notifications","documents","compta","membres"]', true, 'Campagne de vente de calendriers'),
+  ('c0000002-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Événements', 'evenement', '🎉', '#FF6B35', 5000, '["notifications","documents","compta","membres"]', true, 'Organisation des événements festifs et sportifs'),
+  ('c0000003-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Voyages', 'voyage', '✈️', '#3B82F6', 8000, '["notifications","documents","compta","membres"]', true, 'Organisation des voyages et sorties'),
+  ('c0000004-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111', 'Locations', 'location', '🏠', '#10B981', 2000, '["notifications","documents","compta","membres"]', true, 'Gestion des biens locatifs de l''amicale'),
+  ('c0000005-0000-0000-0000-000000000005', '11111111-1111-1111-1111-111111111111', 'Sport', 'simple', '⚽', '#8B5CF6', 1500, '["notifications","documents","compta","membres"]', true, 'Activités sportives et tournois'),
+  ('c0000006-0000-0000-0000-000000000006', '11111111-1111-1111-1111-111111111111', 'Noël', 'simple', '🎄', '#1A6B3A', 3000, '["notifications","documents","compta","membres"]', true, 'Organisation de l''arbre de Noël'),
+  ('c0000007-0000-0000-0000-000000000007', '11111111-1111-1111-1111-111111111111', 'Fête des Femmes', 'simple', '💐', '#E91E8C', 800, '["notifications","documents","compta","membres"]', true, 'Bons cadeaux et prestataires pour la Fête des Femmes'),
+  ('c0000008-0000-0000-0000-000000000008', '11111111-1111-1111-1111-111111111111', 'Sainte-Barbe', 'simple', '🔥', '#DC2626', 4000, '["notifications","documents","compta","membres"]', true, 'Organisation de la Sainte-Barbe'),
+  ('c0000009-0000-0000-0000-000000000009', '11111111-1111-1111-1111-111111111111', 'Solidarité', 'simple', '🤝', '#1D4ED8', 1000, '["notifications","documents","compta","membres"]', true, 'Actions de solidarité entre membres'),
+  ('c0000010-0000-0000-0000-000000000010', '11111111-1111-1111-1111-111111111111', 'Foyer', 'simple', '☕', '#78716C', 500, '["notifications","documents","compta","membres"]', true, 'Gestion du foyer et des consommations'),
+  ('c0000011-0000-0000-0000-000000000011', '11111111-1111-1111-1111-111111111111', 'JSP', 'simple', '🎓', '#3B82F6', 0, '["notifications","documents","compta","membres"]', true, 'Jeunes Sapeurs-Pompiers'),
+  ('c0000012-0000-0000-0000-000000000012', '11111111-1111-1111-1111-111111111111', 'Anciens SP', 'simple', '🏅', '#8B5CF6', 0, '["notifications","documents","compta","membres"]', true, 'Anciens Sapeurs-Pompiers et mémoire');
 
 INSERT INTO members (id, org_id, first_name, last_name, email, phone, role, status, grade, centre, is_bureau, bureau_role, onboarding_completed, invitation_code) VALUES
   ('b0000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Nicolas', 'Morel', 'nicolas.morel53@hotmail.fr', '06 12 34 56 78', 'president', 'actif', 'Adjudant-chef', 'CIS Laval', true, 'Président', true, 'INVITE-NICOLAS'),
