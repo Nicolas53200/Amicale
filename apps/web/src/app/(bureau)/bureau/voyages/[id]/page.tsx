@@ -3,8 +3,8 @@ import Link from "next/link";
 import { getTrip } from "@/lib/actions/trips";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/ui/avatar";
 import { TripActions } from "@/components/trips/trip-actions";
+import { TripRegistrationManager } from "@/components/trips/trip-registration-manager";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -158,50 +158,12 @@ export default async function VoyageDetailPage({
         </div>
       )}
 
-      {/* Inscrits */}
-      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
-          Inscrits ({registrations.length}
-          {trip.max_seats ? ` / ${trip.max_seats}` : ""})
-        </h3>
-        {registrations.length === 0 ? (
-          <p className="py-2 text-center text-[13px] text-content-muted">Aucun inscrit</p>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {registrations.map((r: { member_id: string; nb_adults: number; nb_children: number; total_amount: number; payment_status: string; members: { first_name: string; last_name: string; avatar_url: string | null } }) => (
-              <div key={r.member_id} className="flex items-center gap-3 rounded-[10px] bg-surface-secondary p-2.5">
-                <Avatar
-                  name={`${r.members.first_name} ${r.members.last_name}`}
-                  src={r.members.avatar_url}
-                  size="sm"
-                />
-                <div className="flex-1">
-                  <p className="text-[13px] font-medium text-content-primary">
-                    {r.members.first_name} {r.members.last_name}
-                  </p>
-                  <p className="text-[11px] text-content-muted">
-                    {r.nb_adults} adulte{r.nb_adults > 1 ? "s" : ""}
-                    {r.nb_children > 0 && `, ${r.nb_children} enfant${r.nb_children > 1 ? "s" : ""}`}
-                    {" · "}
-                    {fmt(r.total_amount)}
-                  </p>
-                </div>
-                <Badge
-                  variant={
-                    r.payment_status === "paye"
-                      ? "success"
-                      : r.payment_status === "en_attente"
-                      ? "warning"
-                      : "neutral"
-                  }
-                >
-                  {r.payment_status === "paye" ? "Paye" : r.payment_status === "en_attente" ? "En attente" : r.payment_status}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Registration manager with validation workflow */}
+      <TripRegistrationManager
+        tripId={id}
+        registrations={registrations}
+        maxSeats={trip.max_seats}
+      />
     </div>
   );
 }

@@ -153,6 +153,110 @@ export async function deleteTrip(id: string) {
   revalidatePath("/amicaliste/voyages");
 }
 
+// ── Bureau: trip inscription management ──
+
+export async function validateTripRegistration(
+  tripId: string,
+  memberId: string
+) {
+  await requireBureau();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("trip_registrations")
+    .update({ status: "acceptee" })
+    .eq("trip_id", tripId)
+    .eq("member_id", memberId);
+  if (error) throw error;
+
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("destination, name, org_id")
+    .eq("id", tripId)
+    .single();
+
+  if (trip) {
+    const { data: reg } = await supabase
+      .from("trip_registrations")
+      .select("nb_adults, nb_children, members:member_id(first_name, last_name)")
+      .eq("trip_id", tripId)
+      .eq("member_id", memberId)
+      .single();
+    const m = reg?.members as { first_name: string; last_name: string } | null;
+    const name = m ? `${m.first_name} ${m.last_name}` : "Un membre";
+    const tripName = trip.name || trip.destination;
+    const nbPers = (reg?.nb_adults || 0) + (reg?.nb_children || 0);
+    await sendNotification({
+      orgId: trip.org_id,
+      title: `Confirmation inscription — ${tripName}`,
+      message: `Votre inscription pour "${tripName}" a ete confirmee (${nbPers} personne${nbPers > 1 ? "s" : ""}).`,
+      targetMemberId: memberId,
+      type: "voyage",
+    });
+  }
+
+  revalidatePath(`/bureau/voyages/${tripId}`);
+}
+
+export async function refuseTripRegistration(
+  tripId: string,
+  memberId: string
+) {
+  await requireBureau();
+  const supabase = await createClient();
+
+  const { data: reg } = await supabase
+    .from("trip_registrations")
+    .select("members:member_id(first_name, last_name)")
+    .eq("trip_id", tripId)
+    .eq("member_id", memberId)
+    .single();
+
+  const { error } = await supabase
+    .from("trip_registrations")
+    .update({ status: "refusee" })
+    .eq("trip_id", tripId)
+    .eq("member_id", memberId);
+  if (error) throw error;
+
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("destination, name, org_id")
+    .eq("id", tripId)
+    .single();
+
+  if (trip) {
+    const m = reg?.members as { first_name: string; last_name: string } | null;
+    const name = m ? `${m.first_name} ${m.last_name}` : "Un membre";
+    const tripName = trip.name || trip.destination;
+    await sendNotification({
+      orgId: trip.org_id,
+      title: `Inscription refusee — ${tripName}`,
+      message: `L'inscription de ${name} au voyage "${tripName}" a ete refusee.`,
+      targetMemberId: memberId,
+      type: "voyage",
+    });
+  }
+
+  revalidatePath(`/bureau/voyages/${tripId}`);
+}
+
+export async function deleteTripRegistration(
+  tripId: string,
+  memberId: string
+) {
+  await requireBureau();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("trip_registrations")
+    .delete()
+    .eq("trip_id", tripId)
+    .eq("member_id", memberId);
+  if (error) throw error;
+  revalidatePath(`/bureau/voyages/${tripId}`);
+  revalidatePath(`/amicaliste/voyages/${tripId}`);
+}
+
 export async function cancelTripRegistration(tripId: string) {
   const supabase = await createClient();
   const {

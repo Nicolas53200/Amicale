@@ -17,10 +17,15 @@ import { useToast } from "@/components/ui/toast";
 
 const BENEVOLE_ROLES = [
   { value: "", label: "Non" },
-  { value: "cuisine", label: "Cuisine" },
-  { value: "service", label: "Service" },
-  { value: "installation", label: "Installation" },
-  { value: "rangement", label: "Rangement" },
+  { value: "Accueil", label: "Accueil" },
+  { value: "Service table", label: "Service table" },
+  { value: "Buvette", label: "Buvette" },
+  { value: "Cuisine", label: "Cuisine" },
+  { value: "Sécurité", label: "Sécurité" },
+  { value: "Logistique", label: "Logistique" },
+  { value: "Arbitrage", label: "Arbitrage" },
+  { value: "Animation", label: "Animation" },
+  { value: "__autre__", label: "Autre (préciser)" },
 ] as const;
 
 interface ChildInfo {
@@ -80,6 +85,7 @@ export function EventInscriptionModal({
   const [nbAdultes, setNbAdultes] = useState(1);
   const [selectedChildren, setSelectedChildren] = useState<number[]>([]);
   const [benevoleRole, setBenevoleRole] = useState("");
+  const [autrePoste, setAutrePoste] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { showToast } = useToast();
 
@@ -88,6 +94,7 @@ export function EventInscriptionModal({
       setNbAdultes(1);
       setSelectedChildren([]);
       setBenevoleRole("");
+      setAutrePoste("");
     }
   }, [open]);
 
@@ -111,12 +118,13 @@ export function EventInscriptionModal({
   async function handleSubmit() {
     setSubmitting(true);
     try {
+      const finalRole = benevoleRole === "__autre__" ? (autrePoste.trim() || "Bénévole") : (benevoleRole || undefined);
       await registerForEvent(eventId, {
         nbAdultes,
         nbEnfants,
         enfantsIdx: selectedChildren,
         totalPersonnes,
-        isBenevole: benevoleRole || undefined,
+        isBenevole: finalRole,
       });
       showToast(
         `Inscription confirmee — ${totalPersonnes} personne${totalPersonnes > 1 ? "s" : ""}`,
@@ -264,6 +272,15 @@ export function EventInscriptionModal({
                   </option>
                 ))}
               </Select>
+              {benevoleRole === "__autre__" && (
+                <input
+                  type="text"
+                  value={autrePoste}
+                  onChange={(e) => setAutrePoste(e.target.value)}
+                  placeholder="Precisez le poste..."
+                  className="mt-2 w-full rounded-[10px] border border-border bg-surface-secondary px-3 py-2 text-[13px] text-content-primary placeholder:text-content-muted"
+                />
+              )}
               {benevolesFull && !benevoleRole && (
                 <p className="mt-1 text-[11px] text-content-muted">
                   Toutes les places benevoles sont prises

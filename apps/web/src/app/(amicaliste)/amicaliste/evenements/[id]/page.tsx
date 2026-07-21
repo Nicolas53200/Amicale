@@ -45,6 +45,8 @@ interface EventData {
     member_id: string;
     nb_personnes: number;
     is_benevole: string | null;
+    benevole_poste: string | null;
+    benevole_status: string | null;
     status: string;
     members: { first_name: string; last_name: string };
   }[];
@@ -78,6 +80,7 @@ export default function EvenementDetailPage() {
         "*, event_registrations(*, members:member_id(first_name, last_name))"
       )
       .eq("id", id)
+      .eq("published", true)
       .single();
     if (data) setEvent(data as EventData);
   }
@@ -128,6 +131,8 @@ export default function EvenementDetailPage() {
   );
   const inscrits = event.event_registrations.filter((r) => !r.is_benevole);
   const benevoles = event.event_registrations.filter((r) => r.is_benevole);
+  const benevolesValides = benevoles.filter((r) => r.benevole_status === "valide");
+  const benevolesAttente = benevoles.filter((r) => r.benevole_status === "attente" || !r.benevole_status);
   const totalInscrits = inscrits.reduce((s, r) => s + r.nb_personnes, 0);
   const isFull = event.max_attendees ? totalInscrits >= event.max_attendees : false;
   const d = new Date(event.date);
@@ -296,23 +301,52 @@ export default function EvenementDetailPage() {
             </button>
             {benevolesSectionOpen && (
               <div className="px-4 pb-4">
-                {benevoles.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {benevoles.map((r) => (
-                      <div key={r.member_id} className="flex items-center gap-1.5 rounded-[10px] bg-surface-secondary px-2.5 py-1.5">
-                        <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-[#F59E0B] text-[9px] font-bold text-white">
-                          {r.members.first_name[0]}{r.members.last_name[0]}
+                {benevolesValides.length > 0 && (
+                  <div className="mb-3">
+                    <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
+                      Confirmes ({benevolesValides.length})
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {benevolesValides.map((r) => (
+                        <div key={r.member_id} className="flex items-center gap-1.5 rounded-[10px] bg-emerald-50 px-2.5 py-1.5 dark:bg-emerald-500/10">
+                          <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white">
+                            {r.members.first_name[0]}{r.members.last_name[0]}
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold text-content-primary">
+                              {r.members.first_name} {r.members.last_name}
+                            </p>
+                            <p className="text-[9px] text-emerald-600 dark:text-emerald-400">
+                              {r.benevole_poste || r.is_benevole}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-[11px] font-semibold text-content-primary">
-                            {r.members.first_name} {r.members.last_name}
-                          </p>
-                          {r.is_benevole && r.is_benevole !== "benevole" && (
-                            <p className="text-[9px] text-content-muted capitalize">{r.is_benevole}</p>
-                          )}
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {benevolesAttente.length > 0 && (
+                  <div className="mb-3">
+                    <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-600">
+                      En attente ({benevolesAttente.length})
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {benevolesAttente.map((r) => (
+                        <div key={r.member_id} className="flex items-center gap-1.5 rounded-[10px] bg-amber-50 px-2.5 py-1.5 dark:bg-amber-500/10">
+                          <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-[#F59E0B] text-[9px] font-bold text-white">
+                            {r.members.first_name[0]}{r.members.last_name[0]}
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold text-content-primary">
+                              {r.members.first_name} {r.members.last_name}
+                            </p>
+                            <p className="text-[9px] text-amber-600 dark:text-amber-400">
+                              {r.benevole_poste || r.is_benevole} — en attente
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -411,8 +445,13 @@ export default function EvenementDetailPage() {
             <>
               <div className="rounded-[12px] bg-surface-elevated p-3 text-center">
                 <p className="text-[13px] font-medium text-content-primary">
-                  Vous êtes inscrit{myRegistration.is_benevole ? ` (${myRegistration.is_benevole})` : ""}
+                  Vous etes inscrit{myRegistration.is_benevole ? ` (${myRegistration.benevole_poste || myRegistration.is_benevole})` : ""}
                 </p>
+                {myRegistration.benevole_status && (
+                  <p className={`text-[11px] font-semibold ${myRegistration.benevole_status === "valide" ? "text-emerald-600" : myRegistration.benevole_status === "refuse" ? "text-red-500" : "text-amber-600"}`}>
+                    {myRegistration.benevole_status === "valide" ? "Candidature validee" : myRegistration.benevole_status === "refuse" ? "Candidature refusee" : "Candidature en attente"}
+                  </p>
+                )}
                 <p className="text-[11px] text-content-muted">
                   {myRegistration.nb_personnes} pers.
                   {event.price > 0 && ` · ${fmt(event.price * myRegistration.nb_personnes)}`}
