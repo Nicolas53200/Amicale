@@ -69,6 +69,13 @@ export async function createEvent(formData: FormData) {
     icon: (formData.get("icon") as string) || null,
     color: (formData.get("color") as string) || null,
     published: formData.get("published") !== "false",
+    children_allowed: formData.get("children_allowed") === "true",
+    child_age_limit: formData.get("child_age_limit")
+      ? parseInt(formData.get("child_age_limit") as string)
+      : 16,
+    max_adults_per_household: formData.get("max_adults_per_household")
+      ? parseInt(formData.get("max_adults_per_household") as string)
+      : 6,
   });
 
   if (error) throw error;
@@ -76,7 +83,15 @@ export async function createEvent(formData: FormData) {
   revalidatePath("/amicaliste/evenements");
 }
 
-export async function registerForEvent(eventId: string, nbPersonnes = 1, isBenevole?: string) {
+interface RegisterEventParams {
+  nbAdultes: number;
+  nbEnfants?: number;
+  enfantsIdx?: number[];
+  totalPersonnes: number;
+  isBenevole?: string;
+}
+
+export async function registerForEvent(eventId: string, params: RegisterEventParams) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -95,8 +110,11 @@ export async function registerForEvent(eventId: string, nbPersonnes = 1, isBenev
     {
       event_id: eventId,
       member_id: member.id,
-      nb_personnes: nbPersonnes,
-      is_benevole: isBenevole || null,
+      nb_personnes: params.totalPersonnes,
+      nb_adultes: params.nbAdultes,
+      nb_enfants: params.nbEnfants ?? 0,
+      enfants_idx: params.enfantsIdx ?? [],
+      is_benevole: params.isBenevole || null,
       status: "inscrit",
     },
     { onConflict: "event_id,member_id" }
@@ -119,10 +137,11 @@ export async function registerForEvent(eventId: string, nbPersonnes = 1, isBenev
     const name = memberInfo
       ? `${memberInfo.first_name} ${memberInfo.last_name}`
       : "Un membre";
+    const personnesStr = `${params.totalPersonnes} personne${params.totalPersonnes > 1 ? "s" : ""}`;
     await sendNotification({
       orgId: event.org_id,
       title: `Inscription — ${event.title}`,
-      message: `${name} s'est inscrit(e) à l'événement "${event.title}"${isBenevole ? " en tant que bénévole" : ""}.`,
+      message: `${name} s'est inscrit(e) à l'événement "${event.title}" (${personnesStr})${params.isBenevole ? " en tant que bénévole" : ""}.`,
       commissionId: event.commission_id,
       type: "event",
     });
@@ -158,6 +177,13 @@ export async function updateEvent(id: string, formData: FormData) {
       icon: (formData.get("icon") as string) || null,
       color: (formData.get("color") as string) || null,
       published: formData.get("published") !== "false",
+      children_allowed: formData.get("children_allowed") === "true",
+      child_age_limit: formData.get("child_age_limit")
+        ? parseInt(formData.get("child_age_limit") as string)
+        : 16,
+      max_adults_per_household: formData.get("max_adults_per_household")
+        ? parseInt(formData.get("max_adults_per_household") as string)
+        : 6,
     })
     .eq("id", id);
 

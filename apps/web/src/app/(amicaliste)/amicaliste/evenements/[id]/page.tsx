@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { cancelRegistration } from "@/lib/actions/events";
 import { Badge } from "@/components/ui/badge";
-import { EventInscriptionModal } from "@/components/events/event-inscription-modal";
+import { EventInscriptionModal, computeAge } from "@/components/events/event-inscription-modal";
 import { useToast } from "@/components/ui/toast";
 
 const fmt = (n: number) =>
@@ -38,6 +38,9 @@ interface EventData {
   max_attendees: number | null;
   max_benevoles: number | null;
   category: string | null;
+  children_allowed: boolean;
+  child_age_limit: number | null;
+  max_adults_per_household: number | null;
   event_registrations: {
     member_id: string;
     nb_personnes: number;
@@ -47,12 +50,20 @@ interface EventData {
   }[];
 }
 
+interface MemberWithChildren {
+  id: string;
+  nb_enfants: number;
+  enfants_noms: string[];
+  enfants_naiss: string[];
+}
+
 export default function EvenementDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
   const [event, setEvent] = useState<EventData | null>(null);
   const [myMemberId, setMyMemberId] = useState<string | null>(null);
+  const [myMember, setMyMember] = useState<MemberWithChildren | null>(null);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [inscritsSectionOpen, setInscritsSectionOpen] = useState(false);
@@ -77,10 +88,13 @@ export default function EvenementDetailPage() {
     if (!user) return;
     const { data } = await supabase
       .from("members")
-      .select("id")
+      .select("id, nb_enfants, enfants_noms, enfants_naiss")
       .eq("user_id", user.id)
       .single();
-    if (data) setMyMemberId(data.id);
+    if (data) {
+      setMyMemberId(data.id);
+      setMyMember(data as MemberWithChildren);
+    }
   }
 
   useEffect(() => {
@@ -453,6 +467,20 @@ export default function EvenementDetailPage() {
         currentInscrits={totalInscrits}
         maxBenevoles={event.max_benevoles}
         currentBenevoles={benevoles.length}
+        childrenAllowed={event.children_allowed}
+        childAgeLimit={event.child_age_limit ?? 16}
+        maxAdultsPerHousehold={event.max_adults_per_household ?? 6}
+        memberChildren={
+          myMember
+            ? ((myMember.enfants_noms as string[]) || []).map((name, i) => ({
+                index: i,
+                name,
+                age: ((myMember.enfants_naiss as string[]) || [])[i]
+                  ? computeAge(((myMember.enfants_naiss as string[]) || [])[i]!)
+                  : null,
+              }))
+            : []
+        }
         onSuccess={loadEvent}
       />
     </div>

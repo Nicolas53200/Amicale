@@ -57,7 +57,8 @@ export default async function LocationsPage() {
             const coverIdx = (a.cover_index as number | null) ?? 0;
             const coverPhoto = photos.length > 0 ? photos[Math.min(coverIdx, photos.length - 1)] : null;
             const assetColor = (a.color as string) || typeColors[a.type] || "#8B5CF6";
-            const status = statusConfig[(a.status as string) || "disponible"] || statusConfig.disponible;
+            const statusKey = (a.status as string) || "disponible";
+            const status = statusConfig[statusKey] ?? statusConfig.disponible!;
 
             return (
               <Link

@@ -22,6 +22,9 @@ interface EventData {
   icon?: string | null;
   color?: string | null;
   published?: boolean;
+  children_allowed?: boolean;
+  child_age_limit?: number | null;
+  max_adults_per_household?: number | null;
 }
 
 const eventTypes = [
@@ -38,6 +41,7 @@ export function EventForm({ event }: { event?: EventData }) {
   const [submitting, setSubmitting] = useState(false);
   const [selectedType, setSelectedType] = useState(event?.category || "");
   const [published, setPublished] = useState(event?.published ?? true);
+  const [childrenAllowed, setChildrenAllowed] = useState(event?.children_allowed ?? false);
   const isEdit = !!event;
 
   function formatDateForInput(dateStr: string | null | undefined) {
@@ -141,6 +145,40 @@ export function EventForm({ event }: { event?: EventData }) {
               <Input name="max_benevoles" type="number" placeholder="Illimite" defaultValue={event?.max_benevoles ?? ""} />
             </div>
           </div>
+          <div className="flex items-center justify-between rounded-[12px] bg-surface-secondary p-3">
+            <div>
+              <p className="text-[13px] font-semibold text-content-primary">Enfants autorises</p>
+              <p className="text-[11px] text-content-muted">Les membres peuvent inscrire leurs enfants</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setChildrenAllowed((v) => !v)}
+              className={cn(
+                "relative h-7 w-12 rounded-full transition-colors",
+                childrenAllowed ? "bg-brand-500" : "bg-content-muted/30"
+              )}
+            >
+              <span
+                className={cn(
+                  "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
+                  childrenAllowed ? "translate-x-5" : "translate-x-0.5"
+                )}
+              />
+            </button>
+            <input type="hidden" name="children_allowed" value={childrenAllowed ? "true" : "false"} />
+          </div>
+          {childrenAllowed && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Age limite enfants</label>
+                <Input name="child_age_limit" type="number" min="1" max="25" placeholder="16" defaultValue={event?.child_age_limit ?? 16} />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Max adultes/foyer</label>
+                <Input name="max_adults_per_household" type="number" min="1" max="20" placeholder="6" defaultValue={event?.max_adults_per_household ?? 6} />
+              </div>
+            </div>
+          )}
           <div className="flex items-center justify-between rounded-[12px] bg-surface-secondary p-3">
             <div>
               <p className="text-[13px] font-semibold text-content-primary">Publier</p>
