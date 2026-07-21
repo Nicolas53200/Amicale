@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { requestBooking } from "@/lib/actions/assets";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { BookingCalendar } from "@/components/assets/booking-calendar";
 import { PhotoCarousel } from "@/components/assets/photo-carousel";
+import { useToast } from "@/components/ui/toast";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -35,12 +37,23 @@ interface AssetData {
   cover_index: number | null;
 }
 
+interface ExistingBooking {
+  start_date: string;
+  end_date: string;
+  status: string;
+}
+
 export default function LocationDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const [asset, setAsset] = useState<AssetData | null>(null);
+  const [existingBookings, setExistingBookings] = useState<ExistingBooking[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [conflict, setConflict] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const { showToast } = useToast();
 
   async function loadAsset() {
     const supabase = createClient();
@@ -52,48 +65,68 @@ export default function LocationDetailPage() {
     if (data) setAsset(data as AssetData);
   }
 
+  async function loadBookings() {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("asset_bookings")
+      .select("start_date, end_date, status")
+      .eq("asset_id", id)
+      .in("status", ["validee", "confirmee", "en_attente"]);
+    if (data) setExistingBookings(data);
+  }
+
   useEffect(() => {
     loadAsset();
+    loadBookings();
   }, [id]);
+
+  function checkConflict(start: string, end: string) {
+    if (!start || !end) {
+      setConflict(false);
+      return;
+    }
+    const s = new Date(start);
+    const e = new Date(end);
+    const hasConflict = existingBookings.some((b) => {
+      if (b.status === "refusee") return false;
+      const bs = new Date(b.start_date);
+      const be = new Date(b.end_date);
+      return s < be && e > bs;
+    });
+    setConflict(hasConflict);
+  }
+
+  function handleStartChange(val: string) {
+    setStartDate(val);
+    checkConflict(val, endDate);
+  }
+
+  function handleEndChange(val: string) {
+    setEndDate(val);
+    checkConflict(startDate, val);
+  }
 
   async function handleBooking(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (conflict) {
+      showToast("Les dates choisies sont en conflit avec une réservation existante", "error");
+      return;
+    }
     setSubmitting(true);
+
     const form = new FormData(e.currentTarget);
-    const startDate = form.get("start_date") as string;
-    const endDate = form.get("end_date") as string;
+    form.set("asset_id", id);
 
-    if (!asset) return;
-
-    const days = Math.ceil(
-      (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    const totalAmount = days * asset.daily_rate;
-
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data: member } = await supabase
-      .from("members")
-      .select("id")
-      .eq("user_id", user.id)
-      .single();
-
-    if (!member) return;
-
-    await supabase.from("asset_bookings").insert({
-      asset_id: id,
-      member_id: member.id,
-      start_date: startDate,
-      end_date: endDate,
-      total_amount: totalAmount,
-      status: "en_attente",
-      notes: (form.get("notes") as string) || null,
-    });
-
-    setSubmitting(false);
-    setSuccess(true);
+    try {
+      await requestBooking(form);
+      setSuccess(true);
+      showToast("Demande de réservation envoyée", "success");
+      loadBookings();
+    } catch {
+      showToast("Erreur lors de l'envoi de la demande", "error");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (!asset) {
@@ -103,6 +136,11 @@ export default function LocationDetailPage() {
       </div>
     );
   }
+
+  const days = startDate && endDate
+    ? Math.max(1, Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)))
+    : 0;
+  const totalAmount = days * asset.daily_rate;
 
   return (
     <div className="flex flex-col gap-4">
@@ -128,7 +166,7 @@ export default function LocationDetailPage() {
           )}
           {asset.status && asset.status !== "disponible" && (
             <Badge variant={asset.status === "maintenance" ? "danger" : "warning"}>
-              {asset.status === "reserve" ? "Reserve" : asset.status === "maintenance" ? "Maintenance" : "Indisponible"}
+              {asset.status === "reserve" ? "Réservé" : asset.status === "maintenance" ? "Maintenance" : "Indisponible"}
             </Badge>
           )}
         </div>
@@ -175,7 +213,7 @@ export default function LocationDetailPage() {
         </h3>
         {success ? (
           <div className="text-center">
-            <p className="text-[13px] font-medium text-green-600 dark:text-green-400">
+            <p className="text-[13px] font-medium text-[#1E7A4A] dark:text-emerald-400">
               Demande envoyée avec succès
             </p>
             <p className="mt-1 text-[11px] text-content-muted">
@@ -183,7 +221,7 @@ export default function LocationDetailPage() {
             </p>
             <button
               type="button"
-              onClick={() => setSuccess(false)}
+              onClick={() => { setSuccess(false); setStartDate(""); setEndDate(""); setConflict(false); }}
               className="mt-3 rounded-full bg-surface-secondary px-4 py-2 text-[12px] font-semibold text-content-primary"
             >
               Nouvelle demande
@@ -196,15 +234,47 @@ export default function LocationDetailPage() {
                 <label className="mb-1 block text-[12px] font-medium text-content-secondary">
                   Date de début
                 </label>
-                <Input name="start_date" type="date" required />
+                <Input
+                  name="start_date"
+                  type="date"
+                  required
+                  value={startDate}
+                  onChange={(e) => handleStartChange(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                />
               </div>
               <div>
                 <label className="mb-1 block text-[12px] font-medium text-content-secondary">
                   Date de fin
                 </label>
-                <Input name="end_date" type="date" required />
+                <Input
+                  name="end_date"
+                  type="date"
+                  required
+                  value={endDate}
+                  onChange={(e) => handleEndChange(e.target.value)}
+                  min={startDate || new Date().toISOString().split("T")[0]}
+                />
               </div>
             </div>
+
+            {conflict && (
+              <div className="rounded-[10px] bg-[#FFD9D2] p-2.5 text-[11px] font-semibold text-[#C43E26] dark:bg-red-500/10 dark:text-red-400">
+                Ces dates sont en conflit avec une réservation existante. Choisissez d&apos;autres dates.
+              </div>
+            )}
+
+            {days > 0 && !conflict && (
+              <div className="flex items-center justify-between rounded-[12px] bg-surface-secondary p-3">
+                <span className="text-[12px] text-content-muted">
+                  {days} jour{days > 1 ? "s" : ""}
+                </span>
+                <span className="text-[13px] font-bold text-content-primary">
+                  {fmt(totalAmount)}
+                </span>
+              </div>
+            )}
+
             <div>
               <label className="mb-1 block text-[12px] font-medium text-content-secondary">
                 Notes
@@ -213,8 +283,8 @@ export default function LocationDetailPage() {
             </div>
             <button
               type="submit"
-              disabled={submitting}
-              className="btn-gradient rounded-[14px] px-4 py-3 text-[13px] font-semibold text-white"
+              disabled={submitting || conflict}
+              className="btn-gradient rounded-[14px] px-4 py-3 text-[13px] font-semibold text-white disabled:opacity-50"
             >
               {submitting ? "Envoi..." : "Envoyer la demande"}
             </button>

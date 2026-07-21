@@ -546,7 +546,7 @@ function DemandesTab({
               <Button
                 size="sm"
                 disabled={isProcessing}
-                onClick={() => handleAction(b.id, "confirmee")}
+                onClick={() => handleAction(b.id, "validee")}
               >
                 {isProcessing ? "..." : "Accepter"}
               </Button>
