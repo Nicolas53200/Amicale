@@ -115,6 +115,8 @@ export async function registerForEvent(eventId: string, params: RegisterEventPar
       nb_enfants: params.nbEnfants ?? 0,
       enfants_idx: params.enfantsIdx ?? [],
       is_benevole: params.isBenevole || null,
+      benevole_poste: params.isBenevole || null,
+      benevole_status: params.isBenevole ? "attente" : null,
       status: "inscrit",
     },
     { onConflict: "event_id,member_id" }
@@ -200,6 +202,164 @@ export async function deleteEvent(id: string) {
   if (error) throw error;
   revalidatePath("/bureau/evenements");
   revalidatePath("/amicaliste/evenements");
+}
+
+// ── Bureau: benevole & inscription management ──
+
+export async function validateRegistration(
+  eventId: string,
+  memberId: string
+) {
+  await requireBureau();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("event_registrations")
+    .update({ status: "valide" })
+    .eq("event_id", eventId)
+    .eq("member_id", memberId);
+  if (error) throw error;
+  revalidatePath(`/bureau/evenements/${eventId}`);
+}
+
+export async function refuseRegistration(
+  eventId: string,
+  memberId: string
+) {
+  await requireBureau();
+  const supabase = await createClient();
+
+  const { data: reg } = await supabase
+    .from("event_registrations")
+    .select("members:member_id(first_name, last_name)")
+    .eq("event_id", eventId)
+    .eq("member_id", memberId)
+    .single();
+
+  const { error } = await supabase
+    .from("event_registrations")
+    .update({ status: "refuse" })
+    .eq("event_id", eventId)
+    .eq("member_id", memberId);
+  if (error) throw error;
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("title, org_id")
+    .eq("id", eventId)
+    .single();
+
+  if (event && reg) {
+    const m = reg.members as { first_name: string; last_name: string } | null;
+    const name = m ? `${m.first_name} ${m.last_name}` : "Un membre";
+    await sendNotification({
+      orgId: event.org_id,
+      title: `Inscription refusee — ${event.title}`,
+      message: `L'inscription de ${name} a l'evenement "${event.title}" a ete refusee.`,
+      targetMemberId: memberId,
+      type: "event",
+    });
+  }
+
+  revalidatePath(`/bureau/evenements/${eventId}`);
+}
+
+export async function deleteRegistration(
+  eventId: string,
+  memberId: string
+) {
+  await requireBureau();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("event_registrations")
+    .delete()
+    .eq("event_id", eventId)
+    .eq("member_id", memberId);
+  if (error) throw error;
+  revalidatePath(`/bureau/evenements/${eventId}`);
+  revalidatePath(`/amicaliste/evenements/${eventId}`);
+}
+
+export async function validateBenevole(
+  eventId: string,
+  memberId: string
+) {
+  await requireBureau();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("event_registrations")
+    .update({ benevole_status: "valide" })
+    .eq("event_id", eventId)
+    .eq("member_id", memberId);
+  if (error) throw error;
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("title, org_id")
+    .eq("id", eventId)
+    .single();
+
+  if (event) {
+    const { data: reg } = await supabase
+      .from("event_registrations")
+      .select("is_benevole, benevole_poste, members:member_id(first_name, last_name)")
+      .eq("event_id", eventId)
+      .eq("member_id", memberId)
+      .single();
+    const m = reg?.members as { first_name: string; last_name: string } | null;
+    const poste = reg?.benevole_poste || reg?.is_benevole || "Benevole";
+    await sendNotification({
+      orgId: event.org_id,
+      title: `Candidature benevole validee — ${event.title}`,
+      message: `Votre candidature comme benevole au poste "${poste}" pour "${event.title}" a ete validee.`,
+      targetMemberId: memberId,
+      type: "event",
+    });
+  }
+
+  revalidatePath(`/bureau/evenements/${eventId}`);
+}
+
+export async function refuseBenevole(
+  eventId: string,
+  memberId: string
+) {
+  await requireBureau();
+  const supabase = await createClient();
+
+  const { data: reg } = await supabase
+    .from("event_registrations")
+    .select("is_benevole, benevole_poste, members:member_id(first_name, last_name)")
+    .eq("event_id", eventId)
+    .eq("member_id", memberId)
+    .single();
+
+  const { error } = await supabase
+    .from("event_registrations")
+    .update({ benevole_status: "refuse", is_benevole: null, benevole_poste: null })
+    .eq("event_id", eventId)
+    .eq("member_id", memberId);
+  if (error) throw error;
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("title, org_id")
+    .eq("id", eventId)
+    .single();
+
+  if (event) {
+    const m = reg?.members as { first_name: string; last_name: string } | null;
+    const poste = reg?.benevole_poste || reg?.is_benevole || "Benevole";
+    await sendNotification({
+      orgId: event.org_id,
+      title: `Candidature benevole refusee — ${event.title}`,
+      message: `Votre candidature comme benevole au poste "${poste}" pour "${event.title}" a ete refusee. Tous les postes sont deja pourvus.`,
+      targetMemberId: memberId,
+      type: "event",
+    });
+  }
+
+  revalidatePath(`/bureau/evenements/${eventId}`);
 }
 
 export async function cancelRegistration(eventId: string) {

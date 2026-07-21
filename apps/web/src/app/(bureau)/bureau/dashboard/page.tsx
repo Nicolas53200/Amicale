@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
+import { BUREAU_ROLE_CONFIG, getToolAccess, type BureauRole } from "@/lib/auth";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", {
@@ -16,14 +17,18 @@ interface OutilBureau {
   subtitle: string;
   href: string;
   badgeKey?: string;
+  toolKey?: string;
 }
 
 const roleLabels: Record<string, string> = {
-  president: "Président",
-  vice_president: "Vice-président",
-  tresorier: "Trésorier",
-  secretaire: "Secrétaire",
-  membre: "Membre du bureau",
+  president: "President",
+  vice_president: "Vice-President",
+  tresorier: "Tresorier / Comptable",
+  secretaire: "Secretaire",
+  responsable_communication: "Responsable communication",
+  responsable_commission: "Responsable commission",
+  membre_commission: "Membre de commission",
+  lecture: "Lecture seule",
 };
 
 const outilsBureau: OutilBureau[] = [
@@ -31,9 +36,10 @@ const outilsBureau: OutilBureau[] = [
     icon: "👥",
     color: "bg-blue-100 dark:bg-blue-500/20",
     title: "Membres",
-    subtitle: "Liste complète",
+    subtitle: "Liste complete",
     href: "/bureau/membres",
     badgeKey: "membres",
+    toolKey: "membres",
   },
   {
     icon: "💬",
@@ -41,21 +47,24 @@ const outilsBureau: OutilBureau[] = [
     title: "Messagerie",
     subtitle: "Interne bureau",
     href: "/bureau/messagerie",
+    toolKey: "messagerie",
   },
   {
     icon: "💰",
     color: "bg-purple-100 dark:bg-purple-500/20",
-    title: "Comptabilité",
-    subtitle: "Bilan général",
+    title: "Comptabilite",
+    subtitle: "Bilan general",
     href: "/bureau/comptabilite",
     badgeKey: "compta",
+    toolKey: "compta",
   },
   {
     icon: "📅",
     color: "bg-amber-100 dark:bg-amber-500/20",
-    title: "Réunions & CR",
+    title: "Reunions & CR",
     subtitle: "Comptes rendus, PV d'AG",
     href: "/bureau/reunions",
+    toolKey: "reunions",
   },
   {
     icon: "📰",
@@ -63,20 +72,15 @@ const outilsBureau: OutilBureau[] = [
     title: "Journal de l'Amicale",
     subtitle: "Livre souvenir annuel",
     href: "/bureau/journal",
+    toolKey: "journal",
   },
   {
     icon: "📑",
     color: "bg-green-100 dark:bg-green-500/20",
-    title: "Modèles",
+    title: "Modeles",
     subtitle: "PV, budgets, affiches",
     href: "/bureau/modeles",
-  },
-  {
-    icon: "↩️",
-    color: "bg-blue-100 dark:bg-blue-500/20",
-    title: "Remboursement",
-    subtitle: "Demander un remb. de frais",
-    href: "/bureau/comptabilite",
+    toolKey: "modeles",
   },
   {
     icon: "📋",
@@ -85,11 +89,12 @@ const outilsBureau: OutilBureau[] = [
     subtitle: "Organisation interne",
     href: "/bureau/commissions",
     badgeKey: "commissions",
+    toolKey: "gestion_commissions",
   },
   {
     icon: "📅",
     color: "bg-red-100 dark:bg-red-500/20",
-    title: "Événements",
+    title: "Evenements",
     subtitle: "Agenda & inscriptions",
     href: "/bureau/evenements",
     badgeKey: "events",
@@ -98,7 +103,7 @@ const outilsBureau: OutilBureau[] = [
     icon: "🏠",
     color: "bg-teal-100 dark:bg-teal-500/20",
     title: "Locations",
-    subtitle: "Biens & réservations",
+    subtitle: "Biens & reservations",
     href: "/bureau/locations",
     badgeKey: "locations",
   },
@@ -106,7 +111,7 @@ const outilsBureau: OutilBureau[] = [
     icon: "✈️",
     color: "bg-blue-100 dark:bg-blue-500/20",
     title: "Voyages",
-    subtitle: "Sorties & séjours",
+    subtitle: "Sorties & sejours",
     href: "/bureau/voyages",
     badgeKey: "voyages",
   },
@@ -114,8 +119,9 @@ const outilsBureau: OutilBureau[] = [
     icon: "📷",
     color: "bg-cyan-100 dark:bg-cyan-500/20",
     title: "Galerie",
-    subtitle: "Photos événements",
+    subtitle: "Photos evenements",
     href: "/bureau/galerie",
+    toolKey: "photos",
   },
   {
     icon: "🎨",
@@ -123,6 +129,7 @@ const outilsBureau: OutilBureau[] = [
     title: "Personnaliser",
     subtitle: "Logo, couleurs, nom...",
     href: "/bureau/parametres",
+    toolKey: "personnaliser",
   },
 ];
 
@@ -171,8 +178,10 @@ export default async function DashboardPage() {
 
   const profile = profileRes.data as { first_name: string; last_name: string; bureau_role: string | null; avatar_url: string | null } | null;
   const userName = profile ? `${profile.first_name} ${profile.last_name}` : "Bureau";
-  const userRole = profile?.bureau_role ? (roleLabels[profile.bureau_role] || profile.bureau_role) : "Bureau";
+  const bureauRole = profile?.bureau_role || "president";
+  const userRole = roleLabels[bureauRole] || bureauRole;
   const userInitials = profile ? `${profile.first_name[0]}${profile.last_name[0]}` : "B";
+  const allowedTools = getToolAccess(bureauRole);
   const members = membersRes.data ?? [];
   const commissions = commissionsRes.data ?? [];
   const recentEntries = entriesRes.data ?? [];
@@ -549,7 +558,11 @@ export default async function DashboardPage() {
           Outils du bureau
         </h3>
         <div className="grid grid-cols-2 gap-3">
-          {outilsBureau.map((outil) => {
+          {outilsBureau.filter((outil) => {
+            if (!outil.toolKey) return true;
+            if (allowedTools.includes("*")) return true;
+            return allowedTools.includes(outil.toolKey);
+          }).map((outil) => {
             const badge = outil.badgeKey ? badges[outil.badgeKey] : undefined;
             return (
               <Link
