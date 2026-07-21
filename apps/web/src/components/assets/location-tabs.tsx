@@ -31,6 +31,13 @@ interface Booking {
   notes: string | null;
   created_at: string;
   members: { first_name: string; last_name: string } | null;
+  caution_received?: boolean;
+  etat_lieux_entree?: boolean;
+  cles_remises?: boolean;
+  etat_lieux_sortie?: boolean;
+  cles_retournees?: boolean;
+  caution_returned?: boolean;
+  refusal_reason?: string | null;
 }
 
 interface LocationTabsProps {
@@ -151,7 +158,7 @@ export function LocationTabs({ assets }: LocationTabsProps) {
       const { data } = await supabase
         .from("asset_bookings")
         .select(
-          "id, asset_id, start_date, end_date, status, total_amount, notes, created_at, members:member_id(first_name, last_name)"
+          "id, asset_id, start_date, end_date, status, total_amount, notes, created_at, caution_received, etat_lieux_entree, cles_remises, etat_lieux_sortie, cles_retournees, caution_returned, refusal_reason, members:member_id(first_name, last_name)"
         )
         .order("start_date");
       if (data) setBookings(data as unknown as Booking[]);
@@ -167,11 +174,13 @@ export function LocationTabs({ assets }: LocationTabsProps) {
     }
   }, [active, fetchBookings]);
 
-  async function updateStatus(bookingId: string, status: string) {
+  async function updateStatus(bookingId: string, status: string, reason?: string) {
     const supabase = createClient();
+    const update: Record<string, unknown> = { status };
+    if (reason !== undefined) update.refusal_reason = reason;
     await supabase
       .from("asset_bookings")
-      .update({ status })
+      .update(update)
       .eq("id", bookingId);
     fetchBookings();
   }
@@ -225,6 +234,7 @@ export function LocationTabs({ assets }: LocationTabsProps) {
           )}
           assetMap={assetMap}
           loading={loading}
+          onRefresh={fetchBookings}
         />
       )}
       {active === "compta" && (
@@ -474,16 +484,30 @@ function DemandesTab({
   bookings: Booking[];
   assetMap: Map<string, Asset>;
   loading: boolean;
-  onUpdateStatus: (id: string, status: string) => void;
+  onUpdateStatus: (id: string, status: string, reason?: string) => void;
 }) {
   const [processing, setProcessing] = useState<string | null>(null);
+  const [refusingId, setRefusingId] = useState<string | null>(null);
+  const [refusalReason, setRefusalReason] = useState("");
 
-  async function handleAction(id: string, status: string) {
+  async function handleAccept(id: string) {
     setProcessing(id);
     try {
-      await onUpdateStatus(id, status);
+      await onUpdateStatus(id, "validee");
     } finally {
       setProcessing(null);
+    }
+  }
+
+  async function handleRefuse() {
+    if (!refusingId) return;
+    setProcessing(refusingId);
+    try {
+      await onUpdateStatus(refusingId, "refusee", refusalReason || undefined);
+    } finally {
+      setProcessing(null);
+      setRefusingId(null);
+      setRefusalReason("");
     }
   }
 
@@ -546,7 +570,7 @@ function DemandesTab({
               <Button
                 size="sm"
                 disabled={isProcessing}
-                onClick={() => handleAction(b.id, "validee")}
+                onClick={() => handleAccept(b.id)}
               >
                 {isProcessing ? "..." : "Accepter"}
               </Button>
@@ -554,14 +578,37 @@ function DemandesTab({
                 size="sm"
                 variant="destructive"
                 disabled={isProcessing}
-                onClick={() => handleAction(b.id, "refusee")}
+                onClick={() => setRefusingId(b.id)}
               >
-                {isProcessing ? "..." : "Refuser"}
+                Refuser
               </Button>
             </div>
           </div>
         );
       })}
+
+      {refusingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setRefusingId(null)}>
+          <div className="w-full max-w-sm rounded-[16px] bg-surface-elevated p-4 shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-3 text-[14px] font-bold text-content-primary">Motif du refus</h3>
+            <textarea
+              value={refusalReason}
+              onChange={(e) => setRefusalReason(e.target.value)}
+              placeholder="Indiquez le motif du refus (optionnel)..."
+              rows={3}
+              className="mb-3 w-full rounded-[12px] border border-border bg-surface-primary px-3 py-2 text-[13px] text-content-primary placeholder:text-content-muted"
+            />
+            <div className="flex justify-end gap-2">
+              <Button size="sm" variant="ghost" onClick={() => { setRefusingId(null); setRefusalReason(""); }}>
+                Annuler
+              </Button>
+              <Button size="sm" variant="destructive" onClick={handleRefuse} disabled={processing === refusingId}>
+                {processing === refusingId ? "..." : "Confirmer le refus"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -570,15 +617,45 @@ function DemandesTab({
 /*  Suivi Tab                                                          */
 /* ------------------------------------------------------------------ */
 
+const SUIVI_STEPS = [
+  { key: "caution_received", label: "Caution reçue", icon: "💰" },
+  { key: "etat_lieux_entree", label: "État des lieux entrée", icon: "📋" },
+  { key: "cles_remises", label: "Clés remises", icon: "🔑" },
+  { key: "etat_lieux_sortie", label: "État des lieux sortie", icon: "📋" },
+  { key: "cles_retournees", label: "Clés retournées", icon: "🔑" },
+  { key: "caution_returned", label: "Caution restituée", icon: "💰" },
+] as const;
+
+type SuiviKey = (typeof SUIVI_STEPS)[number]["key"];
+
 function SuiviTab({
   bookings,
   assetMap,
   loading,
+  onRefresh,
 }: {
   bookings: Booking[];
   assetMap: Map<string, Asset>;
   loading: boolean;
+  onRefresh: () => void;
 }) {
+  const [toggling, setToggling] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  async function toggleStep(bookingId: string, stepKey: SuiviKey, current: boolean) {
+    setToggling(`${bookingId}-${stepKey}`);
+    try {
+      const supabase = createClient();
+      await supabase
+        .from("asset_bookings")
+        .update({ [stepKey]: !current })
+        .eq("id", bookingId);
+      onRefresh();
+    } finally {
+      setToggling(null);
+    }
+  }
+
   if (loading) return <LoadingIndicator />;
 
   if (bookings.length === 0) {
@@ -586,89 +663,117 @@ function SuiviTab({
       <EmptyState
         icon="📊"
         title="Aucune réservation confirmée"
-        description="Les réservations validées apparaîtront ici"
+        description="Les réservations validées apparaîtront ici avec leur suivi"
       />
     );
   }
 
-  /* Group bookings by month */
-  const grouped = new Map<string, Booking[]>();
-  for (const b of bookings) {
-    const d = new Date(b.start_date);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const list = grouped.get(key) ?? [];
-    list.push(b);
-    grouped.set(key, list);
-  }
-
-  const sortedKeys = Array.from(grouped.keys()).sort();
-
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <p className="text-[12px] text-content-muted">
-        {bookings.length} reservation{bookings.length > 1 ? "s" : ""}{" "}
-        confirmee{bookings.length > 1 ? "s" : ""}
+        {bookings.length} reservation{bookings.length > 1 ? "s" : ""} confirmee{bookings.length > 1 ? "s" : ""}
       </p>
 
-      {sortedKeys.map((monthKey) => {
-        const monthBookings = grouped.get(monthKey)!;
-        const [yearStr, monthStr] = monthKey.split("-");
-        const label = new Date(
-          parseInt(yearStr ?? "0"),
-          parseInt(monthStr ?? "1") - 1
-        ).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+      {bookings.map((b) => {
+        const asset = assetMap.get(b.asset_id);
+        const completedSteps = SUIVI_STEPS.filter(
+          (s) => b[s.key as keyof Booking]
+        ).length;
+        const progress = Math.round((completedSteps / SUIVI_STEPS.length) * 100);
+        const isExpanded = expanded === b.id;
 
         return (
-          <div key={monthKey}>
-            <h4 className="mb-2 text-[12px] font-bold uppercase tracking-wide text-content-muted">
-              {label}
-            </h4>
-            <div className="relative flex flex-col gap-3 border-l-2 border-brand-200 pl-4 dark:border-brand-500/30">
-              {monthBookings.map((b) => {
-                const asset = assetMap.get(b.asset_id);
-                const colors = typeColors[asset?.type ?? ""] ?? {
-                  bg: "bg-brand-500",
-                };
-                return (
-                  <div key={b.id} className="relative">
-                    {/* Timeline dot */}
-                    <span
-                      className={cn(
-                        "absolute -left-[21px] top-2 h-2.5 w-2.5 rounded-full",
-                        colors.bg
-                      )}
-                    />
-                    <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[14px]">
-                              {typeIcons[asset?.type ?? ""] ?? "📦"}
-                            </span>
-                            <h4 className="text-[14px] font-bold text-content-primary">
-                              {asset?.name ?? "Bien inconnu"}
-                            </h4>
-                          </div>
-                          <p className="mt-1 text-[13px] text-content-secondary">
-                            {memberName(b.members)}
-                          </p>
-                          <p className="mt-0.5 text-[12px] text-content-muted">
-                            {fmtDate(b.start_date)} &rarr;{" "}
-                            {fmtDate(b.end_date)}
-                          </p>
+          <div key={b.id} className="rounded-[16px] bg-surface-elevated shadow-sm overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setExpanded(isExpanded ? null : b.id)}
+              className="flex w-full items-center gap-3 p-4 text-left"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-surface-secondary text-[16px]">
+                {typeIcons[asset?.type ?? ""] ?? "📦"}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-[14px] font-bold text-content-primary">
+                    {asset?.name ?? "Bien inconnu"}
+                  </h4>
+                  <span className={cn(
+                    "rounded-full px-2 py-0.5 text-[10px] font-bold",
+                    progress === 100
+                      ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400"
+                      : "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
+                  )}>
+                    {completedSteps}/{SUIVI_STEPS.length}
+                  </span>
+                </div>
+                <p className="text-[12px] text-content-secondary">
+                  {memberName(b.members)} · {fmtDate(b.start_date)} → {fmtDate(b.end_date)}
+                </p>
+                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-secondary">
+                  <div
+                    className={cn(
+                      "h-full rounded-full transition-all",
+                      progress === 100 ? "bg-green-500" : "bg-brand-500"
+                    )}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+              <span className={cn(
+                "text-[14px] transition-transform",
+                isExpanded && "rotate-180"
+              )}>
+                ▾
+              </span>
+            </button>
+
+            {isExpanded && (
+              <div className="border-t border-border px-4 pb-4 pt-3">
+                <div className="flex flex-col gap-2">
+                  {SUIVI_STEPS.map((step, i) => {
+                    const done = !!b[step.key as keyof Booking];
+                    const isToggling = toggling === `${b.id}-${step.key}`;
+                    return (
+                      <button
+                        key={step.key}
+                        type="button"
+                        onClick={() => toggleStep(b.id, step.key, done)}
+                        disabled={isToggling}
+                        className={cn(
+                          "flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-left transition-colors",
+                          done
+                            ? "bg-green-50 dark:bg-green-500/10"
+                            : "bg-surface-secondary hover:bg-surface-tertiary"
+                        )}
+                      >
+                        <span className="text-[14px]">{step.icon}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={cn(
+                            "flex h-5 w-5 items-center justify-center rounded-full text-[10px]",
+                            done
+                              ? "bg-green-500 text-white"
+                              : "border-2 border-content-muted text-content-muted"
+                          )}>
+                            {isToggling ? "…" : done ? "✓" : String(i + 1)}
+                          </span>
                         </div>
-                        {statusBadge(b.status)}
-                      </div>
-                      {b.total_amount != null && (
-                        <p className="mt-2 text-[13px] font-semibold text-content-primary">
-                          {fmtFull(parseFloat(String(b.total_amount)))}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                        <span className={cn(
+                          "text-[13px] font-medium",
+                          done ? "text-green-700 dark:text-green-400" : "text-content-secondary"
+                        )}>
+                          {step.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {b.total_amount != null && (
+                  <p className="mt-3 text-[13px] font-semibold text-content-primary">
+                    Montant : {fmtFull(parseFloat(String(b.total_amount)))}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         );
       })}

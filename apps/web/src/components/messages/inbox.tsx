@@ -26,13 +26,15 @@ interface Member {
 }
 
 type Tab = "inbox" | "sent" | "compose" | "broadcast";
-type MsgType = "normal" | "reunion" | "urgence" | "info";
+type MsgType = "normal" | "reunion" | "urgence" | "info" | "benevole" | "remboursement";
 
 const MSG_TYPES: { value: MsgType; label: string; icon: string; activeColor: string }[] = [
   { value: "normal", label: "Normal", icon: "💬", activeColor: "bg-brand-500 text-white" },
   { value: "reunion", label: "Réunion", icon: "📋", activeColor: "bg-blue-600 text-white" },
   { value: "urgence", label: "Urgence", icon: "🚨", activeColor: "bg-red-600 text-white" },
   { value: "info", label: "Info", icon: "ℹ️", activeColor: "bg-teal-600 text-white" },
+  { value: "benevole", label: "Bénévole", icon: "🤝", activeColor: "bg-purple-600 text-white" },
+  { value: "remboursement", label: "Remboursement", icon: "💸", activeColor: "bg-emerald-600 text-white" },
 ];
 
 const MSG_TYPE_BADGE: Record<MsgType, { icon: string; color: string }> = {
@@ -40,6 +42,8 @@ const MSG_TYPE_BADGE: Record<MsgType, { icon: string; color: string }> = {
   reunion: { icon: "📋", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30" },
   urgence: { icon: "🚨", color: "bg-red-100 text-red-700 dark:bg-red-900/30" },
   info: { icon: "ℹ️", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/30" },
+  benevole: { icon: "🤝", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30" },
+  remboursement: { icon: "💸", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30" },
 };
 
 function detectMsgType(subject: string | null): MsgType {
@@ -47,12 +51,14 @@ function detectMsgType(subject: string | null): MsgType {
   if (subject.startsWith("[REUNION]")) return "reunion";
   if (subject.startsWith("[URGENCE]")) return "urgence";
   if (subject.startsWith("[INFO]")) return "info";
+  if (subject.startsWith("[BENEVOLE]")) return "benevole";
+  if (subject.startsWith("[REMBOURSEMENT]")) return "remboursement";
   return "normal";
 }
 
 function stripTypePrefix(subject: string | null): string | null {
   if (!subject) return null;
-  return subject.replace(/^\[(REUNION|URGENCE|INFO)\]\s*/, "");
+  return subject.replace(/^\[(REUNION|URGENCE|INFO|BENEVOLE|REMBOURSEMENT)\]\s*/, "");
 }
 
 interface InboxProps {
@@ -67,8 +73,9 @@ export function Inbox({ isBureau = false }: InboxProps) {
   const [sending, setSending] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [msgType, setMsgType] = useState<MsgType>("normal");
+  const [rsvpStatus, setRsvpStatus] = useState<string | null>(null);
+  const [rsvpSending, setRsvpSending] = useState(false);
 
-  // For reply pre-fill
   const [replyTo, setReplyTo] = useState<{ recipientId: string; subject: string } | null>(null);
   const composeFormRef = useRef<HTMLFormElement>(null);
 
@@ -123,6 +130,47 @@ export function Inbox({ isBureau = false }: InboxProps) {
     setMessages((prev) =>
       prev.map((m) => (m.id === msg.id ? { ...m, read_at: new Date().toISOString() } : m))
     );
+  }
+
+  async function loadRsvp(messageId: string) {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: member } = await supabase
+      .from("members")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+    if (!member) return;
+    const { data } = await supabase
+      .from("meeting_responses")
+      .select("response")
+      .eq("message_id", messageId)
+      .eq("member_id", member.id)
+      .maybeSingle();
+    setRsvpStatus(data?.response ?? null);
+  }
+
+  async function handleRsvp(messageId: string, response: string) {
+    setRsvpSending(true);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: member } = await supabase
+        .from("members")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+      if (!member) return;
+      await supabase.from("meeting_responses").upsert(
+        { message_id: messageId, member_id: member.id, response, responded_at: new Date().toISOString() },
+        { onConflict: "message_id,member_id" }
+      );
+      setRsvpStatus(response);
+    } finally {
+      setRsvpSending(false);
+    }
   }
 
   async function handleSend(e: React.FormEvent<HTMLFormElement>) {
@@ -430,6 +478,35 @@ export function Inbox({ isBureau = false }: InboxProps) {
           <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-content-secondary">
             {selected.body}
           </div>
+          {tab === "inbox" && detectMsgType(selected.subject) === "reunion" && (
+            <div className="flex flex-col gap-2 rounded-[14px] border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-500/10">
+              <p className="text-[12px] font-semibold text-blue-700 dark:text-blue-400">
+                Votre réponse à cette réunion :
+              </p>
+              <div className="flex gap-2">
+                {([
+                  { value: "present", label: "Présent", color: "bg-green-600 text-white" },
+                  { value: "absent", label: "Absent", color: "bg-red-600 text-white" },
+                  { value: "incertain", label: "Incertain", color: "bg-amber-600 text-white" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => handleRsvp(selected.id, opt.value)}
+                    disabled={rsvpSending}
+                    className={cn(
+                      "rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all",
+                      rsvpStatus === opt.value
+                        ? opt.color
+                        : "bg-surface-secondary text-content-secondary hover:bg-surface-tertiary"
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {tab === "inbox" && (
             <button
               type="button"
@@ -475,6 +552,10 @@ export function Inbox({ isBureau = false }: InboxProps) {
                   onClick={() => {
                     setSelected(msg);
                     if (tab === "inbox") markAsRead(msg);
+                    if (detectMsgType(msg.subject) === "reunion") {
+                      setRsvpStatus(null);
+                      loadRsvp(msg.id);
+                    }
                   }}
                   className="flex min-w-0 flex-1 items-start gap-3 text-left"
                 >
