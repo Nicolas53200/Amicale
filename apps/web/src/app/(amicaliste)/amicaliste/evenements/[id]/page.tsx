@@ -1,16 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { cancelRegistration } from "@/lib/actions/events";
 import { Badge } from "@/components/ui/badge";
-import { GradientHeader } from "@/components/layout/gradient-header";
 import { EventInscriptionModal } from "@/components/events/event-inscription-modal";
 import { useToast } from "@/components/ui/toast";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
+
+function timeBadge(dateStr: string): string {
+  const now = new Date();
+  const d = new Date(dateStr);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diff = Math.round((target.getTime() - today.getTime()) / 86400000);
+  if (diff === 0) return "Aujourd'hui";
+  if (diff === 1) return "Demain";
+  if (diff > 1 && diff <= 30) return `Dans ${diff} jours`;
+  return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+}
 
 interface EventData {
   id: string;
@@ -19,6 +31,9 @@ interface EventData {
   date: string;
   end_date: string | null;
   location: string | null;
+  image_url: string | null;
+  icon: string | null;
+  color: string | null;
   price: number;
   max_attendees: number | null;
   max_benevoles: number | null;
@@ -34,12 +49,13 @@ interface EventData {
 
 export default function EvenementDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const [event, setEvent] = useState<EventData | null>(null);
   const [myMemberId, setMyMemberId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [inscritsSectionOpen, setInscritsSectionOpen] = useState(true);
+  const [inscritsSectionOpen, setInscritsSectionOpen] = useState(false);
   const [benevolesSectionOpen, setBenevolesSectionOpen] = useState(true);
   const { showToast } = useToast();
 
@@ -76,10 +92,10 @@ export default function EvenementDetailPage() {
     setLoading(true);
     try {
       await cancelRegistration(id);
-      showToast("Inscription annulee", "info");
+      showToast("Inscription annulée", "info");
       await loadEvent();
     } catch {
-      showToast("Erreur lors de la desinscription", "error");
+      showToast("Erreur lors de la désinscription", "error");
     } finally {
       setLoading(false);
     }
@@ -101,18 +117,125 @@ export default function EvenementDetailPage() {
   const totalInscrits = inscrits.reduce((s, r) => s + r.nb_personnes, 0);
   const isFull = event.max_attendees ? totalInscrits >= event.max_attendees : false;
   const d = new Date(event.date);
+  const headerColor = event.color || "#E8553A";
+  const benevoleSlots = event.max_benevoles ? event.max_benevoles - benevoles.length : null;
 
   return (
-    <div className="flex flex-col gap-4">
-      <GradientHeader
-        title={event.title}
-        subtitle={`${d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}${event.location ? ` · ${event.location}` : ""}`}
-        backHref="/amicaliste/evenements"
-      />
+    <div className="flex flex-col gap-0">
+      {/* Hero header */}
+      <div
+        className="relative -mx-4 -mt-6 flex flex-col justify-end overflow-hidden"
+        style={{
+          height: "220px",
+          background: event.image_url
+            ? `linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.08) 50%), url(${event.image_url}) center/cover`
+            : headerColor,
+          paddingTop: "env(safe-area-inset-top)",
+        }}
+      >
+        {!event.image_url && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/5" />
+        )}
 
-      {/* Info */}
-      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-        <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => router.back()}
+          className="absolute left-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/40"
+          style={{ marginTop: "env(safe-area-inset-top)" }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </button>
+
+        <div
+          className="absolute left-3 top-3 z-10"
+          style={{ marginTop: "env(safe-area-inset-top)", marginLeft: "42px" }}
+        >
+          <span className="rounded-full bg-white/20 px-3 py-1.5 text-[10px] font-bold text-white backdrop-blur-sm">
+            {timeBadge(event.date)}
+          </span>
+        </div>
+
+        <div className="relative z-[1] p-4">
+          {event.location && (
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-white/80">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 inline">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              {event.location}
+            </p>
+          )}
+          <h1 className="text-xl font-extrabold text-white leading-tight">{event.title}</h1>
+          <p className="mt-1 flex items-center gap-1 text-[12px] text-white/85">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            {d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "long", year: "numeric" })}
+            {` · ${d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4 pt-4">
+        {/* 3-column info grid */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="flex flex-col items-center rounded-[12px] bg-surface-secondary p-2.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            <p className="mt-1 text-[12px] font-bold text-content-primary">
+              {d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+            </p>
+            <p className="text-[10px] text-content-muted">Date</p>
+          </div>
+          <div className="flex flex-col items-center rounded-[12px] bg-surface-secondary p-2.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3478F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <p className="mt-1 text-[12px] font-bold text-content-primary">
+              {d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+            </p>
+            <p className="text-[10px] text-content-muted">Heure</p>
+          </div>
+          <div className="flex flex-col items-center rounded-[12px] bg-surface-secondary p-2.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E7A4A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <p className="mt-1 text-[11px] font-bold text-content-primary text-center">
+              {event.location || "—"}
+            </p>
+            <p className="text-[10px] text-content-muted">Lieu</p>
+          </div>
+        </div>
+
+        {/* Description */}
+        {event.description && (
+          <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+            <h3 className="mb-2 flex items-center gap-1.5 text-[12px] font-bold text-content-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              Description
+            </h3>
+            <p className="text-[12px] leading-relaxed text-content-secondary">
+              {event.description}
+            </p>
+          </div>
+        )}
+
+        {/* Info badges */}
+        <div className="flex flex-wrap gap-2 px-1">
           {event.price > 0 ? (
             <Badge variant="default">{fmt(event.price)}</Badge>
           ) : (
@@ -126,161 +249,199 @@ export default function EvenementDetailPage() {
             </Badge>
           )}
         </div>
-        {event.description && (
-          <p className="mt-3 text-[13px] leading-relaxed text-content-secondary">
-            {event.description}
-          </p>
-        )}
-      </div>
 
-      {/* Inscription */}
-      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
-          Votre inscription
-        </h3>
-        {myRegistration ? (
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[13px] font-medium text-content-primary">
-                Vous etes inscrit{myRegistration.is_benevole ? ` comme ${myRegistration.is_benevole}` : ""}
-              </p>
-              <p className="text-[11px] text-content-muted">
-                {myRegistration.nb_personnes} personne{myRegistration.nb_personnes > 1 ? "s" : ""}
-                {event.price > 0 && ` · Total : ${fmt(event.price * myRegistration.nb_personnes)}`}
-              </p>
-            </div>
+        {/* Bénévoles */}
+        {(benevoles.length > 0 || (event.max_benevoles && event.max_benevoles > 0)) && (
+          <div className="rounded-[16px] bg-surface-elevated shadow-sm">
             <button
               type="button"
-              onClick={handleCancel}
-              disabled={loading}
-              className="rounded-full bg-red-50 px-4 py-2 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400"
+              onClick={() => setBenevolesSectionOpen(!benevolesSectionOpen)}
+              className="flex w-full items-center justify-between p-4"
             >
-              Se desinscrire
+              <h3 className="flex items-center gap-1.5 text-[12px] font-bold text-content-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                Bénévoles ({benevoles.length}
+                {event.max_benevoles ? ` / ${event.max_benevoles}` : ""})
+              </h3>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`text-content-muted transition-transform duration-200 ${benevolesSectionOpen ? "" : "-rotate-90"}`}
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
             </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowModal(true)}
-            disabled={isFull}
-            className="btn-gradient w-full rounded-[14px] px-4 py-3 text-[13px] font-semibold text-white disabled:opacity-50"
-          >
-            {isFull ? "Complet" : "S'inscrire"}
-          </button>
-        )}
-      </div>
-
-      {/* Inscrits */}
-      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-        <button
-          type="button"
-          onClick={() => setInscritsSectionOpen(!inscritsSectionOpen)}
-          className="flex w-full items-center justify-between"
-        >
-          <h3 className="text-[14px] font-bold text-content-primary">
-            Inscrits ({totalInscrits}
-            {event.max_attendees ? ` / ${event.max_attendees}` : ""})
-          </h3>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={`text-content-muted transition-transform ${inscritsSectionOpen ? "rotate-180" : ""}`}
-          >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </button>
-        {inscritsSectionOpen && (
-          <div className="mt-3">
-            {inscrits.length === 0 ? (
-              <p className="py-2 text-center text-[13px] text-content-muted">Aucun inscrit</p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {inscrits.map((r) => (
-                  <div key={r.member_id} className="flex items-center gap-3 rounded-[10px] bg-surface-secondary p-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-50 text-[12px] font-bold text-brand-600 dark:bg-brand-500/10">
-                      {r.members.first_name[0]}{r.members.last_name[0]}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[13px] font-medium text-content-primary">
-                        {r.members.first_name} {r.members.last_name}
-                      </p>
-                      <p className="text-[11px] text-content-muted">
-                        {r.nb_personnes} personne{r.nb_personnes > 1 ? "s" : ""}
-                      </p>
-                    </div>
-                    <Badge variant={r.status === "inscrit" ? "success" : "neutral"}>
-                      {r.status}
-                    </Badge>
+            {benevolesSectionOpen && (
+              <div className="px-4 pb-4">
+                {benevoles.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {benevoles.map((r) => (
+                      <div key={r.member_id} className="flex items-center gap-1.5 rounded-[10px] bg-surface-secondary px-2.5 py-1.5">
+                        <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-[#F59E0B] text-[9px] font-bold text-white">
+                          {r.members.first_name[0]}{r.members.last_name[0]}
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold text-content-primary">
+                            {r.members.first_name} {r.members.last_name}
+                          </p>
+                          {r.is_benevole && r.is_benevole !== "benevole" && (
+                            <p className="text-[9px] text-content-muted capitalize">{r.is_benevole}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {benevoleSlots !== null && benevoleSlots > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(true)}
+                    className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-[10px] bg-[#F59E0B] px-3 py-2.5 text-[12px] font-bold text-white"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                      <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2" />
+                      <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
+                      <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+                    </svg>
+                    {benevoleSlots} poste{benevoleSlots > 1 ? "s" : ""} disponible{benevoleSlots > 1 ? "s" : ""} — Je me porte volontaire
+                  </button>
+                ) : benevoleSlots !== null && benevoleSlots <= 0 ? (
+                  <div className="mt-2 rounded-[8px] bg-[#E8F5EE] p-2 text-center text-[11px] font-semibold text-[#1E7A4A] dark:bg-emerald-500/10 dark:text-emerald-400">
+                    Tous les postes sont pourvus
+                  </div>
+                ) : null}
               </div>
             )}
           </div>
         )}
-      </div>
 
-      {/* Benevoles */}
-      {(benevoles.length > 0 || event.max_benevoles) && (
-        <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        {/* Inscrits */}
+        <div className="rounded-[16px] bg-surface-elevated shadow-sm">
           <button
             type="button"
-            onClick={() => setBenevolesSectionOpen(!benevolesSectionOpen)}
-            className="flex w-full items-center justify-between"
+            onClick={() => setInscritsSectionOpen(!inscritsSectionOpen)}
+            className="flex w-full items-center justify-between p-4"
           >
-            <h3 className="text-[14px] font-bold text-content-primary">
-              Benevoles ({benevoles.length}
-              {event.max_benevoles ? ` / ${event.max_benevoles}` : ""})
+            <h3 className="flex items-center gap-1.5 text-[12px] font-bold text-content-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              Inscrits ({totalInscrits}{event.max_attendees ? ` / ${event.max_attendees}` : ""})
             </h3>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
+              width="14"
+              height="14"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={`text-content-muted transition-transform ${benevolesSectionOpen ? "rotate-180" : ""}`}
+              className={`text-content-muted transition-transform duration-200 ${inscritsSectionOpen ? "" : "-rotate-90"}`}
             >
               <path d="m6 9 6 6 6-6" />
             </svg>
           </button>
-          {benevolesSectionOpen && (
-            <div className="mt-3">
-              {benevoles.length === 0 ? (
-                <p className="py-2 text-center text-[13px] text-content-muted">Aucun benevole</p>
+          {inscritsSectionOpen && (
+            <div className="px-4 pb-4">
+              {inscrits.length === 0 ? (
+                <div className="rounded-[12px] bg-surface-secondary py-3.5 text-center text-[12px] text-content-muted">
+                  Aucun inscrit pour le moment
+                </div>
               ) : (
-                <div className="flex flex-col gap-2">
-                  {benevoles.map((r) => (
-                    <div key={r.member_id} className="flex items-center gap-3 rounded-[10px] bg-surface-secondary p-2.5">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50 text-[12px] font-bold text-amber-600 dark:bg-amber-500/10">
-                        {r.members.first_name[0]}{r.members.last_name[0]}
+                <div className="flex flex-wrap gap-1.5">
+                  {inscrits.map((r) => {
+                    const statusColor = r.status === "inscrit" || r.status === "acceptee"
+                      ? "text-[#1E7A4A]"
+                      : "text-[#F59E0B]";
+                    return (
+                      <div key={r.member_id} className="flex items-center gap-1.5 rounded-[10px] bg-surface-secondary px-2.5 py-1.5">
+                        <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-[#8B5CF6] text-[9px] font-bold text-white">
+                          {r.members.first_name[0]}{r.members.last_name[0]}
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold text-content-primary">
+                            {r.members.first_name} {r.members.last_name}
+                          </p>
+                          <p className={`text-[9px] ${statusColor}`}>
+                            {r.status === "inscrit" || r.status === "acceptee" ? "Confirmé" : "En attente"}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <span className="text-[13px] font-medium text-content-primary">
-                          {r.members.first_name} {r.members.last_name}
-                        </span>
-                        {r.is_benevole && r.is_benevole !== "benevole" && (
-                          <p className="text-[11px] text-content-muted capitalize">{r.is_benevole}</p>
-                        )}
-                      </div>
-                      <Badge variant="warning">Benevole</Badge>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
           )}
         </div>
-      )}
+
+        {/* Action buttons */}
+        <div className="grid grid-cols-2 gap-2">
+          {myRegistration ? (
+            <>
+              <div className="rounded-[12px] bg-surface-elevated p-3 text-center">
+                <p className="text-[13px] font-medium text-content-primary">
+                  Vous êtes inscrit{myRegistration.is_benevole ? ` (${myRegistration.is_benevole})` : ""}
+                </p>
+                <p className="text-[11px] text-content-muted">
+                  {myRegistration.nb_personnes} pers.
+                  {event.price > 0 && ` · ${fmt(event.price * myRegistration.nb_personnes)}`}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={loading}
+                className="rounded-[12px] bg-surface-secondary px-4 py-3 text-[13px] font-bold text-content-primary"
+              >
+                Se désinscrire
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowModal(true)}
+                disabled={isFull}
+                className="flex items-center justify-center gap-1.5 rounded-[12px] px-4 py-3 text-[13px] font-bold text-white disabled:opacity-50"
+                style={{ background: headerColor }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+                {isFull ? "Complet" : "S'inscrire"}
+              </button>
+              <Link
+                href="/amicaliste/evenements"
+                className="flex items-center justify-center gap-1.5 rounded-[12px] bg-surface-secondary px-4 py-3 text-[13px] font-bold text-content-primary"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                Fermer
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
 
       <EventInscriptionModal
         open={showModal}
