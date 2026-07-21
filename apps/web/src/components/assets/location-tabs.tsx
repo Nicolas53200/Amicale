@@ -38,6 +38,25 @@ interface Booking {
   cles_retournees?: boolean;
   caution_returned?: boolean;
   refusal_reason?: string | null;
+  caution_received_at?: string | null;
+  caution_received_by_member?: { first_name: string; last_name: string } | null;
+  caution_amount?: number | string | null;
+  caution_mode?: string | null;
+  caution_observations?: string | null;
+  etat_lieux_entree_at?: string | null;
+  etat_lieux_entree_by_member?: { first_name: string; last_name: string } | null;
+  etat_lieux_entree_observations?: string | null;
+  cles_remises_at?: string | null;
+  cles_remises_by_member?: { first_name: string; last_name: string } | null;
+  etat_lieux_sortie_at?: string | null;
+  etat_lieux_sortie_by_member?: { first_name: string; last_name: string } | null;
+  etat_lieux_sortie_observations?: string | null;
+  cles_retournees_at?: string | null;
+  cles_retournees_by_member?: { first_name: string; last_name: string } | null;
+  caution_returned_at?: string | null;
+  caution_returned_by_member?: { first_name: string; last_name: string } | null;
+  caution_retained_amount?: number | string | null;
+  caution_retained_reason?: string | null;
 }
 
 interface LocationTabsProps {
@@ -158,7 +177,22 @@ export function LocationTabs({ assets }: LocationTabsProps) {
       const { data } = await supabase
         .from("asset_bookings")
         .select(
-          "id, asset_id, start_date, end_date, status, total_amount, notes, created_at, caution_received, etat_lieux_entree, cles_remises, etat_lieux_sortie, cles_retournees, caution_returned, refusal_reason, members:member_id(first_name, last_name)"
+          `id, asset_id, start_date, end_date, status, total_amount, notes, created_at,
+           caution_received, etat_lieux_entree, cles_remises, etat_lieux_sortie, cles_retournees, caution_returned,
+           refusal_reason,
+           caution_received_at, caution_amount, caution_mode, caution_observations,
+           etat_lieux_entree_at, etat_lieux_entree_observations,
+           cles_remises_at,
+           etat_lieux_sortie_at, etat_lieux_sortie_observations,
+           cles_retournees_at,
+           caution_returned_at, caution_retained_amount, caution_retained_reason,
+           members:member_id(first_name, last_name),
+           caution_received_by_member:caution_received_by(first_name, last_name),
+           etat_lieux_entree_by_member:etat_lieux_entree_by(first_name, last_name),
+           cles_remises_by_member:cles_remises_by(first_name, last_name),
+           etat_lieux_sortie_by_member:etat_lieux_sortie_by(first_name, last_name),
+           cles_retournees_by_member:cles_retournees_by(first_name, last_name),
+           caution_returned_by_member:caution_returned_by(first_name, last_name)`
         )
         .order("start_date");
       if (data) setBookings(data as unknown as Booking[]);
@@ -618,15 +652,22 @@ function DemandesTab({
 /* ------------------------------------------------------------------ */
 
 const SUIVI_STEPS = [
-  { key: "caution_received", label: "Caution reçue", icon: "💰" },
-  { key: "etat_lieux_entree", label: "État des lieux entrée", icon: "📋" },
-  { key: "cles_remises", label: "Clés remises", icon: "🔑" },
-  { key: "etat_lieux_sortie", label: "État des lieux sortie", icon: "📋" },
-  { key: "cles_retournees", label: "Clés retournées", icon: "🔑" },
-  { key: "caution_returned", label: "Caution restituée", icon: "💰" },
-] as const;
+  { key: "caution_received", label: "Caution reçue", icon: "💰", atKey: "caution_received_at", byKey: "caution_received_by_member", hasAmount: true, hasMode: true, hasRetained: false, obsKey: "caution_observations" as string | null },
+  { key: "etat_lieux_entree", label: "État des lieux entrée", icon: "📋", atKey: "etat_lieux_entree_at", byKey: "etat_lieux_entree_by_member", hasAmount: false, hasMode: false, hasRetained: false, obsKey: "etat_lieux_entree_observations" as string | null },
+  { key: "cles_remises", label: "Clés remises", icon: "🔑", atKey: "cles_remises_at", byKey: "cles_remises_by_member", hasAmount: false, hasMode: false, hasRetained: false, obsKey: null as string | null },
+  { key: "etat_lieux_sortie", label: "État des lieux sortie", icon: "📋", atKey: "etat_lieux_sortie_at", byKey: "etat_lieux_sortie_by_member", hasAmount: false, hasMode: false, hasRetained: false, obsKey: "etat_lieux_sortie_observations" as string | null },
+  { key: "cles_retournees", label: "Clés retournées", icon: "🔑", atKey: "cles_retournees_at", byKey: "cles_retournees_by_member", hasAmount: false, hasMode: false, hasRetained: false, obsKey: null as string | null },
+  { key: "caution_returned", label: "Caution restituée", icon: "💰", atKey: "caution_returned_at", byKey: "caution_returned_by_member", hasAmount: false, hasMode: false, hasRetained: true, obsKey: null as string | null },
+];
 
-type SuiviKey = (typeof SUIVI_STEPS)[number]["key"];
+type SuiviKey = "caution_received" | "etat_lieux_entree" | "cles_remises" | "etat_lieux_sortie" | "cles_retournees" | "caution_returned";
+
+const CAUTION_MODES = [
+  { value: "cheque", label: "Chèque" },
+  { value: "especes", label: "Espèces" },
+  { value: "virement", label: "Virement" },
+  { value: "cb", label: "Carte bancaire" },
+];
 
 function SuiviTab({
   bookings,
@@ -641,18 +682,34 @@ function SuiviTab({
 }) {
   const [toggling, setToggling] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [editingStep, setEditingStep] = useState<string | null>(null);
+  const [stepForm, setStepForm] = useState<Record<string, string>>({});
 
-  async function toggleStep(bookingId: string, stepKey: SuiviKey, current: boolean) {
+  async function toggleStep(bookingId: string, stepKey: SuiviKey, current: boolean, extraFields?: Record<string, unknown>) {
     setToggling(`${bookingId}-${stepKey}`);
     try {
       const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      let memberId: string | null = null;
+      if (user) {
+        const { data: member } = await supabase.from("members").select("id").eq("user_id", user.id).single();
+        memberId = member?.id ?? null;
+      }
+      const update: Record<string, unknown> = {
+        [stepKey]: !current,
+        [`${stepKey}_at`]: !current ? new Date().toISOString() : null,
+        [`${stepKey}_by`]: !current ? memberId : null,
+        ...extraFields,
+      };
       await supabase
         .from("asset_bookings")
-        .update({ [stepKey]: !current })
+        .update(update)
         .eq("id", bookingId);
       onRefresh();
     } finally {
       setToggling(null);
+      setEditingStep(null);
+      setStepForm({});
     }
   }
 
@@ -733,37 +790,162 @@ function SuiviTab({
                   {SUIVI_STEPS.map((step, i) => {
                     const done = !!b[step.key as keyof Booking];
                     const isToggling = toggling === `${b.id}-${step.key}`;
+                    const stepAt = b[step.atKey as keyof Booking] as string | null | undefined;
+                    const stepBy = b[step.byKey as keyof Booking] as { first_name: string; last_name: string } | null | undefined;
+                    const obs = step.obsKey ? (b[step.obsKey as keyof Booking] as string | null | undefined) : null;
+                    const isEditing = editingStep === `${b.id}-${step.key}`;
+
                     return (
-                      <button
-                        key={step.key}
-                        type="button"
-                        onClick={() => toggleStep(b.id, step.key, done)}
-                        disabled={isToggling}
-                        className={cn(
-                          "flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-left transition-colors",
-                          done
-                            ? "bg-green-50 dark:bg-green-500/10"
-                            : "bg-surface-secondary hover:bg-surface-tertiary"
-                        )}
-                      >
-                        <span className="text-[14px]">{step.icon}</span>
-                        <div className="flex items-center gap-2">
+                      <div key={step.key} className={cn(
+                        "rounded-[12px] transition-colors overflow-hidden",
+                        done
+                          ? "bg-green-50 dark:bg-green-500/10"
+                          : "bg-surface-secondary"
+                      )}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (done) {
+                              toggleStep(b.id, step.key as SuiviKey, done);
+                            } else if (step.hasAmount || step.obsKey || step.hasRetained) {
+                              setEditingStep(isEditing ? null : `${b.id}-${step.key}`);
+                              setStepForm({});
+                            } else {
+                              toggleStep(b.id, step.key as SuiviKey, done);
+                            }
+                          }}
+                          disabled={isToggling}
+                          className="flex w-full items-center gap-3 px-3 py-2.5 text-left"
+                        >
+                          <span className="text-[14px]">{step.icon}</span>
                           <span className={cn(
-                            "flex h-5 w-5 items-center justify-center rounded-full text-[10px]",
+                            "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px]",
                             done
                               ? "bg-green-500 text-white"
                               : "border-2 border-content-muted text-content-muted"
                           )}>
                             {isToggling ? "…" : done ? "✓" : String(i + 1)}
                           </span>
-                        </div>
-                        <span className={cn(
-                          "text-[13px] font-medium",
-                          done ? "text-green-700 dark:text-green-400" : "text-content-secondary"
-                        )}>
-                          {step.label}
-                        </span>
-                      </button>
+                          <div className="min-w-0 flex-1">
+                            <span className={cn(
+                              "text-[13px] font-medium",
+                              done ? "text-green-700 dark:text-green-400" : "text-content-secondary"
+                            )}>
+                              {step.label}
+                            </span>
+                            {done && stepAt && (
+                              <p className="text-[10px] text-content-muted">
+                                {new Date(stepAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                                {stepBy ? ` par ${stepBy.first_name} ${stepBy.last_name}` : ""}
+                              </p>
+                            )}
+                          </div>
+                          {done && step.key === "caution_received" && b.caution_amount != null && (
+                            <span className="text-[11px] font-semibold text-green-700 dark:text-green-400">
+                              {fmtFull(parseFloat(String(b.caution_amount)))}
+                              {b.caution_mode ? ` (${b.caution_mode})` : ""}
+                            </span>
+                          )}
+                          {done && step.key === "caution_returned" && b.caution_retained_amount != null && parseFloat(String(b.caution_retained_amount)) > 0 && (
+                            <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                              -{fmtFull(parseFloat(String(b.caution_retained_amount)))} retenu
+                            </span>
+                          )}
+                        </button>
+                        {done && obs && (
+                          <p className="px-3 pb-2 text-[11px] italic text-content-muted">
+                            {obs}
+                          </p>
+                        )}
+                        {isEditing && !done && (
+                          <div className="border-t border-border/50 px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex flex-col gap-2">
+                              {step.hasAmount && (
+                                <>
+                                  <div className="flex gap-2">
+                                    <input
+                                      type="number"
+                                      placeholder="Montant caution"
+                                      value={stepForm.amount ?? ""}
+                                      onChange={(e) => setStepForm((f) => ({ ...f, amount: e.target.value }))}
+                                      className="w-full rounded-[10px] border border-border bg-surface-primary px-3 py-1.5 text-[12px] text-content-primary placeholder:text-content-muted"
+                                    />
+                                  </div>
+                                  <select
+                                    value={stepForm.mode ?? ""}
+                                    onChange={(e) => setStepForm((f) => ({ ...f, mode: e.target.value }))}
+                                    className="w-full rounded-[10px] border border-border bg-surface-primary px-3 py-1.5 text-[12px] text-content-primary"
+                                  >
+                                    <option value="">Mode de paiement...</option>
+                                    {CAUTION_MODES.map((m) => (
+                                      <option key={m.value} value={m.value}>{m.label}</option>
+                                    ))}
+                                  </select>
+                                </>
+                              )}
+                              {step.hasRetained && (
+                                <>
+                                  <input
+                                    type="number"
+                                    placeholder="Montant retenu (0 si rien)"
+                                    value={stepForm.retained ?? ""}
+                                    onChange={(e) => setStepForm((f) => ({ ...f, retained: e.target.value }))}
+                                    className="w-full rounded-[10px] border border-border bg-surface-primary px-3 py-1.5 text-[12px] text-content-primary placeholder:text-content-muted"
+                                  />
+                                  {stepForm.retained && parseFloat(stepForm.retained) > 0 && (
+                                    <input
+                                      type="text"
+                                      placeholder="Motif de la retenue"
+                                      value={stepForm.retainedReason ?? ""}
+                                      onChange={(e) => setStepForm((f) => ({ ...f, retainedReason: e.target.value }))}
+                                      className="w-full rounded-[10px] border border-border bg-surface-primary px-3 py-1.5 text-[12px] text-content-primary placeholder:text-content-muted"
+                                    />
+                                  )}
+                                </>
+                              )}
+                              {step.obsKey && (
+                                <textarea
+                                  placeholder="Observations (optionnel)..."
+                                  value={stepForm.obs ?? ""}
+                                  onChange={(e) => setStepForm((f) => ({ ...f, obs: e.target.value }))}
+                                  rows={2}
+                                  className="w-full rounded-[10px] border border-border bg-surface-primary px-3 py-1.5 text-[12px] text-content-primary placeholder:text-content-muted"
+                                />
+                              )}
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => { setEditingStep(null); setStepForm({}); }}
+                                  className="rounded-[10px] px-3 py-1.5 text-[12px] font-medium text-content-muted hover:bg-surface-secondary"
+                                >
+                                  Annuler
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const extra: Record<string, unknown> = {};
+                                    if (step.hasAmount) {
+                                      if (stepForm.amount) extra.caution_amount = parseFloat(stepForm.amount);
+                                      if (stepForm.mode) extra.caution_mode = stepForm.mode;
+                                    }
+                                    if (step.hasRetained) {
+                                      if (stepForm.retained) extra.caution_retained_amount = parseFloat(stepForm.retained);
+                                      if (stepForm.retainedReason) extra.caution_retained_reason = stepForm.retainedReason;
+                                    }
+                                    if (step.obsKey && stepForm.obs) {
+                                      extra[step.obsKey] = stepForm.obs;
+                                    }
+                                    toggleStep(b.id, step.key as SuiviKey, false, extra);
+                                  }}
+                                  className="btn-gradient rounded-[10px] px-4 py-1.5 text-[12px] font-semibold text-white"
+                                >
+                                  Valider
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>

@@ -61,6 +61,13 @@ function stripTypePrefix(subject: string | null): string | null {
   return subject.replace(/^\[(REUNION|URGENCE|INFO|BENEVOLE|REMBOURSEMENT)\]\s*/, "");
 }
 
+interface RsvpEntry {
+  member_id: string;
+  first_name: string;
+  last_name: string;
+  response: string | null; // "present" | "absent" | "incertain" | null (no response)
+}
+
 interface InboxProps {
   isBureau?: boolean;
 }
@@ -75,6 +82,10 @@ export function Inbox({ isBureau = false }: InboxProps) {
   const [msgType, setMsgType] = useState<MsgType>("normal");
   const [rsvpStatus, setRsvpStatus] = useState<string | null>(null);
   const [rsvpSending, setRsvpSending] = useState(false);
+  const [rsvpRecap, setRsvpRecap] = useState<RsvpEntry[]>([]);
+  const [rsvpRecapLoading, setRsvpRecapLoading] = useState(false);
+
+  const [filterType, setFilterType] = useState<MsgType | null>(null);
 
   const [replyTo, setReplyTo] = useState<{ recipientId: string; subject: string } | null>(null);
   const composeFormRef = useRef<HTMLFormElement>(null);
@@ -170,6 +181,108 @@ export function Inbox({ isBureau = false }: InboxProps) {
       setRsvpStatus(response);
     } finally {
       setRsvpSending(false);
+    }
+  }
+
+  async function loadRsvpRecap(msg: Message) {
+    setRsvpRecapLoading(true);
+    setRsvpRecap([]);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: member } = await supabase
+        .from("members")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+      if (!member) return;
+
+      // Fetch all responses for this message_id
+      const { data: responses } = await supabase
+        .from("meeting_responses")
+        .select("member_id, response")
+        .eq("message_id", msg.id);
+
+      // Find all recipients of this broadcast reunion:
+      // All messages with the same subject, same sender, created within 1 minute of each other
+      const { data: broadcastMsgs } = await supabase
+        .from("messages")
+        .select("to_id")
+        .eq("from_id", member.id)
+        .eq("subject", msg.subject);
+
+      // Collect unique recipient IDs
+      const recipientIds = new Set<string>();
+      if (broadcastMsgs) {
+        for (const m of broadcastMsgs) {
+          if (m.to_id) recipientIds.add(m.to_id);
+        }
+      }
+
+      if (recipientIds.size === 0) return;
+
+      // Fetch member info for all recipients
+      const { data: recipientMembers } = await supabase
+        .from("members")
+        .select("id, first_name, last_name")
+        .in("id", Array.from(recipientIds));
+
+      if (!recipientMembers) return;
+
+      // Build the response map
+      const responseMap = new Map<string, string>();
+      if (responses) {
+        for (const r of responses) {
+          responseMap.set(r.member_id, r.response);
+        }
+      }
+
+      // Also check responses on other copies of the same broadcast message
+      // (responses are per message_id, but each recipient has their own message)
+      if (broadcastMsgs) {
+        const allMsgIds = broadcastMsgs.map(() => msg.id); // We need the IDs of all broadcast copies
+        // Actually, we need the IDs of all broadcast messages to check responses on each
+        const { data: broadcastMsgsFull } = await supabase
+          .from("messages")
+          .select("id, to_id")
+          .eq("from_id", member.id)
+          .eq("subject", msg.subject);
+
+        if (broadcastMsgsFull && broadcastMsgsFull.length > 0) {
+          const allIds = broadcastMsgsFull.map((m: { id: string }) => m.id);
+          const { data: allResponses } = await supabase
+            .from("meeting_responses")
+            .select("member_id, response")
+            .in("message_id", allIds);
+          if (allResponses) {
+            for (const r of allResponses) {
+              responseMap.set(r.member_id, r.response);
+            }
+          }
+        }
+      }
+
+      // Build recap entries
+      const entries: RsvpEntry[] = recipientMembers.map((rm) => ({
+        member_id: rm.id,
+        first_name: rm.first_name,
+        last_name: rm.last_name,
+        response: responseMap.get(rm.id) ?? null,
+      }));
+
+      // Sort: present first, then absent, then incertain, then no response
+      const order: Record<string, number> = { present: 0, absent: 1, incertain: 2 };
+      entries.sort((a, b) => {
+        const oa = a.response ? (order[a.response] ?? 3) : 3;
+        const ob = b.response ? (order[b.response] ?? 3) : 3;
+        if (oa !== ob) return oa - ob;
+        return a.last_name.localeCompare(b.last_name);
+      });
+
+      setRsvpRecap(entries);
+    } finally {
+      setRsvpRecapLoading(false);
     }
   }
 
@@ -507,6 +620,129 @@ export function Inbox({ isBureau = false }: InboxProps) {
               </div>
             </div>
           )}
+          {tab === "sent" && detectMsgType(selected.subject) === "reunion" && (
+            <div className="flex flex-col gap-3 rounded-[14px] border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-500/10">
+              <div className="flex items-center justify-between">
+                <p className="text-[13px] font-semibold text-blue-700 dark:text-blue-400">
+                  Recap des reponses
+                </p>
+                {!rsvpRecapLoading && rsvpRecap.length > 0 && (() => {
+                  const presents = rsvpRecap.filter((r) => r.response === "present").length;
+                  const total = rsvpRecap.length;
+                  return (
+                    <span className="text-[12px] font-medium text-blue-600 dark:text-blue-300">
+                      {presents}/{total} presents
+                    </span>
+                  );
+                })()}
+              </div>
+              {rsvpRecapLoading ? (
+                <div className="flex items-center gap-2 py-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin text-blue-500">
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                  </svg>
+                  <span className="text-[12px] text-content-muted">Chargement...</span>
+                </div>
+              ) : rsvpRecap.length === 0 ? (
+                <p className="text-[12px] text-content-muted">Aucun destinataire trouve.</p>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {/* Presents */}
+                  {rsvpRecap.filter((r) => r.response === "present").length > 0 && (
+                    <div>
+                      <div className="mb-1.5 flex items-center gap-1.5">
+                        <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+                        <span className="text-[11px] font-semibold text-green-700 dark:text-green-400">
+                          Presents ({rsvpRecap.filter((r) => r.response === "present").length})
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {rsvpRecap
+                          .filter((r) => r.response === "present")
+                          .map((r) => (
+                            <span
+                              key={r.member_id}
+                              className="rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                            >
+                              {r.first_name} {r.last_name}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Absents */}
+                  {rsvpRecap.filter((r) => r.response === "absent").length > 0 && (
+                    <div>
+                      <div className="mb-1.5 flex items-center gap-1.5">
+                        <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
+                        <span className="text-[11px] font-semibold text-red-700 dark:text-red-400">
+                          Absents ({rsvpRecap.filter((r) => r.response === "absent").length})
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {rsvpRecap
+                          .filter((r) => r.response === "absent")
+                          .map((r) => (
+                            <span
+                              key={r.member_id}
+                              className="rounded-full bg-red-100 px-2.5 py-1 text-[11px] font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                            >
+                              {r.first_name} {r.last_name}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Incertains */}
+                  {rsvpRecap.filter((r) => r.response === "incertain").length > 0 && (
+                    <div>
+                      <div className="mb-1.5 flex items-center gap-1.5">
+                        <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
+                        <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+                          Incertains ({rsvpRecap.filter((r) => r.response === "incertain").length})
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {rsvpRecap
+                          .filter((r) => r.response === "incertain")
+                          .map((r) => (
+                            <span
+                              key={r.member_id}
+                              className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                            >
+                              {r.first_name} {r.last_name}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Sans reponse */}
+                  {rsvpRecap.filter((r) => r.response === null).length > 0 && (
+                    <div>
+                      <div className="mb-1.5 flex items-center gap-1.5">
+                        <span className="inline-block h-2 w-2 rounded-full bg-gray-400" />
+                        <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                          Sans reponse ({rsvpRecap.filter((r) => r.response === null).length})
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {rsvpRecap
+                          .filter((r) => r.response === null)
+                          .map((r) => (
+                            <span
+                              key={r.member_id}
+                              className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                            >
+                              {r.first_name} {r.last_name}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           {tab === "inbox" && (
             <button
               type="button"
@@ -531,9 +767,47 @@ export function Inbox({ isBureau = false }: InboxProps) {
               : "Les messages que vous envoyez apparaîtront ici"
           }
         />
-      ) : (
-        <div className="flex flex-col divide-y divide-border rounded-[16px] bg-surface-elevated shadow-sm overflow-hidden">
-          {messages.map((msg) => {
+      ) : (() => {
+        const FILTER_CHIPS: { value: MsgType | null; label: string; icon?: string; activeColor: string }[] = [
+          { value: null, label: "Tous", activeColor: "bg-brand-500 text-white" },
+          { value: "reunion", label: "Reunion", icon: "📋", activeColor: "bg-blue-600 text-white" },
+          { value: "urgence", label: "Urgence", icon: "🚨", activeColor: "bg-red-600 text-white" },
+          { value: "info", label: "Info", icon: "ℹ️", activeColor: "bg-teal-600 text-white" },
+          { value: "benevole", label: "Benevole", icon: "🤝", activeColor: "bg-purple-600 text-white" },
+          { value: "remboursement", label: "Remboursement", icon: "💸", activeColor: "bg-emerald-600 text-white" },
+        ];
+        const filteredMessages = filterType
+          ? messages.filter((m) => detectMsgType(m.subject) === filterType)
+          : messages;
+        return (
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {FILTER_CHIPS.map((chip) => (
+              <button
+                key={chip.value ?? "all"}
+                type="button"
+                onClick={() => setFilterType(chip.value)}
+                className={cn(
+                  "flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all",
+                  filterType === chip.value
+                    ? chip.activeColor
+                    : "bg-surface-secondary text-content-secondary hover:bg-surface-tertiary"
+                )}
+              >
+                {chip.icon && <span>{chip.icon}</span>}
+                {chip.label}
+              </button>
+            ))}
+          </div>
+          {filteredMessages.length === 0 ? (
+            <EmptyState
+              icon="🔍"
+              title="Aucun message"
+              description="Aucun message ne correspond au filtre selectionne"
+            />
+          ) : (
+          <div className="flex flex-col divide-y divide-border rounded-[16px] bg-surface-elevated shadow-sm overflow-hidden">
+          {filteredMessages.map((msg) => {
             const person = tab === "inbox" ? msg.sender : msg.recipient;
             const mType = detectMsgType(msg.subject);
             const badge = MSG_TYPE_BADGE[mType];
@@ -555,6 +829,9 @@ export function Inbox({ isBureau = false }: InboxProps) {
                     if (detectMsgType(msg.subject) === "reunion") {
                       setRsvpStatus(null);
                       loadRsvp(msg.id);
+                      if (tab === "sent") {
+                        loadRsvpRecap(msg);
+                      }
                     }
                   }}
                   className="flex min-w-0 flex-1 items-start gap-3 text-left"
@@ -616,7 +893,10 @@ export function Inbox({ isBureau = false }: InboxProps) {
             );
           })}
         </div>
-      )}
+          )}
+        </div>
+        );
+      })()}
     </div>
   );
 }

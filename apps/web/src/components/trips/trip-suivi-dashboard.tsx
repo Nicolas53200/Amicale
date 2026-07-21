@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getOrgIdClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/toast";
 
 interface Registration {
   id: string;
@@ -28,6 +29,7 @@ interface TripSuiviDashboardProps {
   tripName: string;
   maxSeats: number | null;
   registrations: Registration[];
+  registrationDeadline?: string;
 }
 
 const fmt = (n: number) =>
@@ -40,11 +42,14 @@ export function TripSuiviDashboard({
   tripName,
   maxSeats,
   registrations,
+  registrationDeadline,
 }: TripSuiviDashboardProps) {
   const [tab, setTab] = useState<TabId>("overview");
   const [messages, setMessages] = useState<TripMessage[]>([]);
   const [sending, setSending] = useState(false);
+  const [sendingConfirmations, setSendingConfirmations] = useState(false);
   const [msgBody, setMsgBody] = useState("");
+  const { showToast } = useToast();
 
   const confirmes = registrations.filter((r) => r.payment_status === "acceptee");
   const enAttente = registrations.filter((r) => r.payment_status === "en_attente");
@@ -52,6 +57,34 @@ export function TripSuiviDashboard({
   const confirmesPersonnes = confirmes.reduce((s, r) => s + r.nb_adults + r.nb_children, 0);
   const placesRestantes = maxSeats ? maxSeats - totalPersonnes : null;
   const totalRevenu = confirmes.reduce((s, r) => s + parseFloat(String(r.total_amount)), 0);
+
+  // Status banner logic
+  const deadlinePassed = registrationDeadline
+    ? new Date(registrationDeadline) < new Date()
+    : false;
+
+  let bannerLabel: string;
+  let bannerColor: string;
+  if (deadlinePassed) {
+    bannerLabel = "Inscriptions cloturees";
+    bannerColor = "bg-gray-500";
+  } else if (placesRestantes !== null && placesRestantes <= 0) {
+    bannerLabel = "Complet";
+    bannerColor = "bg-red-500";
+  } else if (
+    placesRestantes !== null &&
+    maxSeats &&
+    placesRestantes <= maxSeats * 0.2
+  ) {
+    bannerLabel = `Plus que ${placesRestantes} place${placesRestantes > 1 ? "s" : ""} !`;
+    bannerColor = "bg-amber-500";
+  } else if (placesRestantes !== null) {
+    bannerLabel = `Inscriptions ouvertes - ${placesRestantes} place${placesRestantes > 1 ? "s" : ""} restante${placesRestantes > 1 ? "s" : ""}`;
+    bannerColor = "bg-green-500";
+  } else {
+    bannerLabel = "Inscriptions ouvertes";
+    bannerColor = "bg-green-500";
+  }
 
   const loadMessages = useCallback(async () => {
     const supabase = createClient();
@@ -110,8 +143,51 @@ export function TripSuiviDashboard({
     }
   }
 
+  async function sendConfirmations() {
+    if (confirmes.length === 0) return;
+    setSendingConfirmations(true);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: member } = await supabase
+        .from("members")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+      if (!member) return;
+
+      const orgId = await getOrgIdClient();
+      const inserts = confirmes.map((r) => {
+        const childrenPart =
+          r.nb_children > 0 ? `, ${r.nb_children} enfant(s)` : "";
+        return {
+          org_id: orgId,
+          from_id: member.id,
+          to_id: r.member_id,
+          subject: `[INFO] ${tripName} — Confirmation`,
+          body: `Votre inscription au voyage ${tripName} est confirmee. Nous avons bien note votre participation (${r.nb_adults} adulte(s)${childrenPart}). Montant total : ${parseFloat(String(r.total_amount))}€.`,
+        };
+      });
+      await supabase.from("messages").insert(inserts);
+      showToast("Confirmations envoyees !", "success");
+    } finally {
+      setSendingConfirmations(false);
+    }
+  }
+
   return (
     <div className="rounded-[16px] bg-surface-elevated shadow-sm overflow-hidden">
+      {/* Status banner */}
+      <div
+        className={cn(
+          "px-4 py-2.5 text-center text-[13px] font-semibold text-white",
+          bannerColor
+        )}
+      >
+        {bannerLabel}
+      </div>
+
       <div className="flex border-b border-border">
         {(["overview", "communication"] as TabId[]).map((t) => (
           <button
@@ -204,6 +280,16 @@ export function TripSuiviDashboard({
                     </div>
                   ))}
                 </div>
+                <button
+                  type="button"
+                  onClick={sendConfirmations}
+                  disabled={sendingConfirmations}
+                  className="mt-3 w-full rounded-[12px] bg-green-600 px-4 py-2.5 text-[12px] font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                >
+                  {sendingConfirmations
+                    ? "Envoi en cours..."
+                    : `Envoyer les confirmations (${confirmes.length})`}
+                </button>
               </div>
             )}
           </div>

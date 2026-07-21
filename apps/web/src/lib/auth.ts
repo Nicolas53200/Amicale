@@ -154,7 +154,7 @@ export function getRoleConfig(role: string | null) {
 }
 
 export function getToolAccess(role: string | null): string[] {
-  return BUREAU_TOOL_ACCESS[role || "lecture"] || BUREAU_TOOL_ACCESS.lecture;
+  return BUREAU_TOOL_ACCESS[role || "lecture"] || BUREAU_TOOL_ACCESS.lecture || [];
 }
 
 export function hasPermission(

@@ -165,6 +165,7 @@ export default async function VoyageDetailPage({
         tripName={trip.name || trip.destination}
         maxSeats={trip.max_seats}
         registrations={registrations}
+        registrationDeadline={trip.registration_deadline ?? undefined}
       />
 
       {/* Registration manager with validation workflow */}
