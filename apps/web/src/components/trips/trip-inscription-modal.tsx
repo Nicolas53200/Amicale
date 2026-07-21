@@ -23,6 +23,7 @@ interface TripInscriptionModalProps {
   priceChild: number | null;
   maxSeats: number | null;
   currentSeats: number;
+  childrenAllowed?: boolean;
   onSuccess: () => void;
 }
 
@@ -38,6 +39,7 @@ export function TripInscriptionModal({
   priceChild,
   maxSeats,
   currentSeats,
+  childrenAllowed = true,
   onSuccess,
 }: TripInscriptionModalProps) {
   const [nbAdults, setNbAdults] = useState(1);
@@ -114,7 +116,7 @@ export function TripInscriptionModal({
             max={Math.max(1, maxTotal - nbChildren)}
           />
 
-          {priceChild !== null && (
+          {childrenAllowed && priceChild !== null && (
             <NumberStepper
               label="Enfants"
               value={nbChildren}

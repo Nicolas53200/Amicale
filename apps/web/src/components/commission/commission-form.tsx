@@ -18,10 +18,23 @@ const MODELS = [
 
 const FEATURES = [
   { id: "notifications", label: "Notifications", icon: "🔔" },
+  { id: "carousel", label: "Carousel", icon: "🎠" },
+  { id: "evenements", label: "Événements", icon: "🎉" },
+  { id: "locations", label: "Locations", icon: "🏠" },
+  { id: "voyages", label: "Voyages", icon: "✈️" },
   { id: "documents", label: "Documents", icon: "📄" },
   { id: "compta", label: "Comptabilité", icon: "💰" },
   { id: "membres", label: "Membres", icon: "👥" },
+  { id: "bons_cadeaux", label: "Bons cadeaux", icon: "🎁" },
 ];
+
+const MODEL_FEATURES: Record<string, string[]> = {
+  simple: ["notifications", "documents", "compta", "membres"],
+  evenement: ["notifications", "carousel", "evenements", "documents", "compta", "membres"],
+  location: ["notifications", "locations", "documents", "compta", "membres"],
+  voyage: ["notifications", "voyages", "documents", "compta", "membres"],
+  bons: ["notifications", "bons_cadeaux", "documents", "compta", "membres"],
+};
 
 const ICONS = ["📋", "🎉", "🏠", "✈️", "🎁", "⚽", "🎄", "🤝", "☕", "🎵", "📦", "🛡️"];
 
@@ -50,6 +63,13 @@ export function CommissionForm({ commission }: { commission?: CommissionData }) 
   const [features, setFeatures] = useState<string[]>(
     commission?.features ?? ["notifications", "documents", "compta", "membres"]
   );
+
+  function handleModelChange(newModel: string) {
+    setModel(newModel);
+    if (!isEdit) {
+      setFeatures(MODEL_FEATURES[newModel] ?? ["notifications", "documents", "compta", "membres"]);
+    }
+  }
   const [submitting, setSubmitting] = useState(false);
 
   function toggleFeature(f: string) {
@@ -108,7 +128,7 @@ export function CommissionForm({ commission }: { commission?: CommissionData }) 
               <label className="mb-1 block text-[12px] font-medium text-content-secondary">
                 Modèle
               </label>
-              <Select value={model} onChange={(e) => setModel(e.target.value)}>
+              <Select value={model} onChange={(e) => handleModelChange(e.target.value)}>
                 {MODELS.map((m) => (
                   <option key={m.value} value={m.value}>
                     {m.label}

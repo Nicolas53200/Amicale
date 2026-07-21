@@ -89,6 +89,9 @@ CREATE TABLE events (
   price NUMERIC(10,2) DEFAULT 0,
   max_benevoles INTEGER,
   category VARCHAR(100),
+  icon VARCHAR(50),
+  color VARCHAR(20),
+  published BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -127,6 +130,19 @@ CREATE TABLE trips (
   max_seats INTEGER,
   included JSONB DEFAULT '[]'::jsonb,
   itinerary JSONB DEFAULT '[]'::jsonb,
+  name VARCHAR(255),
+  duration VARCHAR(100),
+  transport VARCHAR(100),
+  accommodation VARCHAR(255),
+  icon VARCHAR(50),
+  color VARCHAR(20),
+  min_seats INTEGER,
+  children_allowed BOOLEAN NOT NULL DEFAULT false,
+  max_adults_per_household INTEGER,
+  registration_deadline DATE,
+  not_included JSONB NOT NULL DEFAULT '[]'::jsonb,
+  child_age_limit INTEGER,
+  guides_needed INTEGER,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -162,6 +178,11 @@ CREATE TABLE assets (
   photos JSONB NOT NULL DEFAULT '[]'::jsonb,
   cover_index INTEGER,
   rules TEXT,
+  icon VARCHAR(50),
+  color VARCHAR(20),
+  capacity INTEGER,
+  tags JSONB NOT NULL DEFAULT '[]'::jsonb,
+  status VARCHAR(50) NOT NULL DEFAULT 'disponible',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -234,6 +255,7 @@ CREATE TABLE notifications (
   title VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
   target_member_id UUID REFERENCES members(id) ON DELETE CASCADE,
+  type VARCHAR(50),
   read BOOLEAN NOT NULL DEFAULT false,
   sent_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

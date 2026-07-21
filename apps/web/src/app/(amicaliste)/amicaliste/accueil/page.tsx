@@ -32,13 +32,14 @@ export default async function AccueilPage() {
   const [eventsRes, tripsRes] = await Promise.all([
     supabase
       .from("events")
-      .select("id, title, date, location")
+      .select("id, title, date, location, icon, color, category")
+      .eq("published", true)
       .gte("date", nowISO)
       .order("date")
       .limit(6),
     supabase
       .from("trips")
-      .select("id, destination, start_date, end_date, location:destination")
+      .select("id, name, destination, start_date, end_date, color, location:destination")
       .gte("start_date", nowISO)
       .order("start_date")
       .limit(2),
@@ -47,6 +48,14 @@ export default async function AccueilPage() {
   const events = eventsRes.data ?? [];
   const trips = tripsRes.data ?? [];
 
+  const categoryIcons: Record<string, string> = {
+    repas: "🍴",
+    bal: "🎵",
+    sport: "🏆",
+    sortie: "⛰️",
+    ceremonie: "🎖️",
+  };
+
   const carouselItems = [
     ...events.slice(0, 3).map((ev) => ({
       id: ev.id,
@@ -54,17 +63,17 @@ export default async function AccueilPage() {
       date: ev.date,
       location: ev.location,
       type: "event" as const,
+      color: ev.color,
     })),
     ...trips.slice(0, 1).map((t) => ({
       id: t.id,
-      title: t.destination,
+      title: (t as Record<string, unknown>).name as string || t.destination,
       date: t.start_date,
       location: null,
       type: "trip" as const,
+      color: (t as Record<string, unknown>).color as string | null,
     })),
   ];
-
-  const eventIcons = ["🍴", "🎵", "🏆", "⛰️", "🎪", "🎉"];
 
   return (
     <div className="flex flex-col">
@@ -92,8 +101,9 @@ export default async function AccueilPage() {
           />
         ) : (
           <div className="flex flex-col">
-            {events.map((ev, i) => {
+            {events.map((ev) => {
               const d = new Date(ev.date);
+              const evIcon = categoryIcons[ev.category ?? ""] ?? "🎉";
               return (
                 <Link
                   key={ev.id}
@@ -101,7 +111,10 @@ export default async function AccueilPage() {
                   className="flex items-center gap-3 border-b border-border-subtle py-3.5 transition-colors last:border-b-0 active:bg-surface-secondary"
                 >
                   <div className="flex w-11 flex-col items-center">
-                    <span className="text-xl font-bold leading-none text-brand-500">
+                    <span
+                      className={`text-xl font-bold leading-none ${ev.color ? "" : "text-brand-500"}`}
+                      style={ev.color ? { color: ev.color } : undefined}
+                    >
                       {d.getDate()}
                     </span>
                     <span className="mt-0.5 text-[10px] font-semibold uppercase text-content-muted">
@@ -110,10 +123,11 @@ export default async function AccueilPage() {
                         .replace(".", "")}
                     </span>
                   </div>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/10">
-                    <span className="text-lg">
-                      {eventIcons[i % eventIcons.length]}
-                    </span>
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${ev.color ? "" : "bg-brand-50 dark:bg-brand-500/10"}`}
+                    style={ev.color ? { backgroundColor: `${ev.color}18` } : undefined}
+                  >
+                    <span className="text-lg">{evIcon}</span>
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[14px] font-semibold text-content-primary">
@@ -239,7 +253,7 @@ export default async function AccueilPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[14px] font-semibold text-content-primary">
-                      {t.destination}
+                      {(t as Record<string, unknown>).name as string || t.destination}
                     </p>
                     <p className="text-[12px] text-content-muted">
                       {d.toLocaleDateString("fr-FR", {

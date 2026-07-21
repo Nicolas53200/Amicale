@@ -26,7 +26,8 @@ export function useCommissionItems(commissionId: string, category?: string) {
     setLoading(false);
   }, [commissionId, category]);
 
-  useEffect(() => { load(); }, [load]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { void load(); }, [load]);
 
   const add = async (item: Record<string, unknown>) => {
     const supabase = createClient();
@@ -79,7 +80,8 @@ export function useCommissionContacts(commissionId: string, type?: string) {
     setLoading(false);
   }, [commissionId, type]);
 
-  useEffect(() => { load(); }, [load]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { void load(); }, [load]);
 
   const add = async (contact: Record<string, unknown>) => {
     const supabase = createClient();
@@ -120,7 +122,8 @@ export function useCommissionActivities(commissionId: string, type?: string) {
     setLoading(false);
   }, [commissionId, type]);
 
-  useEffect(() => { load(); }, [load]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { void load(); }, [load]);
 
   const add = async (activity: Record<string, unknown>) => {
     const supabase = createClient();
@@ -174,7 +177,8 @@ export function useCommissionSettings({ commissionId }: UseCommissionDataOptions
     setLoading(false);
   }, [commissionId]);
 
-  useEffect(() => { load(); }, [load]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { void load(); }, [load]);
 
   const set = async (key: string, value: unknown) => {
     const supabase = createClient();

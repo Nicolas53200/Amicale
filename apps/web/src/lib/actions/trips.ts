@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { requireBureau } from "@/lib/auth";
+import { sendNotification } from "@/lib/actions/notifications";
 
 export async function getTrips() {
   const supabase = await createClient();
@@ -46,9 +47,13 @@ export async function createTrip(formData: FormData) {
   const { orgId } = await requireBureau();
   const supabase = await createClient();
 
+  const includedRaw = formData.get("included") as string;
+  const notIncludedRaw = formData.get("not_included") as string;
+
   const { error } = await supabase.from("trips").insert({
     org_id: orgId,
     commission_id: (formData.get("commission_id") as string) || null,
+    name: (formData.get("name") as string) || null,
     destination: formData.get("destination") as string,
     description: (formData.get("description") as string) || null,
     start_date: formData.get("start_date") as string,
@@ -60,6 +65,26 @@ export async function createTrip(formData: FormData) {
     max_seats: formData.get("max_seats")
       ? parseInt(formData.get("max_seats") as string)
       : null,
+    min_seats: formData.get("min_seats")
+      ? parseInt(formData.get("min_seats") as string)
+      : null,
+    transport: (formData.get("transport") as string) || null,
+    accommodation: (formData.get("accommodation") as string) || null,
+    icon: (formData.get("icon") as string) || null,
+    color: (formData.get("color") as string) || null,
+    children_allowed: formData.get("children_allowed") === "true",
+    max_adults_per_household: formData.get("max_adults_per_household")
+      ? parseInt(formData.get("max_adults_per_household") as string)
+      : null,
+    registration_deadline: (formData.get("registration_deadline") as string) || null,
+    child_age_limit: formData.get("child_age_limit")
+      ? parseInt(formData.get("child_age_limit") as string)
+      : null,
+    guides_needed: formData.get("guides_needed")
+      ? parseInt(formData.get("guides_needed") as string)
+      : null,
+    included: includedRaw ? JSON.parse(includedRaw) : [],
+    not_included: notIncludedRaw ? JSON.parse(notIncludedRaw) : [],
   });
 
   if (error) throw error;
@@ -71,10 +96,14 @@ export async function updateTrip(id: string, formData: FormData) {
   await requireBureau();
   const supabase = await createClient();
 
+  const includedRaw = formData.get("included") as string;
+  const notIncludedRaw = formData.get("not_included") as string;
+
   const { error } = await supabase
     .from("trips")
     .update({
       commission_id: (formData.get("commission_id") as string) || null,
+      name: (formData.get("name") as string) || null,
       destination: formData.get("destination") as string,
       description: (formData.get("description") as string) || null,
       start_date: formData.get("start_date") as string,
@@ -86,6 +115,26 @@ export async function updateTrip(id: string, formData: FormData) {
       max_seats: formData.get("max_seats")
         ? parseInt(formData.get("max_seats") as string)
         : null,
+      min_seats: formData.get("min_seats")
+        ? parseInt(formData.get("min_seats") as string)
+        : null,
+      transport: (formData.get("transport") as string) || null,
+      accommodation: (formData.get("accommodation") as string) || null,
+      icon: (formData.get("icon") as string) || null,
+      color: (formData.get("color") as string) || null,
+      children_allowed: formData.get("children_allowed") === "true",
+      max_adults_per_household: formData.get("max_adults_per_household")
+        ? parseInt(formData.get("max_adults_per_household") as string)
+        : null,
+      registration_deadline: (formData.get("registration_deadline") as string) || null,
+      child_age_limit: formData.get("child_age_limit")
+        ? parseInt(formData.get("child_age_limit") as string)
+        : null,
+      guides_needed: formData.get("guides_needed")
+        ? parseInt(formData.get("guides_needed") as string)
+        : null,
+      included: includedRaw ? JSON.parse(includedRaw) : [],
+      not_included: notIncludedRaw ? JSON.parse(notIncludedRaw) : [],
     })
     .eq("id", id);
 
@@ -163,6 +212,32 @@ export async function registerForTrip(
   );
 
   if (error) throw error;
+
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("destination, name, org_id, commission_id")
+    .eq("id", tripId)
+    .single();
+
+  if (trip) {
+    const { data: memberInfo } = await supabase
+      .from("members")
+      .select("first_name, last_name")
+      .eq("id", member.id)
+      .single();
+    const memberName = memberInfo
+      ? `${memberInfo.first_name} ${memberInfo.last_name}`
+      : "Un membre";
+    const tripName = trip.name || trip.destination;
+    await sendNotification({
+      orgId: trip.org_id,
+      title: `Inscription voyage — ${tripName}`,
+      message: `${memberName} s'est inscrit(e) au voyage "${tripName}" (${nbAdults} adulte(s)${nbChildren > 0 ? `, ${nbChildren} enfant(s)` : ""}).`,
+      commissionId: trip.commission_id,
+      type: "voyage",
+    });
+  }
+
   revalidatePath(`/amicaliste/voyages/${tripId}`);
   revalidatePath(`/bureau/voyages/${tripId}`);
 }

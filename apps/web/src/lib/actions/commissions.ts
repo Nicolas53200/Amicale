@@ -17,6 +17,40 @@ export async function getCommissions() {
   return data;
 }
 
+export async function getAllCommissions() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("commissions")
+    .select("*, commission_members(count)")
+    .order("is_fixed", { ascending: false })
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function toggleCommissionVisibility(id: string) {
+  await requireBureau();
+  const supabase = await createClient();
+
+  const { data: commission } = await supabase
+    .from("commissions")
+    .select("active")
+    .eq("id", id)
+    .single();
+
+  if (!commission) throw new Error("Commission introuvable");
+
+  const { error } = await supabase
+    .from("commissions")
+    .update({ active: !commission.active })
+    .eq("id", id);
+
+  if (error) throw error;
+  revalidatePath("/bureau/commissions");
+  revalidatePath("/amicaliste/commissions");
+}
+
 export async function getCommission(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

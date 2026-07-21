@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { requireBureau } from "@/lib/auth";
+import { sendNotification } from "@/lib/actions/notifications";
 
 export async function getEvents() {
   const supabase = await createClient();
@@ -20,6 +21,7 @@ export async function getUpcomingEvents() {
   const { data, error } = await supabase
     .from("events")
     .select("*, event_registrations(count)")
+    .eq("published", true)
     .gte("date", new Date().toISOString())
     .order("date")
     .limit(20);
@@ -64,6 +66,16 @@ export async function createEvent(formData: FormData) {
       ? parseInt(formData.get("max_benevoles") as string)
       : null,
     category: (formData.get("category") as string) || null,
+    icon: (formData.get("icon") as string) || null,
+    color: (formData.get("color") as string) || null,
+    published: formData.get("published") !== "false",
+    children_allowed: formData.get("children_allowed") === "true",
+    child_age_limit: formData.get("child_age_limit")
+      ? parseInt(formData.get("child_age_limit") as string)
+      : 16,
+    max_adults_per_household: formData.get("max_adults_per_household")
+      ? parseInt(formData.get("max_adults_per_household") as string)
+      : 6,
   });
 
   if (error) throw error;
@@ -71,7 +83,15 @@ export async function createEvent(formData: FormData) {
   revalidatePath("/amicaliste/evenements");
 }
 
-export async function registerForEvent(eventId: string, nbPersonnes = 1, isBenevole?: string) {
+interface RegisterEventParams {
+  nbAdultes: number;
+  nbEnfants?: number;
+  enfantsIdx?: number[];
+  totalPersonnes: number;
+  isBenevole?: string;
+}
+
+export async function registerForEvent(eventId: string, params: RegisterEventParams) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -90,14 +110,43 @@ export async function registerForEvent(eventId: string, nbPersonnes = 1, isBenev
     {
       event_id: eventId,
       member_id: member.id,
-      nb_personnes: nbPersonnes,
-      is_benevole: isBenevole || null,
+      nb_personnes: params.totalPersonnes,
+      nb_adultes: params.nbAdultes,
+      nb_enfants: params.nbEnfants ?? 0,
+      enfants_idx: params.enfantsIdx ?? [],
+      is_benevole: params.isBenevole || null,
       status: "inscrit",
     },
     { onConflict: "event_id,member_id" }
   );
 
   if (error) throw error;
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("title, org_id, commission_id")
+    .eq("id", eventId)
+    .single();
+
+  if (event) {
+    const { data: memberInfo } = await supabase
+      .from("members")
+      .select("first_name, last_name")
+      .eq("id", member.id)
+      .single();
+    const name = memberInfo
+      ? `${memberInfo.first_name} ${memberInfo.last_name}`
+      : "Un membre";
+    const personnesStr = `${params.totalPersonnes} personne${params.totalPersonnes > 1 ? "s" : ""}`;
+    await sendNotification({
+      orgId: event.org_id,
+      title: `Inscription — ${event.title}`,
+      message: `${name} s'est inscrit(e) à l'événement "${event.title}" (${personnesStr})${params.isBenevole ? " en tant que bénévole" : ""}.`,
+      commissionId: event.commission_id,
+      type: "event",
+    });
+  }
+
   revalidatePath(`/amicaliste/evenements/${eventId}`);
   revalidatePath(`/bureau/evenements/${eventId}`);
 }
@@ -125,6 +174,16 @@ export async function updateEvent(id: string, formData: FormData) {
         ? parseInt(formData.get("max_benevoles") as string)
         : null,
       category: (formData.get("category") as string) || null,
+      icon: (formData.get("icon") as string) || null,
+      color: (formData.get("color") as string) || null,
+      published: formData.get("published") !== "false",
+      children_allowed: formData.get("children_allowed") === "true",
+      child_age_limit: formData.get("child_age_limit")
+        ? parseInt(formData.get("child_age_limit") as string)
+        : 16,
+      max_adults_per_household: formData.get("max_adults_per_household")
+        ? parseInt(formData.get("max_adults_per_household") as string)
+        : 6,
     })
     .eq("id", id);
 
@@ -165,6 +224,31 @@ export async function cancelRegistration(eventId: string) {
     .eq("member_id", member.id);
 
   if (error) throw error;
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("title, org_id, commission_id")
+    .eq("id", eventId)
+    .single();
+
+  if (event) {
+    const { data: memberInfo } = await supabase
+      .from("members")
+      .select("first_name, last_name")
+      .eq("id", member.id)
+      .single();
+    const name = memberInfo
+      ? `${memberInfo.first_name} ${memberInfo.last_name}`
+      : "Un membre";
+    await sendNotification({
+      orgId: event.org_id,
+      title: `Désinscription — ${event.title}`,
+      message: `${name} s'est désinscrit(e) de l'événement "${event.title}".`,
+      commissionId: event.commission_id,
+      type: "event",
+    });
+  }
+
   revalidatePath(`/amicaliste/evenements/${eventId}`);
   revalidatePath(`/bureau/evenements/${eventId}`);
 }

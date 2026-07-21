@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { CommissionCard } from "@/components/commission/commission-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useToast } from "@/components/ui/toast";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", {
@@ -11,19 +15,69 @@ const fmt = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
-export default async function CommissionsPage() {
-  const supabase = await createClient();
-  const { data: commissions } = await supabase
-    .from("commissions")
-    .select("*, commission_members(count)")
-    .eq("active", true)
-    .order("is_fixed", { ascending: false })
-    .order("name");
+interface CommissionRow {
+  id: string;
+  name: string;
+  model: string;
+  icon: string | null;
+  color: string | null;
+  budget: string;
+  is_fixed: boolean;
+  active: boolean;
+  commission_members: { count: number }[];
+}
 
-  const list = commissions ?? [];
+export default function CommissionsPage() {
+  const [commissions, setCommissions] = useState<CommissionRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
+  const supabase = createClient();
+
+  const load = useCallback(async () => {
+    const { data } = await supabase
+      .from("commissions")
+      .select("*, commission_members(count)")
+      .order("is_fixed", { ascending: false })
+      .order("name");
+    setCommissions((data as CommissionRow[]) ?? []);
+    setLoading(false);
+  }, [supabase]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function toggleVisibility(id: string) {
+    const commission = commissions.find((c) => c.id === id);
+    if (!commission) return;
+    const newActive = !commission.active;
+
+    setCommissions((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, active: newActive } : c))
+    );
+
+    const { error } = await supabase
+      .from("commissions")
+      .update({ active: newActive })
+      .eq("id", id);
+
+    if (error) {
+      setCommissions((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, active: !newActive } : c))
+      );
+      showToast("Erreur lors de la mise à jour", "error");
+      return;
+    }
+
+    showToast(
+      `${commission.name} : ${newActive ? "visible côté amicaliste" : "masquée côté amicaliste"}`,
+      "success"
+    );
+  }
+
+  const list = commissions;
+  const activeList = list.filter((c) => c.active);
   const total = list.length;
   const fixed = list.filter((c) => c.is_fixed).length;
-  const budgetTotal = list.reduce(
+  const budgetTotal = activeList.reduce(
     (s, c) => s + parseFloat(c.budget || "0"),
     0
   );
@@ -36,7 +90,6 @@ export default async function CommissionsPage() {
         backHref="/bureau/dashboard"
       />
 
-      {/* Stats row */}
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-[14px] bg-surface-elevated p-3 shadow-sm">
           <p className="text-[10px] font-semibold uppercase text-content-muted">Total</p>
@@ -64,7 +117,11 @@ export default async function CommissionsPage() {
         </Link>
       </div>
 
-      {list.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+        </div>
+      ) : list.length === 0 ? (
         <EmptyState
           icon="📋"
           title="Aucune commission"
@@ -84,10 +141,14 @@ export default async function CommissionsPage() {
               budget={c.budget}
               memberCount={
                 Array.isArray(c.commission_members)
-                  ? c.commission_members.length
-                  : (c.commission_members as { count: number }[])?.[0]?.count ?? 0
+                  ? c.commission_members.length > 0 && typeof c.commission_members[0] === "object" && "count" in c.commission_members[0]
+                    ? (c.commission_members[0] as { count: number }).count
+                    : c.commission_members.length
+                  : 0
               }
               isFixed={c.is_fixed}
+              active={c.active}
+              onToggleVisibility={toggleVisibility}
             />
           ))}
         </div>

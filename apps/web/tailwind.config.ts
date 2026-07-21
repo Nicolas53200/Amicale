@@ -33,6 +33,14 @@ const config: Config = {
           DEFAULT: "var(--color-border)",
           subtle: "var(--color-border-subtle)",
         },
+        semantic: {
+          red: { DEFAULT: "var(--color-red)", light: "var(--color-red-light)" },
+          green: { DEFAULT: "var(--color-green)", light: "var(--color-green-light)" },
+          blue: { DEFAULT: "var(--color-blue)", light: "var(--color-blue-light)" },
+          purple: { DEFAULT: "var(--color-purple)", light: "var(--color-purple-light)" },
+          amber: { DEFAULT: "var(--color-amber)", light: "var(--color-amber-light)" },
+          teal: { DEFAULT: "var(--color-teal)", light: "var(--color-teal-light)" },
+        },
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

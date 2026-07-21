@@ -18,13 +18,17 @@ interface Member {
   avatar_url: string | null;
   is_bureau: boolean;
   invitation_code: string | null;
+  grade: string | null;
+  type_sp: string | null;
+  date_adhesion: string | null;
+  avatar_emoji: string | null;
 }
 
 const tabs = [
   { label: "Tous", value: "all" },
   { label: "Actifs", value: "actif" },
+  { label: "Retraités", value: "retraite" },
   { label: "Bureau", value: "bureau" },
-  { label: "Invites", value: "invite" },
 ];
 
 export function MembresPageClient({ members }: { members: Member[] }) {
@@ -37,16 +41,15 @@ export function MembresPageClient({ members }: { members: Member[] }) {
   const [inviteError, setInviteError] = useState<string | null>(null);
 
   const total = members.length;
-  const actifs = members.filter((m) => m.status === "actif").length;
+  const actifs = members.filter((m) => m.status !== "retraite").length;
+  const retraites = members.filter((m) => m.status === "retraite").length;
   const bureau = members.filter((m) => m.is_bureau).length;
-  const invites = members.filter((m) => m.status === "invite").length;
 
   const filtered = useMemo(() => {
     let result = members;
-    if (tab === "actif") result = result.filter((m) => m.status === "actif");
+    if (tab === "actif") result = result.filter((m) => m.status !== "retraite");
+    else if (tab === "retraite") result = result.filter((m) => m.status === "retraite");
     else if (tab === "bureau") result = result.filter((m) => m.is_bureau);
-    else if (tab === "invite")
-      result = result.filter((m) => m.status === "invite");
 
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -104,18 +107,18 @@ export function MembresPageClient({ members }: { members: Member[] }) {
         </div>
         <div className="rounded-[14px] bg-surface-elevated p-3 shadow-sm">
           <p className="text-[10px] font-semibold uppercase text-content-muted">
-            Bureau
+            Retraités
           </p>
-          <p className="mt-1 text-xl font-bold tabular-nums text-content-primary">
-            {bureau}
+          <p className="mt-1 text-xl font-bold tabular-nums text-content-secondary">
+            {retraites}
           </p>
         </div>
         <div className="rounded-[14px] bg-surface-elevated p-3 shadow-sm">
           <p className="text-[10px] font-semibold uppercase text-content-muted">
-            Invites
+            Bureau
           </p>
           <p className="mt-1 text-xl font-bold tabular-nums text-brand-500">
-            {invites}
+            {bureau}
           </p>
         </div>
       </div>
@@ -160,6 +163,10 @@ export function MembresPageClient({ members }: { members: Member[] }) {
                     avatarUrl={m.avatar_url}
                     isBureau={m.is_bureau}
                     invitationCode={m.invitation_code}
+                    grade={m.grade}
+                    typeSp={m.type_sp}
+                    dateAdhesion={m.date_adhesion}
+                    avatarEmoji={m.avatar_emoji}
                   />
                 </div>
               ))}

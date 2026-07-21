@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { requireBureau } from "@/lib/auth";
+import { sendNotification } from "@/lib/actions/notifications";
 
 export async function getAssets() {
   const supabase = await createClient();
@@ -33,6 +34,8 @@ export async function createAsset(formData: FormData) {
   const { orgId } = await requireBureau();
   const supabase = await createClient();
 
+  const tagsRaw = formData.get("tags") as string;
+
   const { error } = await supabase.from("assets").insert({
     org_id: orgId,
     name: formData.get("name") as string,
@@ -43,6 +46,13 @@ export async function createAsset(formData: FormData) {
       ? parseFloat(formData.get("deposit") as string)
       : 0,
     rules: (formData.get("rules") as string) || null,
+    icon: (formData.get("icon") as string) || null,
+    color: (formData.get("color") as string) || null,
+    capacity: formData.get("capacity")
+      ? parseInt(formData.get("capacity") as string)
+      : null,
+    status: (formData.get("status") as string) || "disponible",
+    tags: tagsRaw ? JSON.parse(tagsRaw) : [],
   });
 
   if (error) throw error;
@@ -53,6 +63,8 @@ export async function createAsset(formData: FormData) {
 export async function updateAsset(id: string, formData: FormData) {
   await requireBureau();
   const supabase = await createClient();
+
+  const tagsRaw = formData.get("tags") as string;
 
   const { error } = await supabase
     .from("assets")
@@ -65,6 +77,13 @@ export async function updateAsset(id: string, formData: FormData) {
         ? parseFloat(formData.get("deposit") as string)
         : 0,
       rules: (formData.get("rules") as string) || null,
+      icon: (formData.get("icon") as string) || null,
+      color: (formData.get("color") as string) || null,
+      capacity: formData.get("capacity")
+        ? parseInt(formData.get("capacity") as string)
+        : null,
+      status: (formData.get("status") as string) || "disponible",
+      tags: tagsRaw ? JSON.parse(tagsRaw) : [],
     })
     .eq("id", id);
 
@@ -125,13 +144,62 @@ export async function requestBooking(formData: FormData) {
   });
 
   if (error) throw error;
+
+  const { data: asset } = await supabase
+    .from("assets")
+    .select("name, org_id")
+    .eq("id", assetId)
+    .single();
+
+  if (asset) {
+    const { data: memberInfo } = await supabase
+      .from("members")
+      .select("first_name, last_name")
+      .eq("id", member.id)
+      .single();
+    const name = memberInfo
+      ? `${memberInfo.first_name} ${memberInfo.last_name}`
+      : "Un membre";
+    await sendNotification({
+      orgId: asset.org_id,
+      title: `Demande de réservation — ${asset.name}`,
+      message: `${name} a demandé une réservation pour "${asset.name}" du ${formData.get("start_date")} au ${formData.get("end_date")}.`,
+      type: "location",
+    });
+  }
+
   revalidatePath(`/bureau/locations/${assetId}`);
   revalidatePath(`/amicaliste/locations/${assetId}`);
 }
 
-export async function updateBookingStatus(bookingId: string, status: string) {
+export async function updateAssetPhotos(
+  id: string,
+  photos: string[],
+  coverIndex: number | null
+) {
   await requireBureau();
   const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("assets")
+    .update({ photos, cover_index: coverIndex })
+    .eq("id", id);
+
+  if (error) throw error;
+  revalidatePath(`/bureau/locations/${id}`);
+  revalidatePath(`/amicaliste/locations/${id}`);
+  revalidatePath("/amicaliste/locations");
+}
+
+export async function updateBookingStatus(bookingId: string, status: string) {
+  const { orgId } = await requireBureau();
+  const supabase = await createClient();
+
+  const { data: booking } = await supabase
+    .from("asset_bookings")
+    .select("member_id, asset_id, start_date, end_date, assets:asset_id(name)")
+    .eq("id", bookingId)
+    .single();
 
   const { error } = await supabase
     .from("asset_bookings")
@@ -139,5 +207,27 @@ export async function updateBookingStatus(bookingId: string, status: string) {
     .eq("id", bookingId);
 
   if (error) throw error;
+
+  if (booking && (status === "validee" || status === "refusee")) {
+    const assetName =
+      (booking.assets as unknown as { name: string } | null)?.name ?? "un bien";
+    const isValidated = status === "validee";
+    await sendNotification({
+      orgId,
+      title: isValidated
+        ? `Réservation validée — ${assetName}`
+        : `Réservation refusée — ${assetName}`,
+      message: isValidated
+        ? `Votre réservation de "${assetName}" du ${booking.start_date} au ${booking.end_date} a été validée.`
+        : `Votre réservation de "${assetName}" du ${booking.start_date} au ${booking.end_date} a été refusée.`,
+      targetMemberId: booking.member_id,
+      type: "location",
+    });
+  }
+
   revalidatePath("/bureau/locations");
+  if (booking) {
+    revalidatePath(`/bureau/locations/${booking.asset_id}`);
+    revalidatePath(`/amicaliste/locations/${booking.asset_id}`);
+  }
 }

@@ -52,6 +52,7 @@ export default async function VoyagesPage() {
             <TripCard
               key={t.id}
               id={t.id}
+              name={t.name}
               destination={t.destination}
               startDate={t.start_date}
               endDate={t.end_date}
@@ -60,7 +61,14 @@ export default async function VoyagesPage() {
               registrationCount={
                 (t.trip_registrations as { count: number }[])?.[0]?.count ?? 0
               }
+              color={t.color}
+              imageUrl={t.image_url}
+              icon={t.icon}
+              transport={t.transport}
+              accommodation={t.accommodation}
+              childrenAllowed={t.children_allowed}
               basePath="/bureau/voyages"
+              variant="bureau"
             />
           ))}
         </div>

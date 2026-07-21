@@ -19,21 +19,29 @@ interface EventData {
   max_benevoles?: number | null;
   category?: string | null;
   commission_id?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  published?: boolean;
+  children_allowed?: boolean;
+  child_age_limit?: number | null;
+  max_adults_per_household?: number | null;
 }
 
 const eventTypes = [
-  { value: "repas", label: "Repas", icon: "🍴", color: "bg-orange-100 dark:bg-orange-500/20 border-orange-300 dark:border-orange-500/40" },
-  { value: "bal", label: "Bal", icon: "🎵", color: "bg-purple-100 dark:bg-purple-500/20 border-purple-300 dark:border-purple-500/40" },
-  { value: "sport", label: "Sport", icon: "🏆", color: "bg-green-100 dark:bg-green-500/20 border-green-300 dark:border-green-500/40" },
-  { value: "ceremonie", label: "Ceremonie", icon: "🎖️", color: "bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40" },
-  { value: "sortie", label: "Sortie", icon: "⛰️", color: "bg-teal-100 dark:bg-teal-500/20 border-teal-300 dark:border-teal-500/40" },
-  { value: "autre", label: "Autre", icon: "🎉", color: "bg-rose-100 dark:bg-rose-500/20 border-rose-300 dark:border-rose-500/40" },
+  { value: "repas", label: "Repas", icon: "🍴", dbIcon: "ti-tools-kitchen-2", dbColor: "#c0392b", cssColor: "bg-orange-100 dark:bg-orange-500/20 border-orange-300 dark:border-orange-500/40" },
+  { value: "bal", label: "Bal", icon: "🎵", dbIcon: "ti-music", dbColor: "#9b6b00", cssColor: "bg-purple-100 dark:bg-purple-500/20 border-purple-300 dark:border-purple-500/40" },
+  { value: "sport", label: "Sport", icon: "🏆", dbIcon: "ti-trophy", dbColor: "#534AB7", cssColor: "bg-green-100 dark:bg-green-500/20 border-green-300 dark:border-green-500/40" },
+  { value: "ceremonie", label: "Ceremonie", icon: "🎖️", dbIcon: "ti-award", dbColor: "#D4A017", cssColor: "bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40" },
+  { value: "sortie", label: "Sortie", icon: "⛰️", dbIcon: "ti-mountain", dbColor: "#1E7A4A", cssColor: "bg-teal-100 dark:bg-teal-500/20 border-teal-300 dark:border-teal-500/40" },
+  { value: "autre", label: "Autre", icon: "🎉", dbIcon: "ti-confetti", dbColor: "#E8553A", cssColor: "bg-rose-100 dark:bg-rose-500/20 border-rose-300 dark:border-rose-500/40" },
 ];
 
 export function EventForm({ event }: { event?: EventData }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [selectedType, setSelectedType] = useState(event?.category || "");
+  const [published, setPublished] = useState(event?.published ?? true);
+  const [childrenAllowed, setChildrenAllowed] = useState(event?.children_allowed ?? false);
   const isEdit = !!event;
 
   function formatDateForInput(dateStr: string | null | undefined) {
@@ -72,7 +80,7 @@ export function EventForm({ event }: { event?: EventData }) {
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-[12px] border-2 p-3 transition-all",
                 selectedType === t.value
-                  ? t.color
+                  ? t.cssColor
                   : "border-transparent bg-surface-secondary"
               )}
             >
@@ -84,6 +92,8 @@ export function EventForm({ event }: { event?: EventData }) {
           ))}
         </div>
         <input type="hidden" name="category" value={selectedType} />
+        <input type="hidden" name="icon" value={eventTypes.find((t) => t.value === selectedType)?.dbIcon ?? ""} />
+        <input type="hidden" name="color" value={eventTypes.find((t) => t.value === selectedType)?.dbColor ?? ""} />
       </div>
 
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
@@ -134,6 +144,62 @@ export function EventForm({ event }: { event?: EventData }) {
               <label className="mb-1 block text-[12px] font-medium text-content-secondary">Benevoles max</label>
               <Input name="max_benevoles" type="number" placeholder="Illimite" defaultValue={event?.max_benevoles ?? ""} />
             </div>
+          </div>
+          <div className="flex items-center justify-between rounded-[12px] bg-surface-secondary p-3">
+            <div>
+              <p className="text-[13px] font-semibold text-content-primary">Enfants autorises</p>
+              <p className="text-[11px] text-content-muted">Les membres peuvent inscrire leurs enfants</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setChildrenAllowed((v) => !v)}
+              className={cn(
+                "relative h-7 w-12 rounded-full transition-colors",
+                childrenAllowed ? "bg-brand-500" : "bg-content-muted/30"
+              )}
+            >
+              <span
+                className={cn(
+                  "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
+                  childrenAllowed ? "translate-x-5" : "translate-x-0.5"
+                )}
+              />
+            </button>
+            <input type="hidden" name="children_allowed" value={childrenAllowed ? "true" : "false"} />
+          </div>
+          {childrenAllowed && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Age limite enfants</label>
+                <Input name="child_age_limit" type="number" min="1" max="25" placeholder="16" defaultValue={event?.child_age_limit ?? 16} />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Max adultes/foyer</label>
+                <Input name="max_adults_per_household" type="number" min="1" max="20" placeholder="6" defaultValue={event?.max_adults_per_household ?? 6} />
+              </div>
+            </div>
+          )}
+          <div className="flex items-center justify-between rounded-[12px] bg-surface-secondary p-3">
+            <div>
+              <p className="text-[13px] font-semibold text-content-primary">Publier</p>
+              <p className="text-[11px] text-content-muted">Visible par les amicalistes</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPublished((v) => !v)}
+              className={cn(
+                "relative h-7 w-12 rounded-full transition-colors",
+                published ? "bg-brand-500" : "bg-content-muted/30"
+              )}
+            >
+              <span
+                className={cn(
+                  "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
+                  published ? "translate-x-5" : "translate-x-0.5"
+                )}
+              />
+            </button>
+            <input type="hidden" name="published" value={published ? "true" : "false"} />
           </div>
         </div>
       </div>

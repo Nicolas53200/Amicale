@@ -3,6 +3,33 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
+export async function sendNotification({
+  orgId,
+  title,
+  message,
+  targetMemberId,
+  commissionId,
+  type,
+}: {
+  orgId: string;
+  title: string;
+  message: string;
+  targetMemberId?: string | null;
+  commissionId?: string | null;
+  type?: string | null;
+}) {
+  const supabase = await createClient();
+  await supabase.from("notifications").insert({
+    org_id: orgId,
+    title,
+    message,
+    target_member_id: targetMemberId ?? null,
+    commission_id: commissionId ?? null,
+    type: type ?? null,
+  });
+  revalidatePath("/amicaliste/notifications");
+}
+
 export async function getNotifications() {
   const supabase = await createClient();
   const {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
@@ -32,6 +32,17 @@ interface Member {
   is_bureau: boolean;
   invitation_code?: string | null;
   created_at: string;
+  type_sp?: string | null;
+  date_adhesion?: string | null;
+  genre?: string | null;
+  conjoint?: string | null;
+  situation_familiale?: string | null;
+  nb_enfants?: number;
+  enfants_noms?: string[];
+  enfants_naiss?: string[];
+  contact_urgence?: string | null;
+  avatar_emoji?: string | null;
+  invitation_statut?: string | null;
 }
 
 interface Commission {
@@ -55,8 +66,9 @@ const roleLabels: Record<string, string> = {
 
 const statusLabels: Record<string, string> = {
   actif: "Actif",
+  retraite: "Retraité",
   onboarding: "Onboarding",
-  invite: "Invite",
+  invite: "Invité",
   inactif: "Inactif",
   suspendu: "Suspendu",
 };
@@ -66,6 +78,7 @@ const statusVariant: Record<
   "success" | "warning" | "neutral" | "default" | "danger"
 > = {
   actif: "success",
+  retraite: "neutral",
   onboarding: "default",
   invite: "warning",
   inactif: "neutral",
@@ -174,10 +187,31 @@ export function MemberDetail({
     }
   }
 
-  const infoRows = [
-    { label: "Email", value: member.email, icon: "📧" },
-    { label: "Telephone", value: member.phone, icon: "📱" },
-    { label: "Adresse", value: member.adresse, icon: "📍" },
+  const anciennete = useMemo(() => {
+    if (!member.date_adhesion) return null;
+    const now = new Date();
+    return Math.max(0, Math.floor((now.getTime() - new Date(member.date_adhesion).getTime()) / (1000 * 60 * 60 * 24 * 365.25)));
+  }, [member.date_adhesion]);
+
+  const situationLabels: Record<string, string> = {
+    marie_f: "Marié(e)",
+    marie_h: "Marié(e)",
+    pacse_f: "Pacsé(e)",
+    pacse_h: "Pacsé(e)",
+    celibataire: "Célibataire",
+    divorce: "Divorcé(e)",
+    veuf: "Veuf(ve)",
+  };
+
+  const identityRows = [
+    { label: "Grade", value: member.grade, icon: "🎖️" },
+    { label: "Type", value: member.type_sp, icon: "🚒" },
+    {
+      label: "Ancienneté",
+      value: anciennete !== null ? `${anciennete} an${anciennete > 1 ? "s" : ""}` : null,
+      icon: "⏱️",
+    },
+    { label: "Centre", value: member.centre, icon: "🏢" },
     {
       label: "Date de naissance",
       value: member.date_naissance
@@ -185,13 +219,35 @@ export function MemberDetail({
         : null,
       icon: "🎂",
     },
-    { label: "Grade", value: member.grade, icon: "🎖️" },
-    { label: "Centre", value: member.centre, icon: "🏢" },
+  ];
+
+  const contactRows = [
+    { label: "Email", value: member.email, icon: "📧" },
+    { label: "Téléphone", value: member.phone, icon: "📱" },
+    { label: "Adresse", value: member.adresse, icon: "📍" },
+  ];
+
+  const familyRows = [
     {
-      label: "Inscrit le",
-      value: new Date(member.created_at).toLocaleDateString("fr-FR"),
-      icon: "📅",
+      label: "Situation",
+      value: member.situation_familiale
+        ? situationLabels[member.situation_familiale] || member.situation_familiale
+        : null,
+      icon: "💍",
     },
+    { label: "Conjoint(e)", value: member.conjoint, icon: "👫" },
+    {
+      label: "Enfants",
+      value: member.nb_enfants
+        ? `${member.nb_enfants} enfant${member.nb_enfants > 1 ? "s" : ""}${
+            member.enfants_noms?.length
+              ? " : " + (member.enfants_noms as string[]).join(", ")
+              : ""
+          }`
+        : null,
+      icon: "👶",
+    },
+    { label: "Contact urgence", value: member.contact_urgence, icon: "🆘" },
   ];
 
   if (editing) {
@@ -344,17 +400,24 @@ export function MemberDetail({
     <div className="flex flex-col gap-4">
       {/* Profile header card */}
       <div className="flex items-center gap-4 rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-        <Avatar
-          name={`${member.first_name} ${member.last_name}`}
-          src={member.avatar_url}
-          size="lg"
-        />
+        {member.avatar_emoji ? (
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-3xl">
+            {member.avatar_emoji}
+          </div>
+        ) : (
+          <Avatar
+            name={`${member.first_name} ${member.last_name}`}
+            src={member.avatar_url}
+            size="lg"
+          />
+        )}
         <div className="flex-1">
           <p className="text-lg font-bold text-content-primary">
             {member.first_name} {member.last_name}
           </p>
           <p className="text-[13px] text-content-muted">
-            {roleLabels[member.role] || member.role}
+            {member.grade || roleLabels[member.role] || member.role}
+            {member.type_sp && ` · ${member.type_sp}`}
           </p>
           <div className="mt-1 flex items-center gap-2">
             <Badge variant={statusVariant[currentStatus] || "neutral"}>
@@ -542,28 +605,65 @@ export function MemberDetail({
         )}
       </div>
 
-      {/* Info rows */}
+      {/* Identity */}
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
         <h3 className="mb-3 text-[14px] font-bold text-content-primary">
-          Informations
+          Identité
         </h3>
         <div className="flex flex-col gap-3">
-          {infoRows.map((row) => (
+          {identityRows.map((row) => (
             <div key={row.label} className="flex items-center gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-secondary">
                 <span className="text-sm">{row.icon}</span>
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] text-content-muted">{row.label}</p>
-                <p
-                  className={cn(
-                    "text-[13px] font-medium",
-                    row.value
-                      ? "text-content-primary"
-                      : "text-content-muted italic"
-                  )}
-                >
-                  {row.value || "Non renseigne"}
+                <p className={cn("text-[13px] font-medium", row.value ? "text-content-primary" : "text-content-muted italic")}>
+                  {row.value || "Non renseigné"}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Contact */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Contact
+        </h3>
+        <div className="flex flex-col gap-3">
+          {contactRows.map((row) => (
+            <div key={row.label} className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-secondary">
+                <span className="text-sm">{row.icon}</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] text-content-muted">{row.label}</p>
+                <p className={cn("text-[13px] font-medium", row.value ? "text-content-primary" : "text-content-muted italic")}>
+                  {row.value || "Non renseigné"}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Situation familiale */}
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Situation familiale
+        </h3>
+        <div className="flex flex-col gap-3">
+          {familyRows.map((row) => (
+            <div key={row.label} className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-secondary">
+                <span className="text-sm">{row.icon}</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] text-content-muted">{row.label}</p>
+                <p className={cn("text-[13px] font-medium", row.value ? "text-content-primary" : "text-content-muted italic")}>
+                  {row.value || "Non renseigné"}
                 </p>
               </div>
             </div>

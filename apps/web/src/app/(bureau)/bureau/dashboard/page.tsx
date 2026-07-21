@@ -18,12 +18,20 @@ interface OutilBureau {
   badgeKey?: string;
 }
 
+const roleLabels: Record<string, string> = {
+  president: "Président",
+  vice_president: "Vice-président",
+  tresorier: "Trésorier",
+  secretaire: "Secrétaire",
+  membre: "Membre du bureau",
+};
+
 const outilsBureau: OutilBureau[] = [
   {
     icon: "👥",
     color: "bg-blue-100 dark:bg-blue-500/20",
     title: "Membres",
-    subtitle: "Gestion des adhérents",
+    subtitle: "Liste complète",
     href: "/bureau/membres",
     badgeKey: "membres",
   },
@@ -31,24 +39,44 @@ const outilsBureau: OutilBureau[] = [
     icon: "💬",
     color: "bg-green-100 dark:bg-green-500/20",
     title: "Messagerie",
-    subtitle: "Communication interne",
+    subtitle: "Interne bureau",
     href: "/bureau/messagerie",
   },
   {
     icon: "💰",
-    color: "bg-amber-100 dark:bg-amber-500/20",
+    color: "bg-purple-100 dark:bg-purple-500/20",
     title: "Comptabilité",
-    subtitle: "Finances & budgets",
+    subtitle: "Bilan général",
     href: "/bureau/comptabilite",
     badgeKey: "compta",
   },
   {
     icon: "📅",
-    color: "bg-purple-100 dark:bg-purple-500/20",
-    title: "Événements",
-    subtitle: "Agenda & inscriptions",
-    href: "/bureau/evenements",
-    badgeKey: "events",
+    color: "bg-amber-100 dark:bg-amber-500/20",
+    title: "Réunions & CR",
+    subtitle: "Comptes rendus, PV d'AG",
+    href: "/bureau/reunions",
+  },
+  {
+    icon: "📰",
+    color: "bg-blue-100 dark:bg-blue-500/20",
+    title: "Journal de l'Amicale",
+    subtitle: "Livre souvenir annuel",
+    href: "/bureau/journal",
+  },
+  {
+    icon: "📑",
+    color: "bg-green-100 dark:bg-green-500/20",
+    title: "Modèles",
+    subtitle: "PV, budgets, affiches",
+    href: "/bureau/modeles",
+  },
+  {
+    icon: "↩️",
+    color: "bg-blue-100 dark:bg-blue-500/20",
+    title: "Remboursement",
+    subtitle: "Demander un remb. de frais",
+    href: "/bureau/comptabilite",
   },
   {
     icon: "📋",
@@ -57,6 +85,14 @@ const outilsBureau: OutilBureau[] = [
     subtitle: "Organisation interne",
     href: "/bureau/commissions",
     badgeKey: "commissions",
+  },
+  {
+    icon: "📅",
+    color: "bg-red-100 dark:bg-red-500/20",
+    title: "Événements",
+    subtitle: "Agenda & inscriptions",
+    href: "/bureau/evenements",
+    badgeKey: "events",
   },
   {
     icon: "🏠",
@@ -75,20 +111,6 @@ const outilsBureau: OutilBureau[] = [
     badgeKey: "voyages",
   },
   {
-    icon: "📝",
-    color: "bg-indigo-100 dark:bg-indigo-500/20",
-    title: "Réunions",
-    subtitle: "Comptes-rendus",
-    href: "/bureau/reunions",
-  },
-  {
-    icon: "📰",
-    color: "bg-rose-100 dark:bg-rose-500/20",
-    title: "Journal",
-    subtitle: "Actualités",
-    href: "/bureau/journal",
-  },
-  {
     icon: "📷",
     color: "bg-cyan-100 dark:bg-cyan-500/20",
     title: "Galerie",
@@ -96,17 +118,10 @@ const outilsBureau: OutilBureau[] = [
     href: "/bureau/galerie",
   },
   {
-    icon: "📑",
-    color: "bg-violet-100 dark:bg-violet-500/20",
-    title: "Modèles",
-    subtitle: "Documents types",
-    href: "/bureau/modeles",
-  },
-  {
     icon: "🎨",
     color: "bg-fuchsia-100 dark:bg-fuchsia-500/20",
     title: "Personnaliser",
-    subtitle: "Apparence & identité",
+    subtitle: "Logo, couleurs, nom...",
     href: "/bureau/parametres",
   },
 ];
@@ -116,8 +131,11 @@ export default async function DashboardPage() {
 
   const nowISO = new Date().toISOString();
 
-  const [membersRes, commissionsRes, entriesRes, eventsRes, reunionsRes, tripsRes, locationsRes, pendingComptaRes] =
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const [profileRes, membersRes, commissionsRes, entriesRes, eventsRes, reunionsRes, tripsRes, locationsRes, pendingComptaRes] =
     await Promise.all([
+      user ? supabase.from("members").select("first_name, last_name, bureau_role, avatar_url").eq("user_id", user.id).single() : Promise.resolve({ data: null }),
       supabase.from("members").select("id, status, role, created_at"),
       supabase.from("commissions").select("id, name, icon, color, budget").eq("active", true),
       supabase
@@ -143,14 +161,18 @@ export default async function DashboardPage() {
         .select("id")
         .gte("start_date", nowISO),
       supabase
-        .from("locations")
+        .from("assets")
         .select("id"),
       supabase
         .from("accounting_entries")
         .select("id")
-        .eq("status", "en_attente"),
+        .eq("status", "attente"),
     ]);
 
+  const profile = profileRes.data as { first_name: string; last_name: string; bureau_role: string | null; avatar_url: string | null } | null;
+  const userName = profile ? `${profile.first_name} ${profile.last_name}` : "Bureau";
+  const userRole = profile?.bureau_role ? (roleLabels[profile.bureau_role] || profile.bureau_role) : "Bureau";
+  const userInitials = profile ? `${profile.first_name[0]}${profile.last_name[0]}` : "B";
   const members = membersRes.data ?? [];
   const commissions = commissionsRes.data ?? [];
   const recentEntries = entriesRes.data ?? [];
@@ -206,38 +228,46 @@ export default async function DashboardPage() {
         </div>
 
         <div className="relative z-10 px-4 pb-6 pt-4">
-          {/* User info row */}
+          {/* User info row — matches prototype .bh-top */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm ring-2 ring-white/30">
-                <span className="text-2xl">🚒</span>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[11px] border-[1.5px] border-white/30 bg-white/[.18]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+                </svg>
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">
-                  Bonjour <span className="inline-block">👋</span>
-                </h1>
-                <p className="text-[12px] text-white/70">
-                  Bureau &middot; Amicale SP
-                </p>
+                <div className="text-[14px] font-semibold text-white">{userName}</div>
+                <div className="mt-px text-[11px] text-white/[.72]">{userRole}</div>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Link
-                href="/bureau/notifications"
-                className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm"
+                href="/bureau/aide"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[.15]"
+                aria-label="Aide"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>
                 </svg>
-                <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-white" />
               </Link>
               <Link
                 href="/bureau/messagerie"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm"
+                className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white/[.15]"
+                aria-label="Messagerie"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span className="absolute right-[6px] top-[6px] h-[7px] w-[7px] rounded-full border-[1.5px] border-brand-500 bg-amber-400" />
+              </Link>
+              <Link
+                href="/login"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[.15]"
+                aria-label="Déconnexion"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
               </Link>
             </div>
