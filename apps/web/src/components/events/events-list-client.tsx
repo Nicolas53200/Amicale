@@ -10,6 +10,8 @@ interface EventItem {
   title: string;
   date: string;
   location: string | null;
+  description: string | null;
+  image_url: string | null;
   price: number;
   max_attendees: number | null;
   category: string | null;
@@ -67,26 +69,6 @@ export function EventsListClient({ events }: { events: EventItem[] }) {
         </div>
       )}
 
-      {/* Stats bar */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-[14px] bg-surface-elevated p-3 text-center shadow-sm">
-          <p className="text-[18px] font-bold text-brand-600 dark:text-brand-400">{events.length}</p>
-          <p className="text-[11px] text-content-muted">À venir</p>
-        </div>
-        <div className="rounded-[14px] bg-surface-elevated p-3 text-center shadow-sm">
-          <p className="text-[18px] font-bold text-content-primary">
-            {events.reduce((s, e) => s + ((e.event_registrations as { count: number }[])?.[0]?.count ?? 0), 0)}
-          </p>
-          <p className="text-[11px] text-content-muted">Inscrits</p>
-        </div>
-        <div className="rounded-[14px] bg-surface-elevated p-3 text-center shadow-sm">
-          <p className="text-[18px] font-bold text-emerald-600 dark:text-emerald-400">
-            {events.filter((e) => !e.price || e.price === 0).length}
-          </p>
-          <p className="text-[11px] text-content-muted">Gratuits</p>
-        </div>
-      </div>
-
       {/* Event list */}
       {filtered.length === 0 ? (
         <EmptyState
@@ -103,12 +85,11 @@ export function EventsListClient({ events }: { events: EventItem[] }) {
               title={e.title}
               date={e.date}
               location={e.location}
-              price={String(e.price ?? 0)}
-              maxAttendees={e.max_attendees}
-              registrationCount={
-                (e.event_registrations as { count: number }[])?.[0]?.count ?? 0
-              }
+              description={e.description}
+              imageUrl={e.image_url}
+              icon={e.icon}
               color={e.color}
+              published={e.published}
             />
           ))}
         </div>

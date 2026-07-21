@@ -3,25 +3,32 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { GradientHeader } from "@/components/layout/gradient-header";
 import { getAssets } from "@/lib/actions/assets";
 
-const typeIcons: Record<string, string> = {
-  appartement: "🏠",
-  barnum: "⛺",
-  remorque: "🚛",
-  camping: "🏕️",
-};
-
-const typeColors: Record<string, string> = {
-  appartement: "from-blue-500 to-blue-600",
-  barnum: "from-emerald-500 to-emerald-600",
-  remorque: "from-amber-500 to-amber-600",
-  camping: "from-teal-500 to-teal-600",
-};
-
 const typeLabels: Record<string, string> = {
   appartement: "Appartement",
   barnum: "Barnum",
   remorque: "Remorque",
   camping: "Camping-car",
+};
+
+const typeColors: Record<string, string> = {
+  appartement: "#3478F6",
+  barnum: "#1E7A4A",
+  remorque: "#F59E0B",
+  camping: "#0F6E56",
+};
+
+const typeIconPaths: Record<string, React.ReactNode> = {
+  appartement: <><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>,
+  barnum: <><path d="M18 8c0-3.3-2.7-6-6-6S6 4.7 6 8"/><path d="m3 8 3 12h12l3-12"/><path d="M12 8v12"/></>,
+  remorque: <><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></>,
+  camping: <><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></>,
+};
+
+const statusConfig: Record<string, { label: string; bg: string; text: string }> = {
+  disponible: { label: "Disponible", bg: "bg-emerald-100 dark:bg-emerald-500/20", text: "text-emerald-700 dark:text-emerald-400" },
+  reserve: { label: "Réservé", bg: "bg-amber-100 dark:bg-amber-500/20", text: "text-amber-700 dark:text-amber-400" },
+  maintenance: { label: "Maintenance", bg: "bg-red-100 dark:bg-red-500/20", text: "text-red-600 dark:text-red-400" },
+  indisponible: { label: "Indisponible", bg: "bg-gray-100 dark:bg-gray-500/20", text: "text-gray-600 dark:text-gray-400" },
 };
 
 const fmt = (n: number) =>
@@ -34,30 +41,8 @@ export default async function LocationsPage() {
     <div className="flex flex-col gap-4">
       <GradientHeader
         title="Locations"
-        subtitle="Les biens disponibles a la location"
+        subtitle="Les biens disponibles à la location"
       />
-
-      {/* Type legend */}
-      {assets.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {Object.entries(typeLabels).map(([type, label]) => {
-            const count = assets.filter((a) => a.type === type).length;
-            if (count === 0) return null;
-            return (
-              <div
-                key={type}
-                className="flex shrink-0 items-center gap-1.5 rounded-full bg-surface-elevated px-3 py-1.5 text-[12px] font-medium text-content-secondary shadow-sm"
-              >
-                <span>{typeIcons[type]}</span>
-                {label}
-                <span className="rounded-full bg-surface-secondary px-1.5 text-[10px] font-bold text-content-muted">
-                  {count}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
 
       {assets.length === 0 ? (
         <EmptyState
@@ -68,31 +53,55 @@ export default async function LocationsPage() {
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {assets.map((a) => {
-            const gradient = typeColors[a.type] || "from-brand-500 to-brand-600";
+            const photos = (a.photos as string[]) || [];
+            const coverIdx = (a.cover_index as number | null) ?? 0;
+            const coverPhoto = photos.length > 0 ? photos[Math.min(coverIdx, photos.length - 1)] : null;
+            const assetColor = (a.color as string) || typeColors[a.type] || "#8B5CF6";
+            const status = statusConfig[(a.status as string) || "disponible"] || statusConfig.disponible;
+
             return (
               <Link
                 key={a.id}
                 href={`/amicaliste/locations/${a.id}`}
-                className={`group relative flex flex-col justify-between overflow-hidden rounded-[16px] bg-gradient-to-br ${gradient} p-4 shadow-sm transition-shadow active:shadow-none`}
-                style={{ minHeight: "140px" }}
+                className="group overflow-hidden rounded-[20px] border border-[rgba(0,0,0,.06)] bg-surface-elevated shadow-sm transition-all active:scale-[0.98] dark:border-white/5"
               >
-                <div>
-                  <span className="text-2xl">{typeIcons[a.type] || "📦"}</span>
-                  <h3 className="mt-2 text-[14px] font-bold text-white">
-                    {a.name}
-                  </h3>
-                  <p className="text-[11px] text-white/80">
-                    {typeLabels[a.type] || a.type}
-                    {a.capacity ? ` · ${a.capacity} pers.` : ""}
-                  </p>
-                </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-bold text-white backdrop-blur-sm">
-                    {fmt(parseFloat(String(a.daily_rate)))}/jour
+                {/* Photo area */}
+                <div
+                  className="relative flex h-[85px] items-center justify-center"
+                  style={
+                    coverPhoto
+                      ? { backgroundImage: `url(${coverPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+                      : { background: `${assetColor}15` }
+                  }
+                >
+                  {!coverPhoto && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="38"
+                      height="38"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{ color: assetColor, opacity: 0.28 }}
+                    >
+                      {typeIconPaths[a.type] || typeIconPaths.appartement}
+                    </svg>
+                  )}
+                  <span className={`absolute right-1.5 top-1.5 rounded-[8px] px-1.5 py-0.5 text-[9px] font-semibold ${status.bg} ${status.text}`}>
+                    {status.label}
                   </span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
+                </div>
+                {/* Body */}
+                <div className="px-2.5 py-2">
+                  <div className="truncate text-[12px] font-semibold text-content-primary">
+                    {a.name}
+                  </div>
+                  <div className="mt-0.5 text-[10px] text-content-secondary">
+                    {fmt(a.daily_rate)}/jour
+                  </div>
                 </div>
               </Link>
             );

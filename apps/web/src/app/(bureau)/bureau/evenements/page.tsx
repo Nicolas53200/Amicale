@@ -69,6 +69,9 @@ export default async function EvenementsPage() {
               title={e.title}
               date={e.date}
               location={e.location}
+              description={e.description}
+              imageUrl={e.image_url}
+              icon={e.icon}
               price={String(e.price ?? 0)}
               maxAttendees={e.max_attendees}
               registrationCount={
@@ -76,6 +79,8 @@ export default async function EvenementsPage() {
               }
               basePath="/bureau/evenements"
               color={e.color}
+              published={e.published}
+              variant="bureau"
             />
           ))}
         </div>

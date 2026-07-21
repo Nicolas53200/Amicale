@@ -62,8 +62,13 @@ export default async function VoyagesPage() {
                 (t.trip_registrations as { count: number }[])?.[0]?.count ?? 0
               }
               color={t.color}
+              imageUrl={t.image_url}
+              icon={t.icon}
               transport={t.transport}
+              accommodation={t.accommodation}
+              childrenAllowed={t.children_allowed}
               basePath="/bureau/voyages"
+              variant="bureau"
             />
           ))}
         </div>
