@@ -249,7 +249,7 @@ export async function refuseRegistration(
     .single();
 
   if (event && reg) {
-    const m = reg.members as { first_name: string; last_name: string } | null;
+    const m = (reg.members as unknown as { first_name: string; last_name: string }[] | null)?.[0] ?? null;
     const name = m ? `${m.first_name} ${m.last_name}` : "Un membre";
     await sendNotification({
       orgId: event.org_id,
@@ -306,7 +306,7 @@ export async function validateBenevole(
       .eq("event_id", eventId)
       .eq("member_id", memberId)
       .single();
-    const m = reg?.members as { first_name: string; last_name: string } | null;
+    const m = (reg?.members as unknown as { first_name: string; last_name: string }[] | null)?.[0] ?? null;
     const poste = reg?.benevole_poste || reg?.is_benevole || "Benevole";
     await sendNotification({
       orgId: event.org_id,
@@ -348,7 +348,7 @@ export async function refuseBenevole(
     .single();
 
   if (event) {
-    const m = reg?.members as { first_name: string; last_name: string } | null;
+    const m = (reg?.members as unknown as { first_name: string; last_name: string }[] | null)?.[0] ?? null;
     const poste = reg?.benevole_poste || reg?.is_benevole || "Benevole";
     await sendNotification({
       orgId: event.org_id,

@@ -182,7 +182,7 @@ export async function validateTripRegistration(
       .eq("trip_id", tripId)
       .eq("member_id", memberId)
       .single();
-    const m = reg?.members as { first_name: string; last_name: string } | null;
+    const m = (reg?.members as unknown as { first_name: string; last_name: string }[] | null)?.[0] ?? null;
     const name = m ? `${m.first_name} ${m.last_name}` : "Un membre";
     const tripName = trip.name || trip.destination;
     const nbPers = (reg?.nb_adults || 0) + (reg?.nb_children || 0);
@@ -226,7 +226,7 @@ export async function refuseTripRegistration(
     .single();
 
   if (trip) {
-    const m = reg?.members as { first_name: string; last_name: string } | null;
+    const m = (reg?.members as unknown as { first_name: string; last_name: string }[] | null)?.[0] ?? null;
     const name = m ? `${m.first_name} ${m.last_name}` : "Un membre";
     const tripName = trip.name || trip.destination;
     await sendNotification({

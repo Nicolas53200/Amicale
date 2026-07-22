@@ -2,14 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { getOrgIdClient } from "@/lib/auth-client";
 import { Input } from "@/components/ui/input";
 import { updateOrganization } from "@/lib/actions/organization";
+import { useToast } from "@/components/ui/toast";
 
 interface OrgData {
   id: string;
   name: string;
   slug: string;
   plan: string;
+  logo_url?: string | null;
   settings: {
     modules?: {
       locations?: boolean;
@@ -52,7 +56,34 @@ export function OrgSettingsForm({ org }: { org: OrgData }) {
   const [saved, setSaved] = useState(false);
   const [themeColor, setThemeColor] = useState(org.settings?.theme_color || "#E8553A");
   const [bgTint, setBgTint] = useState(org.settings?.background_tint || "#FFFFFF");
+  const [logoUrl, setLogoUrl] = useState(org.logo_url || null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const modules = org.settings?.modules ?? {};
+  const { showToast } = useToast();
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingLogo(true);
+    const supabase = createClient();
+    const orgId = await getOrgIdClient();
+    const ext = file.name.split(".").pop() || "png";
+    const path = `${orgId}/logo.${ext}`;
+    await supabase.storage.from("photos").upload(path, file, { upsert: true });
+    const { data } = supabase.storage.from("photos").getPublicUrl(path);
+    await supabase.from("organizations").update({ logo_url: data.publicUrl }).eq("id", orgId);
+    setLogoUrl(data.publicUrl);
+    setUploadingLogo(false);
+    showToast("Logo mis a jour", "success");
+  }
+
+  async function handleLogoDelete() {
+    const supabase = createClient();
+    const orgId = await getOrgIdClient();
+    await supabase.from("organizations").update({ logo_url: null }).eq("id", orgId);
+    setLogoUrl(null);
+    showToast("Logo supprime", "success");
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -66,6 +97,45 @@ export function OrgSettingsForm({ org }: { org: OrgData }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+        <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+          Logo de l&apos;amicale
+        </h3>
+        <div className="flex items-center gap-4">
+          <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center overflow-hidden rounded-[16px] bg-surface-secondary">
+            {logoUrl ? (
+              <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-content-muted">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                <path d="M12 8v4l3 3" />
+              </svg>
+            )}
+          </div>
+          <div className="flex flex-1 flex-col gap-2">
+            <label className="cursor-pointer rounded-[10px] bg-brand-500 px-4 py-2 text-center text-[12px] font-semibold text-white transition-colors hover:bg-brand-600">
+              {uploadingLogo ? "Envoi..." : "Changer le logo"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
+                disabled={uploadingLogo}
+              />
+            </label>
+            {logoUrl && (
+              <button
+                type="button"
+                onClick={handleLogoDelete}
+                className="rounded-[10px] border border-red-200 px-4 py-2 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-50 dark:border-red-500/30 dark:text-red-400 dark:hover:bg-red-500/10"
+              >
+                Supprimer
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
         <h3 className="mb-3 text-[14px] font-bold text-content-primary">
           Informations de l&apos;amicale
