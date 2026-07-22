@@ -9,6 +9,8 @@ export default async function CommissionsAmicalistePage() {
     .from("commissions")
     .select("*, commission_members(count)")
     .eq("active", true)
+    .is("deleted_at", null)
+    .order("is_fixed", { ascending: false })
     .order("name");
 
   const list = commissions ?? [];

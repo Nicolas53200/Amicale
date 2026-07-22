@@ -87,6 +87,11 @@ export function Inbox({ isBureau = false }: InboxProps) {
 
   const [filterType, setFilterType] = useState<MsgType | null>(null);
 
+  // Reunion convocation fields
+  const [reunionDate, setReunionDate] = useState("");
+  const [reunionTime, setReunionTime] = useState("18:00");
+  const [reunionLieu, setReunionLieu] = useState("");
+
   const [replyTo, setReplyTo] = useState<{ recipientId: string; subject: string } | null>(null);
   const composeFormRef = useRef<HTMLFormElement>(null);
 
@@ -286,6 +291,22 @@ export function Inbox({ isBureau = false }: InboxProps) {
     }
   }
 
+  function formatReunionDate(dateStr: string): string {
+    if (!dateStr) return "";
+    const d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  }
+
+  function buildReunionBody(rawBody: string): string {
+    const dateFmt = formatReunionDate(reunionDate);
+    const time = reunionTime || "18:00";
+    const lieu = reunionLieu || "";
+    if (!rawBody.trim()) {
+      return `Réunion prévue le ${dateFmt} à ${time}.\nLieu : ${lieu}\n\nMerci de confirmer votre présence.`;
+    }
+    return `📅 Réunion le ${dateFmt} à ${time} — ${lieu}\n\n${rawBody}`;
+  }
+
   async function handleSend(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSending(true);
@@ -308,17 +329,25 @@ export function Inbox({ isBureau = false }: InboxProps) {
       ? `[${msgType.toUpperCase()}] ${rawSubject}`
       : rawSubject || null;
 
+    const rawBody = form.get("body") as string;
+    const body = msgType === "reunion" && reunionDate
+      ? buildReunionBody(rawBody)
+      : rawBody;
+
     await supabase.from("messages").insert({
       org_id: orgId,
       from_id: member.id,
       to_id: form.get("to_id") as string,
       subject: subjectWithType,
-      body: form.get("body") as string,
+      body,
     });
 
     setSending(false);
     setReplyTo(null);
     setMsgType("normal");
+    setReunionDate("");
+    setReunionTime("18:00");
+    setReunionLieu("");
     setTab("sent");
   }
 
@@ -342,7 +371,10 @@ export function Inbox({ isBureau = false }: InboxProps) {
     const subject = msgType !== "normal" && rawSubject
       ? `[${msgType.toUpperCase()}] ${rawSubject}`
       : rawSubject || null;
-    const body = form.get("body") as string;
+    const rawBody = form.get("body") as string;
+    const body = msgType === "reunion" && reunionDate
+      ? buildReunionBody(rawBody)
+      : rawBody;
 
     const inserts = members.map((m) => ({
       org_id: orgId,
@@ -358,6 +390,9 @@ export function Inbox({ isBureau = false }: InboxProps) {
 
     setSending(false);
     setMsgType("normal");
+    setReunionDate("");
+    setReunionTime("18:00");
+    setReunionLieu("");
     setTab("sent");
   }
 
@@ -475,6 +510,43 @@ export function Inbox({ isBureau = false }: InboxProps) {
               </div>
             </div>
           )}
+          {msgType === "reunion" && (
+            <div className="flex flex-col gap-3 rounded-[14px] border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-500/10">
+              <p className="text-[12px] font-semibold text-blue-700 dark:text-blue-400">
+                Convocation reunion
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-[12px] font-medium text-content-secondary">Date de la reunion</label>
+                  <Input
+                    type="date"
+                    value={reunionDate}
+                    onChange={(e) => setReunionDate(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[12px] font-medium text-content-secondary">Heure</label>
+                  <Input
+                    type="time"
+                    value={reunionTime}
+                    onChange={(e) => setReunionTime(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Lieu</label>
+                <Input
+                  type="text"
+                  value={reunionLieu}
+                  onChange={(e) => setReunionLieu(e.target.value)}
+                  placeholder="Salle du CIS, visio..."
+                  required
+                />
+              </div>
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-[12px] font-medium text-content-secondary">Sujet</label>
             <Input
@@ -485,7 +557,7 @@ export function Inbox({ isBureau = false }: InboxProps) {
           </div>
           <div>
             <label className="mb-1 block text-[12px] font-medium text-content-secondary">Message</label>
-            <Textarea name="body" required rows={4} placeholder="Votre message..." />
+            <Textarea name="body" rows={4} placeholder={msgType === "reunion" ? "Message supplementaire (optionnel, une convocation sera generee automatiquement)..." : "Votre message..."} required={msgType !== "reunion"} />
           </div>
           <button
             type="submit"
@@ -521,13 +593,50 @@ export function Inbox({ isBureau = false }: InboxProps) {
               ))}
             </div>
           </div>
+          {msgType === "reunion" && (
+            <div className="flex flex-col gap-3 rounded-[14px] border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-500/10">
+              <p className="text-[12px] font-semibold text-blue-700 dark:text-blue-400">
+                Convocation reunion
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-[12px] font-medium text-content-secondary">Date de la reunion</label>
+                  <Input
+                    type="date"
+                    value={reunionDate}
+                    onChange={(e) => setReunionDate(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[12px] font-medium text-content-secondary">Heure</label>
+                  <Input
+                    type="time"
+                    value={reunionTime}
+                    onChange={(e) => setReunionTime(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-content-secondary">Lieu</label>
+                <Input
+                  type="text"
+                  value={reunionLieu}
+                  onChange={(e) => setReunionLieu(e.target.value)}
+                  placeholder="Salle du CIS, visio..."
+                  required
+                />
+              </div>
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-[12px] font-medium text-content-secondary">Sujet</label>
             <Input name="subject" placeholder="Objet du message" />
           </div>
           <div>
             <label className="mb-1 block text-[12px] font-medium text-content-secondary">Message</label>
-            <Textarea name="body" required rows={4} placeholder="Votre message à tous les membres..." />
+            <Textarea name="body" rows={4} placeholder={msgType === "reunion" ? "Message supplementaire (optionnel, une convocation sera generee automatiquement)..." : "Votre message à tous les membres..."} required={msgType !== "reunion"} />
           </div>
           <button
             type="submit"
