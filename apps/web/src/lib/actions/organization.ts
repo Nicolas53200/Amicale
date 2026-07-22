@@ -28,7 +28,7 @@ export async function updateOrganization(formData: FormData) {
   const supabase = await createClient();
 
   const name = formData.get("name") as string;
-  const settings = {
+  const settings: Record<string, unknown> = {
     modules: {
       locations: formData.get("mod_locations") === "on",
       voyages: formData.get("mod_voyages") === "on",
@@ -36,7 +36,19 @@ export async function updateOrganization(formData: FormData) {
       bons_cadeaux: formData.get("mod_bons_cadeaux") === "on",
     },
     theme_color: (formData.get("theme_color") as string) || "#FF6B35",
+    background_tint: (formData.get("background_tint") as string) || "#FFFFFF",
+    welcome_message: (formData.get("welcome_message") as string) || "",
+    ville: (formData.get("ville") as string) || "",
   };
+
+  const cotisationAmount = formData.get("cotisation_amount") as string;
+  if (cotisationAmount) {
+    settings.cotisation_amount = parseFloat(cotisationAmount);
+  }
+  const cotisationFrequency = formData.get("cotisation_frequency") as string;
+  if (cotisationFrequency) {
+    settings.cotisation_frequency = cotisationFrequency;
+  }
 
   const { error } = await supabase
     .from("organizations")
