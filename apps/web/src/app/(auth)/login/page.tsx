@@ -113,6 +113,31 @@ export default function LoginPage() {
         <Button type="submit" disabled={loading} className="mt-1">
           {loading ? "Connexion..." : "Se connecter"}
         </Button>
+        <button
+          type="button"
+          onClick={async () => {
+            if (!email) {
+              setError("Entrez votre email pour réinitialiser le mot de passe");
+              return;
+            }
+            setLoading(true);
+            setError("");
+            const supabase = createClient();
+            const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+              redirectTo: `${window.location.origin}/login`,
+            });
+            setLoading(false);
+            if (resetError) {
+              setError("Erreur lors de l'envoi. Vérifiez votre email.");
+            } else {
+              setError("");
+              alert("Un email de réinitialisation a été envoyé à " + email);
+            }
+          }}
+          className="text-[12px] font-medium text-brand-500 hover:underline self-end"
+        >
+          Mot de passe oublié ?
+        </button>
       </form>
       <div className="mt-6 flex flex-col items-center gap-3 text-center">
         <Link
