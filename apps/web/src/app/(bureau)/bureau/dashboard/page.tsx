@@ -127,6 +127,14 @@ const outilsBureau: OutilBureau[] = [
     toolKey: "photos",
   },
   {
+    icon: "💳",
+    color: "bg-indigo-100 dark:bg-indigo-500/20",
+    title: "Cotisations",
+    subtitle: "Suivi des paiements",
+    href: "/bureau/cotisations",
+    toolKey: "cotisations",
+  },
+  {
     icon: "🎨",
     color: "bg-fuchsia-100 dark:bg-fuchsia-500/20",
     title: "Personnaliser",
