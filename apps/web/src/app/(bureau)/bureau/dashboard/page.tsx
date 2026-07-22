@@ -98,6 +98,7 @@ const outilsBureau: OutilBureau[] = [
     subtitle: "Agenda & inscriptions",
     href: "/bureau/evenements",
     badgeKey: "events",
+    toolKey: "evenements",
   },
   {
     icon: "🏠",
@@ -106,6 +107,7 @@ const outilsBureau: OutilBureau[] = [
     subtitle: "Biens & reservations",
     href: "/bureau/locations",
     badgeKey: "locations",
+    toolKey: "locations",
   },
   {
     icon: "✈️",
@@ -114,6 +116,7 @@ const outilsBureau: OutilBureau[] = [
     subtitle: "Sorties & sejours",
     href: "/bureau/voyages",
     badgeKey: "voyages",
+    toolKey: "voyages",
   },
   {
     icon: "📷",

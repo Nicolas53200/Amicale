@@ -98,6 +98,9 @@ export const BUREAU_TOOL_ACCESS: Record<string, string[]> = {
     "modeles",
     "gestion_commissions",
     "personnaliser",
+    "evenements",
+    "locations",
+    "voyages",
   ],
   vice_president: [
     "membres",
@@ -108,6 +111,9 @@ export const BUREAU_TOOL_ACCESS: Record<string, string[]> = {
     "modeles",
     "gestion_commissions",
     "personnaliser",
+    "evenements",
+    "locations",
+    "voyages",
   ],
   secretaire: [
     "membres",
@@ -116,14 +122,24 @@ export const BUREAU_TOOL_ACCESS: Record<string, string[]> = {
     "journal",
     "modeles",
     "gestion_commissions",
+    "evenements",
   ],
-  tresorier: ["messagerie", "compta", "reunions", "modeles"],
+  tresorier: [
+    "messagerie",
+    "compta",
+    "reunions",
+    "modeles",
+    "evenements",
+    "locations",
+    "voyages",
+  ],
   responsable_communication: [
     "messagerie",
     "reunions",
     "journal",
     "modeles",
     "photos",
+    "evenements",
   ],
   responsable_commission: ["messagerie", "reunions"],
   membre_commission: ["messagerie", "reunions"],
@@ -138,7 +154,7 @@ export function getRoleConfig(role: string | null) {
 }
 
 export function getToolAccess(role: string | null): string[] {
-  return BUREAU_TOOL_ACCESS[role || "lecture"] || BUREAU_TOOL_ACCESS.lecture;
+  return BUREAU_TOOL_ACCESS[role || "lecture"] || BUREAU_TOOL_ACCESS.lecture || [];
 }
 
 export function hasPermission(

@@ -37,6 +37,7 @@ export default function CommissionsPage() {
     const { data } = await supabase
       .from("commissions")
       .select("*, commission_members(count)")
+      .is("deleted_at", null)
       .order("is_fixed", { ascending: false })
       .order("name");
     setCommissions((data as CommissionRow[]) ?? []);
@@ -44,6 +45,33 @@ export default function CommissionsPage() {
   }, [supabase]);
 
   useEffect(() => { load(); }, [load]);
+
+  const [deletingId, setDeletingId] = useState<{ id: string; name: string } | null>(null);
+
+  async function handleDelete(id: string, name: string) {
+    setDeletingId({ id, name });
+  }
+
+  async function confirmDelete() {
+    if (!deletingId) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    let memberId: string | null = null;
+    if (user) {
+      const { data: member } = await supabase.from("members").select("id").eq("user_id", user.id).single();
+      memberId = member?.id ?? null;
+    }
+    const { error } = await supabase
+      .from("commissions")
+      .update({ deleted_at: new Date().toISOString(), deleted_by: memberId })
+      .eq("id", deletingId.id);
+    if (error) {
+      showToast("Erreur lors de la suppression", "error");
+    } else {
+      showToast(`${deletingId.name} supprimée`, "success");
+      setCommissions((prev) => prev.filter((c) => c.id !== deletingId.id));
+    }
+    setDeletingId(null);
+  }
 
   async function toggleVisibility(id: string) {
     const commission = commissions.find((c) => c.id === id);
@@ -149,8 +177,36 @@ export default function CommissionsPage() {
               isFixed={c.is_fixed}
               active={c.active}
               onToggleVisibility={toggleVisibility}
+              onDelete={handleDelete}
             />
           ))}
+        </div>
+      )}
+
+      {deletingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setDeletingId(null)}>
+          <div className="w-full max-w-sm rounded-[16px] bg-surface-elevated p-5 shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-[15px] font-bold text-content-primary">Supprimer la commission</h3>
+            <p className="mt-2 text-[13px] text-content-secondary">
+              Voulez-vous vraiment supprimer <strong>{deletingId.name}</strong> ? Cette action est irreversible.
+            </p>
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setDeletingId(null)}
+                className="rounded-[10px] px-4 py-2 text-[12px] font-semibold text-content-secondary hover:bg-surface-secondary"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                className="rounded-[10px] bg-red-500 px-4 py-2 text-[12px] font-semibold text-white hover:bg-red-600"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

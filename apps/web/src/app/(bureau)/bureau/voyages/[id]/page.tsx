@@ -5,6 +5,7 @@ import { GradientHeader } from "@/components/layout/gradient-header";
 import { Badge } from "@/components/ui/badge";
 import { TripActions } from "@/components/trips/trip-actions";
 import { TripRegistrationManager } from "@/components/trips/trip-registration-manager";
+import { TripSuiviDashboard } from "@/components/trips/trip-suivi-dashboard";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -157,6 +158,15 @@ export default async function VoyageDetailPage({
           )}
         </div>
       )}
+
+      {/* Suivi dashboard with counters and communication */}
+      <TripSuiviDashboard
+        tripId={id}
+        tripName={trip.name || trip.destination}
+        maxSeats={trip.max_seats}
+        registrations={registrations}
+        registrationDeadline={trip.registration_deadline ?? undefined}
+      />
 
       {/* Registration manager with validation workflow */}
       <TripRegistrationManager
