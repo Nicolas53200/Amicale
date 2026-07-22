@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getOrgIdClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast";
+import { exportToPdf } from "@/lib/export-pdf";
 
 interface Registration {
   id: string;
@@ -24,12 +25,21 @@ interface TripMessage {
   sender: { first_name: string; last_name: string } | null;
 }
 
+interface Accompagnateur {
+  id: string;
+  member_id: string;
+  status: string;
+  created_at: string;
+  members: { first_name: string; last_name: string } | null;
+}
+
 interface TripSuiviDashboardProps {
   tripId: string;
   tripName: string;
   maxSeats: number | null;
   registrations: Registration[];
   registrationDeadline?: string;
+  guidesNeeded?: number;
 }
 
 const fmt = (n: number) =>
@@ -43,13 +53,30 @@ export function TripSuiviDashboard({
   maxSeats,
   registrations,
   registrationDeadline,
+  guidesNeeded,
 }: TripSuiviDashboardProps) {
   const [tab, setTab] = useState<TabId>("overview");
   const [messages, setMessages] = useState<TripMessage[]>([]);
+  const [accompagnateurs, setAccompagnateurs] = useState<Accompagnateur[]>([]);
   const [sending, setSending] = useState(false);
   const [sendingConfirmations, setSendingConfirmations] = useState(false);
   const [msgBody, setMsgBody] = useState("");
   const { showToast } = useToast();
+
+  const loadAccompagnateurs = useCallback(async () => {
+    if (!guidesNeeded) return;
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("trip_accompagnateurs")
+      .select("id, member_id, status, created_at, members:member_id(first_name, last_name)")
+      .eq("trip_id", tripId)
+      .order("created_at", { ascending: true });
+    if (data) setAccompagnateurs(data as unknown as Accompagnateur[]);
+  }, [tripId, guidesNeeded]);
+
+  useEffect(() => {
+    loadAccompagnateurs();
+  }, [loadAccompagnateurs]);
 
   const confirmes = registrations.filter((r) => r.payment_status === "acceptee");
   const enAttente = registrations.filter((r) => r.payment_status === "en_attente");
@@ -176,6 +203,31 @@ export function TripSuiviDashboard({
     }
   }
 
+  function handleExport() {
+    const paymentLabel = (s: string) => {
+      if (s === "acceptee") return '<span class="badge badge-green">Payé</span>';
+      if (s === "en_attente") return '<span class="badge badge-amber">En attente</span>';
+      return '<span class="badge badge-gray">' + s + '</span>';
+    };
+    const rows = registrations.map((r) => {
+      const name = r.members ? `${r.members.first_name} ${r.members.last_name}` : "Membre";
+      const amount = fmt(parseFloat(String(r.total_amount)));
+      return `<tr><td>${name}</td><td>${r.nb_adults}</td><td>${r.nb_children}</td><td>${amount}</td><td>${paymentLabel(r.payment_status)}</td></tr>`;
+    }).join("");
+    const html = `<h1>${tripName} — Suivi</h1>
+      <p class="meta">Exporte le ${new Date().toLocaleDateString("fr-FR")}</p>
+      <h2>Resume</h2>
+      <table><tbody>
+        <tr><td><strong>Confirmes</strong></td><td>${confirmes.length} (${confirmesPersonnes} pers.)</td></tr>
+        <tr><td><strong>En attente</strong></td><td>${enAttente.length}</td></tr>
+        <tr><td><strong>Total personnes</strong></td><td>${totalPersonnes}${maxSeats ? " / " + maxSeats + " places" : ""}</td></tr>
+        <tr><td><strong>Revenu confirme</strong></td><td>${fmt(totalRevenu)}</td></tr>
+      </tbody></table>
+      <h2>Inscriptions</h2>
+      <table><thead><tr><th>Membre</th><th>Adultes</th><th>Enfants</th><th>Montant</th><th>Paiement</th></tr></thead><tbody>${rows}</tbody></table>`;
+    exportToPdf(`Suivi ${tripName}`, html);
+  }
+
   return (
     <div className="rounded-[16px] bg-surface-elevated shadow-sm overflow-hidden">
       {/* Status banner */}
@@ -209,6 +261,15 @@ export function TripSuiviDashboard({
       <div className="p-4">
         {tab === "overview" ? (
           <div className="flex flex-col gap-4">
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleExport}
+                className="flex items-center gap-1.5 rounded-[10px] bg-surface-secondary px-3 py-1.5 text-[11px] font-semibold text-content-secondary transition-colors hover:bg-surface-tertiary"
+              >
+                🖨️ Exporter
+              </button>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <CounterCard
                 label="Confirmés"
@@ -290,6 +351,48 @@ export function TripSuiviDashboard({
                     ? "Envoi en cours..."
                     : `Envoyer les confirmations (${confirmes.length})`}
                 </button>
+              </div>
+            )}
+
+            {guidesNeeded != null && guidesNeeded > 0 && (
+              <div>
+                <h4 className="mb-2 text-[12px] font-bold uppercase tracking-wide text-content-muted">
+                  {"🧑‍🏫"} Accompagnateurs ({accompagnateurs.length}/{guidesNeeded})
+                </h4>
+                {accompagnateurs.length > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    {accompagnateurs.map((a) => (
+                      <div
+                        key={a.id}
+                        className="flex items-center justify-between rounded-[10px] bg-surface-secondary px-3 py-2"
+                      >
+                        <span className="text-[13px] text-content-primary">
+                          {a.members
+                            ? `${a.members.first_name} ${a.members.last_name}`
+                            : "Membre"}
+                        </span>
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                            a.status === "confirme"
+                              ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
+                              : "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400"
+                          )}
+                        >
+                          {a.status === "confirme" ? "Confirme" : "Inscrit"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {guidesNeeded > accompagnateurs.length && (
+                  <div className="mt-2 flex items-center gap-2 rounded-[12px] bg-amber-50 px-3 py-2 dark:bg-amber-500/10">
+                    <span className="text-[14px]">⚠️</span>
+                    <span className="text-[12px] font-medium text-amber-600 dark:text-amber-400">
+                      {guidesNeeded - accompagnateurs.length} accompagnateur{guidesNeeded - accompagnateurs.length > 1 ? "s" : ""} recherche{guidesNeeded - accompagnateurs.length > 1 ? "s" : ""}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </div>

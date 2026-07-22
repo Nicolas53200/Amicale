@@ -53,6 +53,7 @@ export default function LocationDetailPage() {
   const [conflict, setConflict] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [myBookings, setMyBookings] = useState<{ id: string; start_date: string; end_date: string; status: string; total_amount: number; notes: string | null }[]>([]);
   const { showToast } = useToast();
 
   async function loadAsset() {
@@ -75,9 +76,29 @@ export default function LocationDetailPage() {
     if (data) setExistingBookings(data);
   }
 
+  async function loadMyBookings() {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: member } = await supabase
+      .from("members")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+    if (!member) return;
+    const { data } = await supabase
+      .from("asset_bookings")
+      .select("id, start_date, end_date, status, total_amount, notes")
+      .eq("asset_id", id)
+      .eq("member_id", member.id)
+      .order("start_date", { ascending: false });
+    if (data) setMyBookings(data);
+  }
+
   useEffect(() => {
     loadAsset();
     loadBookings();
+    loadMyBookings();
   }, [id]);
 
   function checkConflict(start: string, end: string) {
@@ -122,6 +143,7 @@ export default function LocationDetailPage() {
       setSuccess(true);
       showToast("Demande de réservation envoyée", "success");
       loadBookings();
+      loadMyBookings();
     } catch {
       showToast("Erreur lors de l'envoi de la demande", "error");
     } finally {
@@ -205,6 +227,45 @@ export default function LocationDetailPage() {
         </h3>
         <BookingCalendar assetId={id} />
       </div>
+
+      {/* Mes réservations */}
+      {myBookings.length > 0 && (
+        <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+          <h3 className="mb-3 text-[14px] font-bold text-content-primary">
+            Mes réservations ({myBookings.length})
+          </h3>
+          <div className="flex flex-col gap-2">
+            {myBookings.map((b) => {
+              const statusConfig: Record<string, { label: string; cls: string }> = {
+                en_attente: { label: "En attente", cls: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400" },
+                validee: { label: "Validée", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400" },
+                confirmee: { label: "Confirmée", cls: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" },
+                refusee: { label: "Refusée", cls: "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400" },
+                annulee: { label: "Annulée", cls: "bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400" },
+              };
+              const st = statusConfig[b.status] ?? { label: b.status, cls: "bg-gray-100 text-gray-600" };
+              return (
+                <div key={b.id} className="flex items-center gap-3 rounded-[12px] bg-surface-secondary p-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-medium text-content-primary">
+                      {new Date(b.start_date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                      {" → "}
+                      {new Date(b.end_date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                    <p className="text-[11px] text-content-muted">
+                      {fmt(b.total_amount)}
+                      {b.notes && ` · ${b.notes}`}
+                    </p>
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${st.cls}`}>
+                    {st.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Réservation */}
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">

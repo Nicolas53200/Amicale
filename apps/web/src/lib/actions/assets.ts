@@ -191,7 +191,7 @@ export async function updateAssetPhotos(
   revalidatePath("/amicaliste/locations");
 }
 
-export async function updateBookingStatus(bookingId: string, status: string) {
+export async function updateBookingStatus(bookingId: string, status: string, refusalReason?: string) {
   const { orgId } = await requireBureau();
   const supabase = await createClient();
 
@@ -201,9 +201,14 @@ export async function updateBookingStatus(bookingId: string, status: string) {
     .eq("id", bookingId)
     .single();
 
+  const updateData: Record<string, unknown> = { status };
+  if (status === "refusee" && refusalReason) {
+    updateData.refusal_reason = refusalReason;
+  }
+
   const { error } = await supabase
     .from("asset_bookings")
-    .update({ status })
+    .update(updateData)
     .eq("id", bookingId);
 
   if (error) throw error;

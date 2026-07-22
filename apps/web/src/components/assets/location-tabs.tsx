@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { createClient } from "@/lib/supabase/client";
+import { exportToPdf } from "@/lib/export-pdf";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -361,6 +362,7 @@ function CalendrierTab({
   loading: boolean;
 }) {
   const [month, setMonth] = useState(new Date());
+  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const year = month.getFullYear();
   const m = month.getMonth();
   const firstDay = new Date(year, m, 1).getDay();
@@ -368,10 +370,14 @@ function CalendrierTab({
   const offset = firstDay === 0 ? 6 : firstDay - 1;
   const today = new Date();
 
+  const filteredBookings = selectedAssetId
+    ? bookings.filter((b) => b.asset_id === selectedAssetId)
+    : bookings;
+
   function bookingsForDay(day: number) {
     const d = new Date(year, m, day);
     d.setHours(0, 0, 0, 0);
-    return bookings.filter((b) => {
+    return filteredBookings.filter((b) => {
       const s = new Date(b.start_date);
       s.setHours(0, 0, 0, 0);
       const e = new Date(b.end_date);
@@ -391,6 +397,43 @@ function CalendrierTab({
 
   return (
     <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+      {/* Asset filter pills */}
+      {assets.length > 1 && (
+        <div className="mb-3 flex gap-2 overflow-x-auto scrollbar-none pb-1">
+          <button
+            type="button"
+            onClick={() => setSelectedAssetId(null)}
+            className={cn(
+              "shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors",
+              selectedAssetId === null
+                ? "bg-brand-500 text-white"
+                : "bg-surface-secondary text-content-secondary"
+            )}
+          >
+            Tous
+          </button>
+          {assets.map((a) => {
+            const colors = assetCalendarColors[a.type] ?? { dot: "bg-gray-400" };
+            return (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => setSelectedAssetId(a.id === selectedAssetId ? null : a.id)}
+                className={cn(
+                  "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors",
+                  selectedAssetId === a.id
+                    ? "bg-brand-500 text-white"
+                    : "bg-surface-secondary text-content-secondary"
+                )}
+              >
+                <span className={cn("inline-block h-2 w-2 rounded-full", selectedAssetId === a.id ? "bg-white" : colors.dot)} />
+                {a.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Month nav */}
       <div className="mb-4 flex items-center justify-between">
         <button
@@ -501,6 +544,45 @@ function CalendrierTab({
           );
         })}
       </div>
+
+      {/* Bookings of the month */}
+      {(() => {
+        const monthStart = new Date(year, m, 1);
+        const monthEnd = new Date(year, m + 1, 0, 23, 59, 59);
+        const monthBookings = filteredBookings.filter((b) => {
+          const s = new Date(b.start_date);
+          const e = new Date(b.end_date);
+          return s <= monthEnd && e >= monthStart;
+        });
+        if (monthBookings.length === 0) return null;
+        return (
+          <div className="mt-4 border-t border-border pt-3">
+            <h4 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-content-muted">
+              Reservations du mois ({monthBookings.length})
+            </h4>
+            <div className="flex flex-col gap-1.5">
+              {monthBookings.map((b) => {
+                const asset = assetMap.get(b.asset_id);
+                const colors = assetCalendarColors[asset?.type ?? ""] ?? { dot: "bg-gray-400", bg: "bg-gray-100 dark:bg-gray-500/20" };
+                return (
+                  <div key={b.id} className={cn("flex items-center gap-2 rounded-[10px] px-3 py-2", colors.bg)}>
+                    <span className={cn("inline-block h-2 w-2 shrink-0 rounded-full", colors.dot)} />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[12px] font-medium text-content-primary">
+                        {asset?.name ?? "?"} — {memberName(b.members)}
+                      </span>
+                      <span className="ml-2 text-[10px] text-content-muted">
+                        {fmtDate(b.start_date)} → {fmtDate(b.end_date)}
+                      </span>
+                    </div>
+                    {statusBadge(b.status)}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -725,11 +807,37 @@ function SuiviTab({
     );
   }
 
+  function handleExport() {
+    const rows = bookings.map((b) => {
+      const asset = assetMap.get(b.asset_id);
+      const name = memberName(b.members);
+      const assetName = asset?.name ?? "Bien inconnu";
+      const dates = `${fmtDate(b.start_date)} - ${fmtDate(b.end_date)}`;
+      const amount = fmtFull(parseFloat(String(b.total_amount)));
+      const steps = SUIVI_STEPS.map((s) => (b[s.key as keyof Booking] ? "✓" : "○")).join("</td><td>");
+      return `<tr><td>${name}</td><td>${assetName}</td><td>${dates}</td><td>${amount}</td><td>${steps}</td></tr>`;
+    }).join("");
+    const stepHeaders = SUIVI_STEPS.map((s) => `<th>${s.label}</th>`).join("");
+    const html = `<h1>Suivi des locations</h1>
+      <p class="meta">Exporte le ${new Date().toLocaleDateString("fr-FR")} — ${bookings.length} reservation(s) confirmee(s)</p>
+      <table><thead><tr><th>Membre</th><th>Bien</th><th>Dates</th><th>Montant</th>${stepHeaders}</tr></thead><tbody>${rows}</tbody></table>`;
+    exportToPdf("Suivi locations", html);
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-[12px] text-content-muted">
-        {bookings.length} reservation{bookings.length > 1 ? "s" : ""} confirmee{bookings.length > 1 ? "s" : ""}
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-[12px] text-content-muted">
+          {bookings.length} reservation{bookings.length > 1 ? "s" : ""} confirmee{bookings.length > 1 ? "s" : ""}
+        </p>
+        <button
+          type="button"
+          onClick={handleExport}
+          className="flex items-center gap-1.5 rounded-[10px] bg-surface-secondary px-3 py-1.5 text-[11px] font-semibold text-content-secondary transition-colors hover:bg-surface-tertiary"
+        >
+          🖨️ Exporter
+        </button>
+      </div>
 
       {bookings.map((b) => {
         const asset = assetMap.get(b.asset_id);
