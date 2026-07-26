@@ -1,0 +1,6 @@
+-- Migration 0040: Calendriers correction 03
+-- No additional schema needed. This is a frontend-only correction
+-- extending division management for calendar sectors:
+-- fixes division display, drag-and-drop reordering,
+-- and partial status rendering in the calendar view.
+-- Tracked here for version alignment with the frontend changelog.

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useCommissionActivities } from "@/hooks/use-commission-data";
+import { useCommissionActivities, useCommissionContacts } from "@/hooks/use-commission-data";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -23,18 +23,6 @@ interface Membre {
   email: string;
 }
 
-const DEMO_EVENTS: SportEvent[] = [
-  { id: "tournoi", nom: "Tournoi sportif inter-centres", date: "2026-07-12T10:00", lieu: "Stade municipal", statut: "programme", inscrits: 24, max: 40 },
-  { id: "foot", nom: "Tournoi de football", date: "2026-09-20T14:00", lieu: "Terrain synthétique", statut: "programme", inscrits: 16, max: 22 },
-  { id: "course", nom: "Course solidaire", date: "2026-05-10T09:00", lieu: "Parc de la Ville", statut: "termine", inscrits: 35, max: 50 },
-];
-
-const DEMO_MEMBRES: Membre[] = [
-  { nom: "Marc Dubois", role: "responsable", email: "marc.d@email.fr" },
-  { nom: "Anne Leclerc", role: "membre", email: "anne.l@email.fr" },
-  { nom: "Thomas Blanc", role: "membre", email: "thomas.b@email.fr" },
-];
-
 type Tab = "tableau" | "evenements" | "compta" | "rapport" | "membres";
 
 const STATUT_BADGE: Record<string, { label: string; cls: string }> = {
@@ -46,20 +34,25 @@ const STATUT_BADGE: Record<string, { label: string; cls: string }> = {
 export function SportBureau({ commissionId, budget = 300 }: { commissionId: string; budget?: number }) {
   const [tab, setTab] = useState<Tab>("tableau");
   const { activities: dbEvents, loading: eventsLoading, add: addEvent, update: updateEvent, remove: removeEvent } = useCommissionActivities(commissionId, "sport_event");
+  const { contacts: dbMembres, loading: membresLoading } = useCommissionContacts(commissionId, "membre");
 
-  const events: SportEvent[] = dbEvents.length > 0
-    ? dbEvents.map((a) => ({
-        id: a.id as string,
-        nom: a.title as string,
-        date: a.date as string,
-        lieu: (a.metadata as Record<string, unknown>)?.location as string ?? "",
-        statut: a.status as "programme" | "termine" | "annule",
-        inscrits: (a.metadata as Record<string, unknown>)?.current_participants as number ?? 0,
-        max: (a.metadata as Record<string, unknown>)?.max_participants as number ?? 0,
-      }))
-    : DEMO_EVENTS;
+  const currentYear = new Date().getFullYear();
 
-  const membres = DEMO_MEMBRES;
+  const events: SportEvent[] = dbEvents.map((a) => ({
+    id: a.id as string,
+    nom: a.title as string,
+    date: a.date as string,
+    lieu: (a.metadata as Record<string, unknown>)?.location as string ?? "",
+    statut: a.status as "programme" | "termine" | "annule",
+    inscrits: (a.metadata as Record<string, unknown>)?.current_participants as number ?? 0,
+    max: (a.metadata as Record<string, unknown>)?.max_participants as number ?? 0,
+  }));
+
+  const membres: Membre[] = dbMembres.map((c) => ({
+    nom: c.name as string ?? "",
+    role: (c.type as string) === "responsable" ? "responsable" : "membre",
+    email: c.email as string ?? "",
+  }));
 
   const [rapportTitre, setRapportTitre] = useState("");
   const [rapportActivites, setRapportActivites] = useState("");
@@ -70,11 +63,11 @@ export function SportBureau({ commissionId, budget = 300 }: { commissionId: stri
   const aVenir = events.filter((e) => e.statut === "programme").length;
 
   const tabs: { key: Tab; icon: string; label: string }[] = [
-    { key: "tableau", icon: "📊", label: "Tableau" },
-    { key: "evenements", icon: "🏆", label: "Événements" },
-    { key: "compta", icon: "💰", label: "Compta" },
-    { key: "rapport", icon: "📈", label: "Rapport" },
-    { key: "membres", icon: "👥", label: "Membres" },
+    { key: "tableau", icon: "\u{1F4CA}", label: "Tableau" },
+    { key: "evenements", icon: "\u{1F3C6}", label: "Événements" },
+    { key: "compta", icon: "\u{1F4B0}", label: "Compta" },
+    { key: "rapport", icon: "\u{1F4C8}", label: "Rapport" },
+    { key: "membres", icon: "\u{1F465}", label: "Membres" },
   ];
 
   return (
@@ -96,24 +89,24 @@ export function SportBureau({ commissionId, budget = 300 }: { commissionId: stri
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-[14px] bg-surface-elevated p-3 text-center shadow-sm">
-              <p className="text-[11px] text-content-muted">Événements</p>
+              <p className="text-[11px] text-content-muted">{"Événements"}</p>
               <p className="text-[18px] font-bold text-content-primary">{aVenir}</p>
-              <p className="text-[10px] text-content-muted">planifié{aVenir > 1 ? "s" : ""} 2026</p>
+              <p className="text-[10px] text-content-muted">{"planifié"}{aVenir > 1 ? "s" : ""} {currentYear}</p>
             </div>
             <div className="rounded-[14px] bg-surface-elevated p-3 text-center shadow-sm">
               <p className="text-[11px] text-content-muted">Budget</p>
               <p className="text-[18px] font-bold text-green-600">{fmt(budget)}</p>
-              <p className="text-[10px] text-content-muted">alloué · {fmt(depense)} dépensé</p>
+              <p className="text-[10px] text-content-muted">{"alloué · "}{fmt(depense)}{" dépensé"}</p>
             </div>
           </div>
 
           <p className="text-[12px] font-bold uppercase tracking-wide text-content-muted">Actions rapides</p>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { icon: "🏆", label: "Gérer les événements", bg: "bg-green-100 dark:bg-green-500/20", action: () => setTab("evenements") },
-              { icon: "📤", label: "Envoyer à la compta", bg: "bg-amber-100 dark:bg-amber-500/20", action: () => setTab("compta") },
-              { icon: "📈", label: "Faire un rapport", bg: "bg-blue-100 dark:bg-blue-500/20", action: () => setTab("rapport") },
-              { icon: "💬", label: "Messagerie", bg: "bg-rose-100 dark:bg-rose-500/20", action: undefined },
+              { icon: "\u{1F3C6}", label: "Gérer les événements", bg: "bg-green-100 dark:bg-green-500/20", action: () => setTab("evenements") },
+              { icon: "\u{1F4E4}", label: "Envoyer à la compta", bg: "bg-amber-100 dark:bg-amber-500/20", action: () => setTab("compta") },
+              { icon: "\u{1F4C8}", label: "Faire un rapport", bg: "bg-blue-100 dark:bg-blue-500/20", action: () => setTab("rapport") },
+              { icon: "\u{1F4AC}", label: "Messagerie", bg: "bg-rose-100 dark:bg-rose-500/20", action: undefined },
             ].map((a, i) => (
               <button key={i} type="button" onClick={a.action}
                 className="flex items-center gap-3 rounded-[14px] bg-surface-elevated p-3 text-left shadow-sm transition-colors active:bg-surface-secondary">
@@ -129,14 +122,21 @@ export function SportBureau({ commissionId, budget = 300 }: { commissionId: stri
 
       {tab === "evenements" && (
         <div className="flex flex-col gap-3">
-          <p className="text-[12px] font-bold uppercase tracking-wide text-content-muted">Événements sportifs</p>
+          <p className="text-[12px] font-bold uppercase tracking-wide text-content-muted">{"Événements sportifs"}</p>
+          {events.length === 0 && (
+            <div className="rounded-[14px] bg-surface-elevated p-6 text-center shadow-sm">
+              <span className="mb-2 block text-[28px]">{"\u{1F3C6}"}</span>
+              <p className="text-[13px] font-semibold text-content-primary">{"Aucun événement sportif"}</p>
+              <p className="mt-1 text-[12px] text-content-muted">{"Les événements apparaîtront ici une fois créés."}</p>
+            </div>
+          )}
           {events.map((ev) => {
             const d = new Date(ev.date);
             const badge = STATUT_BADGE[ev.statut];
             return (
               <div key={ev.id} className="overflow-hidden rounded-[16px] bg-surface-elevated shadow-sm">
                 <div className="relative flex items-end bg-gradient-to-br from-purple-600 to-purple-700 p-3" style={{ minHeight: 80 }}>
-                  <div className="pointer-events-none absolute right-3 top-2 text-[34px] opacity-[0.18]">🏆</div>
+                  <div className="pointer-events-none absolute right-3 top-2 text-[34px] opacity-[0.18]">{"\u{1F3C6}"}</div>
                   <div className="relative z-10 flex-1">
                     <p className="text-[13px] font-bold text-white">{ev.nom}</p>
                     <p className="text-[11px] text-white/80">
@@ -177,7 +177,7 @@ export function SportBureau({ commissionId, budget = 300 }: { commissionId: stri
             </div>
             <div className="flex flex-col gap-2">
               <div>
-                <label className="mb-1 block text-[11px] font-medium text-content-secondary">Libellé</label>
+                <label className="mb-1 block text-[11px] font-medium text-content-secondary">{"Libellé"}</label>
                 <input type="text" placeholder="ex: Location terrain" className="w-full rounded-[10px] border border-border bg-surface-primary px-3 py-2 text-[13px] text-content-primary placeholder:text-content-muted" />
               </div>
               <div>
@@ -186,9 +186,9 @@ export function SportBureau({ commissionId, budget = 300 }: { commissionId: stri
               </div>
             </div>
             <div className="mt-3 rounded-[12px] border-2 border-dashed border-border p-4 text-center">
-              <span className="mb-1 block text-xl">📎</span>
+              <span className="mb-1 block text-xl">{"\u{1F4CE}"}</span>
               <p className="text-[12px] font-semibold text-content-primary">Joindre la facture / scan</p>
-              <p className="text-[10px] text-content-muted">PDF, JPG · max 10 Mo</p>
+              <p className="text-[10px] text-content-muted">{"PDF, JPG · max 10 Mo"}</p>
             </div>
             <button type="button" className="mt-3 w-full rounded-[12px] bg-green-600 px-4 py-2.5 text-[12px] font-semibold text-white">
               Envoyer au comptable
@@ -205,19 +205,19 @@ export function SportBureau({ commissionId, budget = 300 }: { commissionId: stri
               <div>
                 <label className="mb-1 block text-[11px] font-medium text-content-secondary">Titre du rapport</label>
                 <input type="text" value={rapportTitre} onChange={(e) => setRapportTitre(e.target.value)}
-                  placeholder="ex: Bilan commission sportive 2026"
+                  placeholder={`ex: Bilan commission sportive ${currentYear}`}
                   className="w-full rounded-[10px] border border-border bg-surface-primary px-3 py-2 text-[13px] text-content-primary placeholder:text-content-muted" />
               </div>
               <div>
-                <label className="mb-1 block text-[11px] font-medium text-content-secondary">Activités réalisées</label>
+                <label className="mb-1 block text-[11px] font-medium text-content-secondary">{"Activités réalisées"}</label>
                 <textarea value={rapportActivites} onChange={(e) => setRapportActivites(e.target.value)}
-                  rows={3} placeholder="Événements organisés, résultats..."
+                  rows={3} placeholder={"Événements organisés, résultats..."}
                   className="w-full resize-none rounded-[10px] border border-border bg-surface-primary px-3 py-2 text-[13px] text-content-primary placeholder:text-content-muted" />
               </div>
               <div>
-                <label className="mb-1 block text-[11px] font-medium text-content-secondary">Points à aborder en réunion</label>
+                <label className="mb-1 block text-[11px] font-medium text-content-secondary">{"Points à aborder en réunion"}</label>
                 <textarea value={rapportPoints} onChange={(e) => setRapportPoints(e.target.value)}
-                  rows={2} placeholder="Difficultés, propositions..."
+                  rows={2} placeholder={"Difficultés, propositions..."}
                   className="w-full resize-none rounded-[10px] border border-border bg-surface-primary px-3 py-2 text-[13px] text-content-primary placeholder:text-content-muted" />
               </div>
             </div>
@@ -234,8 +234,15 @@ export function SportBureau({ commissionId, budget = 300 }: { commissionId: stri
       {tab === "membres" && (
         <div className="flex flex-col gap-3">
           <p className="text-[12px] font-bold uppercase tracking-wide text-content-muted">
-            {membres.length} membres de la commission
+            {membres.length} membre{membres.length > 1 ? "s" : ""} de la commission
           </p>
+          {membres.length === 0 && (
+            <div className="rounded-[14px] bg-surface-elevated p-6 text-center shadow-sm">
+              <span className="mb-2 block text-[28px]">{"\u{1F465}"}</span>
+              <p className="text-[13px] font-semibold text-content-primary">Aucun membre</p>
+              <p className="mt-1 text-[12px] text-content-muted">{"Les membres de la commission apparaîtront ici."}</p>
+            </div>
+          )}
           {membres.map((m, i) => (
             <div key={i} className="flex items-center gap-3 rounded-[14px] bg-surface-elevated p-3 shadow-sm">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-[13px] font-bold text-green-700 dark:bg-green-900/30">
@@ -244,7 +251,7 @@ export function SportBureau({ commissionId, budget = 300 }: { commissionId: stri
               <div className="flex-1">
                 <p className="text-[13px] font-bold text-content-primary">{m.nom}</p>
                 <p className="text-[11px] text-content-muted">
-                  {m.role === "responsable" ? "Responsable" : "Membre"} · {m.email}
+                  {m.role === "responsable" ? "Responsable" : "Membre"}{" · "}{m.email}
                 </p>
               </div>
             </div>

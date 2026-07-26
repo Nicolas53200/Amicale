@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useCommissionActivities, useCommissionContacts } from "@/hooks/use-commission-data";
+import { useCommissionActivities, useCommissionContacts, useCommissionSettings } from "@/hooks/use-commission-data";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -23,22 +23,6 @@ interface PrestataireItem {
   statut: "devis_recu" | "commande" | "confirme" | "paye";
 }
 
-const DEMO_INSCRIPTIONS: Inscription[] = [
-  { id: "1", nom: "Durand Pierre", invites: 3, choixRepas: "Menu standard", paye: true },
-  { id: "2", nom: "Martin Sophie", invites: 1, choixRepas: "Menu végétarien", paye: true },
-  { id: "3", nom: "Bernard Luc", invites: 2, choixRepas: "Menu standard", paye: false },
-  { id: "4", nom: "Petit Claire", invites: 0, choixRepas: "Menu standard", paye: true },
-  { id: "5", nom: "Moreau Jean", invites: 4, choixRepas: "Menu standard", paye: false },
-];
-
-const DEMO_PRESTATAIRES: PrestataireItem[] = [
-  { nom: "Traiteur Dupont", type: "traiteur", devis: 2800, reel: 2800, statut: "confirme" },
-  { nom: "Salle des fêtes", type: "salle", devis: 500, reel: 500, statut: "paye" },
-  { nom: "DJ Max", type: "musique", devis: 800, reel: 0, statut: "devis_recu" },
-  { nom: "Déco Express", type: "decoration", devis: 350, reel: 350, statut: "commande" },
-  { nom: "Photo Studio", type: "photo", devis: 400, reel: 0, statut: "devis_recu" },
-];
-
 const STATUT_LABELS: Record<string, { label: string; color: string }> = {
   devis_recu: { label: "Devis reçu", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30" },
   commande: { label: "Commandé", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30" },
@@ -56,9 +40,19 @@ type Tab = "tableau" | "inscriptions" | "repas" | "prestataires" | "budget";
 export function SainteBarbeBureau({ budget = 5000, commissionId }: { budget?: number; commissionId: string }) {
   const [tab, setTab] = useState<Tab>("tableau");
 
-  // Supabase data with demo fallback
   const { activities: dbInscriptions, add: addInscription, update: updateInscription, remove: removeInscription } = useCommissionActivities(commissionId, "inscription");
   const { contacts: dbPrestataires, add: addPrestataire, remove: removePrestataire } = useCommissionContacts(commissionId, "prestataire");
+  const { settings } = useCommissionSettings({ commissionId });
+
+  const eventDate = (settings.event_date as string) ?? "";
+  const eventTime = (settings.event_time as string) ?? "";
+  const eventVenue = (settings.event_venue as string) ?? "";
+  const capacity = (settings.capacity as string) ?? "";
+  const maxGuests = (settings.max_guests as string) ?? "";
+  const tarifAdulte = (settings.tarif_adulte as string) ?? "";
+  const tarifEnfant = (settings.tarif_enfant as string) ?? "";
+  const dateLimite = (settings.date_limite as string) ?? "";
+  const currentYear = new Date().getFullYear();
 
   const inscriptions: Inscription[] = dbInscriptions.length > 0
     ? dbInscriptions.map((a) => ({
@@ -68,7 +62,7 @@ export function SainteBarbeBureau({ budget = 5000, commissionId }: { budget?: nu
         choixRepas: (a.meal_choice as string) ?? "Menu standard",
         paye: (a.paid as boolean) ?? false,
       }))
-    : DEMO_INSCRIPTIONS;
+    : [];
 
   const prestataires: PrestataireItem[] = dbPrestataires.length > 0
     ? dbPrestataires.map((c) => ({
@@ -78,7 +72,7 @@ export function SainteBarbeBureau({ budget = 5000, commissionId }: { budget?: nu
         reel: (c.actual_amount as number) ?? 0,
         statut: (c.status as "devis_recu" | "commande" | "confirme" | "paye") ?? "devis_recu",
       }))
-    : DEMO_PRESTATAIRES;
+    : [];
 
   const totalInscrits = inscriptions.reduce((s, i) => s + 1 + i.invites, 0);
   const totalPaye = inscriptions.filter((i) => i.paye).length;
@@ -125,29 +119,34 @@ export function SainteBarbeBureau({ budget = 5000, commissionId }: { budget?: nu
             </div>
           </div>
 
-          <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-            <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Informations</p>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-[12px] bg-red-100 dark:bg-red-900/30">
-                <span className="text-[15px] font-bold leading-none text-red-600">4</span>
-                <span className="text-[9px] uppercase text-red-600">Déc</span>
-              </div>
-              <div>
-                <p className="text-[13px] font-semibold text-content-primary">Sainte-Barbe 2026</p>
-                <p className="text-[11px] text-content-secondary">Sam. 4 déc. 2026 · 19h00 · Salle des fêtes</p>
+          {eventDate ? (
+            <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+              <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Informations</p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-[12px] bg-red-100 dark:bg-red-900/30">
+                  <span className="text-lg">🔥</span>
+                </div>
+                <div>
+                  <p className="text-[13px] font-semibold text-content-primary">Sainte-Barbe {currentYear}</p>
+                  <p className="text-[11px] text-content-secondary">{eventDate} · {eventTime} · {eventVenue}</p>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+              <p className="text-[12px] text-content-muted text-center">Configurez la date et le lieu dans les paramètres de la commission.</p>
+            </div>
+          )}
 
           <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
             <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Configuration</p>
             <div className="grid grid-cols-2 gap-2 text-[12px]">
               {[
-                ["Capacité", "120 places"],
-                ["Max invités/foyer", "4"],
-                ["Tarif adulte", "25 €"],
-                ["Tarif enfant", "12 €"],
-                ["Date limite", "28 nov. 2026"],
+                ["Capacité", capacity || "—"],
+                ["Max invités/foyer", maxGuests || "—"],
+                ["Tarif adulte", tarifAdulte || "—"],
+                ["Tarif enfant", tarifEnfant || "—"],
+                ["Date limite", dateLimite || "—"],
                 ["Budget prévu", fmt(budget)],
               ].map(([k, v]) => (
                 <div key={k as string} className="flex justify-between rounded-[10px] bg-surface-secondary px-3 py-2">

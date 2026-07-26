@@ -1,0 +1,5 @@
+-- Migration 0036: Foyer correction
+-- No additional schema beyond 0027_foyer_stock_movements.
+-- This is a frontend-only correction that fixes foyer stock display,
+-- movement history rendering, and inventory count calculations.
+-- Tracked here for version alignment with the frontend changelog.

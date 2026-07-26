@@ -46,20 +46,6 @@ const ACTION_TYPES: Record<string, string> = {
   evenement_sol: "Événement solidaire", partenariat: "Partenariat",
 };
 
-const DEMO_AIDES: Aide[] = [
-  { id: "1", type: "naissance", membre: "Pierre Durand", date: "2026-06-15", montant: 100, statut: "realise", confidentiel: false, notes: "Naissance de Léo" },
-  { id: "2", type: "mariage", membre: "Sophie Martin", date: "2026-07-20", montant: 150, statut: "en_cours", confidentiel: false, notes: "" },
-  { id: "3", type: "hospitalisation", membre: "Jean Moreau", date: "2026-05-10", montant: 80, statut: "realise", confidentiel: true, notes: "Envoi de fleurs" },
-  { id: "4", type: "retraite", membre: "Michel Robert", date: "2026-09-01", montant: 200, statut: "en_cours", confidentiel: false, notes: "Cadeau de départ" },
-  { id: "5", type: "deces", membre: "Famille Petit", date: "2026-04-03", montant: 250, statut: "realise", confidentiel: true, notes: "Couronne et soutien" },
-];
-
-const DEMO_ACTIONS: ActionSol[] = [
-  { id: "1", titre: "Collecte alimentaire", type: "collecte", date: "2026-12-10", description: "Collecte de Noël pour les Restos du Coeur", montant: 450 },
-  { id: "2", titre: "Visite hôpital enfants", type: "visite", date: "2026-06-01", description: "Visite de Noël au CHU, remise de cadeaux", montant: 200 },
-  { id: "3", titre: "Course solidaire", type: "evenement_sol", date: "2026-10-15", description: "Course au profit du Téléthon", montant: 1200 },
-];
-
 type Tab = "tableau" | "aides" | "actions" | "budget";
 
 export function SolidariteBureau({ budget = 3000, commissionId }: { budget?: number; commissionId: string }) {
@@ -80,7 +66,7 @@ export function SolidariteBureau({ budget = 3000, commissionId }: { budget?: num
         confidentiel: (a.metadata as any)?.confidentiel ?? false,
         notes: a.description as string ?? "",
       }))
-    : DEMO_AIDES;
+    : [];
 
   const actions: ActionSol[] = dbActions.length > 0
     ? dbActions.map((a) => ({
@@ -91,7 +77,7 @@ export function SolidariteBureau({ budget = 3000, commissionId }: { budget?: num
         description: a.description as string ?? "",
         montant: (a.metadata as any)?.montant ?? 0,
       }))
-    : DEMO_ACTIONS;
+    : [];
 
   const [showModal, setShowModal] = useState(false);
   const [formType, setFormType] = useState("");

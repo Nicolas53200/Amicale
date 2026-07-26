@@ -29,37 +29,6 @@ interface Jeu {
   etat: "bon" | "moyen" | "abime";
 }
 
-const DEMO_STOCK: StockItem[] = [
-  { nom: "Café moulu", categorie: "Boissons chaudes", qte: 3, seuil: 2 },
-  { nom: "Capsules Nespresso", categorie: "Boissons chaudes", qte: 45, seuil: 20 },
-  { nom: "Thé (assortiment)", categorie: "Boissons chaudes", qte: 25, seuil: 10 },
-  { nom: "Sucre", categorie: "Boissons chaudes", qte: 4, seuil: 2 },
-  { nom: "Coca-Cola (33cl)", categorie: "Boissons froides", qte: 18, seuil: 12 },
-  { nom: "Eau (1.5L)", categorie: "Boissons froides", qte: 6, seuil: 6 },
-  { nom: "Jus d'orange (1L)", categorie: "Boissons froides", qte: 4, seuil: 3 },
-  { nom: "Bière (33cl)", categorie: "Boissons froides", qte: 24, seuil: 12 },
-  { nom: "Chips", categorie: "Snacks", qte: 8, seuil: 5 },
-  { nom: "Chocolat", categorie: "Snacks", qte: 6, seuil: 3 },
-  { nom: "Gobelets", categorie: "Consommables", qte: 150, seuil: 50 },
-  { nom: "Détergent", categorie: "Consommables", qte: 2, seuil: 1 },
-];
-
-const DEMO_ABONNEMENTS: Abonnement[] = [
-  { nom: "Canal+", type: "TV", cout: 39.99, renouvellement: "2026-09-01", statut: "actif" },
-  { nom: "Netflix", type: "Streaming", cout: 13.49, renouvellement: "2026-08-15", statut: "actif" },
-  { nom: "Orange Fibre", type: "Internet", cout: 29.99, renouvellement: "2026-12-01", statut: "actif" },
-  { nom: "Spotify Premium", type: "Musique", cout: 9.99, renouvellement: "2026-08-01", statut: "suspendu" },
-];
-
-const DEMO_JEUX: Jeu[] = [
-  { nom: "Monopoly", type: "societe", joueurs: "2-6", etat: "bon" },
-  { nom: "Uno", type: "societe", joueurs: "2-10", etat: "bon" },
-  { nom: "FIFA 26", type: "console", joueurs: "1-4", etat: "bon" },
-  { nom: "Mario Kart", type: "console", joueurs: "1-4", etat: "bon" },
-  { nom: "Fléchettes", type: "flechettes", joueurs: "1-8", etat: "moyen" },
-  { nom: "Baby-foot", type: "societe", joueurs: "2-4", etat: "bon" },
-];
-
 const CAT_ICONS: Record<string, string> = {
   "Boissons chaudes": "☕",
   "Boissons froides": "\u{1F964}",
@@ -84,33 +53,27 @@ export function FoyerBureau({ budget = 2000, commissionId }: { budget?: number; 
   const { items: dbAbonnements, loading: aboLoading, add: addAboItem, update: updateAboItem, remove: removeAboItem } = useCommissionItems(commissionId, "subscription");
   const { items: dbJeux, loading: jeuxLoading, add: addJeuItem, update: updateJeuItem, remove: removeJeuItem } = useCommissionItems(commissionId, "game");
 
-  const stock: StockItem[] = dbStock.length > 0
-    ? dbStock.map((i) => ({
-        nom: i.name as string ?? "",
-        categorie: (i.metadata as any)?.categorie ?? "",
-        qte: i.quantity as number ?? 0,
-        seuil: i.threshold as number ?? 0,
-      }))
-    : DEMO_STOCK;
+  const stock: StockItem[] = dbStock.map((i) => ({
+    nom: i.name as string ?? "",
+    categorie: (i.metadata as any)?.categorie ?? "",
+    qte: i.quantity as number ?? 0,
+    seuil: i.threshold as number ?? 0,
+  }));
 
-  const abonnements: Abonnement[] = dbAbonnements.length > 0
-    ? dbAbonnements.map((i) => ({
-        nom: i.name as string ?? "",
-        type: (i.metadata as any)?.type ?? "",
-        cout: (i.metadata as any)?.cout ?? 0,
-        renouvellement: (i.metadata as any)?.renouvellement ?? "",
-        statut: ((i.metadata as any)?.statut ?? "actif") as Abonnement["statut"],
-      }))
-    : DEMO_ABONNEMENTS;
+  const abonnements: Abonnement[] = dbAbonnements.map((i) => ({
+    nom: i.name as string ?? "",
+    type: (i.metadata as any)?.type ?? "",
+    cout: (i.metadata as any)?.cout ?? 0,
+    renouvellement: (i.metadata as any)?.renouvellement ?? "",
+    statut: ((i.metadata as any)?.statut ?? "actif") as Abonnement["statut"],
+  }));
 
-  const jeux: Jeu[] = dbJeux.length > 0
-    ? dbJeux.map((i) => ({
-        nom: i.name as string ?? "",
-        type: (i.metadata as any)?.type ?? "societe",
-        joueurs: (i.metadata as any)?.joueurs ?? "",
-        etat: ((i.metadata as any)?.etat ?? "bon") as Jeu["etat"],
-      }))
-    : DEMO_JEUX;
+  const jeux: Jeu[] = dbJeux.map((i) => ({
+    nom: i.name as string ?? "",
+    type: (i.metadata as any)?.type ?? "societe",
+    joueurs: (i.metadata as any)?.joueurs ?? "",
+    etat: ((i.metadata as any)?.etat ?? "bon") as Jeu["etat"],
+  }));
 
   const totalAbo = abonnements.filter((a) => a.statut === "actif").reduce((s, a) => s + a.cout, 0);
   const alertes = stock.filter((s) => s.qte <= s.seuil);
@@ -163,14 +126,14 @@ export function FoyerBureau({ budget = 2000, commissionId }: { budget?: number; 
               <p className="mb-2 text-[12px] font-bold text-amber-700">Stock bas</p>
               {alertes.map((a, i) => (
                 <p key={i} className="text-[11px] text-amber-600">
-                  {CAT_ICONS[a.categorie] || "\u{1F4E6}"} {a.nom} &mdash; {a.qte} restant(s) (seuil : {a.seuil})
+                  {CAT_ICONS[a.categorie] || "\u{1F4E6}"} {a.nom} {"—"} {a.qte} {"restant(s) (seuil : "}{a.seuil}{")"}
                 </p>
               ))}
             </div>
           )}
 
           <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-            <p className="mb-2 text-[12px] font-bold uppercase tracking-wide text-content-muted">Co&#251;t mensuel abonnements</p>
+            <p className="mb-2 text-[12px] font-bold uppercase tracking-wide text-content-muted">{"Coût mensuel abonnements"}</p>
             <p className="text-[20px] font-bold text-teal-600">{fmt(totalAbo)}<span className="text-[12px] font-normal text-content-muted"> /mois</span></p>
           </div>
         </div>
@@ -179,6 +142,13 @@ export function FoyerBureau({ budget = 2000, commissionId }: { budget?: number; 
       {/* STOCK */}
       {tab === "stock" && (
         <div className="flex flex-col gap-3">
+          {stock.length === 0 && (
+            <div className="rounded-[14px] bg-surface-elevated p-6 text-center shadow-sm">
+              <span className="mb-2 block text-[28px]">{"\u{1F4E6}"}</span>
+              <p className="text-[13px] font-semibold text-content-primary">Aucun produit en stock</p>
+              <p className="mt-1 text-[12px] text-content-muted">Ajoutez des produits pour suivre votre stock.</p>
+            </div>
+          )}
           {categories.map((cat) => (
             <div key={cat} className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
               <p className="mb-2 flex items-center gap-2 text-[12px] font-bold uppercase tracking-wide text-content-muted">
@@ -203,13 +173,20 @@ export function FoyerBureau({ budget = 2000, commissionId }: { budget?: number; 
       {/* ABONNEMENTS */}
       {tab === "abonnements" && (
         <div className="flex flex-col gap-2">
+          {abonnements.length === 0 && (
+            <div className="rounded-[14px] bg-surface-elevated p-6 text-center shadow-sm">
+              <span className="mb-2 block text-[28px]">{"\u{1F4FA}"}</span>
+              <p className="text-[13px] font-semibold text-content-primary">Aucun abonnement</p>
+              <p className="mt-1 text-[12px] text-content-muted">{"Les abonnements apparaîtront ici une fois ajoutés."}</p>
+            </div>
+          )}
           {abonnements.map((a, i) => (
             <div key={i} className="flex items-center justify-between rounded-[14px] bg-surface-elevated p-4 shadow-sm">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{TYPE_ICONS[a.type] || "\u{1F4E6}"}</span>
                 <div>
                   <p className="text-[13px] font-bold text-content-primary">{a.nom}</p>
-                  <p className="text-[11px] text-content-muted">{a.type} &#183; Renouvellement : {new Date(a.renouvellement).toLocaleDateString("fr-FR")}</p>
+                  <p className="text-[11px] text-content-muted">{a.type}{" · Renouvellement : "}{new Date(a.renouvellement).toLocaleDateString("fr-FR")}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -231,6 +208,13 @@ export function FoyerBureau({ budget = 2000, commissionId }: { budget?: number; 
       {/* JEUX */}
       {tab === "jeux" && (
         <div className="flex flex-col gap-2">
+          {jeux.length === 0 && (
+            <div className="rounded-[14px] bg-surface-elevated p-6 text-center shadow-sm">
+              <span className="mb-2 block text-[28px]">{"\u{1F3AE}"}</span>
+              <p className="text-[13px] font-semibold text-content-primary">{"Aucun jeu enregistré"}</p>
+              <p className="mt-1 text-[12px] text-content-muted">{"Les jeux et activités apparaîtront ici."}</p>
+            </div>
+          )}
           {jeux.map((j, i) => (
             <div key={i} className="flex items-center justify-between rounded-[14px] bg-surface-elevated p-3 shadow-sm">
               <div className="flex items-center gap-3">
@@ -254,7 +238,7 @@ export function FoyerBureau({ budget = 2000, commissionId }: { budget?: number; 
       {/* BUDGET */}
       {tab === "budget" && (
         <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-          <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Synth&#232;se budg&#233;taire</p>
+          <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">{"Synthèse budgétaire"}</p>
           <div className="flex justify-between border-b border-surface-secondary py-2">
             <span className="text-[12px] text-content-secondary">Budget annuel</span>
             <span className="text-[13px] font-bold text-content-primary">{fmt(budget)}</span>
@@ -264,7 +248,7 @@ export function FoyerBureau({ budget = 2000, commissionId }: { budget?: number; 
             <span className="text-[13px] font-bold text-red-600">{fmt(totalAbo * 12)}</span>
           </div>
           <div className="flex justify-between pt-3">
-            <span className="text-[12px] font-bold text-content-primary">Reste pour stock & jeux</span>
+            <span className="text-[12px] font-bold text-content-primary">{"Reste pour stock & jeux"}</span>
             <span className={cn("text-[15px] font-bold", budget - totalAbo * 12 >= 0 ? "text-green-600" : "text-red-600")}>
               {fmt(budget - totalAbo * 12)}
             </span>

@@ -1,0 +1,5 @@
+-- Migration 0038: Noel correction
+-- No additional schema needed. This is a frontend-only correction
+-- that fixes Noel commission display, gift list rendering,
+-- and children age calculation for gift attribution.
+-- Tracked here for version alignment with the frontend changelog.

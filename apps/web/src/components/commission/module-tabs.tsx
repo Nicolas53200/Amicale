@@ -55,6 +55,8 @@ const SPECIALIZED_KEYWORDS: Record<string, string> = {
   "solidarité": "solidarite",
   "action sociale": "solidarite",
   "foyer": "foyer",
+  "jsp": "jsp",
+  "jeunes sapeurs": "jsp",
   "sport": "sport",
   "sportive": "sport",
   "calendrier": "calendriers",
@@ -86,6 +88,7 @@ export function ModuleTabs({
         case "saintebarbe": return <SainteBarbeAmicaliste commissionId={commissionId} />;
         case "solidarite": return <SolidariteAmicaliste commissionId={commissionId} />;
         case "foyer": return <FoyerAmicaliste commissionId={commissionId} />;
+        case "jsp": return <SportAmicaliste commissionId={commissionId} />;
         case "sport": return <SportAmicaliste commissionId={commissionId} />;
         case "calendriers": return <CalendriersAmicaliste commissionId={commissionId} />;
       }
@@ -96,6 +99,7 @@ export function ModuleTabs({
         case "saintebarbe": return <SainteBarbeBureau commissionId={commissionId} budget={budget} />;
         case "solidarite": return <SolidariteBureau commissionId={commissionId} budget={budget} />;
         case "foyer": return <FoyerBureau commissionId={commissionId} budget={budget} />;
+        case "jsp": return <SportBureau commissionId={commissionId} budget={budget} />;
         case "sport": return <SportBureau commissionId={commissionId} budget={budget} />;
         case "calendriers": return <CalendriersBureau commissionId={commissionId} budget={budget} />;
       }

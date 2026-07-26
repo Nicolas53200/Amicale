@@ -43,34 +43,6 @@ interface Prestataire {
 const MOIS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 const PHOTO_STATUTS = ["validee","validee","validee","validee","validee","validee","validee","en_attente","en_attente","a_faire","a_faire","a_faire"];
 
-const DEMO_SECTEURS: Secteur[] = [
-  { id: "B7", nom: "Les Hauts de Laval", responsable: "Jean Dupont", calendriers: 200, logements: 320, vendus: 180, statut: "attribue" },
-  { id: "B8", nom: "Centre-ville", responsable: "Sophie Martin", calendriers: 180, logements: 280, vendus: 180, statut: "rendu" },
-  { id: "T1", nom: "Bonchamp", responsable: "Marc Dubois", calendriers: 150, logements: 250, vendus: 150, statut: "rendu" },
-  { id: "T2", nom: "Saint-Berthevin", responsable: "Anne Leclerc", calendriers: 160, logements: 240, vendus: 130, statut: "attribue" },
-  { id: "T3", nom: "Changé", responsable: "Thomas Blanc", calendriers: 140, logements: 200, vendus: 140, statut: "rendu" },
-  { id: "T4", nom: "L'Huisserie", responsable: "Marie Petit", calendriers: 120, logements: 180, vendus: 117, statut: "attribue" },
-  { id: "B9", nom: "Zone Sud", responsable: "", calendriers: 130, logements: 190, vendus: 0, statut: "disponible" },
-  { id: "T5", nom: "Avenières", responsable: "Pierre Roux", calendriers: 170, logements: 260, vendus: 170, statut: "rendu" },
-  { id: "T6", nom: "Louverné", responsable: "Julie Bernard", calendriers: 110, logements: 170, vendus: 100, statut: "attribue" },
-  { id: "B10", nom: "Zones commerciales", responsable: "Bureau", calendriers: 200, logements: 0, vendus: 150, statut: "collectif" },
-  { id: "T7", nom: "Entrammes", responsable: "Paul Moreau", calendriers: 130, logements: 200, vendus: 0, statut: "attribue" },
-  { id: "T8", nom: "Nuillé-sur-Vicoin", responsable: "", calendriers: 80, logements: 120, vendus: 0, statut: "disponible" },
-];
-
-const DEMO_RETOURS: Retour[] = [
-  { secteur: "T1", porteur: "Marc Dubois", date: "2026-01-15", vendus: 150, monnaie: 720, cheques: 750, total: 1470 },
-  { secteur: "T2", porteur: "Anne Leclerc", date: "2026-01-20", vendus: 130, monnaie: 490, cheques: 720, total: 1210 },
-  { secteur: "B8", porteur: "Sophie Martin", date: "2026-01-22", vendus: 180, monnaie: 840, cheques: 960, total: 1800 },
-  { secteur: "T3", porteur: "Thomas Blanc", date: "2026-01-25", vendus: 140, monnaie: 650, cheques: 810, total: 1460 },
-  { secteur: "T5", porteur: "Pierre Roux", date: "2026-02-01", vendus: 170, monnaie: 520, cheques: 1759, total: 2279 },
-];
-
-const DEMO_PRESTATAIRES: Prestataire[] = [
-  { id: "imp", nom: "Imprimerie Duval", type: "Impression", description: "2 ans de collaboration", icon: "🖨️", iconBg: "bg-blue-100 dark:bg-blue-900/30", devis: 4328, devisLabel: "", statut: "Commande signée", statutColor: "text-green-600" },
-  { id: "graph", nom: "Studio Graphik", type: "Conception", description: "1ère année", icon: "🎨", iconBg: "bg-purple-100 dark:bg-purple-900/30", devis: 680, devisLabel: "", statut: "7/12 photos validées", statutColor: "text-amber-600" },
-];
-
 const STATUT_CONFIG: Record<string, { label: string; cls: string; dot: string }> = {
   attribue: { label: "Attribué", cls: "bg-amber-100 text-amber-700 dark:bg-amber-900/30", dot: "bg-amber-500" },
   rendu: { label: "Rendu", cls: "bg-green-100 text-green-700 dark:bg-green-900/30", dot: "bg-green-500" },
@@ -102,7 +74,7 @@ export function CalendriersBureau({ commissionId, budget = 15148 }: { commission
           statut: a.status as "attribue" | "rendu" | "disponible" | "collectif",
         };
       })
-    : DEMO_SECTEURS;
+    : [];
 
   const retours: Retour[] = dbRetours.length > 0
     ? dbRetours.map((a) => {
@@ -117,7 +89,7 @@ export function CalendriersBureau({ commissionId, budget = 15148 }: { commission
           total: (meta.monnaie as number ?? 0) + (meta.cheques as number ?? 0),
         };
       })
-    : DEMO_RETOURS;
+    : [];
 
   const prestataires: Prestataire[] = dbPrestataires.length > 0
     ? dbPrestataires.map((c) => {
@@ -135,7 +107,7 @@ export function CalendriersBureau({ commissionId, budget = 15148 }: { commission
           statutColor: meta.statutColor as string ?? "text-content-primary",
         };
       })
-    : DEMO_PRESTATAIRES;
+    : [];
 
   const totalCal = secteurs.reduce((s, sec) => s + sec.calendriers, 0);
   const totalVendus = secteurs.reduce((s, sec) => s + sec.vendus, 0);
@@ -401,22 +373,35 @@ export function CalendriersBureau({ commissionId, budget = 15148 }: { commission
 
           <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
             <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Bilan financier</p>
-            {[
-              { label: "Recettes réelles", value: fmt(totalRecolte), color: "text-green-600" },
-              { label: "Charges impression", value: `- ${fmt(4328)}`, color: "text-red-600" },
-              { label: "Charges conception", value: `- ${fmt(680)}`, color: "text-red-600" },
-            ].map((row, i) => (
-              <div key={i} className="flex justify-between border-b border-surface-secondary py-2 last:border-0">
-                <span className="text-[12px] text-content-secondary">{row.label}</span>
-                <span className={cn("text-[12px] font-semibold", row.color)}>{row.value}</span>
-              </div>
-            ))}
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-[12px] font-bold text-content-primary">Bénéfice</span>
-              <span className={cn("text-[15px] font-bold", totalRecolte - 5008 >= 0 ? "text-green-600" : "text-red-600")}>
-                {fmt(totalRecolte - 5008)}
-              </span>
-            </div>
+            {(() => {
+              const totalCharges = prestataires.reduce((s, p) => s + p.devis, 0);
+              return (
+                <>
+                  <div className="flex justify-between border-b border-surface-secondary py-2">
+                    <span className="text-[12px] text-content-secondary">Recettes réelles</span>
+                    <span className="text-[12px] font-semibold text-green-600">{fmt(totalRecolte)}</span>
+                  </div>
+                  {prestataires.map((p, i) => (
+                    <div key={i} className="flex justify-between border-b border-surface-secondary py-2">
+                      <span className="text-[12px] text-content-secondary">Charges {p.type.toLowerCase()}</span>
+                      <span className="text-[12px] font-semibold text-red-600">- {fmt(p.devis)}</span>
+                    </div>
+                  ))}
+                  {prestataires.length === 0 && (
+                    <div className="flex justify-between border-b border-surface-secondary py-2">
+                      <span className="text-[12px] text-content-secondary">Charges</span>
+                      <span className="text-[12px] font-semibold text-content-muted">{fmt(0)}</span>
+                    </div>
+                  )}
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-[12px] font-bold text-content-primary">Bénéfice</span>
+                    <span className={cn("text-[15px] font-bold", totalRecolte - totalCharges >= 0 ? "text-green-600" : "text-red-600")}>
+                      {fmt(totalRecolte - totalCharges)}
+                    </span>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}

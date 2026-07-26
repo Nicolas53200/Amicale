@@ -16,20 +16,6 @@ interface PointVente {
   icon: string;
 }
 
-const DEMO_CAMPAGNE: Campagne = {
-  annee: 2026,
-  prixUnitaire: 8,
-  objectif: 2000,
-  vendus: 1247,
-};
-
-const DEMO_POINTS_VENTE: PointVente[] = [
-  { nom: "Caserne Centre", adresse: "12 rue du Centre", horaires: "8h-18h", icon: "🚒" },
-  { nom: "Caserne Nord", adresse: "45 avenue du Nord", horaires: "8h-17h", icon: "🚒" },
-  { nom: "Marché du samedi", adresse: "Place de la Mairie", horaires: "8h-13h (samedi)", icon: "🏪" },
-  { nom: "Permanence amicale", adresse: "Salle Duval", horaires: "10h-12h (mercredi)", icon: "📋" },
-];
-
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
 
@@ -37,14 +23,15 @@ export function CalendriersAmicaliste({ commissionId }: { commissionId: string }
   const { settings, loading: settingsLoading } = useCommissionSettings({ commissionId });
   const { contacts: dbPointsVente, loading: contactsLoading } = useCommissionContacts(commissionId, "point_vente");
 
+  const currentYear = new Date().getFullYear();
   const campagne: Campagne = settings.campagne
     ? {
-        annee: (settings.campagne as Record<string, unknown>).annee as number ?? DEMO_CAMPAGNE.annee,
-        prixUnitaire: (settings.campagne as Record<string, unknown>).prixUnitaire as number ?? DEMO_CAMPAGNE.prixUnitaire,
-        objectif: (settings.campagne as Record<string, unknown>).objectif as number ?? DEMO_CAMPAGNE.objectif,
-        vendus: (settings.campagne as Record<string, unknown>).vendus as number ?? DEMO_CAMPAGNE.vendus,
+        annee: (settings.campagne as Record<string, unknown>).annee as number ?? currentYear,
+        prixUnitaire: (settings.campagne as Record<string, unknown>).prixUnitaire as number ?? 0,
+        objectif: (settings.campagne as Record<string, unknown>).objectif as number ?? 0,
+        vendus: (settings.campagne as Record<string, unknown>).vendus as number ?? 0,
       }
-    : DEMO_CAMPAGNE;
+    : { annee: currentYear, prixUnitaire: 0, objectif: 0, vendus: 0 };
 
   const pointsVente: PointVente[] = dbPointsVente.length > 0
     ? dbPointsVente.map((c) => {
@@ -56,7 +43,7 @@ export function CalendriersAmicaliste({ commissionId }: { commissionId: string }
           icon: meta.icon as string ?? "🏪",
         };
       })
-    : DEMO_POINTS_VENTE;
+    : [];
 
   const pct = campagne.objectif > 0 ? Math.round((campagne.vendus / campagne.objectif) * 100) : 0;
 
@@ -96,7 +83,9 @@ export function CalendriersAmicaliste({ commissionId }: { commissionId: string }
 
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
         <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-content-muted">Points de vente</p>
-        {pointsVente.map((pv, i) => (
+        {pointsVente.length === 0 ? (
+          <p className="py-4 text-center text-[12px] text-content-muted">Aucun point de vente configuré</p>
+        ) : pointsVente.map((pv, i) => (
           <div key={i} className="flex items-center gap-3 border-b border-surface-secondary py-3 last:border-0">
             <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-indigo-100 dark:bg-indigo-900/30">
               <span className="text-lg">{pv.icon}</span>

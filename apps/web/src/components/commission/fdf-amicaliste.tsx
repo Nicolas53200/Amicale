@@ -1,27 +1,26 @@
 "use client";
 
-import { useCommissionContacts } from "@/hooks/use-commission-data";
+import { useCommissionContacts, useCommissionSettings } from "@/hooks/use-commission-data";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
 
-const DEMO_PRESTATAIRES = [
-  { icon: "🌹", nom: "Fleuriste Dupont", adresse: "12 rue du Commerce" },
-  { icon: "🧖", nom: "Spa Belle Vie", adresse: "Centre-ville, Laval" },
-  { icon: "💍", nom: "Bijouterie Laval", adresse: "Place du Vieux-Saint-Louis" },
-];
-
 export function FdfAmicaliste({ commissionId }: { commissionId: string }) {
-  // Supabase data with demo fallback
-  const { contacts: dbPrestataires } = useCommissionContacts(commissionId, "prestataire");
+  // Supabase data
+  const { contacts: dbPrestataires, loading: prestataresLoading } = useCommissionContacts(commissionId, "prestataire");
+  const { settings } = useCommissionSettings({ commissionId });
 
-  const prestataires = dbPrestataires.length > 0
-    ? dbPrestataires.map((c) => ({
-        icon: (c.icon as string) ?? "🏪",
-        nom: (c.name as string) ?? "",
-        adresse: (c.address as string) ?? "",
-      }))
-    : DEMO_PRESTATAIRES;
+  const prestataires = dbPrestataires.map((c) => ({
+    icon: (c.icon as string) ?? "🏪",
+    nom: (c.name as string) ?? "",
+    adresse: (c.address as string) ?? "",
+  }));
+
+  const eventTitle = (settings.event_title as string) || "Fête des Femmes";
+  const dateRemise = (settings.date_remise as string) || "";
+  const dateLimite = (settings.date_limite as string) || "";
+  const lieuRetrait = (settings.lieu_retrait as string) || "Local amicale";
+
   return (
     <div className="flex flex-col gap-4">
       {/* Hero */}
@@ -31,8 +30,8 @@ export function FdfAmicaliste({ commissionId }: { commissionId: string }) {
             <span className="text-xl text-white">💝</span>
           </div>
           <div>
-            <p className="text-[15px] font-bold text-pink-600">Fête des Femmes 2026</p>
-            <p className="text-[12px] text-pink-800 dark:text-pink-400">8 mars 2026 · Commission dédiée</p>
+            <p className="text-[15px] font-bold text-pink-600">{eventTitle}</p>
+            <p className="text-[12px] text-pink-800 dark:text-pink-400">{dateRemise ? `${dateRemise} · ` : ""}Commission dédiée</p>
           </div>
         </div>
         <p className="mt-2 text-[12px] leading-relaxed text-pink-800 dark:text-pink-400">
@@ -66,21 +65,21 @@ export function FdfAmicaliste({ commissionId }: { commissionId: string }) {
               <span className="text-pink-600">📅</span>
               <span className="text-[12px] text-content-secondary">Date de remise</span>
             </div>
-            <span className="text-[12px] font-semibold text-content-primary">8 mars 2026</span>
+            <span className="text-[12px] font-semibold text-content-primary">{dateRemise || "Non définie"}</span>
           </div>
           <div className="flex items-center justify-between border-b border-surface-secondary py-2.5">
             <div className="flex items-center gap-2">
               <span className="text-amber-500">⏰</span>
               <span className="text-[12px] text-content-secondary">Limite d&apos;utilisation</span>
             </div>
-            <span className="text-[12px] font-semibold text-amber-600">30 avr. 2026</span>
+            <span className="text-[12px] font-semibold text-amber-600">{dateLimite || "Non définie"}</span>
           </div>
           <div className="flex items-center justify-between py-2.5">
             <div className="flex items-center gap-2">
               <span className="text-pink-600">📍</span>
               <span className="text-[12px] text-content-secondary">Lieu de retrait</span>
             </div>
-            <span className="text-[12px] text-content-primary">Local amicale</span>
+            <span className="text-[12px] text-content-primary">{lieuRetrait}</span>
           </div>
         </div>
       </div>
@@ -88,15 +87,25 @@ export function FdfAmicaliste({ commissionId }: { commissionId: string }) {
       {/* Prestataires */}
       <div>
         <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-content-muted">Prestataires partenaires</p>
-        <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
-          {prestataires.map((p, i) => (
-            <div key={i} className="flex min-w-[140px] shrink-0 flex-col items-center rounded-[14px] bg-pink-50 p-4 text-center dark:bg-pink-900/20">
-              <span className="mb-2 text-3xl">{p.icon}</span>
-              <p className="text-[12px] font-bold text-pink-600">{p.nom}</p>
-              <p className="mt-1 text-[10px] text-content-secondary">{p.adresse}</p>
-            </div>
-          ))}
-        </div>
+        {prestataires.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 rounded-[14px] bg-surface-elevated p-8 text-center shadow-sm">
+            <span className="text-[36px]">🏪</span>
+            <p className="text-[13px] font-semibold text-content-primary">Aucun prestataire</p>
+            <p className="text-[11px] text-content-muted">
+              {prestataresLoading ? "Chargement..." : "Les prestataires partenaires apparaîtront ici."}
+            </p>
+          </div>
+        ) : (
+          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+            {prestataires.map((p, i) => (
+              <div key={i} className="flex min-w-[140px] shrink-0 flex-col items-center rounded-[14px] bg-pink-50 p-4 text-center dark:bg-pink-900/20">
+                <span className="mb-2 text-3xl">{p.icon}</span>
+                <p className="text-[12px] font-bold text-pink-600">{p.nom}</p>
+                <p className="mt-1 text-[10px] text-content-secondary">{p.adresse}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Message */}
