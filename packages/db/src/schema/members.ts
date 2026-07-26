@@ -5,6 +5,8 @@ import {
   text,
   timestamp,
   boolean,
+  integer,
+  jsonb,
   index,
 } from "drizzle-orm/pg-core";
 import { organizations } from "./organizations";
@@ -46,6 +48,18 @@ export const members = pgTable(
     centre: varchar("centre", { length: 100 }),
     bureau_role: varchar("bureau_role", { length: 100 }),
     is_bureau: boolean("is_bureau").notNull().default(false),
+    situation_familiale: varchar("situation_familiale", { length: 50 }),
+    nb_enfants: integer("nb_enfants"),
+    contact_urgence: text("contact_urgence"),
+    enfants_noms: jsonb("enfants_noms").$type<string[]>().default([]),
+    enfants_naiss: jsonb("enfants_naiss").$type<string[]>().default([]),
+    type_sp: varchar("type_sp", { length: 50 }),
+    date_adhesion: timestamp("date_adhesion", { mode: "date" }),
+    genre: varchar("genre", { length: 20 }),
+    conjoint: varchar("conjoint", { length: 200 }),
+    avatar_emoji: varchar("avatar_emoji", { length: 10 }),
+    invitation_statut: varchar("invitation_statut", { length: 50 }),
+    last_seen_changelog: timestamp("last_seen_changelog", { withTimezone: true }),
     onboarding_completed: boolean("onboarding_completed")
       .notNull()
       .default(false),

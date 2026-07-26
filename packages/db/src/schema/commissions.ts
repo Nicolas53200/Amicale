@@ -42,6 +42,10 @@ export const commissions = pgTable(
     is_fixed: boolean("is_fixed").notNull().default(false),
     description: text("description"),
     active: boolean("active").notNull().default(true),
+    visible_amicaliste: boolean("visible_amicaliste").notNull().default(true),
+    visible_bureau: boolean("visible_bureau").notNull().default(true),
+    deleted_at: timestamp("deleted_at", { withTimezone: true }),
+    deleted_by: uuid("deleted_by"),
     created_at: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

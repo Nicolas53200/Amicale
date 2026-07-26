@@ -24,6 +24,8 @@ export const messages = pgTable(
       .references(() => members.id, { onDelete: "cascade" }),
     subject: varchar("subject", { length: 255 }),
     body: text("body").notNull(),
+    type: varchar("type", { length: 50 }),
+    rsvp_status: varchar("rsvp_status", { length: 20 }),
     read_at: timestamp("read_at", { withTimezone: true }),
     created_at: timestamp("created_at", { withTimezone: true })
       .notNull()

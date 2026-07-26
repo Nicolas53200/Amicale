@@ -6,6 +6,8 @@ import {
   timestamp,
   integer,
   numeric,
+  boolean,
+  jsonb,
   index,
 } from "drizzle-orm/pg-core";
 import { organizations } from "./organizations";
@@ -28,10 +30,25 @@ export const events = pgTable(
     end_date: timestamp("end_date", { withTimezone: true }),
     location: varchar("location", { length: 255 }),
     image_url: text("image_url"),
+    carousel_order: integer("carousel_order").notNull().default(0),
+    carousel_duration_seconds: integer("carousel_duration_seconds").notNull().default(5),
+    carousel_expires_at: timestamp("carousel_expires_at", { withTimezone: true }),
+    publication_at: timestamp("publication_at", { withTimezone: true }),
+    volunteer_posts: jsonb("volunteer_posts").$type<{ name: string; capacity: number }[]>().notNull().default([]),
+    return_images_enabled: boolean("return_images_enabled").notNull().default(false),
+    member_photo_upload_enabled: boolean("member_photo_upload_enabled").notNull().default(false),
+    photo_validation_required: boolean("photo_validation_required").notNull().default(false),
+    journal_images_enabled: boolean("journal_images_enabled").notNull().default(false),
     max_attendees: integer("max_attendees"),
     price: numeric("price", { precision: 10, scale: 2 }).default("0"),
     max_benevoles: integer("max_benevoles"),
     category: varchar("category", { length: 100 }),
+    icon: varchar("icon", { length: 50 }),
+    color: varchar("color", { length: 20 }),
+    published: boolean("published").notNull().default(true),
+    children_allowed: boolean("children_allowed").notNull().default(false),
+    child_age_limit: integer("child_age_limit").default(16),
+    max_adults_per_household: integer("max_adults_per_household").default(6),
     created_at: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -58,7 +75,13 @@ export const eventRegistrations = pgTable(
       .references(() => members.id, { onDelete: "cascade" }),
     status: varchar("status", { length: 50 }).notNull().default("inscrit"),
     nb_personnes: integer("nb_personnes").notNull().default(1),
+    nb_adultes: integer("nb_adultes"),
+    nb_enfants: integer("nb_enfants").notNull().default(0),
+    enfants_idx: jsonb("enfants_idx").$type<number[]>().notNull().default([]),
+    accompagnateur: boolean("accompagnateur").notNull().default(false),
     is_benevole: varchar("is_benevole", { length: 50 }),
+    benevole_status: varchar("benevole_status", { length: 20 }),
+    benevole_poste: varchar("benevole_poste", { length: 100 }),
     registered_at: timestamp("registered_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
