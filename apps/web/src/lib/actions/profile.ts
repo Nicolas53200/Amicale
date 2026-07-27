@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -52,7 +53,7 @@ export async function updateProfile(formData: FormData) {
     .update(updates)
     .eq("id", member.id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/amicaliste/profil");
   revalidatePath("/bureau/profil");
 }
@@ -77,7 +78,7 @@ export async function updateMemberAvatarUrl(avatarUrl: string) {
     .update({ avatar_url: avatarUrl })
     .eq("id", member.id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/amicaliste/profil");
   revalidatePath("/bureau/profil");
 }
@@ -85,5 +86,5 @@ export async function updateMemberAvatarUrl(avatarUrl: string) {
 export async function updatePassword(currentPassword: string, newPassword: string) {
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password: newPassword });
-  if (error) throw error;
+  if (error) throwUserError(error);
 }

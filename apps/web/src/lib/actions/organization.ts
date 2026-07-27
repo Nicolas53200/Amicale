@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -55,7 +56,7 @@ export async function updateOrganization(formData: FormData) {
     .update({ name, settings })
     .eq("id", orgId);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/parametres");
 }
 

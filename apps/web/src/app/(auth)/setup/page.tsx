@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { verifySetupCode } from "@/lib/actions/setup";
 
 function slugify(text: string): string {
   return text
@@ -15,8 +16,6 @@ function slugify(text: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 }
-
-const SETUP_PASSWORD = "IGNISNOVA";
 
 export default function SetupPage() {
   const router = useRouter();
@@ -121,17 +120,21 @@ export default function SetupPage() {
               setSetupError("");
             }}
             placeholder="Code d'accès"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && setupCode === SETUP_PASSWORD) setAuthorized(true);
-              else if (e.key === "Enter") setSetupError("Code incorrect");
+            onKeyDown={async (e) => {
+              if (e.key === "Enter") {
+                const valid = await verifySetupCode(setupCode);
+                if (valid) setAuthorized(true);
+                else setSetupError("Code incorrect");
+              }
             }}
             autoFocus
           />
           {setupError && <p className="text-[12px] text-red-500">{setupError}</p>}
           <Button
             type="button"
-            onClick={() => {
-              if (setupCode === SETUP_PASSWORD) setAuthorized(true);
+            onClick={async () => {
+              const valid = await verifySetupCode(setupCode);
+              if (valid) setAuthorized(true);
               else setSetupError("Code incorrect");
             }}
           >

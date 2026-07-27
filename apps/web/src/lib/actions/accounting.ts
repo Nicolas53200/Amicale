@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -16,7 +17,7 @@ export async function getAccountingEntries(commissionId?: string) {
   }
 
   const { data, error } = await query;
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -32,7 +33,7 @@ export async function getAccountingStats(commissionId?: string) {
   }
 
   const { data, error } = await query;
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   let recettes = 0;
   let depenses = 0;
@@ -91,7 +92,7 @@ export async function createAccountingEntry(formData: FormData) {
     submitted_by: memberId,
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/comptabilite");
   revalidatePath(`/bureau/commissions/${commissionId}`);
 }
@@ -116,6 +117,6 @@ export async function updateEntryStatus(
     .update(updates)
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/comptabilite");
 }

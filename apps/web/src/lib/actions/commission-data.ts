@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,7 +16,7 @@ export async function getCommissionItems(commissionId: string, category?: string
   if (category) query = query.eq("category", category);
 
   const { data, error } = await query;
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -40,14 +41,14 @@ export async function upsertCommissionItem(item: {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
 export async function deleteCommissionItem(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("commission_items").delete().eq("id", id);
-  if (error) throw error;
+  if (error) throwUserError(error);
 }
 
 // ─── Commission Contacts ────────────────────────────────────────────
@@ -63,7 +64,7 @@ export async function getCommissionContacts(commissionId: string, type?: string)
   if (type) query = query.eq("type", type);
 
   const { data, error } = await query;
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -87,14 +88,14 @@ export async function upsertCommissionContact(contact: {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
 export async function deleteCommissionContact(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("commission_contacts").delete().eq("id", id);
-  if (error) throw error;
+  if (error) throwUserError(error);
 }
 
 // ─── Commission Activities ──────────────────────────────────────────
@@ -110,7 +111,7 @@ export async function getCommissionActivities(commissionId: string, type?: strin
   if (type) query = query.eq("type", type);
 
   const { data, error } = await query;
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -138,14 +139,14 @@ export async function upsertCommissionActivity(activity: {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
 export async function deleteCommissionActivity(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("commission_activities").delete().eq("id", id);
-  if (error) throw error;
+  if (error) throwUserError(error);
 }
 
 // ─── Commission Settings ────────────────────────────────────────────
@@ -169,7 +170,7 @@ export async function getCommissionSettings(commissionId: string) {
     .select("key, value")
     .eq("commission_id", commissionId);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   const settings: Record<string, unknown> = {};
   for (const row of data ?? []) {
     settings[row.key] = row.value;
@@ -196,5 +197,5 @@ export async function setCommissionSetting(params: {
       { onConflict: "commission_id,key" }
     );
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 }

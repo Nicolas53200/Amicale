@@ -34,7 +34,9 @@ export async function updateSession(request: NextRequest) {
   const isPublicPage =
     pathname.startsWith("/login") ||
     pathname.startsWith("/invitation") ||
-    pathname.startsWith("/setup");
+    pathname.startsWith("/setup") ||
+    pathname.startsWith("/mot-de-passe-oublie") ||
+    pathname.startsWith("/reset-password");
 
   const isOnboarding = pathname.startsWith("/onboarding");
 

@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -11,7 +12,7 @@ export async function getChangelogs() {
     .select("*")
     .order("published_at", { ascending: false });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -37,7 +38,7 @@ export async function getUnseenChangelogs() {
   }
 
   const { data, error } = await query;
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   return data?.filter(
     (c: { org_id: string | null }) => c.org_id === null || c.org_id === orgId
@@ -53,7 +54,7 @@ export async function markChangelogsSeen() {
     .update({ last_seen_changelog: new Date().toISOString() })
     .eq("id", memberId);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 }
 
 export async function createChangelog(formData: FormData) {
@@ -72,7 +73,7 @@ export async function createChangelog(formData: FormData) {
     published_at: new Date().toISOString(),
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/nouveautes");
 }
 
@@ -80,6 +81,6 @@ export async function deleteChangelog(id: string) {
   await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("changelogs").delete().eq("id", id);
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/nouveautes");
 }

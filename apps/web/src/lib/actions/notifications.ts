@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -52,7 +53,7 @@ export async function getNotifications() {
     .order("sent_at", { ascending: false })
     .limit(50);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 

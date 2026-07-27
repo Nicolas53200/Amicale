@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -27,7 +28,7 @@ export async function getMembers() {
     .select("*")
     .order("last_name", { ascending: true });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -39,7 +40,7 @@ export async function getMember(id: string) {
     .eq("id", id)
     .single();
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -49,7 +50,7 @@ export async function getMemberStats() {
     .from("members")
     .select("id, role, status, is_bureau");
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const total = data.length;
   const actifs = data.filter((m) => m.status === "actif").length;
@@ -81,7 +82,7 @@ export async function createMember(formData: FormData) {
     status: "invite",
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   if (memberEmail) {
     const { subject, html } = buildInvitationEmail({
@@ -110,7 +111,7 @@ export async function updateMember(id: string, formData: FormData) {
     .update(updates)
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/membres");
 }
 
@@ -118,7 +119,7 @@ export async function deleteMember(id: string) {
   await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("members").delete().eq("id", id);
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/membres");
 }
 
@@ -139,7 +140,7 @@ export async function updateMemberRole(
     .update(updates)
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/membres");
   revalidatePath(`/bureau/membres/${id}`);
 }
@@ -153,7 +154,7 @@ export async function updateMemberStatus(id: string, status: string) {
     .update({ status })
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/membres");
   revalidatePath(`/bureau/membres/${id}`);
 }
@@ -186,7 +187,7 @@ export async function inviteMember(email: string) {
     status: "invite",
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const { subject, html } = buildInvitationEmail({
     firstName: "",
@@ -206,6 +207,6 @@ export async function getMemberCommissions(memberId: string) {
     .select("*, commissions:commission_id(id, name, icon, color)")
     .eq("member_id", memberId);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
