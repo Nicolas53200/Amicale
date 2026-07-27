@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -13,7 +14,7 @@ export async function getCommissions() {
     .order("is_fixed", { ascending: false })
     .order("name", { ascending: true });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -25,7 +26,7 @@ export async function getAllCommissions() {
     .order("is_fixed", { ascending: false })
     .order("name", { ascending: true });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -46,7 +47,7 @@ export async function toggleCommissionVisibility(id: string) {
     .update({ active: !commission.active })
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/commissions");
   revalidatePath("/amicaliste/commissions");
 }
@@ -61,7 +62,7 @@ export async function getCommission(id: string) {
     .eq("id", id)
     .single();
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -72,7 +73,7 @@ export async function getCommissionStats() {
     .select("id, budget, is_fixed, active")
     .eq("active", true);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const total = data.length;
   const fixed = data.filter((c) => c.is_fixed).length;
@@ -106,7 +107,7 @@ export async function createCommission(formData: FormData) {
     is_fixed: false,
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/commissions");
 }
 
@@ -130,7 +131,7 @@ export async function updateCommission(id: string, formData: FormData) {
     .update(updates)
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/commissions");
   revalidatePath(`/bureau/commissions/${id}`);
 }
@@ -143,7 +144,7 @@ export async function deleteCommission(id: string) {
     .update({ active: false })
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/commissions");
 }
 
@@ -160,7 +161,7 @@ export async function addCommissionMember(
     role,
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath(`/bureau/commissions/${commissionId}`);
 }
 
@@ -176,6 +177,6 @@ export async function removeCommissionMember(
     .eq("commission_id", commissionId)
     .eq("member_id", memberId);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath(`/bureau/commissions/${commissionId}`);
 }

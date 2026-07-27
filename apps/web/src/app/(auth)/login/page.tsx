@@ -6,8 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-const SETUP_PASSWORD = "IGNISNOVA";
+import { verifySetupCode } from "@/lib/actions/setup";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -62,8 +61,9 @@ export default function LoginPage() {
     router.refresh();
   }
 
-  function handleSetupSubmit() {
-    if (setupCode === SETUP_PASSWORD) {
+  async function handleSetupSubmit() {
+    const valid = await verifySetupCode(setupCode);
+    if (valid) {
       router.push("/setup");
     } else {
       setSetupError("Code incorrect");
@@ -115,6 +115,12 @@ export default function LoginPage() {
         </Button>
       </form>
       <div className="mt-6 flex flex-col items-center gap-3 text-center">
+        <Link
+          href="/mot-de-passe-oublie"
+          className="text-[13px] font-medium text-content-muted hover:text-brand-500 hover:underline"
+        >
+          Mot de passe oublié ?
+        </Link>
         <Link
           href="/invitation"
           className="text-[13px] font-medium text-brand-500 hover:underline"

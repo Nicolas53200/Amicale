@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -20,7 +21,7 @@ export async function getCotisations(year?: number) {
   }
 
   const { data, error } = await query;
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -45,7 +46,7 @@ export async function getMyCotisations() {
     .eq("member_id", member.id)
     .order("year", { ascending: false });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -69,7 +70,7 @@ export async function createCotisation(formData: FormData) {
     .from("cotisations")
     .upsert(rows, { onConflict: "org_id,member_id,year" });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/cotisations");
   revalidatePath("/amicaliste/cotisations");
 }
@@ -97,7 +98,7 @@ export async function generateYearCotisations(year: number, amount: number) {
     .from("cotisations")
     .upsert(rows, { onConflict: "org_id,member_id,year" });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/cotisations");
   revalidatePath("/amicaliste/cotisations");
 }
@@ -131,7 +132,7 @@ export async function updateCotisationStatus(
     .update(updateData)
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   if (cotisation && status === "paye") {
     await sendNotification({
@@ -151,7 +152,7 @@ export async function deleteCotisation(id: string) {
   await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("cotisations").delete().eq("id", id);
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/cotisations");
   revalidatePath("/amicaliste/cotisations");
 }

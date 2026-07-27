@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -25,7 +26,7 @@ export async function getInbox() {
     .eq("to_id", member.id)
     .order("created_at", { ascending: false });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -50,7 +51,7 @@ export async function getSentMessages() {
     .eq("from_id", member.id)
     .order("created_at", { ascending: false });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -79,7 +80,7 @@ export async function sendMessage(formData: FormData) {
     body: formData.get("body") as string,
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/messagerie");
   revalidatePath("/amicaliste/messagerie");
 }
@@ -91,7 +92,7 @@ export async function markAsRead(messageId: string) {
     .update({ read_at: new Date().toISOString() })
     .eq("id", messageId);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 }
 
 export async function deleteMessage(messageId: string) {
@@ -116,7 +117,7 @@ export async function deleteMessage(messageId: string) {
     .eq("id", messageId)
     .eq("from_id", member.id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/messagerie");
   revalidatePath("/amicaliste/messagerie");
 }

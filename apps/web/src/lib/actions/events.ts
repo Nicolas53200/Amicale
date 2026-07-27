@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -12,7 +13,7 @@ export async function getEvents() {
     .select("*, event_registrations(count)")
     .order("date", { ascending: true });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -26,7 +27,7 @@ export async function getUpcomingEvents() {
     .order("date")
     .limit(20);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -40,7 +41,7 @@ export async function getEvent(id: string) {
     .eq("id", id)
     .single();
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -78,7 +79,7 @@ export async function createEvent(formData: FormData) {
       : 6,
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/evenements");
   revalidatePath("/amicaliste/evenements");
 }
@@ -122,7 +123,7 @@ export async function registerForEvent(eventId: string, params: RegisterEventPar
     { onConflict: "event_id,member_id" }
   );
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const { data: event } = await supabase
     .from("events")
@@ -189,7 +190,7 @@ export async function updateEvent(id: string, formData: FormData) {
     })
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/evenements");
   revalidatePath(`/bureau/evenements/${id}`);
   revalidatePath("/amicaliste/evenements");
@@ -199,7 +200,7 @@ export async function deleteEvent(id: string) {
   await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("events").delete().eq("id", id);
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/evenements");
   revalidatePath("/amicaliste/evenements");
 }
@@ -217,7 +218,7 @@ export async function validateRegistration(
     .update({ status: "valide" })
     .eq("event_id", eventId)
     .eq("member_id", memberId);
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath(`/bureau/evenements/${eventId}`);
 }
 
@@ -240,7 +241,7 @@ export async function refuseRegistration(
     .update({ status: "refuse" })
     .eq("event_id", eventId)
     .eq("member_id", memberId);
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const { data: event } = await supabase
     .from("events")
@@ -274,7 +275,7 @@ export async function deleteRegistration(
     .delete()
     .eq("event_id", eventId)
     .eq("member_id", memberId);
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath(`/bureau/evenements/${eventId}`);
   revalidatePath(`/amicaliste/evenements/${eventId}`);
 }
@@ -291,7 +292,7 @@ export async function validateBenevole(
     .update({ benevole_status: "valide" })
     .eq("event_id", eventId)
     .eq("member_id", memberId);
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const { data: event } = await supabase
     .from("events")
@@ -339,7 +340,7 @@ export async function refuseBenevole(
     .update({ benevole_status: "refuse", is_benevole: null, benevole_poste: null })
     .eq("event_id", eventId)
     .eq("member_id", memberId);
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const { data: event } = await supabase
     .from("events")
@@ -383,7 +384,7 @@ export async function cancelRegistration(eventId: string) {
     .eq("event_id", eventId)
     .eq("member_id", member.id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const { data: event } = await supabase
     .from("events")

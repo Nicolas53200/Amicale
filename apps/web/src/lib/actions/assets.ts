@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -12,7 +13,7 @@ export async function getAssets() {
     .select("*, asset_bookings(count)")
     .order("name");
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -26,7 +27,7 @@ export async function getAsset(id: string) {
     .eq("id", id)
     .single();
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -55,7 +56,7 @@ export async function createAsset(formData: FormData) {
     tags: tagsRaw ? JSON.parse(tagsRaw) : [],
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/locations");
   revalidatePath("/amicaliste/locations");
 }
@@ -87,7 +88,7 @@ export async function updateAsset(id: string, formData: FormData) {
     })
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/locations");
   revalidatePath(`/bureau/locations/${id}`);
   revalidatePath("/amicaliste/locations");
@@ -97,7 +98,7 @@ export async function deleteAsset(id: string) {
   await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("assets").delete().eq("id", id);
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/locations");
   revalidatePath("/amicaliste/locations");
 }
@@ -112,7 +113,7 @@ export async function getBookingsForAsset(assetId: string) {
     .eq("asset_id", assetId)
     .order("start_date");
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -143,7 +144,7 @@ export async function requestBooking(formData: FormData) {
     notes: (formData.get("notes") as string) || null,
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const { data: asset } = await supabase
     .from("assets")
@@ -185,7 +186,7 @@ export async function updateAssetPhotos(
     .update({ photos, cover_index: coverIndex })
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath(`/bureau/locations/${id}`);
   revalidatePath(`/amicaliste/locations/${id}`);
   revalidatePath("/amicaliste/locations");
@@ -211,7 +212,7 @@ export async function updateBookingStatus(bookingId: string, status: string, ref
     .update(updateData)
     .eq("id", bookingId);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   if (booking && (status === "validee" || status === "refusee")) {
     const assetName =

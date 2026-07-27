@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -16,7 +17,7 @@ export async function getDocuments(commissionId?: string) {
   }
 
   const { data, error } = await query;
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -28,7 +29,7 @@ export async function getDocument(id: string) {
     .eq("id", id)
     .single();
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -46,7 +47,7 @@ export async function createDocument(formData: FormData) {
     created_by: memberId,
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/commissions");
 }
 
@@ -54,6 +55,6 @@ export async function deleteDocument(id: string) {
   await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("documents").delete().eq("id", id);
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/commissions");
 }

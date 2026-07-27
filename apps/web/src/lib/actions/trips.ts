@@ -1,4 +1,5 @@
 "use server";
+import { throwUserError } from "@/lib/actions/errors";
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -12,7 +13,7 @@ export async function getTrips() {
     .select("*, trip_registrations(count)")
     .order("start_date", { ascending: true });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -25,7 +26,7 @@ export async function getUpcomingTrips() {
     .order("start_date")
     .limit(20);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -39,7 +40,7 @@ export async function getTrip(id: string) {
     .eq("id", id)
     .single();
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   return data;
 }
 
@@ -87,7 +88,7 @@ export async function createTrip(formData: FormData) {
     not_included: notIncludedRaw ? JSON.parse(notIncludedRaw) : [],
   });
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/voyages");
   revalidatePath("/amicaliste/voyages");
 }
@@ -138,7 +139,7 @@ export async function updateTrip(id: string, formData: FormData) {
     })
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/voyages");
   revalidatePath(`/bureau/voyages/${id}`);
   revalidatePath("/amicaliste/voyages");
@@ -148,7 +149,7 @@ export async function deleteTrip(id: string) {
   await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase.from("trips").delete().eq("id", id);
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath("/bureau/voyages");
   revalidatePath("/amicaliste/voyages");
 }
@@ -167,7 +168,7 @@ export async function validateTripRegistration(
     .update({ status: "acceptee" })
     .eq("trip_id", tripId)
     .eq("member_id", memberId);
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const { data: trip } = await supabase
     .from("trips")
@@ -217,7 +218,7 @@ export async function refuseTripRegistration(
     .update({ status: "refusee" })
     .eq("trip_id", tripId)
     .eq("member_id", memberId);
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const { data: trip } = await supabase
     .from("trips")
@@ -252,7 +253,7 @@ export async function deleteTripRegistration(
     .delete()
     .eq("trip_id", tripId)
     .eq("member_id", memberId);
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath(`/bureau/voyages/${tripId}`);
   revalidatePath(`/amicaliste/voyages/${tripId}`);
 }
@@ -278,7 +279,7 @@ export async function cancelTripRegistration(tripId: string) {
     .eq("trip_id", tripId)
     .eq("member_id", member.id);
 
-  if (error) throw error;
+  if (error) throwUserError(error);
   revalidatePath(`/amicaliste/voyages/${tripId}`);
   revalidatePath(`/bureau/voyages/${tripId}`);
 }
@@ -315,7 +316,7 @@ export async function registerForTrip(
     { onConflict: "trip_id,member_id" }
   );
 
-  if (error) throw error;
+  if (error) throwUserError(error);
 
   const { data: trip } = await supabase
     .from("trips")
