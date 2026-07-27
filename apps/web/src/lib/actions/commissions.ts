@@ -137,11 +137,11 @@ export async function updateCommission(id: string, formData: FormData) {
 }
 
 export async function deleteCommission(id: string) {
-  await requireBureau();
+  const { memberId } = await requireBureau();
   const supabase = await createClient();
   const { error } = await supabase
     .from("commissions")
-    .update({ active: false })
+    .update({ active: false, deleted_at: new Date().toISOString(), deleted_by: memberId })
     .eq("id", id);
 
   if (error) throwUserError(error);

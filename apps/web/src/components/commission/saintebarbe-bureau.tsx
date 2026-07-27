@@ -57,7 +57,7 @@ export function SainteBarbeBureau({ budget = 5000, commissionId }: { budget?: nu
   const inscriptions: Inscription[] = dbInscriptions.length > 0
     ? dbInscriptions.map((a) => ({
         id: a.id as string,
-        nom: (a.name as string) ?? "",
+        nom: (a.title as string) ?? "",
         invites: (a.guests as number) ?? 0,
         choixRepas: (a.meal_choice as string) ?? "Menu standard",
         paye: (a.paid as boolean) ?? false,
