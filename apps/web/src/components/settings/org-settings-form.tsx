@@ -270,17 +270,20 @@ export function OrgSettingsForm({ org }: { org: OrgData }) {
 
       <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
         <h3 className="mb-3 text-[14px] font-bold text-content-primary">
-          Message d&apos;accueil
+          Mot du président
         </h3>
+        <p className="mb-2 text-[12px] text-content-muted">
+          Ce message sera visible par tous les amicalistes sur leur page d&apos;accueil.
+        </p>
         <div>
           <label className="mb-1 block text-[12px] font-medium text-content-secondary">
-            Texte de la banniere
+            Message
           </label>
           <textarea
             name="welcome_message"
-            rows={2}
+            rows={3}
             defaultValue={org.settings?.welcome_message ?? ""}
-            placeholder="ex: Bienvenue dans votre espace amicaliste !"
+            placeholder="ex: Chers amicalistes, la prochaine assemblée générale aura lieu le..."
             className="w-full resize-none rounded-[10px] border border-border bg-surface-primary px-3 py-2.5 text-[13px] text-content-primary placeholder:text-content-muted focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20"
           />
         </div>
