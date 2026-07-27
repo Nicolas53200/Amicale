@@ -101,6 +101,8 @@ export const BUREAU_TOOL_ACCESS: Record<string, string[]> = {
     "evenements",
     "locations",
     "voyages",
+    "photos",
+    "cotisations",
   ],
   vice_president: [
     "membres",
@@ -114,6 +116,8 @@ export const BUREAU_TOOL_ACCESS: Record<string, string[]> = {
     "evenements",
     "locations",
     "voyages",
+    "photos",
+    "cotisations",
   ],
   secretaire: [
     "membres",
