@@ -26,6 +26,7 @@ export const notifications = pgTable(
     target_member_id: uuid("target_member_id").references(() => members.id, {
       onDelete: "cascade",
     }),
+    type: varchar("type", { length: 50 }),
     read: boolean("read").notNull().default(false),
     sent_at: timestamp("sent_at", { withTimezone: true })
       .notNull()

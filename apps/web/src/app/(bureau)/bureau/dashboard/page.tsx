@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { BUREAU_ROLE_CONFIG, getToolAccess, type BureauRole } from "@/lib/auth";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", {
@@ -155,7 +156,7 @@ export default async function DashboardPage() {
     await Promise.all([
       user ? supabase.from("members").select("first_name, last_name, bureau_role, avatar_url").eq("user_id", user.id).single() : Promise.resolve({ data: null }),
       supabase.from("members").select("id, status, role, created_at"),
-      supabase.from("commissions").select("id, name, icon, color, budget").eq("active", true),
+      supabase.from("commissions").select("id, name, icon, color, budget, visible_bureau").eq("active", true).is("deleted_at", null),
       supabase
         .from("accounting_entries")
         .select("type, amount, status, label, created_at, commissions:commission_id(name)")
@@ -194,7 +195,8 @@ export default async function DashboardPage() {
   const userInitials = profile ? `${profile.first_name[0]}${profile.last_name[0]}` : "B";
   const allowedTools = getToolAccess(bureauRole);
   const members = membersRes.data ?? [];
-  const commissions = commissionsRes.data ?? [];
+  const allCommissions = commissionsRes.data ?? [];
+  const commissions = allCommissions.filter((c) => (c as Record<string, unknown>).visible_bureau !== false);
   const recentEntries = entriesRes.data ?? [];
   const upcomingEvents = eventsRes.data ?? [];
   const prochReunions = reunionsRes.data ?? [];
@@ -517,18 +519,18 @@ export default async function DashboardPage() {
 
       {/* Commissions actives */}
       {commissions.length > 0 && (
-        <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-[14px] font-bold text-content-primary">
-              Commissions
-            </h3>
+        <CollapsibleSection
+          title="Commissions"
+          trailing={
             <Link
               href="/bureau/commissions"
               className="text-[12px] font-semibold text-brand-500"
             >
               Gerer
             </Link>
-          </div>
+          }
+          className="rounded-[16px] bg-surface-elevated p-4 shadow-sm"
+        >
           <div className="flex flex-col gap-2">
             {commissions.map((c) => (
               <Link
@@ -560,14 +562,11 @@ export default async function DashboardPage() {
               </Link>
             ))}
           </div>
-        </div>
+        </CollapsibleSection>
       )}
 
       {/* Outils du bureau */}
-      <div>
-        <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-content-secondary">
-          Outils du bureau
-        </h3>
+      <CollapsibleSection title="Outils du bureau">
         <div className="grid grid-cols-2 gap-3">
           {outilsBureau.filter((outil) => {
             if (!outil.toolKey) return true;
@@ -604,7 +603,7 @@ export default async function DashboardPage() {
             );
           })}
         </div>
-      </div>
+      </CollapsibleSection>
     </div>
   );
 }

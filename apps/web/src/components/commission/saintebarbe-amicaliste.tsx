@@ -4,35 +4,22 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useCommissionSettings } from "@/hooks/use-commission-data";
 
-const DEMO_SETTINGS: Record<string, string> = {
-  event_date: "4 dec. 2026",
-  event_time: "19h00",
-  event_venue: "Salle des fetes",
-  capacity: "120 places",
-  tarif_adulte: "25 €",
-  tarif_enfant: "12 €",
-  max_guests: "4",
-};
-
 export function SainteBarbeAmicaliste({ commissionId }: { commissionId: string }) {
   const [inscrit, setInscrit] = useState(false);
   const [nbInvites, setNbInvites] = useState(0);
 
-  // Supabase settings with demo fallback
-  const { settings: dbSettings } = useCommissionSettings({ commissionId });
+  const { settings: dbSettings, loading } = useCommissionSettings({ commissionId });
 
-  const hasDbSettings = Object.keys(dbSettings).length > 0;
-  const settings = hasDbSettings
-    ? {
-        event_date: (dbSettings.event_date as string) ?? DEMO_SETTINGS.event_date,
-        event_time: (dbSettings.event_time as string) ?? DEMO_SETTINGS.event_time,
-        event_venue: (dbSettings.event_venue as string) ?? DEMO_SETTINGS.event_venue,
-        capacity: (dbSettings.capacity as string) ?? DEMO_SETTINGS.capacity,
-        tarif_adulte: (dbSettings.tarif_adulte as string) ?? DEMO_SETTINGS.tarif_adulte,
-        tarif_enfant: (dbSettings.tarif_enfant as string) ?? DEMO_SETTINGS.tarif_enfant,
-        max_guests: (dbSettings.max_guests as string) ?? DEMO_SETTINGS.max_guests,
-      }
-    : DEMO_SETTINGS;
+  const settings = {
+    event_date: (dbSettings.event_date as string) ?? "",
+    event_time: (dbSettings.event_time as string) ?? "",
+    event_venue: (dbSettings.event_venue as string) ?? "",
+    capacity: (dbSettings.capacity as string) ?? "",
+    tarif_adulte: (dbSettings.tarif_adulte as string) ?? "",
+    tarif_enfant: (dbSettings.tarif_enfant as string) ?? "",
+    max_guests: (dbSettings.max_guests as string) ?? "4",
+  };
+  const currentYear = new Date().getFullYear();
 
   return (
     <div className="flex flex-col gap-4">
@@ -43,7 +30,7 @@ export function SainteBarbeAmicaliste({ commissionId }: { commissionId: string }
             <span className="text-xl text-white">🔥</span>
           </div>
           <div>
-            <p className="text-[15px] font-bold text-red-600">Sainte-Barbe 2026</p>
+            <p className="text-[15px] font-bold text-red-600">Sainte-Barbe {currentYear}</p>
             <p className="text-[12px] text-red-800 dark:text-red-400">Sam. {settings.event_date} · {settings.event_time} · {settings.event_venue}</p>
           </div>
         </div>

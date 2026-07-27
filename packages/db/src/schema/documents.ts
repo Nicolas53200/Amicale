@@ -9,6 +9,8 @@ import {
 import { organizations } from "./organizations";
 import { commissions } from "./commissions";
 import { members } from "./members";
+import { events } from "./events";
+import { trips } from "./trips";
 
 export const documents = pgTable(
   "documents",
@@ -18,6 +20,12 @@ export const documents = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
     commission_id: uuid("commission_id").references(() => commissions.id, {
+      onDelete: "cascade",
+    }),
+    event_id: uuid("event_id").references(() => events.id, {
+      onDelete: "cascade",
+    }),
+    trip_id: uuid("trip_id").references(() => trips.id, {
       onDelete: "cascade",
     }),
     title: varchar("title", { length: 255 }).notNull(),
@@ -37,5 +45,7 @@ export const documents = pgTable(
   (table) => [
     index("documents_org_id_idx").on(table.org_id),
     index("documents_commission_id_idx").on(table.commission_id),
+    index("documents_event_id_idx").on(table.event_id),
+    index("documents_trip_id_idx").on(table.trip_id),
   ]
 );

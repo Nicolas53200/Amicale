@@ -24,6 +24,8 @@ interface CommissionRow {
   budget: string;
   is_fixed: boolean;
   active: boolean;
+  visible_bureau: boolean;
+  visible_amicaliste: boolean;
   commission_members: { count: number }[];
 }
 
@@ -96,7 +98,36 @@ export default function CommissionsPage() {
     }
 
     showToast(
-      `${commission.name} : ${newActive ? "visible côté amicaliste" : "masquée côté amicaliste"}`,
+      `${commission.name} : ${newActive ? "visible" : "masquée"}`,
+      "success"
+    );
+  }
+
+  async function toggleVisibilityField(id: string, field: "visible_bureau" | "visible_amicaliste") {
+    const commission = commissions.find((c) => c.id === id);
+    if (!commission) return;
+    const newVal = !(commission as Record<string, unknown>)[field];
+    const label = field === "visible_bureau" ? "Bureau" : "Amicaliste";
+
+    setCommissions((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, [field]: newVal } : c))
+    );
+
+    const { error } = await supabase
+      .from("commissions")
+      .update({ [field]: newVal })
+      .eq("id", id);
+
+    if (error) {
+      setCommissions((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, [field]: !newVal } : c))
+      );
+      showToast("Erreur lors de la mise à jour", "error");
+      return;
+    }
+
+    showToast(
+      `${commission.name} : ${newVal ? `visible côté ${label}` : `masquée côté ${label}`}`,
       "success"
     );
   }

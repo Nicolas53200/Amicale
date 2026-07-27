@@ -10,6 +10,7 @@ export default async function CommissionsAmicalistePage() {
     .select("*, commission_members(count)")
     .eq("active", true)
     .is("deleted_at", null)
+    .neq("visible_amicaliste", false)
     .order("is_fixed", { ascending: false })
     .order("name");
 

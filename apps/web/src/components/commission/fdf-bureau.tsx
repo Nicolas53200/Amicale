@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useCommissionItems, useCommissionContacts } from "@/hooks/use-commission-data";
+import { useCommissionItems, useCommissionContacts, useCommissionSettings } from "@/hooks/use-commission-data";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
@@ -21,22 +21,6 @@ interface Prestataire {
   icon: string;
 }
 
-const DEMO_BONS: Bon[] = [
-  { id: "1", nom: "Marie Durand", type: "pompier", statut: "remis" },
-  { id: "2", nom: "Sophie Martin", type: "conjointe", statut: "remis" },
-  { id: "3", nom: "Julie Bernard", type: "pompier", statut: "attente" },
-  { id: "4", nom: "Claire Petit", type: "conjointe", statut: "attente" },
-  { id: "5", nom: "Nathalie Moreau", type: "conjointe", statut: "envoye" },
-  { id: "6", nom: "Isabelle Robert", type: "pompier", statut: "attente" },
-];
-
-const DEMO_PRESTATAIRES: Prestataire[] = [
-  { nom: "Fleuriste Dupont", adresse: "12 rue du Commerce", categorie: "Fleurs", icon: "🌹" },
-  { nom: "Spa Belle Vie", adresse: "Centre-ville, Laval", categorie: "Spa", icon: "🧖" },
-  { nom: "Bijouterie Laval", adresse: "Place du Vieux-Saint-Louis", categorie: "Bijoux", icon: "💍" },
-  { nom: "Parfumerie Élégance", adresse: "Rue de Bretagne, Laval", categorie: "Parfum", icon: "🌸" },
-];
-
 type Tab = "tableau" | "bons" | "prestataires" | "compta";
 type BonFilter = "tous" | "pompiers" | "conjointes" | "attente" | "remis" | "envoyes";
 
@@ -46,30 +30,26 @@ export function FdfBureau({ budget = 2000, commissionId }: { budget?: number; co
   const [bonFilter, setBonFilter] = useState<BonFilter>("tous");
   const [search, setSearch] = useState("");
 
-  // Supabase data with demo fallback
-  const { items: dbBons, update: updateBon, add: addBon, remove: removeBon } = useCommissionItems(commissionId, "voucher");
-  const { contacts: dbPrestataires, add: addPrestataire, remove: removePrestataire } = useCommissionContacts(commissionId, "prestataire");
+  // Supabase data
+  const { items: dbBons, loading: bonsLoading, update: updateBon, add: addBon, remove: removeBon } = useCommissionItems(commissionId, "voucher");
+  const { contacts: dbPrestataires, loading: prestataresLoading, add: addPrestataire, remove: removePrestataire } = useCommissionContacts(commissionId, "prestataire");
+  const { settings } = useCommissionSettings({ commissionId });
 
-  const [demoBons, setDemoBons] = useState(DEMO_BONS);
+  const bons: Bon[] = dbBons.map((i) => ({
+    id: i.id as string,
+    nom: (i.name as string) ?? "",
+    type: (i.item_type as "pompier" | "conjointe") ?? "pompier",
+    statut: (i.status as "attente" | "remis" | "envoye") ?? "attente",
+  }));
 
-  const useDbBons = dbBons.length > 0;
-  const bons: Bon[] = useDbBons
-    ? dbBons.map((i) => ({
-        id: i.id as string,
-        nom: (i.name as string) ?? "",
-        type: (i.item_type as "pompier" | "conjointe") ?? "pompier",
-        statut: (i.status as "attente" | "remis" | "envoye") ?? "attente",
-      }))
-    : demoBons;
+  const prestataires: Prestataire[] = dbPrestataires.map((c) => ({
+    nom: (c.name as string) ?? "",
+    adresse: (c.address as string) ?? "",
+    categorie: (c.category_label as string) ?? "",
+    icon: (c.icon as string) ?? "🏪",
+  }));
 
-  const prestataires: Prestataire[] = dbPrestataires.length > 0
-    ? dbPrestataires.map((c) => ({
-        nom: (c.name as string) ?? "",
-        adresse: (c.address as string) ?? "",
-        categorie: (c.category_label as string) ?? "",
-        icon: (c.icon as string) ?? "🏪",
-      }))
-    : DEMO_PRESTATAIRES;
+  const dateRemise = (settings.date_remise as string) ?? "";
 
   const totalBons = bons.length * prixBon;
   const reste = budget - totalBons;
@@ -132,7 +112,7 @@ export function FdfBureau({ budget = 2000, commissionId }: { budget?: number; co
               </div>
               <div>
                 <label className="mb-1 block text-[11px] font-medium text-content-muted">Date de remise</label>
-                <input type="text" value="8 mars 2026" readOnly
+                <input type="text" value={dateRemise || "Non définie"} readOnly
                   className="w-full rounded-[10px] bg-surface-secondary px-3 py-2 text-[13px] text-content-muted" />
               </div>
             </div>
@@ -180,47 +160,63 @@ export function FdfBureau({ budget = 2000, commissionId }: { budget?: number; co
             </div>
           </div>
 
-          {filteredBons.map((b) => (
-            <div key={b.id} className="flex items-center justify-between rounded-[14px] bg-surface-elevated p-3 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-100 text-lg dark:bg-pink-900/30">💐</div>
-                <div>
-                  <p className="text-[13px] font-semibold text-content-primary">{b.nom}</p>
-                  <p className="text-[11px] text-content-muted">{b.type === "pompier" ? "Pompier" : "Conjointe"} · {fmt(prixBon)}</p>
-                </div>
-              </div>
-              <button type="button" onClick={() => {
-                  const newStatut = b.statut === "remis" ? "attente" : "remis";
-                  if (useDbBons) {
-                    updateBon(b.id, { status: newStatut });
-                  } else {
-                    setDemoBons((p) => p.map((x) => x.id === b.id ? { ...x, statut: newStatut } : x));
-                  }
-                }}
-                className={cn("rounded-full px-2.5 py-1 text-[10px] font-bold",
-                  b.statut === "remis" ? "bg-green-100 text-green-700 dark:bg-green-900/30" :
-                  b.statut === "envoye" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30" :
-                  "bg-amber-100 text-amber-700 dark:bg-amber-900/30")}>
-                {b.statut === "remis" ? "Remis" : b.statut === "envoye" ? "Envoyé" : "À remettre"}
-              </button>
+          {filteredBons.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 rounded-[14px] bg-surface-elevated p-8 text-center shadow-sm">
+              <span className="text-[36px]">💐</span>
+              <p className="text-[13px] font-semibold text-content-primary">Aucun bon enregistré</p>
+              <p className="text-[11px] text-content-muted">
+                {bonsLoading ? "Chargement..." : "Les bons cadeaux apparaîtront ici une fois ajoutés."}
+              </p>
             </div>
-          ))}
+          ) : (
+            filteredBons.map((b) => (
+              <div key={b.id} className="flex items-center justify-between rounded-[14px] bg-surface-elevated p-3 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-100 text-lg dark:bg-pink-900/30">💐</div>
+                  <div>
+                    <p className="text-[13px] font-semibold text-content-primary">{b.nom}</p>
+                    <p className="text-[11px] text-content-muted">{b.type === "pompier" ? "Pompier" : "Conjointe"} · {fmt(prixBon)}</p>
+                  </div>
+                </div>
+                <button type="button" onClick={() => {
+                    const newStatut = b.statut === "remis" ? "attente" : "remis";
+                    updateBon(b.id, { status: newStatut });
+                  }}
+                  className={cn("rounded-full px-2.5 py-1 text-[10px] font-bold",
+                    b.statut === "remis" ? "bg-green-100 text-green-700 dark:bg-green-900/30" :
+                    b.statut === "envoye" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30" :
+                    "bg-amber-100 text-amber-700 dark:bg-amber-900/30")}>
+                  {b.statut === "remis" ? "Remis" : b.statut === "envoye" ? "Envoyé" : "À remettre"}
+                </button>
+              </div>
+            ))
+          )}
         </div>
       )}
 
       {/* PRESTATAIRES */}
       {tab === "prestataires" && (
         <div className="flex flex-col gap-3">
-          {prestataires.map((p, i) => (
-            <div key={i} className="flex items-center gap-3 rounded-[14px] bg-surface-elevated p-4 shadow-sm">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-pink-100 text-2xl dark:bg-pink-900/30">{p.icon}</div>
-              <div className="flex-1">
-                <p className="text-[13px] font-bold text-content-primary">{p.nom}</p>
-                <p className="text-[11px] text-content-muted">{p.adresse}</p>
-                <span className="mt-1 inline-block rounded-full bg-pink-100 px-2 py-0.5 text-[10px] font-semibold text-pink-700 dark:bg-pink-900/30">{p.categorie}</span>
-              </div>
+          {prestataires.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 rounded-[14px] bg-surface-elevated p-8 text-center shadow-sm">
+              <span className="text-[36px]">🏪</span>
+              <p className="text-[13px] font-semibold text-content-primary">Aucun prestataire</p>
+              <p className="text-[11px] text-content-muted">
+                {prestataresLoading ? "Chargement..." : "Ajoutez des prestataires partenaires pour les bons cadeaux."}
+              </p>
             </div>
-          ))}
+          ) : (
+            prestataires.map((p, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-[14px] bg-surface-elevated p-4 shadow-sm">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-pink-100 text-2xl dark:bg-pink-900/30">{p.icon}</div>
+                <div className="flex-1">
+                  <p className="text-[13px] font-bold text-content-primary">{p.nom}</p>
+                  <p className="text-[11px] text-content-muted">{p.adresse}</p>
+                  <span className="mt-1 inline-block rounded-full bg-pink-100 px-2 py-0.5 text-[10px] font-semibold text-pink-700 dark:bg-pink-900/30">{p.categorie}</span>
+                </div>
+              </div>
+            ))
+          )}
           <button type="button" className="w-full rounded-[12px] border border-dashed border-pink-300 py-3 text-[12px] font-semibold text-pink-600 dark:border-pink-700">
             + Ajouter un prestataire
           </button>

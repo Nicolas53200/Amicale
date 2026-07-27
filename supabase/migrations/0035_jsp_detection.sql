@@ -1,0 +1,5 @@
+-- Migration 0035: JSP detection
+-- No schema changes needed. This is a frontend-only correction
+-- that improves detection and display of JSP (Jeunes Sapeurs-Pompiers)
+-- members in the member list and profile views.
+-- Tracked here for version alignment with the frontend changelog.
