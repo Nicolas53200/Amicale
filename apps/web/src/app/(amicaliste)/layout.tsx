@@ -2,6 +2,7 @@ import { Topbar } from "@/components/layout/topbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { ChangelogModal } from "@/components/layout/changelog-modal";
 import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt";
+import { TodoPopup } from "@/components/layout/todo-popup";
 
 export default function AmicalisteLayout({
   children,
@@ -18,6 +19,7 @@ export default function AmicalisteLayout({
       </main>
       <BottomNav role="amicaliste" />
       <ChangelogModal />
+      <TodoPopup />
       <PwaInstallPrompt />
     </div>
   );

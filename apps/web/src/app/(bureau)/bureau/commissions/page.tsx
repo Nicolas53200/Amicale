@@ -106,7 +106,7 @@ export default function CommissionsPage() {
   async function toggleVisibilityField(id: string, field: "visible_bureau" | "visible_amicaliste") {
     const commission = commissions.find((c) => c.id === id);
     if (!commission) return;
-    const newVal = !(commission as Record<string, unknown>)[field];
+    const newVal = !(commission as unknown as Record<string, unknown>)[field];
     const label = field === "visible_bureau" ? "Bureau" : "Amicaliste";
 
     setCommissions((prev) =>

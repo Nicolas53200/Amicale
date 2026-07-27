@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { HeroCarousel } from "@/components/accueil/hero-carousel";
 import { EmptyState } from "@/components/ui/empty-state";
+import { getOrganization } from "@/lib/actions/organization";
 
 export default async function AccueilPage() {
   const supabase = await createClient();
@@ -47,6 +48,10 @@ export default async function AccueilPage() {
 
   const events = eventsRes.data ?? [];
   const trips = tripsRes.data ?? [];
+
+  const org = await getOrganization();
+  const orgSettings = (org?.settings ?? {}) as Record<string, unknown>;
+  const welcomeMessage = (orgSettings.welcome_message as string) ?? "";
 
   const categoryIcons: Record<string, string> = {
     repas: "🍴",
@@ -185,35 +190,29 @@ export default async function AccueilPage() {
         </div>
       </Link>
 
-      {/* Mot du président */}
-      <div className="pt-4">
-        <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
-              <span className="text-lg">📢</span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <p className="text-[14px] font-bold text-content-primary">
-                  Mot du president
-                </p>
-                <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-semibold text-brand-600 dark:bg-brand-500/10 dark:text-brand-400">
-                  Nouveau
-                </span>
+      {/* Mot du président — dynamique depuis les paramètres de l'organisation */}
+      {welcomeMessage && (
+        <div className="pt-4">
+          <div className="rounded-[16px] bg-surface-elevated p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
+                <span className="text-lg">📢</span>
               </div>
-              <p className="mt-2 text-[13px] leading-relaxed text-content-secondary">
-                Chers amicalistes, je vous souhaite une excellente saison.
-                N&apos;hesitez pas a consulter les evenements a venir et a vous
-                inscrire aux activites proposees. Votre participation fait vivre
-                notre amicale !
-              </p>
-              <p className="mt-2 text-[11px] font-medium text-content-muted">
-                — Le bureau de l&apos;amicale
-              </p>
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-bold text-content-primary">
+                  Mot du président
+                </p>
+                <p className="mt-2 text-[13px] leading-relaxed text-content-secondary">
+                  {welcomeMessage}
+                </p>
+                <p className="mt-2 text-[11px] font-medium text-content-muted">
+                  — Le bureau de l&apos;amicale
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Voyages à venir */}
       {trips.length > 0 && (
