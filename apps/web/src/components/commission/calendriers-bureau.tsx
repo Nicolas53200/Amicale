@@ -109,6 +109,7 @@ export function CalendriersBureau({ commissionId, budget = 15148 }: { commission
       })
     : [];
 
+  const currentYear = new Date().getFullYear();
   const totalCal = secteurs.reduce((s, sec) => s + sec.calendriers, 0);
   const totalVendus = secteurs.reduce((s, sec) => s + sec.vendus, 0);
   const totalRecolte = retours.reduce((s, r) => s + r.total, 0);
@@ -288,12 +289,12 @@ export function CalendriersBureau({ commissionId, budget = 15148 }: { commission
           <div className="flex items-center gap-3 rounded-[14px] bg-surface-elevated p-3 shadow-sm">
             <div className="flex h-14 w-10 shrink-0 flex-col items-center justify-center rounded-[6px] bg-brand-500">
               <span className="text-lg text-white">🔥</span>
-              <span className="text-[8px] text-white/80">2026</span>
+              <span className="text-[8px] text-white/80">{currentYear}</span>
             </div>
             <div>
-              <p className="text-[14px] font-semibold text-content-primary">Calendrier Pompiers 2026</p>
-              <p className="text-[11px] text-content-muted">Thème : Interventions marquantes 2025</p>
-              <p className="text-[11px] text-content-muted">{totalCal.toLocaleString("fr-FR")} ex. · Livraison 28 oct. 2026</p>
+              <p className="text-[14px] font-semibold text-content-primary">Calendrier Pompiers {currentYear}</p>
+              <p className="text-[11px] text-content-muted">Thème : Interventions marquantes {currentYear - 1}</p>
+              <p className="text-[11px] text-content-muted">{totalCal.toLocaleString("fr-FR")} ex. · Livraison 28 oct. {currentYear}</p>
             </div>
           </div>
 
@@ -333,7 +334,7 @@ export function CalendriersBureau({ commissionId, budget = 15148 }: { commission
               </div>
               <div className="flex flex-col gap-1.5">
                 <div className="flex justify-between text-[12px]">
-                  <span className="text-content-secondary">Devis 2026</span>
+                  <span className="text-content-secondary">Devis {currentYear}</span>
                   <span className="font-semibold text-content-primary">{fmt(p.devis)}{p.devisLabel ? ` — ${p.devisLabel}` : ""}</span>
                 </div>
                 <div className="flex justify-between text-[12px]">
