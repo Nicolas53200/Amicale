@@ -14,7 +14,7 @@ export function SolidariteAmicaliste({ commissionId }: { commissionId: string })
   const { activities: dbActivities, loading } = useCommissionActivities(commissionId, "action_solidaire");
 
   const actions = dbActivities.map((a) => ({
-    titre: (a.name as string) ?? "",
+    titre: (a.title as string) ?? "",
     date: a.date ? new Date(a.date as string).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : "",
     description: (a.description as string) ?? "",
     icon: ACTION_ICONS[(a.metadata as Record<string, unknown>)?.action_type as string ?? ""] ?? "\u{1F91D}",

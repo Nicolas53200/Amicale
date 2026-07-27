@@ -59,7 +59,7 @@ export function SolidariteBureau({ budget = 3000, commissionId }: { budget?: num
     ? dbAides.map((a) => ({
         id: a.id as string,
         type: (a.metadata as any)?.aide_type ?? "",
-        membre: a.name as string ?? "",
+        membre: a.title as string ?? "",
         date: a.date as string ?? "",
         montant: (a.metadata as any)?.montant ?? 0,
         statut: (a.status as Aide["statut"]) ?? "en_cours",
@@ -71,7 +71,7 @@ export function SolidariteBureau({ budget = 3000, commissionId }: { budget?: num
   const actions: ActionSol[] = dbActions.length > 0
     ? dbActions.map((a) => ({
         id: a.id as string,
-        titre: a.name as string ?? "",
+        titre: a.title as string ?? "",
         type: (a.metadata as any)?.action_type ?? "",
         date: a.date as string ?? "",
         description: a.description as string ?? "",
