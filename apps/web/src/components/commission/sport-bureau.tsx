@@ -42,10 +42,10 @@ export function SportBureau({ commissionId, budget = 300 }: { commissionId: stri
     id: a.id as string,
     nom: a.title as string,
     date: a.date as string,
-    lieu: (a.metadata as Record<string, unknown>)?.location as string ?? "",
+    lieu: (a.location as string) ?? "",
     statut: a.status as "programme" | "termine" | "annule",
-    inscrits: (a.metadata as Record<string, unknown>)?.current_participants as number ?? 0,
-    max: (a.metadata as Record<string, unknown>)?.max_participants as number ?? 0,
+    inscrits: (a.current_participants as number) ?? 0,
+    max: (a.max_participants as number) ?? 0,
   }));
 
   const membres: Membre[] = dbMembres.map((c) => ({

@@ -265,7 +265,7 @@ export function SolidariteBureau({ budget = 3000, commissionId }: { budget?: num
                   if (formType && formMembre) {
                     await addActivity({
                       type: "action_solidaire",
-                      name: formMembre,
+                      title: formMembre,
                       date: new Date().toISOString().split("T")[0],
                       status: "en_cours",
                       description: "",

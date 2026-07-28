@@ -38,15 +38,15 @@ export function FdfBureau({ budget = 2000, commissionId }: { budget?: number; co
   const bons: Bon[] = dbBons.map((i) => ({
     id: i.id as string,
     nom: (i.name as string) ?? "",
-    type: (i.item_type as "pompier" | "conjointe") ?? "pompier",
+    type: ((i.metadata as Record<string, unknown>)?.item_type as "pompier" | "conjointe") ?? "pompier",
     statut: (i.status as "attente" | "remis" | "envoye") ?? "attente",
   }));
 
   const prestataires: Prestataire[] = dbPrestataires.map((c) => ({
     nom: (c.name as string) ?? "",
     adresse: (c.address as string) ?? "",
-    categorie: (c.category_label as string) ?? "",
-    icon: (c.icon as string) ?? "🏪",
+    categorie: ((c.metadata as Record<string, unknown>)?.category_label as string) ?? "",
+    icon: ((c.metadata as Record<string, unknown>)?.icon as string) ?? "🏪",
   }));
 
   const dateRemise = (settings.date_remise as string) ?? "";

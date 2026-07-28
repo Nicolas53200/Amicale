@@ -85,7 +85,7 @@ export function NoelBureau({ commissionId, budget = 3000 }: { commissionId: stri
     id: i.id as string,
     lib: i.name as string,
     qte: (i.quantity as number) ?? 0,
-    pu: (i.price as number) ?? 0,
+    pu: (i.unit_price as number) ?? 0,
   }));
 
   const eligibles = bons.filter((b) => b.age <= ageLimite);
