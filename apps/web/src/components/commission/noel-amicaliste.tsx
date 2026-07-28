@@ -35,7 +35,7 @@ export function NoelAmicaliste({ commissionId }: { commissionId: string }) {
   const bons: Bon[] = dbBons.map(i => ({
     enfant: i.name as string,
     age: ((i.metadata as Record<string, unknown>)?.age as number) ?? 0,
-    montant: (i.price as number) ?? ((i.metadata as Record<string, unknown>)?.montant as number) ?? 40,
+    montant: (i.unit_price as number) ?? ((i.metadata as Record<string, unknown>)?.montant as number) ?? 40,
     statut: (((i.metadata as Record<string, unknown>)?.statut as string) ?? "attente") as "remis" | "attente",
   }));
 

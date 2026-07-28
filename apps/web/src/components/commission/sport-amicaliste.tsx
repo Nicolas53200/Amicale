@@ -23,7 +23,7 @@ export function SportAmicaliste({ commissionId }: { commissionId: string }) {
   const events: SportEvent[] = dbEvents.map((a) => ({
     nom: a.title as string,
     date: a.date as string,
-    lieu: (a.metadata as Record<string, unknown>)?.location as string ?? "",
+    lieu: (a.location as string) ?? "",
     statut: a.status as "programme" | "termine",
     description: a.description as string ?? "",
   }));
