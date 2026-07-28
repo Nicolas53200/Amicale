@@ -11,7 +11,7 @@ export function FdfAmicaliste({ commissionId }: { commissionId: string }) {
   const { settings } = useCommissionSettings({ commissionId });
 
   const prestataires = dbPrestataires.map((c) => ({
-    icon: (c.icon as string) ?? "🏪",
+    icon: ((c.metadata as Record<string, unknown>)?.icon as string) ?? "🏪",
     nom: (c.name as string) ?? "",
     adresse: (c.address as string) ?? "",
   }));

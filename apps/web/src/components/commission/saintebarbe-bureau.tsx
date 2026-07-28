@@ -58,19 +58,19 @@ export function SainteBarbeBureau({ budget = 5000, commissionId }: { budget?: nu
     ? dbInscriptions.map((a) => ({
         id: a.id as string,
         nom: (a.title as string) ?? "",
-        invites: (a.guests as number) ?? 0,
-        choixRepas: (a.meal_choice as string) ?? "Menu standard",
-        paye: (a.paid as boolean) ?? false,
+        invites: ((a.metadata as Record<string, unknown>)?.guests as number) ?? 0,
+        choixRepas: ((a.metadata as Record<string, unknown>)?.meal_choice as string) ?? "Menu standard",
+        paye: ((a.metadata as Record<string, unknown>)?.paid as boolean) ?? false,
       }))
     : [];
 
   const prestataires: PrestataireItem[] = dbPrestataires.length > 0
     ? dbPrestataires.map((c) => ({
         nom: (c.name as string) ?? "",
-        type: (c.category_label as string) ?? "",
-        devis: (c.quote_amount as number) ?? 0,
-        reel: (c.actual_amount as number) ?? 0,
-        statut: (c.status as "devis_recu" | "commande" | "confirme" | "paye") ?? "devis_recu",
+        type: ((c.metadata as Record<string, unknown>)?.category_label as string) ?? "",
+        devis: ((c.metadata as Record<string, unknown>)?.quote_amount as number) ?? 0,
+        reel: ((c.metadata as Record<string, unknown>)?.actual_amount as number) ?? 0,
+        statut: ((c.metadata as Record<string, unknown>)?.statut as "devis_recu" | "commande" | "confirme" | "paye") ?? "devis_recu",
       }))
     : [];
 

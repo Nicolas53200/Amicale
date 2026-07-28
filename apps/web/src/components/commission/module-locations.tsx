@@ -39,8 +39,7 @@ export function ModuleLocations({
       const supabase = createClient();
       const { data } = await supabase
         .from("assets")
-        .select("id, name, type, daily_rate, deposit, asset_bookings(count)")
-        .eq("commission_id", commissionId);
+        .select("id, name, type, daily_rate, deposit, asset_bookings(count)");
       setAssets((data as Asset[]) ?? []);
       setLoading(false);
     }

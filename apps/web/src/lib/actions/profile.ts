@@ -35,9 +35,9 @@ export async function updateProfile(formData: FormData) {
 
   if (!member) throw new Error("Membre non trouvé");
 
-  const updates: Record<string, string | null> = {};
+  const updates: Record<string, string | number | null> = {};
 
-  const fields = ["phone", "adresse", "grade", "centre"] as const;
+  const fields = ["phone", "adresse", "grade", "centre", "situation_familiale", "conjoint", "contact_urgence"] as const;
   for (const field of fields) {
     const val = formData.get(field) as string;
     if (val !== null) updates[field] = val || null;
@@ -46,6 +46,11 @@ export async function updateProfile(formData: FormData) {
   const dateNaissance = formData.get("date_naissance") as string;
   if (dateNaissance) {
     updates.date_naissance = dateNaissance;
+  }
+
+  const nbEnfants = formData.get("nb_enfants") as string;
+  if (nbEnfants !== null) {
+    updates.nb_enfants = parseInt(nbEnfants) || 0;
   }
 
   const { error } = await supabase
