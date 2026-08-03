@@ -35,6 +35,7 @@ interface TripData {
 export function TripForm({ trip }: { trip?: TripData }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [childrenAllowed, setChildrenAllowed] = useState(trip?.children_allowed ?? false);
   const [included, setIncluded] = useState<string[]>(trip?.included ?? []);
   const [notIncluded, setNotIncluded] = useState<string[]>(trip?.not_included ?? []);
@@ -50,18 +51,24 @@ export function TripForm({ trip }: { trip?: TripData }) {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitting(true);
-    const fd = new FormData(e.currentTarget);
-    fd.set("children_allowed", childrenAllowed ? "true" : "false");
-    fd.set("included", JSON.stringify(included));
-    fd.set("not_included", JSON.stringify(notIncluded));
-    if (isEdit) {
-      await updateTrip(trip.id, fd);
-      router.push(`/bureau/voyages/${trip.id}`);
-    } else {
-      await createTrip(fd);
-      router.push("/bureau/voyages");
+    setError("");
+    try {
+      const fd = new FormData(e.currentTarget);
+      fd.set("children_allowed", childrenAllowed ? "true" : "false");
+      fd.set("included", JSON.stringify(included));
+      fd.set("not_included", JSON.stringify(notIncluded));
+      if (isEdit) {
+        await updateTrip(trip.id, fd);
+        router.push(`/bureau/voyages/${trip.id}`);
+      } else {
+        await createTrip(fd);
+        router.push("/bureau/voyages");
+      }
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setSubmitting(false);
     }
-    router.refresh();
   }
 
   return (
@@ -294,6 +301,12 @@ export function TripForm({ trip }: { trip?: TripData }) {
           </div>
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-[12px] bg-red-50 p-3 text-[13px] text-red-600 dark:bg-red-500/10 dark:text-red-400">
+          {error}
+        </div>
+      )}
 
       <div className="flex gap-3">
         <button

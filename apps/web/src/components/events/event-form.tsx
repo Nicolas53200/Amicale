@@ -39,6 +39,7 @@ const eventTypes = [
 export function EventForm({ event }: { event?: EventData }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [selectedType, setSelectedType] = useState(event?.category || "");
   const [published, setPublished] = useState(event?.published ?? true);
   const [childrenAllowed, setChildrenAllowed] = useState(event?.children_allowed ?? false);
@@ -53,15 +54,21 @@ export function EventForm({ event }: { event?: EventData }) {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitting(true);
-    const fd = new FormData(e.currentTarget);
-    if (isEdit) {
-      await updateEvent(event.id, fd);
-      router.push(`/bureau/evenements/${event.id}`);
-    } else {
-      await createEvent(fd);
-      router.push("/bureau/evenements");
+    setError("");
+    try {
+      const fd = new FormData(e.currentTarget);
+      if (isEdit) {
+        await updateEvent(event.id, fd);
+        router.push(`/bureau/evenements/${event.id}`);
+      } else {
+        await createEvent(fd);
+        router.push("/bureau/evenements");
+      }
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setSubmitting(false);
     }
-    router.refresh();
   }
 
   return (
@@ -203,6 +210,12 @@ export function EventForm({ event }: { event?: EventData }) {
           </div>
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-[12px] bg-red-50 p-3 text-[13px] text-red-600 dark:bg-red-500/10 dark:text-red-400">
+          {error}
+        </div>
+      )}
 
       <div className="flex gap-3">
         <button
