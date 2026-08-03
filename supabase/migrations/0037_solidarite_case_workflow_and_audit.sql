@@ -1,27 +1,8 @@
 -- 0037: Solidarity case workflow and audit
--- Adds CHECK constraint on solidarity_cases.status if not already present.
--- Adds validation trigger: amount_granted <= amount_requested when status = 'valide'.
+-- Adds CHECK constraint and validation trigger to solidarity_cases (created in 0028).
+-- Does NOT re-create the table — 0028 is the canonical schema.
 
--- Create solidarity_cases table if it does not exist
--- (may have been created in a gap migration; IF NOT EXISTS ensures idempotency)
-CREATE TABLE IF NOT EXISTS solidarity_cases (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  org_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  commission_id UUID NOT NULL REFERENCES commissions(id) ON DELETE CASCADE,
-  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  status VARCHAR(50) NOT NULL DEFAULT 'en_attente',
-  amount_requested NUMERIC(10,2),
-  amount_granted NUMERIC(10,2),
-  decision_date DATE,
-  decided_by UUID REFERENCES members(id) ON DELETE SET NULL,
-  notes TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- Enable RLS
+-- Enable RLS (idempotent)
 ALTER TABLE solidarity_cases ENABLE ROW LEVEL SECURITY;
 
 -- RLS policies (org_id based, idempotent)
@@ -53,15 +34,12 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
--- Indexes
+-- Indexes on columns that exist in the 0028 schema
 CREATE INDEX IF NOT EXISTS solidarity_cases_org_id_idx
   ON solidarity_cases(org_id);
 
 CREATE INDEX IF NOT EXISTS solidarity_cases_commission_id_idx
   ON solidarity_cases(commission_id);
-
-CREATE INDEX IF NOT EXISTS solidarity_cases_member_id_idx
-  ON solidarity_cases(member_id);
 
 CREATE INDEX IF NOT EXISTS solidarity_cases_status_idx
   ON solidarity_cases(status);
@@ -71,14 +49,6 @@ DROP TRIGGER IF EXISTS trg_solidarity_cases_updated_at ON solidarity_cases;
 CREATE TRIGGER trg_solidarity_cases_updated_at
   BEFORE UPDATE ON solidarity_cases
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-
--- CHECK constraint on solidarity_cases.status
-DO $$ BEGIN
-  ALTER TABLE solidarity_cases
-    ADD CONSTRAINT chk_solidarity_cases_status
-    CHECK (status IN ('en_attente', 'en_cours', 'valide', 'refuse', 'cloture'));
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
 
 -- Validation trigger: amount_granted must not exceed amount_requested
 -- when status = 'valide'
